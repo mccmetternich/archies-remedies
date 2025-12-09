@@ -1,9 +1,8 @@
 'use client';
 
-import React, { useRef } from 'react';
+import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { motion, useInView } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 
 const values = [
@@ -39,23 +38,15 @@ export function MissionSection({
   title = 'Why We Exist',
   description = 'After the alarming eye drop recalls of 2023, we knew there had to be a better way. We set out to create eye care products that prioritize safety without compromising on effectiveness.',
 }: MissionSectionProps) {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: '-100px' });
-
   return (
-    <section ref={ref} className="section bg-[var(--cream)] relative overflow-hidden">
+    <section className="section bg-[var(--cream)] relative overflow-hidden">
       {/* Background accent */}
       <div className="absolute top-0 left-0 w-1/3 h-full bg-gradient-to-r from-white to-transparent" />
 
       <div className="container relative">
         <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
           {/* Left: Editorial Image */}
-          <motion.div
-            initial={{ opacity: 0, x: -60 }}
-            animate={isInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-            className="relative order-2 lg:order-1"
-          >
+          <div className="relative order-2 lg:order-1">
             <div className="relative">
               {/* Main Image */}
               <div className="aspect-[3/4] rounded-2xl overflow-hidden">
@@ -68,59 +59,36 @@ export function MissionSection({
               </div>
 
               {/* Floating stat card */}
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={isInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ delay: 0.6, duration: 0.8 }}
-                className="absolute -bottom-8 -right-8 lg:right-8 bg-white p-8 rounded-2xl shadow-2xl max-w-xs"
-              >
+              <div className="absolute -bottom-8 -right-8 lg:right-8 bg-white p-8 rounded-2xl shadow-2xl max-w-xs">
                 <p className="text-5xl font-normal tracking-tight mb-2">2,500+</p>
                 <p className="text-[var(--muted-foreground)]">customers who made the switch to clean eye care</p>
-              </motion.div>
+              </div>
 
               {/* Decorative element */}
               <div className="absolute -top-8 -left-8 w-32 h-32 bg-[var(--primary)] rounded-full opacity-30 blur-3xl" />
             </div>
-          </motion.div>
+          </div>
 
           {/* Right: Content */}
           <div className="order-1 lg:order-2">
-            <motion.span
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6 }}
-              className="inline-flex items-center gap-3 text-xs font-semibold tracking-[0.2em] uppercase text-[var(--muted-foreground)] mb-8"
-            >
+            <span className="inline-flex items-center gap-3 text-xs font-semibold tracking-[0.2em] uppercase text-[var(--muted-foreground)] mb-8">
               <span className="w-12 h-px bg-[var(--foreground)]" />
               Our Mission
-            </motion.span>
+            </span>
 
-            <motion.h2
-              initial={{ opacity: 0, y: 30 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.8, delay: 0.1 }}
-              className="mb-8"
-            >
+            <h2 className="mb-8">
               {title}
-            </motion.h2>
+            </h2>
 
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-lg text-[var(--muted-foreground)] mb-12 leading-relaxed max-w-lg"
-            >
+            <p className="text-lg text-[var(--muted-foreground)] mb-12 leading-relaxed max-w-lg">
               {description}
-            </motion.p>
+            </p>
 
             {/* Values - Editorial numbered list */}
             <div className="space-y-8 mb-12">
-              {values.map((value, index) => (
-                <motion.div
+              {values.map((value) => (
+                <div
                   key={value.title}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={isInView ? { opacity: 1, y: 0 } : {}}
-                  transition={{ duration: 0.6, delay: 0.3 + index * 0.1 }}
                   className="flex gap-6"
                 >
                   <span className="text-4xl font-light text-[var(--primary)] shrink-0 w-12">
@@ -132,16 +100,12 @@ export function MissionSection({
                       {value.description}
                     </p>
                   </div>
-                </motion.div>
+                </div>
               ))}
             </div>
 
             {/* CTA */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: 0.7 }}
-            >
+            <div>
               <Link
                 href="/about"
                 className="group inline-flex items-center gap-3 text-sm font-medium text-[var(--foreground)] hover:text-[var(--muted-foreground)] transition-colors"
@@ -149,7 +113,7 @@ export function MissionSection({
                 Read Our Full Story
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-2" />
               </Link>
-            </motion.div>
+            </div>
           </div>
         </div>
       </div>

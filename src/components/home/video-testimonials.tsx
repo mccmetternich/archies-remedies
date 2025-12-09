@@ -2,7 +2,6 @@
 
 import React, { useRef, useState } from 'react';
 import Image from 'next/image';
-import { motion, useInView } from 'framer-motion';
 import { Play, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 
@@ -21,9 +20,7 @@ interface VideoTestimonialsProps {
 }
 
 export function VideoTestimonials({ videos, title, subtitle }: VideoTestimonialsProps) {
-  const ref = useRef(null);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, margin: '-50px' });
   const [activeVideo, setActiveVideo] = useState<VideoTestimonial | null>(null);
 
   const scroll = (direction: 'left' | 'right') => {
@@ -49,51 +46,31 @@ export function VideoTestimonials({ videos, title, subtitle }: VideoTestimonials
 
   return (
     <>
-      <section ref={ref} className="section bg-[var(--foreground)] text-white overflow-hidden">
+      <section className="section bg-[var(--foreground)] text-white overflow-hidden">
         <div className="container">
           {/* Header - Editorial style */}
           <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8 mb-12">
             <div className="max-w-xl">
-              <motion.span
-                initial={{ opacity: 0, y: 20 }}
-                animate={isInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.6 }}
-                className="inline-flex items-center gap-3 text-xs font-semibold tracking-[0.2em] uppercase text-white/50 mb-6"
-              >
+              <span className="inline-flex items-center gap-3 text-xs font-semibold tracking-[0.2em] uppercase text-white/50 mb-6">
                 <span className="w-12 h-px bg-white/30" />
                 Real Stories
-              </motion.span>
+              </span>
               {title && (
-                <motion.h2
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={isInView ? { opacity: 1, y: 0 } : {}}
-                  transition={{ duration: 0.8, delay: 0.1 }}
-                  className="text-white"
-                >
+                <h2 className="text-white">
                   {title}
-                </motion.h2>
+                </h2>
               )}
             </div>
 
             <div className="flex items-center gap-6">
               {subtitle && (
-                <motion.p
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={isInView ? { opacity: 1, y: 0 } : {}}
-                  transition={{ duration: 0.6, delay: 0.2 }}
-                  className="text-white/60 max-w-sm leading-relaxed hidden md:block"
-                >
+                <p className="text-white/60 max-w-sm leading-relaxed hidden md:block">
                   {subtitle}
-                </motion.p>
+                </p>
               )}
 
               {/* Navigation */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={isInView ? { opacity: 1 } : {}}
-                transition={{ duration: 0.6, delay: 0.3 }}
-                className="flex gap-2"
-              >
+              <div className="flex gap-2">
                 <button
                   onClick={() => scroll('left')}
                   className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/10 transition-colors"
@@ -108,7 +85,7 @@ export function VideoTestimonials({ videos, title, subtitle }: VideoTestimonials
                 >
                   <ChevronRight className="w-5 h-5" />
                 </button>
-              </motion.div>
+              </div>
             </div>
           </div>
 
@@ -118,12 +95,9 @@ export function VideoTestimonials({ videos, title, subtitle }: VideoTestimonials
             className="flex gap-5 overflow-x-auto scrollbar-hide pb-4 -mx-4 px-4"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
-            {displayVideos.map((video, index) => (
-              <motion.button
+            {displayVideos.map((video) => (
+              <button
                 key={video.id}
-                initial={{ opacity: 0, y: 30 }}
-                animate={isInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.6, delay: 0.3 + index * 0.1 }}
                 onClick={() => video.videoUrl && setActiveVideo(video)}
                 className="relative shrink-0 w-[260px] md:w-[280px] aspect-[9/16] rounded-2xl overflow-hidden group"
               >
@@ -132,7 +106,7 @@ export function VideoTestimonials({ videos, title, subtitle }: VideoTestimonials
                     src={video.thumbnailUrl}
                     alt={video.title || 'Video testimonial'}
                     fill
-                    className="object-cover transition-transform duration-700 group-hover:scale-105"
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                 ) : (
                   <div className="w-full h-full bg-gradient-to-br from-[var(--primary)] to-[var(--primary-dark)] flex flex-col items-center justify-center">
@@ -143,8 +117,8 @@ export function VideoTestimonials({ videos, title, subtitle }: VideoTestimonials
 
                 {/* Play button overlay */}
                 {video.videoUrl && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/40 transition-all duration-500">
-                    <div className="w-14 h-14 rounded-full bg-white flex items-center justify-center transform group-hover:scale-110 transition-transform duration-500">
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/40 transition-colors duration-300">
+                    <div className="w-14 h-14 rounded-full bg-white flex items-center justify-center transform group-hover:scale-110 transition-transform duration-300">
                       <Play className="w-5 h-5 text-[var(--foreground)] ml-0.5" fill="currentColor" />
                     </div>
                   </div>
@@ -165,7 +139,7 @@ export function VideoTestimonials({ videos, title, subtitle }: VideoTestimonials
                     </div>
                   </div>
                 )}
-              </motion.button>
+              </button>
             ))}
           </div>
         </div>

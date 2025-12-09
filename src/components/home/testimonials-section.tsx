@@ -3,7 +3,6 @@
 import React, { useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { motion, useInView } from 'framer-motion';
 import { Star, ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -39,9 +38,7 @@ export function TestimonialsSection({
   title = 'What Our Customers Say',
   subtitle = 'Real stories from people who made the switch to clean eye care.',
 }: TestimonialsSectionProps) {
-  const ref = useRef(null);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, margin: '-100px' });
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollRef.current) {
@@ -58,47 +55,27 @@ export function TestimonialsSection({
   }
 
   return (
-    <section ref={ref} className="section bg-[var(--cream)] overflow-hidden">
+    <section className="section bg-[var(--cream)] overflow-hidden">
       <div className="container">
         {/* Header - Editorial Style */}
         <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8 mb-16">
           <div className="max-w-xl">
-            <motion.span
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6 }}
-              className="inline-flex items-center gap-3 text-xs font-semibold tracking-[0.2em] uppercase text-[var(--muted-foreground)] mb-6"
-            >
+            <span className="inline-flex items-center gap-3 text-xs font-semibold tracking-[0.2em] uppercase text-[var(--muted-foreground)] mb-6">
               <span className="w-12 h-px bg-[var(--foreground)]" />
               Reviews
-            </motion.span>
-            <motion.h2
-              initial={{ opacity: 0, y: 30 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.8, delay: 0.1 }}
-              className="text-balance"
-            >
+            </span>
+            <h2 className="text-balance">
               {title}
-            </motion.h2>
+            </h2>
           </div>
 
           <div className="flex items-center gap-6">
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-lg text-[var(--muted-foreground)] max-w-sm leading-relaxed hidden md:block"
-            >
+            <p className="text-lg text-[var(--muted-foreground)] max-w-sm leading-relaxed hidden md:block">
               {subtitle}
-            </motion.p>
+            </p>
 
             {/* Navigation - Minimal */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={isInView ? { opacity: 1 } : {}}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              className="flex gap-2"
-            >
+            <div className="flex gap-2">
               <button
                 onClick={() => scroll('left')}
                 className="w-12 h-12 rounded-full border border-[var(--border)] flex items-center justify-center hover:bg-white hover:border-transparent transition-all duration-300"
@@ -113,7 +90,7 @@ export function TestimonialsSection({
               >
                 <ChevronRight className="w-5 h-5" />
               </button>
-            </motion.div>
+            </div>
           </div>
         </div>
       </div>
@@ -125,14 +102,11 @@ export function TestimonialsSection({
         style={{ scrollSnapType: 'x mandatory' }}
       >
         {testimonials.map((testimonial, index) => (
-          <motion.div
+          <div
             key={testimonial.id}
-            initial={{ opacity: 0, y: 40 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.3 + index * 0.1 }}
             className={cn(
               'flex-shrink-0 w-[360px] md:w-[400px] bg-white rounded-2xl p-8 relative',
-              'shadow-sm hover:shadow-lg transition-all duration-500',
+              'shadow-sm hover:shadow-lg transition-shadow duration-300',
               testimonial.isFeatured && 'ring-2 ring-[var(--primary)]'
             )}
             style={{ scrollSnapAlign: 'start' }}
@@ -175,14 +149,11 @@ export function TestimonialsSection({
                 </div>
               </div>
             </div>
-          </motion.div>
+          </div>
         ))}
 
         {/* CTA Card - Editorial style */}
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, delay: 0.6 }}
+        <div
           className="flex-shrink-0 w-[360px] md:w-[400px] bg-[var(--foreground)] rounded-2xl p-8 flex flex-col justify-center"
           style={{ scrollSnapAlign: 'start' }}
         >
@@ -200,16 +171,11 @@ export function TestimonialsSection({
             Join Them
             <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-2" />
           </Link>
-        </motion.div>
+        </div>
       </div>
 
       {/* Bottom Stats - Minimal */}
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={isInView ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: 0.6, delay: 0.7 }}
-        className="container mt-20"
-      >
+      <div className="container mt-20">
         <div className="h-px bg-gradient-to-r from-transparent via-[var(--border)] to-transparent mb-12" />
         <div className="flex flex-wrap justify-center gap-12 md:gap-20">
           <div className="text-center">
@@ -225,7 +191,7 @@ export function TestimonialsSection({
             <p className="text-sm text-[var(--muted-foreground)] mt-2">Avg. Relief Time</p>
           </div>
         </div>
-      </motion.div>
+      </div>
     </section>
   );
 }
