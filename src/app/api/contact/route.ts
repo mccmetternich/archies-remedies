@@ -4,9 +4,14 @@ import { generateId } from '@/lib/utils';
 
 export async function POST(request: Request) {
   try {
-    const { name, email, subject, message } = await request.json();
+    const { firstName, lastName, name, email, subject, message } = await request.json();
 
-    if (!name || !email || !message) {
+    // Support both old (name) and new (firstName/lastName) formats
+    const resolvedFirstName = firstName || name?.split(' ')[0] || '';
+    const resolvedLastName = lastName || name?.split(' ').slice(1).join(' ') || '';
+    const fullName = name || `${resolvedFirstName} ${resolvedLastName}`.trim();
+
+    if (!fullName || !email || !message) {
       return NextResponse.json(
         { error: 'Name, email, and message are required' },
         { status: 400 }
@@ -25,7 +30,9 @@ export async function POST(request: Request) {
     // Insert contact submission
     await db.insert(contactSubmissions).values({
       id: generateId(),
-      name,
+      firstName: resolvedFirstName,
+      lastName: resolvedLastName || null,
+      name: fullName,
       email: email.toLowerCase(),
       subject: subject || null,
       message,

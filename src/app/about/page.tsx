@@ -1,10 +1,16 @@
 import { db } from '@/lib/db';
-import { pages, products, siteSettings } from '@/lib/db/schema';
+import { pages, products, siteSettings, testimonials } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { Metadata } from 'next';
+import Image from 'next/image';
+import Link from 'next/link';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
-import { MissionSection } from '@/components/home/mission-section';
+import { AboutHero } from '@/components/about/about-hero';
+import { AboutStory } from '@/components/about/about-story';
+import { AboutValues } from '@/components/about/about-values';
+import { AboutTeam } from '@/components/about/about-team';
+import { TestimonialsSection } from '@/components/home/testimonials-section';
 
 export const revalidate = 60;
 
@@ -35,7 +41,14 @@ async function getPageData() {
     .where(eq(pages.slug, 'about'))
     .limit(1);
 
-  return { settings, products: productList, page };
+  const reviewsList = await db
+    .select()
+    .from(testimonials)
+    .where(eq(testimonials.isActive, true))
+    .orderBy(testimonials.sortOrder)
+    .limit(6);
+
+  return { settings, products: productList, page, testimonials: reviewsList };
 }
 
 export default async function AboutPage() {
@@ -49,34 +62,47 @@ export default async function AboutPage() {
       />
 
       <main>
-        {/* Hero */}
-        <section className="pt-12 pb-16 bg-[var(--secondary)]">
+        <AboutHero />
+        <AboutStory />
+        <AboutValues />
+        <AboutTeam />
+
+        {/* Testimonials */}
+        {data.testimonials.length > 0 && (
+          <TestimonialsSection
+            testimonials={data.testimonials}
+            title="What Our Customers Say"
+            subtitle="Join thousands who have made the switch to clean eye care."
+          />
+        )}
+
+        {/* CTA Section */}
+        <section className="py-20 md:py-28 bg-[var(--primary)]">
           <div className="container">
             <div className="max-w-3xl mx-auto text-center">
-              <h1 className="text-4xl md:text-5xl font-light mb-6">
-                {data.page?.title || 'About Us'}
-              </h1>
-              <p className="text-lg text-[var(--muted-foreground)]">
-                Eye care you can trust, made without compromises.
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-light mb-6">
+                Ready to Experience the Difference?
+              </h2>
+              <p className="text-lg text-[var(--foreground)]/80 mb-10 max-w-xl mx-auto">
+                Join thousands of happy customers who&apos;ve made the switch to clean, effective eye care.
               </p>
+              <div className="flex flex-wrap justify-center gap-4">
+                <Link
+                  href="/products/eye-drops"
+                  className="inline-flex items-center gap-2 px-8 py-4 bg-[var(--foreground)] text-white rounded-full font-medium hover:bg-[var(--foreground)]/90 transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+                >
+                  Shop Eye Drops
+                </Link>
+                <Link
+                  href="/products/eye-wipes"
+                  className="inline-flex items-center gap-2 px-8 py-4 bg-white text-[var(--foreground)] rounded-full font-medium hover:bg-white/90 transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+                >
+                  Shop Eye Wipes
+                </Link>
+              </div>
             </div>
           </div>
         </section>
-
-        {/* Content */}
-        {data.page?.content && (
-          <section className="section">
-            <div className="container">
-              <div
-                className="prose prose-lg max-w-3xl mx-auto"
-                dangerouslySetInnerHTML={{ __html: data.page.content }}
-              />
-            </div>
-          </section>
-        )}
-
-        {/* Mission Section */}
-        <MissionSection />
       </main>
 
       <Footer

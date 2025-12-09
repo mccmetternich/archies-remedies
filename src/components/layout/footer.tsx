@@ -3,10 +3,9 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Instagram, Facebook } from 'lucide-react';
+import { Instagram, Facebook, ArrowRight, Heart, ShieldCheck, Leaf, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { cn } from '@/lib/utils';
 
 interface FooterProps {
   logo?: string | null;
@@ -15,6 +14,15 @@ interface FooterProps {
   tiktokUrl?: string | null;
   amazonStoreUrl?: string | null;
 }
+
+// Avatar images
+const AVATAR_IMAGES = [
+  'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&crop=face',
+  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&crop=face',
+  'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80&h=80&fit=crop&crop=face',
+  'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face',
+  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&h=80&fit=crop&crop=face',
+];
 
 export function Footer({
   logo,
@@ -41,7 +49,7 @@ export function Footer({
       if (res.ok) {
         setStatus('success');
         setEmail('');
-        setTimeout(() => setStatus('idle'), 3000);
+        setTimeout(() => setStatus('idle'), 4000);
       } else {
         setStatus('error');
       }
@@ -51,68 +59,100 @@ export function Footer({
   };
 
   return (
-    <footer className="bg-[var(--foreground)] text-white">
-      {/* Email Signup Section */}
-      <div className="border-b border-white/10">
-        <div className="container py-12 md:py-16">
-          <div className="max-w-xl mx-auto text-center">
-            <h3 className="text-2xl md:text-3xl font-light mb-3">
-              Join the Archie&apos;s Community
-            </h3>
-            <p className="text-white/60 mb-6">
-              Be the first to know about new products, exclusive offers, and eye care tips.
-            </p>
-            <form onSubmit={handleSubscribe} className="flex gap-3 max-w-md mx-auto">
-              <Input
-                type="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="flex-1 bg-white/10 border-white/20 text-white placeholder:text-white/40 focus:border-[var(--primary)] focus:ring-[var(--primary)]/20"
-                required
-              />
-              <Button
-                type="submit"
-                variant="secondary"
-                loading={status === 'loading'}
-                className="shrink-0"
-              >
-                {status === 'success' ? 'Subscribed!' : 'Subscribe'}
-              </Button>
-            </form>
-            {status === 'error' && (
-              <p className="text-red-400 text-sm mt-2">Something went wrong. Please try again.</p>
-            )}
+    <footer className="bg-[var(--primary)]">
+      {/* Newsletter Section */}
+      <div className="bg-[var(--secondary)]">
+        <div className="container py-16 md:py-20">
+          <div className="max-w-4xl mx-auto">
+            <div className="grid md:grid-cols-2 gap-10 items-center">
+              <div>
+                <span className="text-xs font-semibold tracking-widest uppercase text-[var(--muted-foreground)] mb-4 block">
+                  Join Our Community
+                </span>
+                <h3 className="text-3xl md:text-4xl font-light mb-4">
+                  Stay in the Know
+                </h3>
+                <p className="text-[var(--muted-foreground)] leading-relaxed">
+                  Get exclusive access to new products, eye care tips, and special offers delivered to your inbox.
+                </p>
+              </div>
+              <div>
+                <form onSubmit={handleSubscribe} className="space-y-4">
+                  <div className="flex gap-3">
+                    <Input
+                      type="email"
+                      placeholder="Enter your email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="flex-1 bg-white border-[var(--border)]"
+                      required
+                    />
+                    <Button
+                      type="submit"
+                      loading={status === 'loading'}
+                      className="shrink-0 px-8"
+                    >
+                      {status === 'success' ? 'Subscribed!' : 'Subscribe'}
+                    </Button>
+                  </div>
+                  {status === 'error' && (
+                    <p className="text-red-500 text-sm">Something went wrong. Please try again.</p>
+                  )}
+                  {status === 'success' && (
+                    <p className="text-[var(--success)] text-sm flex items-center gap-2">
+                      <Heart className="w-4 h-4" /> Welcome to the Archie&apos;s community!
+                    </p>
+                  )}
+                </form>
+                <p className="text-xs text-[var(--muted-foreground)] mt-4">
+                  By subscribing, you agree to our Privacy Policy. Unsubscribe anytime.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Main Footer */}
-      <div className="container py-12 md:py-16">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
+      <div className="container py-16 md:py-20">
+        <div className="grid grid-cols-2 md:grid-cols-12 gap-10 md:gap-8">
           {/* Brand Column */}
-          <div className="col-span-2 md:col-span-1">
+          <div className="col-span-2 md:col-span-4">
             {logo ? (
               <Image
                 src={logo}
                 alt="Archie's Remedies"
-                width={140}
-                height={35}
-                className="h-8 w-auto mb-4 brightness-0 invert"
+                width={160}
+                height={40}
+                className="h-10 w-auto mb-6"
               />
             ) : (
-              <span className="text-lg font-medium block mb-4">Archie&apos;s Remedies</span>
+              <span className="text-xl font-medium block mb-6">Archie&apos;s Remedies</span>
             )}
-            <p className="text-white/60 text-sm leading-relaxed mb-6">
-              Safe, effective eye care made clean without the questionable ingredients.
+            <p className="text-[var(--foreground)]/70 text-sm leading-relaxed mb-8 max-w-xs">
+              Clean, effective eye care made without preservatives, phthalates, parabens, or sulfates. Because your eyes deserve better.
             </p>
-            <div className="flex gap-4">
+
+            {/* Trust Badges */}
+            <div className="flex flex-wrap gap-4 mb-8">
+              <div className="flex items-center gap-2 text-sm text-[var(--foreground)]/70">
+                <ShieldCheck className="w-5 h-5 text-[var(--primary-dark)]" />
+                <span>Ophthalmologist Tested</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-[var(--foreground)]/70">
+                <Leaf className="w-5 h-5 text-[var(--primary-dark)]" />
+                <span>Clean Formula</span>
+              </div>
+            </div>
+
+            {/* Social Links */}
+            <div className="flex gap-3">
               {instagramUrl && (
                 <a
                   href={instagramUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-white/60 hover:text-[var(--primary)] transition-colors"
+                  className="w-10 h-10 rounded-full bg-white/50 flex items-center justify-center text-[var(--foreground)] hover:bg-white hover:shadow-md transition-all duration-300"
                   aria-label="Instagram"
                 >
                   <Instagram className="w-5 h-5" />
@@ -123,7 +163,7 @@ export function Footer({
                   href={facebookUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-white/60 hover:text-[var(--primary)] transition-colors"
+                  className="w-10 h-10 rounded-full bg-white/50 flex items-center justify-center text-[var(--foreground)] hover:bg-white hover:shadow-md transition-all duration-300"
                   aria-label="Facebook"
                 >
                   <Facebook className="w-5 h-5" />
@@ -134,7 +174,7 @@ export function Footer({
                   href={tiktokUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-white/60 hover:text-[var(--primary)] transition-colors"
+                  className="w-10 h-10 rounded-full bg-white/50 flex items-center justify-center text-[var(--foreground)] hover:bg-white hover:shadow-md transition-all duration-300"
                   aria-label="TikTok"
                 >
                   <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
@@ -146,25 +186,27 @@ export function Footer({
           </div>
 
           {/* Shop Column */}
-          <div>
-            <h4 className="text-xs font-medium tracking-widest uppercase mb-4 text-white/40">
+          <div className="md:col-span-2">
+            <h4 className="text-xs font-semibold tracking-widest uppercase text-[var(--foreground)]/50 mb-6">
               Shop
             </h4>
-            <ul className="space-y-3">
+            <ul className="space-y-4">
               <li>
                 <Link
                   href="/products/eye-drops"
-                  className="text-white/60 hover:text-white transition-colors text-sm"
+                  className="text-sm text-[var(--foreground)]/70 hover:text-[var(--foreground)] transition-colors flex items-center gap-2 group"
                 >
                   Eye Drops
+                  <ArrowRight className="w-3 h-3 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
                 </Link>
               </li>
               <li>
                 <Link
                   href="/products/eye-wipes"
-                  className="text-white/60 hover:text-white transition-colors text-sm"
+                  className="text-sm text-[var(--foreground)]/70 hover:text-[var(--foreground)] transition-colors flex items-center gap-2 group"
                 >
                   Eye Wipes
+                  <ArrowRight className="w-3 h-3 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
                 </Link>
               </li>
               {amazonStoreUrl && (
@@ -173,9 +215,10 @@ export function Footer({
                     href={amazonStoreUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-white/60 hover:text-white transition-colors text-sm"
+                    className="text-sm text-[var(--foreground)]/70 hover:text-[var(--foreground)] transition-colors flex items-center gap-2 group"
                   >
-                    Amazon Store →
+                    Amazon Store
+                    <ArrowRight className="w-3 h-3 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
                   </a>
                 </li>
               )}
@@ -183,15 +226,15 @@ export function Footer({
           </div>
 
           {/* Company Column */}
-          <div>
-            <h4 className="text-xs font-medium tracking-widest uppercase mb-4 text-white/40">
+          <div className="md:col-span-2">
+            <h4 className="text-xs font-semibold tracking-widest uppercase text-[var(--foreground)]/50 mb-6">
               Company
             </h4>
-            <ul className="space-y-3">
+            <ul className="space-y-4">
               <li>
                 <Link
                   href="/about"
-                  className="text-white/60 hover:text-white transition-colors text-sm"
+                  className="text-sm text-[var(--foreground)]/70 hover:text-[var(--foreground)] transition-colors"
                 >
                   About Us
                 </Link>
@@ -199,7 +242,7 @@ export function Footer({
               <li>
                 <Link
                   href="/contact"
-                  className="text-white/60 hover:text-white transition-colors text-sm"
+                  className="text-sm text-[var(--foreground)]/70 hover:text-[var(--foreground)] transition-colors"
                 >
                   Contact
                 </Link>
@@ -207,7 +250,7 @@ export function Footer({
               <li>
                 <Link
                   href="/faq"
-                  className="text-white/60 hover:text-white transition-colors text-sm"
+                  className="text-sm text-[var(--foreground)]/70 hover:text-[var(--foreground)] transition-colors"
                 >
                   FAQ
                 </Link>
@@ -216,15 +259,15 @@ export function Footer({
           </div>
 
           {/* Legal Column */}
-          <div>
-            <h4 className="text-xs font-medium tracking-widest uppercase mb-4 text-white/40">
+          <div className="md:col-span-2">
+            <h4 className="text-xs font-semibold tracking-widest uppercase text-[var(--foreground)]/50 mb-6">
               Legal
             </h4>
-            <ul className="space-y-3">
+            <ul className="space-y-4">
               <li>
                 <Link
                   href="/privacy"
-                  className="text-white/60 hover:text-white transition-colors text-sm"
+                  className="text-sm text-[var(--foreground)]/70 hover:text-[var(--foreground)] transition-colors"
                 >
                   Privacy Policy
                 </Link>
@@ -232,36 +275,58 @@ export function Footer({
               <li>
                 <Link
                   href="/terms"
-                  className="text-white/60 hover:text-white transition-colors text-sm"
+                  className="text-sm text-[var(--foreground)]/70 hover:text-[var(--foreground)] transition-colors"
                 >
                   Terms of Service
                 </Link>
               </li>
             </ul>
           </div>
-        </div>
 
-        {/* Social Proof */}
-        <div className="mt-12 pt-8 border-t border-white/10">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <div className="flex -space-x-2">
-                {[1, 2, 3, 4, 5].map((i) => (
+          {/* Reviews Column */}
+          <div className="col-span-2 md:col-span-2">
+            <h4 className="text-xs font-semibold tracking-widest uppercase text-[var(--foreground)]/50 mb-6">
+              Reviews
+            </h4>
+            <div className="bg-white/40 rounded-2xl p-5">
+              <div className="flex -space-x-2 mb-3">
+                {AVATAR_IMAGES.slice(0, 4).map((src, i) => (
                   <div
                     key={i}
-                    className="w-8 h-8 rounded-full bg-[var(--primary)] border-2 border-[var(--foreground)] flex items-center justify-center text-xs font-medium text-[var(--foreground)]"
+                    className="w-9 h-9 rounded-full border-2 border-white overflow-hidden"
                   >
-                    {String.fromCharCode(64 + i)}
+                    <Image
+                      src={src}
+                      alt="Customer"
+                      width={36}
+                      height={36}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                 ))}
               </div>
-              <div className="text-sm text-white/60 ml-2">
-                <span className="text-white font-medium">4.8★</span> from 2,500+ reviews
+              <div className="flex items-center gap-1 mb-2">
+                {[1,2,3,4,5].map(i => (
+                  <Sparkles key={i} className="w-4 h-4 text-amber-500" />
+                ))}
               </div>
+              <p className="text-sm font-medium">4.9 out of 5</p>
+              <p className="text-xs text-[var(--foreground)]/60">2,500+ verified reviews</p>
             </div>
-            <p className="text-white/40 text-sm">
+          </div>
+        </div>
+
+        {/* Bottom Bar */}
+        <div className="mt-16 pt-8 border-t border-[var(--primary-dark)]/20">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <p className="text-sm text-[var(--foreground)]/60">
               © {new Date().getFullYear()} Archie&apos;s Remedies. All rights reserved.
             </p>
+            <div className="flex items-center gap-6">
+              <span className="text-xs text-[var(--foreground)]/50">
+                Made with care in the USA
+              </span>
+            </div>
           </div>
         </div>
       </div>

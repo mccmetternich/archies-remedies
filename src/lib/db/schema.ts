@@ -230,12 +230,40 @@ export const emailSubscribers = sqliteTable('email_subscribers', {
 // Contact Submissions
 export const contactSubmissions = sqliteTable('contact_submissions', {
   id: text('id').primaryKey(),
-  name: text('name').notNull(),
+  firstName: text('first_name').notNull(),
+  lastName: text('last_name'),
+  name: text('name').notNull(), // Full name for backwards compatibility
   email: text('email').notNull(),
   subject: text('subject'),
   message: text('message').notNull(),
   status: text('status').default('new'), // new, pending, resolved
   isRead: integer('is_read', { mode: 'boolean' }).default(false),
+
+  createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
+});
+
+// Page Views / Visitor Tracking
+export const pageViews = sqliteTable('page_views', {
+  id: text('id').primaryKey(),
+  path: text('path').notNull(),
+  referrer: text('referrer'),
+  userAgent: text('user_agent'),
+  visitorId: text('visitor_id'), // Anonymous visitor identifier
+  sessionId: text('session_id'),
+  country: text('country'),
+  city: text('city'),
+  device: text('device'), // desktop, mobile, tablet
+  browser: text('browser'),
+
+  createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
+});
+
+// Admin Users
+export const adminUsers = sqliteTable('admin_users', {
+  id: text('id').primaryKey(),
+  username: text('username').notNull().unique(),
+  passwordHash: text('password_hash').notNull(),
+  lastLoginAt: text('last_login_at'),
 
   createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
 });

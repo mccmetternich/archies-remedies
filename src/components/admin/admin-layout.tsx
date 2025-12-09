@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard,
@@ -16,43 +16,99 @@ import {
   Menu,
   X,
   ChevronRight,
+  ChevronDown,
   Navigation,
   Star,
   Play,
   Instagram,
   Home,
+  LogOut,
+  Inbox,
+  Layers,
+  PlusCircle,
+  Eye,
+  Bell,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
+  unreadMessages?: number;
 }
 
-const navItems = [
-  { href: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
-  { href: '/admin/settings', label: 'Site Settings', icon: Settings },
-  { href: '/admin/pages', label: 'Pages', icon: FileText },
-  { href: '/admin/products', label: 'Products', icon: Package },
-  { href: '/admin/hero-slides', label: 'Hero Slides', icon: Image },
-  { href: '/admin/testimonials', label: 'Testimonials', icon: Star },
-  { href: '/admin/video-testimonials', label: 'Video Testimonials', icon: Play },
-  { href: '/admin/instagram', label: 'Instagram', icon: Instagram },
-  { href: '/admin/faqs', label: 'FAQs', icon: HelpCircle },
-  { href: '/admin/navigation', label: 'Navigation', icon: Navigation },
-  { href: '/admin/subscribers', label: 'Email Subscribers', icon: Mail },
-  { href: '/admin/contacts', label: 'Contact Messages', icon: MessageSquare },
-];
+interface NavSection {
+  title?: string;
+  items: NavItem[];
+  separator?: boolean;
+}
 
-export function AdminLayout({ children }: AdminLayoutProps) {
+interface NavItem {
+  href: string;
+  label: string;
+  icon: React.ElementType;
+  exact?: boolean;
+  badge?: number;
+  children?: NavItem[];
+}
+
+export function AdminLayout({ children, unreadMessages = 0 }: AdminLayoutProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [widgetLibraryOpen, setWidgetLibraryOpen] = useState(false);
+
+  // Check if current path is in widget library
+  useEffect(() => {
+    const widgetPaths = ['/admin/hero-slides', '/admin/testimonials', '/admin/video-testimonials', '/admin/instagram', '/admin/faqs', '/admin/navigation'];
+    if (widgetPaths.some(p => pathname.startsWith(p))) {
+      setWidgetLibraryOpen(true);
+    }
+  }, [pathname]);
+
+  const navSections: NavSection[] = [
+    {
+      items: [
+        { href: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
+        { href: '/admin/settings', label: 'Site Settings', icon: Settings },
+      ],
+    },
+    {
+      title: 'Content',
+      items: [
+        { href: '/admin/pages', label: 'Pages', icon: FileText },
+        { href: '/admin/products', label: 'Products', icon: Package },
+      ],
+    },
+    {
+      title: 'Widget Library',
+      items: [
+        { href: '/admin/hero-slides', label: 'Hero Slides', icon: Image },
+        { href: '/admin/testimonials', label: 'Testimonials', icon: Star },
+        { href: '/admin/video-testimonials', label: 'Video Testimonials', icon: Play },
+        { href: '/admin/instagram', label: 'Instagram Feed', icon: Instagram },
+        { href: '/admin/faqs', label: 'FAQs', icon: HelpCircle },
+        { href: '/admin/navigation', label: 'Navigation', icon: Navigation },
+      ],
+    },
+    {
+      title: 'Marketing',
+      items: [
+        { href: '/admin/subscribers', label: 'Email Subscribers', icon: Mail },
+      ],
+    },
+    {
+      separator: true,
+      items: [
+        { href: '/admin/inbox', label: 'Inbox', icon: Inbox, badge: unreadMessages },
+      ],
+    },
+  ];
 
   const isActive = (href: string, exact?: boolean) => {
     if (exact) return pathname === href;
     return pathname.startsWith(href);
   };
 
-  // Get breadcrumb from path
   const getBreadcrumbs = () => {
     const parts = pathname.split('/').filter(Boolean);
     const breadcrumbs: { label: string; href: string }[] = [];
@@ -60,10 +116,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
     parts.forEach((part, index) => {
       const href = '/' + parts.slice(0, index + 1).join('/');
       let label = part.charAt(0).toUpperCase() + part.slice(1);
-
-      // Clean up label
       label = label.replace(/-/g, ' ');
-
       breadcrumbs.push({ label, href });
     });
 
@@ -72,23 +125,44 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 
   const breadcrumbs = getBreadcrumbs();
 
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/admin/auth/logout', { method: 'POST' });
+    } catch {
+      // Clear cookie manually as fallback
+      document.cookie = 'admin_session=; path=/admin; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+    }
+    router.push('/admin/login');
+    router.refresh();
+  };
+
   return (
-    <div className="min-h-screen bg-[var(--muted)]">
+    <div className="min-h-screen bg-[#0a0a0a]">
       {/* Mobile Header */}
-      <header className="sticky top-0 z-40 md:hidden bg-white border-b border-[var(--border)]">
+      <header className="sticky top-0 z-40 md:hidden bg-[#111111] border-b border-[#1f1f1f]">
         <div className="flex items-center justify-between px-4 h-16">
           <Link href="/admin" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-[var(--primary)] flex items-center justify-center text-sm font-bold">
+            <div className="w-8 h-8 rounded-lg bg-[var(--primary)] flex items-center justify-center text-sm font-bold text-[#0a0a0a]">
               A
             </div>
-            <span className="font-medium">Admin</span>
+            <span className="font-medium text-white">Admin</span>
           </Link>
-          <button
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="p-2 rounded-lg hover:bg-[var(--muted)]"
-          >
-            {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
+          <div className="flex items-center gap-2">
+            {unreadMessages > 0 && (
+              <Link href="/admin/inbox" className="relative p-2">
+                <Bell className="w-5 h-5 text-gray-400" />
+                <span className="absolute -top-0.5 -right-0.5 w-5 h-5 text-xs bg-[var(--primary)] text-[#0a0a0a] rounded-full flex items-center justify-center font-medium">
+                  {unreadMessages}
+                </span>
+              </Link>
+            )}
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="p-2 rounded-lg hover:bg-[#1f1f1f] text-gray-400"
+            >
+              {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+          </div>
         </div>
       </header>
 
@@ -96,58 +170,93 @@ export function AdminLayout({ children }: AdminLayoutProps) {
         {/* Sidebar */}
         <aside
           className={cn(
-            'fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-[var(--border)] transform transition-transform duration-200 ease-in-out md:translate-x-0 md:static md:z-auto',
+            'fixed inset-y-0 left-0 z-50 w-64 bg-[#111111] border-r border-[#1f1f1f] transform transition-transform duration-200 ease-in-out md:translate-x-0 md:static md:z-auto flex flex-col',
             sidebarOpen ? 'translate-x-0' : '-translate-x-full'
           )}
         >
           {/* Logo */}
-          <div className="h-16 flex items-center px-6 border-b border-[var(--border)]">
+          <div className="h-16 flex items-center px-5 border-b border-[#1f1f1f]">
             <Link href="/admin" className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-[var(--primary)] flex items-center justify-center text-lg font-bold">
+              <div className="w-9 h-9 rounded-xl bg-[var(--primary)] flex items-center justify-center text-lg font-bold text-[#0a0a0a]">
                 A
               </div>
               <div>
-                <span className="font-medium block text-sm">Archie&apos;s Remedies</span>
-                <span className="text-xs text-[var(--muted-foreground)]">Admin Panel</span>
+                <span className="font-medium block text-sm text-white">Archie&apos;s Remedies</span>
+                <span className="text-xs text-gray-500">Admin Panel</span>
               </div>
             </Link>
           </div>
 
           {/* View Site Link */}
-          <div className="px-4 py-3 border-b border-[var(--border)]">
+          <div className="px-3 py-3 border-b border-[#1f1f1f]">
             <Link
               href="/"
               target="_blank"
-              className="flex items-center gap-2 px-3 py-2 text-sm text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--muted)] rounded-lg transition-colors"
+              className="flex items-center gap-2 px-3 py-2 text-sm text-gray-400 hover:text-white hover:bg-[#1a1a1a] rounded-lg transition-colors"
             >
-              <Home className="w-4 h-4" />
-              View Site
+              <Eye className="w-4 h-4" />
+              View Live Site
               <ChevronRight className="w-3 h-3 ml-auto" />
             </Link>
           </div>
 
           {/* Navigation */}
-          <nav className="p-4 space-y-1 overflow-y-auto h-[calc(100vh-8rem)]">
-            {navItems.map((item) => {
-              const active = isActive(item.href, item.exact);
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setSidebarOpen(false)}
-                  className={cn(
-                    'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-150',
-                    active
-                      ? 'bg-[var(--primary)] text-[var(--foreground)] font-medium'
-                      : 'text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]'
-                  )}
-                >
-                  <item.icon className="w-4 h-4" />
-                  {item.label}
-                </Link>
-              );
-            })}
+          <nav className="flex-1 p-3 space-y-6 overflow-y-auto">
+            {navSections.map((section, sectionIndex) => (
+              <div key={sectionIndex}>
+                {section.separator && (
+                  <div className="h-px bg-[#1f1f1f] mb-4" />
+                )}
+                {section.title && (
+                  <p className="px-3 mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500">
+                    {section.title}
+                  </p>
+                )}
+                <div className="space-y-1">
+                  {section.items.map((item) => {
+                    const active = isActive(item.href, item.exact);
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        onClick={() => setSidebarOpen(false)}
+                        className={cn(
+                          'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-150 group',
+                          active
+                            ? 'bg-[var(--primary)] text-[#0a0a0a] font-medium'
+                            : 'text-gray-400 hover:bg-[#1a1a1a] hover:text-white'
+                        )}
+                      >
+                        <item.icon className={cn('w-4 h-4', active && 'text-[#0a0a0a]')} />
+                        <span className="flex-1">{item.label}</span>
+                        {item.badge && item.badge > 0 && (
+                          <span className={cn(
+                            'px-2 py-0.5 text-xs font-medium rounded-full',
+                            active
+                              ? 'bg-[#0a0a0a]/20 text-[#0a0a0a]'
+                              : 'bg-[var(--primary)] text-[#0a0a0a]'
+                          )}>
+                            {item.badge}
+                          </span>
+                        )}
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
           </nav>
+
+          {/* Footer */}
+          <div className="p-3 border-t border-[#1f1f1f]">
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm text-gray-400 hover:bg-[#1a1a1a] hover:text-white transition-colors"
+            >
+              <LogOut className="w-4 h-4" />
+              Sign Out
+            </button>
+          </div>
         </aside>
 
         {/* Overlay for mobile */}
@@ -158,7 +267,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setSidebarOpen(false)}
-              className="fixed inset-0 z-40 bg-black/20 md:hidden"
+              className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden"
             />
           )}
         </AnimatePresence>
@@ -166,20 +275,20 @@ export function AdminLayout({ children }: AdminLayoutProps) {
         {/* Main Content */}
         <main className="flex-1 min-h-screen">
           {/* Breadcrumbs */}
-          <div className="hidden md:block bg-white border-b border-[var(--border)]">
+          <div className="hidden md:flex items-center justify-between bg-[#111111] border-b border-[#1f1f1f]">
             <div className="px-6 py-4">
               <div className="flex items-center gap-2 text-sm">
                 {breadcrumbs.map((crumb, index) => (
                   <React.Fragment key={crumb.href}>
                     {index > 0 && (
-                      <ChevronRight className="w-4 h-4 text-[var(--muted-foreground)]" />
+                      <ChevronRight className="w-4 h-4 text-gray-600" />
                     )}
                     {index === breadcrumbs.length - 1 ? (
-                      <span className="font-medium">{crumb.label}</span>
+                      <span className="font-medium text-white">{crumb.label}</span>
                     ) : (
                       <Link
                         href={crumb.href}
-                        className="text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+                        className="text-gray-500 hover:text-white transition-colors"
                       >
                         {crumb.label}
                       </Link>
@@ -188,6 +297,15 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                 ))}
               </div>
             </div>
+            {unreadMessages > 0 && (
+              <Link
+                href="/admin/inbox"
+                className="mr-6 flex items-center gap-2 px-3 py-1.5 bg-[var(--primary)]/10 text-[var(--primary)] rounded-lg text-sm hover:bg-[var(--primary)]/20 transition-colors"
+              >
+                <Inbox className="w-4 h-4" />
+                <span>{unreadMessages} new message{unreadMessages > 1 ? 's' : ''}</span>
+              </Link>
+            )}
           </div>
 
           {/* Page Content */}
