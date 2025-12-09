@@ -4,9 +4,8 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, ChevronDown, Star, ArrowRight, Sparkles } from 'lucide-react';
+import { Menu, X, ChevronDown, Star, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
 
 interface Product {
   id: string;
@@ -53,10 +52,10 @@ export function Header({ logo, products = [] }: HeaderProps) {
     <>
       <header
         className={cn(
-          'fixed top-0 left-0 right-0 z-50 transition-all duration-500',
+          'fixed top-0 left-0 right-0 z-50 transition-all duration-700',
           isScrolled
-            ? 'bg-white/95 backdrop-blur-xl shadow-sm py-3'
-            : 'bg-transparent py-5'
+            ? 'bg-white/98 backdrop-blur-xl shadow-sm py-4'
+            : 'bg-transparent py-6'
         )}
       >
         <nav className="container">
@@ -69,18 +68,18 @@ export function Header({ logo, products = [] }: HeaderProps) {
                   alt="Archie's Remedies"
                   width={180}
                   height={45}
-                  className="h-10 w-auto"
+                  className="h-9 w-auto"
                   priority
                 />
               ) : (
-                <span className="text-xl font-medium tracking-tight">
+                <span className="text-lg font-medium tracking-tight">
                   Archie&apos;s Remedies
                 </span>
               )}
             </Link>
 
-            {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center gap-10">
+            {/* Desktop Navigation - Centered */}
+            <div className="hidden lg:flex items-center gap-12">
               {/* Shop Dropdown */}
               <div
                 className="relative"
@@ -89,14 +88,14 @@ export function Header({ logo, products = [] }: HeaderProps) {
               >
                 <button
                   className={cn(
-                    'flex items-center gap-1.5 text-sm font-medium tracking-wide transition-colors py-2',
-                    shopOpen ? 'text-[var(--primary-dark)]' : 'hover:text-[var(--muted-foreground)]'
+                    'flex items-center gap-1.5 text-sm tracking-wide transition-colors py-2',
+                    shopOpen ? 'text-[var(--muted-foreground)]' : 'hover:text-[var(--muted-foreground)]'
                   )}
                 >
                   Shop
                   <ChevronDown
                     className={cn(
-                      'w-4 h-4 transition-transform duration-300',
+                      'w-3.5 h-3.5 transition-transform duration-300',
                       shopOpen && 'rotate-180'
                     )}
                   />
@@ -105,21 +104,21 @@ export function Header({ logo, products = [] }: HeaderProps) {
 
               <Link
                 href="/about"
-                className="text-sm font-medium tracking-wide hover:text-[var(--muted-foreground)] transition-colors py-2"
+                className="text-sm tracking-wide hover:text-[var(--muted-foreground)] transition-colors py-2"
               >
                 About
               </Link>
 
               <Link
                 href="/faq"
-                className="text-sm font-medium tracking-wide hover:text-[var(--muted-foreground)] transition-colors py-2"
+                className="text-sm tracking-wide hover:text-[var(--muted-foreground)] transition-colors py-2"
               >
                 FAQ
               </Link>
 
               <Link
                 href="/contact"
-                className="text-sm font-medium tracking-wide hover:text-[var(--muted-foreground)] transition-colors py-2"
+                className="text-sm tracking-wide hover:text-[var(--muted-foreground)] transition-colors py-2"
               >
                 Contact
               </Link>
@@ -127,20 +126,22 @@ export function Header({ logo, products = [] }: HeaderProps) {
 
             {/* CTA Button */}
             <div className="hidden lg:block">
-              <Link href="/products/eye-drops">
-                <Button size="sm" className="px-6">
-                  Shop Now
-                </Button>
+              <Link
+                href="/products/eye-drops"
+                className="group inline-flex items-center gap-2 px-6 py-3 bg-[var(--foreground)] text-white rounded-full text-sm font-medium hover:bg-black transition-all duration-300"
+              >
+                Shop Now
+                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
               </Link>
             </div>
 
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="lg:hidden p-2 -mr-2 rounded-full hover:bg-[var(--muted)] transition-colors relative z-10"
+              className="lg:hidden p-2 -mr-2 rounded-full hover:bg-[var(--sand)] transition-colors relative z-10"
               aria-label="Toggle menu"
             >
-              {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
         </nav>
@@ -153,21 +154,21 @@ export function Header({ logo, products = [] }: HeaderProps) {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-              className="absolute top-full left-0 right-0 bg-white border-t border-[var(--border-light)] shadow-xl"
+              className="absolute top-full left-0 right-0 bg-white border-t border-[var(--border-light)] shadow-lg"
               onMouseEnter={() => setShopOpen(true)}
               onMouseLeave={() => setShopOpen(false)}
             >
-              <div className="container py-10">
-                <div className="grid lg:grid-cols-12 gap-10">
+              <div className="container py-12">
+                <div className="grid lg:grid-cols-12 gap-12">
                   {/* Products Section */}
                   <div className="lg:col-span-8">
-                    <div className="flex items-center justify-between mb-6">
-                      <h3 className="text-xs font-semibold tracking-widest uppercase text-[var(--muted-foreground)]">
+                    <div className="flex items-center justify-between mb-8">
+                      <span className="text-xs font-semibold tracking-[0.2em] uppercase text-[var(--muted-foreground)]">
                         Our Products
-                      </h3>
+                      </span>
                       <Link
                         href="/products"
-                        className="text-xs font-medium text-[var(--primary-dark)] hover:underline flex items-center gap-1"
+                        className="text-xs font-medium text-[var(--foreground)] hover:text-[var(--muted-foreground)] flex items-center gap-1 transition-colors"
                       >
                         View All <ArrowRight className="w-3 h-3" />
                       </Link>
@@ -176,120 +177,106 @@ export function Header({ logo, products = [] }: HeaderProps) {
                       {/* Eye Drops */}
                       <Link
                         href="/products/eye-drops"
-                        className="group relative bg-gradient-to-br from-[var(--primary-light)] to-[var(--secondary)] rounded-2xl p-6 overflow-hidden hover:shadow-lg transition-all duration-300"
+                        className="group flex items-center gap-6 p-6 rounded-2xl bg-[var(--cream)] hover:bg-[var(--sand)] transition-all duration-500"
                       >
-                        <div className="absolute top-4 left-4">
-                          <span className="badge badge-bestseller text-[10px]">Bestseller</span>
+                        <div className="w-28 h-28 rounded-xl overflow-hidden bg-white shrink-0">
+                          <Image
+                            src={products.find(p => p.slug === 'eye-drops')?.heroImageUrl || PRODUCT_IMAGES['eye-drops']}
+                            alt="Eye Drops"
+                            width={112}
+                            height={112}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                          />
                         </div>
-                        <div className="flex items-center gap-6">
-                          <div className="w-32 h-32 rounded-xl overflow-hidden bg-white/50 shrink-0 shadow-md">
-                            <Image
-                              src={products.find(p => p.slug === 'eye-drops')?.heroImageUrl || PRODUCT_IMAGES['eye-drops']}
-                              alt="Eye Drops"
-                              width={128}
-                              height={128}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                            />
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="text-xs px-2 py-1 bg-white rounded-full">Bestseller</span>
                           </div>
-                          <div className="flex-1">
-                            <h4 className="text-lg font-medium mb-2 group-hover:text-[var(--primary-dark)] transition-colors">
-                              Preservative-Free Eye Drops
-                            </h4>
-                            <p className="text-sm text-[var(--muted-foreground)] mb-3 line-clamp-2">
-                              Gentle, effective relief for dry, tired eyes. Available in 30 and 60 count vials.
-                            </p>
-                            <div className="flex items-center gap-2">
-                              <div className="flex gap-0.5">
-                                {[1,2,3,4,5].map(i => (
-                                  <Star key={i} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                                ))}
-                              </div>
-                              <span className="text-xs text-[var(--muted-foreground)]">2,100+ reviews</span>
+                          <h4 className="text-lg font-medium mb-2 group-hover:text-[var(--muted-foreground)] transition-colors">
+                            Preservative-Free Eye Drops
+                          </h4>
+                          <div className="flex items-center gap-2">
+                            <div className="flex gap-0.5">
+                              {[1,2,3,4,5].map(i => (
+                                <Star key={i} className="w-3 h-3 fill-[var(--foreground)] text-[var(--foreground)]" />
+                              ))}
                             </div>
+                            <span className="text-xs text-[var(--muted-foreground)]">2,100+ reviews</span>
                           </div>
                         </div>
-                        <ArrowRight className="absolute bottom-6 right-6 w-5 h-5 text-[var(--muted-foreground)] group-hover:text-[var(--foreground)] group-hover:translate-x-1 transition-all" />
+                        <ArrowRight className="w-5 h-5 text-[var(--muted-foreground)] group-hover:translate-x-1 transition-transform" />
                       </Link>
 
                       {/* Eye Wipes */}
                       <Link
                         href="/products/eye-wipes"
-                        className="group relative bg-gradient-to-br from-[var(--secondary)] to-[var(--primary-light)] rounded-2xl p-6 overflow-hidden hover:shadow-lg transition-all duration-300"
+                        className="group flex items-center gap-6 p-6 rounded-2xl bg-[var(--cream)] hover:bg-[var(--sand)] transition-all duration-500"
                       >
-                        <div className="absolute top-4 left-4">
-                          <span className="badge badge-new text-[10px]">New</span>
+                        <div className="w-28 h-28 rounded-xl overflow-hidden bg-white shrink-0">
+                          <Image
+                            src={products.find(p => p.slug === 'eye-wipes')?.heroImageUrl || PRODUCT_IMAGES['eye-wipes']}
+                            alt="Eye Wipes"
+                            width={112}
+                            height={112}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                          />
                         </div>
-                        <div className="flex items-center gap-6">
-                          <div className="w-32 h-32 rounded-xl overflow-hidden bg-white/50 shrink-0 shadow-md">
-                            <Image
-                              src={products.find(p => p.slug === 'eye-wipes')?.heroImageUrl || PRODUCT_IMAGES['eye-wipes']}
-                              alt="Eye Wipes"
-                              width={128}
-                              height={128}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                            />
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="text-xs px-2 py-1 bg-white rounded-full flex items-center gap-1">
+                              <span className="w-1.5 h-1.5 bg-[var(--primary)] rounded-full" />
+                              New
+                            </span>
                           </div>
-                          <div className="flex-1">
-                            <h4 className="text-lg font-medium mb-2 group-hover:text-[var(--primary-dark)] transition-colors">
-                              Gentle Lid & Lash Wipes
-                            </h4>
-                            <p className="text-sm text-[var(--muted-foreground)] mb-3 line-clamp-2">
-                              Daily cleansing wipes for sensitive eyes. Removes debris, makeup, and irritants.
-                            </p>
-                            <div className="flex items-center gap-2">
-                              <div className="flex gap-0.5">
-                                {[1,2,3,4,5].map(i => (
-                                  <Star key={i} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                                ))}
-                              </div>
-                              <span className="text-xs text-[var(--muted-foreground)]">850+ reviews</span>
+                          <h4 className="text-lg font-medium mb-2 group-hover:text-[var(--muted-foreground)] transition-colors">
+                            Gentle Lid & Lash Wipes
+                          </h4>
+                          <div className="flex items-center gap-2">
+                            <div className="flex gap-0.5">
+                              {[1,2,3,4,5].map(i => (
+                                <Star key={i} className="w-3 h-3 fill-[var(--foreground)] text-[var(--foreground)]" />
+                              ))}
                             </div>
+                            <span className="text-xs text-[var(--muted-foreground)]">850+ reviews</span>
                           </div>
                         </div>
-                        <ArrowRight className="absolute bottom-6 right-6 w-5 h-5 text-[var(--muted-foreground)] group-hover:text-[var(--foreground)] group-hover:translate-x-1 transition-all" />
+                        <ArrowRight className="w-5 h-5 text-[var(--muted-foreground)] group-hover:translate-x-1 transition-transform" />
                       </Link>
                     </div>
                   </div>
 
-                  {/* Quick Links & Promo */}
-                  <div className="lg:col-span-4 space-y-8">
-                    {/* Quick Links */}
-                    <div>
-                      <h3 className="text-xs font-semibold tracking-widest uppercase text-[var(--muted-foreground)] mb-4">
-                        Quick Links
-                      </h3>
-                      <ul className="space-y-3">
-                        <li>
-                          <Link href="/about" className="text-sm hover:text-[var(--primary-dark)] transition-colors flex items-center gap-2">
-                            <span className="w-1.5 h-1.5 rounded-full bg-[var(--primary)]" />
-                            Our Story
-                          </Link>
-                        </li>
-                        <li>
-                          <Link href="/faq" className="text-sm hover:text-[var(--primary-dark)] transition-colors flex items-center gap-2">
-                            <span className="w-1.5 h-1.5 rounded-full bg-[var(--primary)]" />
-                            Common Questions
-                          </Link>
-                        </li>
-                        <li>
-                          <Link href="/contact" className="text-sm hover:text-[var(--primary-dark)] transition-colors flex items-center gap-2">
-                            <span className="w-1.5 h-1.5 rounded-full bg-[var(--primary)]" />
-                            Get in Touch
-                          </Link>
-                        </li>
-                      </ul>
-                    </div>
+                  {/* Quick Links */}
+                  <div className="lg:col-span-4">
+                    <span className="text-xs font-semibold tracking-[0.2em] uppercase text-[var(--muted-foreground)] mb-8 block">
+                      Learn More
+                    </span>
+                    <ul className="space-y-4">
+                      <li>
+                        <Link href="/about" className="text-sm hover:text-[var(--muted-foreground)] transition-colors flex items-center gap-3">
+                          <span className="w-8 h-px bg-[var(--border)]" />
+                          Our Story
+                        </Link>
+                      </li>
+                      <li>
+                        <Link href="/faq" className="text-sm hover:text-[var(--muted-foreground)] transition-colors flex items-center gap-3">
+                          <span className="w-8 h-px bg-[var(--border)]" />
+                          Common Questions
+                        </Link>
+                      </li>
+                      <li>
+                        <Link href="/contact" className="text-sm hover:text-[var(--muted-foreground)] transition-colors flex items-center gap-3">
+                          <span className="w-8 h-px bg-[var(--border)]" />
+                          Get in Touch
+                        </Link>
+                      </li>
+                    </ul>
 
-                    {/* Promo Card */}
-                    <div className="bg-[var(--primary)] rounded-2xl p-6">
-                      <Sparkles className="w-8 h-8 mb-4 text-[var(--primary-dark)]" />
-                      <h4 className="font-medium mb-2">Clean Eye Care</h4>
-                      <p className="text-sm text-[var(--foreground)]/70 mb-4">
-                        Free from preservatives, phthalates, parabens, and sulfates.
+                    {/* Trust Badge */}
+                    <div className="mt-10 p-6 rounded-2xl bg-[var(--primary-light)]">
+                      <p className="text-sm font-medium mb-2">Clean Formulas</p>
+                      <p className="text-sm text-[var(--muted-foreground)] leading-relaxed">
+                        No preservatives, phthalates, parabens, or sulfates.
                       </p>
-                      <Link href="/about" className="text-sm font-medium underline underline-offset-4 hover:no-underline">
-                        Learn Why It Matters →
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -308,7 +295,7 @@ export function Header({ logo, products = [] }: HeaderProps) {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm lg:hidden"
+              className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm lg:hidden"
               onClick={() => setIsOpen(false)}
             />
             <motion.div
@@ -320,12 +307,12 @@ export function Header({ logo, products = [] }: HeaderProps) {
             >
               <div className="flex flex-col h-full">
                 <div className="flex items-center justify-between p-6 border-b border-[var(--border-light)]">
-                  <span className="text-lg font-medium">Menu</span>
+                  <span className="text-sm font-semibold tracking-[0.1em] uppercase text-[var(--muted-foreground)]">Menu</span>
                   <button
                     onClick={() => setIsOpen(false)}
-                    className="p-2 -mr-2 rounded-full hover:bg-[var(--muted)] transition-colors"
+                    className="p-2 -mr-2 rounded-full hover:bg-[var(--sand)] transition-colors"
                   >
-                    <X className="w-6 h-6" />
+                    <X className="w-5 h-5" />
                   </button>
                 </div>
 
@@ -333,14 +320,14 @@ export function Header({ logo, products = [] }: HeaderProps) {
                   <nav className="space-y-8">
                     {/* Products */}
                     <div>
-                      <h3 className="text-xs font-semibold tracking-widest uppercase text-[var(--muted-foreground)] mb-4">
+                      <h3 className="text-xs font-semibold tracking-[0.2em] uppercase text-[var(--muted-foreground)] mb-4">
                         Shop
                       </h3>
-                      <div className="space-y-2">
+                      <div className="space-y-3">
                         <Link
                           href="/products/eye-drops"
                           onClick={() => setIsOpen(false)}
-                          className="flex items-center gap-4 p-3 rounded-xl bg-[var(--muted)] hover:bg-[var(--primary-light)] transition-colors"
+                          className="flex items-center gap-4 p-4 rounded-xl bg-[var(--cream)] hover:bg-[var(--sand)] transition-colors"
                         >
                           <div className="w-14 h-14 rounded-lg bg-white overflow-hidden">
                             <Image
@@ -351,15 +338,16 @@ export function Header({ logo, products = [] }: HeaderProps) {
                               className="w-full h-full object-cover"
                             />
                           </div>
-                          <div>
+                          <div className="flex-1">
                             <p className="font-medium">Eye Drops</p>
                             <p className="text-xs text-[var(--muted-foreground)]">Preservative-free relief</p>
                           </div>
+                          <ArrowRight className="w-4 h-4 text-[var(--muted-foreground)]" />
                         </Link>
                         <Link
                           href="/products/eye-wipes"
                           onClick={() => setIsOpen(false)}
-                          className="flex items-center gap-4 p-3 rounded-xl bg-[var(--muted)] hover:bg-[var(--primary-light)] transition-colors"
+                          className="flex items-center gap-4 p-4 rounded-xl bg-[var(--cream)] hover:bg-[var(--sand)] transition-colors"
                         >
                           <div className="w-14 h-14 rounded-lg bg-white overflow-hidden">
                             <Image
@@ -370,10 +358,11 @@ export function Header({ logo, products = [] }: HeaderProps) {
                               className="w-full h-full object-cover"
                             />
                           </div>
-                          <div>
+                          <div className="flex-1">
                             <p className="font-medium">Eye Wipes</p>
                             <p className="text-xs text-[var(--muted-foreground)]">Gentle daily cleansing</p>
                           </div>
+                          <ArrowRight className="w-4 h-4 text-[var(--muted-foreground)]" />
                         </Link>
                       </div>
                     </div>
@@ -383,34 +372,40 @@ export function Header({ logo, products = [] }: HeaderProps) {
                       <Link
                         href="/about"
                         onClick={() => setIsOpen(false)}
-                        className="block py-3 text-lg font-medium hover:text-[var(--primary-dark)] transition-colors"
+                        className="flex items-center justify-between py-4 border-b border-[var(--border-light)] hover:text-[var(--muted-foreground)] transition-colors"
                       >
-                        About Us
+                        <span className="text-lg">About Us</span>
+                        <ArrowRight className="w-4 h-4" />
                       </Link>
                       <Link
                         href="/faq"
                         onClick={() => setIsOpen(false)}
-                        className="block py-3 text-lg font-medium hover:text-[var(--primary-dark)] transition-colors"
+                        className="flex items-center justify-between py-4 border-b border-[var(--border-light)] hover:text-[var(--muted-foreground)] transition-colors"
                       >
-                        FAQ
+                        <span className="text-lg">FAQ</span>
+                        <ArrowRight className="w-4 h-4" />
                       </Link>
                       <Link
                         href="/contact"
                         onClick={() => setIsOpen(false)}
-                        className="block py-3 text-lg font-medium hover:text-[var(--primary-dark)] transition-colors"
+                        className="flex items-center justify-between py-4 border-b border-[var(--border-light)] hover:text-[var(--muted-foreground)] transition-colors"
                       >
-                        Contact
+                        <span className="text-lg">Contact</span>
+                        <ArrowRight className="w-4 h-4" />
                       </Link>
                     </div>
                   </nav>
                 </div>
 
                 {/* Bottom CTA */}
-                <div className="p-6 border-t border-[var(--border-light)] bg-[var(--muted)]">
-                  <Link href="/products/eye-drops" onClick={() => setIsOpen(false)}>
-                    <Button className="w-full" size="lg">
-                      Shop Now
-                    </Button>
+                <div className="p-6 border-t border-[var(--border-light)] bg-[var(--cream)]">
+                  <Link
+                    href="/products/eye-drops"
+                    onClick={() => setIsOpen(false)}
+                    className="flex items-center justify-center gap-2 w-full py-4 bg-[var(--foreground)] text-white rounded-full font-medium hover:bg-black transition-colors"
+                  >
+                    Shop Now
+                    <ArrowRight className="w-4 h-4" />
                   </Link>
                 </div>
               </div>

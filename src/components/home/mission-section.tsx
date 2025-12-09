@@ -4,44 +4,29 @@ import React, { useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, useInView } from 'framer-motion';
-import { Shield, Droplets, Heart, Leaf, ArrowRight, Sparkles, BadgeCheck } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
 const values = [
   {
-    icon: Shield,
+    number: '01',
     title: 'Preservative-Free',
-    description: 'Single-use vials eliminate the need for irritating preservatives',
-    color: 'bg-blue-50',
-    iconColor: 'text-blue-600',
+    description: 'Single-use vials eliminate the need for irritating preservatives that can damage your eyes over time.',
   },
   {
-    icon: Leaf,
-    title: 'Clean Ingredients',
-    description: 'No phthalates, parabens, or sulfates in any of our formulas',
-    color: 'bg-green-50',
-    iconColor: 'text-green-600',
+    number: '02',
+    title: 'Clean Formulas',
+    description: 'No phthalates, parabens, or sulfates. Just effective, gentle ingredients your eyes deserve.',
   },
   {
-    icon: Droplets,
+    number: '03',
     title: 'Instant Relief',
-    description: 'Ultra-lubricating formula provides comfort for up to 8 hours',
-    color: 'bg-[var(--primary-light)]',
-    iconColor: 'text-[var(--primary-dark)]',
+    description: 'Ultra-lubricating formula that provides lasting comfort throughout your day.',
   },
   {
-    icon: Heart,
-    title: 'Safe for All',
-    description: 'Gentle enough for the whole family, from kids to adults',
-    color: 'bg-pink-50',
-    iconColor: 'text-pink-600',
+    number: '04',
+    title: 'Safe for Everyone',
+    description: 'Gentle enough for the whole family, from sensitive kids to contact lens wearers.',
   },
-];
-
-// Avatar images
-const AVATAR_IMAGES = [
-  'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=60&h=60&fit=crop&crop=face',
-  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&h=60&fit=crop&crop=face',
-  'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=60&h=60&fit=crop&crop=face',
 ];
 
 interface MissionSectionProps {
@@ -51,34 +36,70 @@ interface MissionSectionProps {
 }
 
 export function MissionSection({
-  title = 'Why Archie\'s?',
-  subtitle = 'Eye Care You Can Trust',
-  description = 'After the alarming eye drop recalls, we knew there had to be a better way. We created products that prioritize safety without compromising on effectiveness.',
+  title = 'Why We Exist',
+  description = 'After the alarming eye drop recalls of 2023, we knew there had to be a better way. We set out to create eye care products that prioritize safety without compromising on effectiveness.',
 }: MissionSectionProps) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
 
   return (
-    <section ref={ref} className="py-20 md:py-32 bg-[var(--secondary)] overflow-hidden">
-      <div className="container">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-          {/* Left: Content */}
-          <div>
+    <section ref={ref} className="section bg-[var(--cream)] relative overflow-hidden">
+      {/* Background accent */}
+      <div className="absolute top-0 left-0 w-1/3 h-full bg-gradient-to-r from-white to-transparent" />
+
+      <div className="container relative">
+        <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
+          {/* Left: Editorial Image */}
+          <motion.div
+            initial={{ opacity: 0, x: -60 }}
+            animate={isInView ? { opacity: 1, x: 0 } : {}}
+            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+            className="relative order-2 lg:order-1"
+          >
+            <div className="relative">
+              {/* Main Image */}
+              <div className="aspect-[3/4] rounded-2xl overflow-hidden">
+                <Image
+                  src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=800&h=1000&fit=crop"
+                  alt="Clean eye care"
+                  fill
+                  className="object-cover"
+                />
+              </div>
+
+              {/* Floating stat card */}
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={isInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ delay: 0.6, duration: 0.8 }}
+                className="absolute -bottom-8 -right-8 lg:right-8 bg-white p-8 rounded-2xl shadow-2xl max-w-xs"
+              >
+                <p className="text-5xl font-normal tracking-tight mb-2">2,500+</p>
+                <p className="text-[var(--muted-foreground)]">customers who made the switch to clean eye care</p>
+              </motion.div>
+
+              {/* Decorative element */}
+              <div className="absolute -top-8 -left-8 w-32 h-32 bg-[var(--primary)] rounded-full opacity-30 blur-3xl" />
+            </div>
+          </motion.div>
+
+          {/* Right: Content */}
+          <div className="order-1 lg:order-2">
             <motion.span
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.5 }}
-              className="inline-flex items-center gap-2 text-xs font-semibold tracking-widest uppercase text-[var(--primary-dark)] mb-6"
+              transition={{ duration: 0.6 }}
+              className="inline-flex items-center gap-3 text-xs font-semibold tracking-[0.2em] uppercase text-[var(--muted-foreground)] mb-8"
             >
-              <Sparkles className="w-4 h-4" />
+              <span className="w-12 h-px bg-[var(--foreground)]" />
               Our Mission
             </motion.span>
 
             <motion.h2
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 30 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="text-3xl md:text-4xl lg:text-5xl font-light mb-4"
+              transition={{ duration: 0.8, delay: 0.1 }}
+              className="mb-8"
             >
               {title}
             </motion.h2>
@@ -86,28 +107,28 @@ export function MissionSection({
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="text-lg text-[var(--muted-foreground)] mb-10 leading-relaxed"
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="text-lg text-[var(--muted-foreground)] mb-12 leading-relaxed max-w-lg"
             >
               {description}
             </motion.p>
 
-            {/* Values Grid */}
-            <div className="grid sm:grid-cols-2 gap-4 mb-10">
+            {/* Values - Editorial numbered list */}
+            <div className="space-y-8 mb-12">
               {values.map((value, index) => (
                 <motion.div
                   key={value.title}
                   initial={{ opacity: 0, y: 20 }}
                   animate={isInView ? { opacity: 1, y: 0 } : {}}
-                  transition={{ duration: 0.5, delay: 0.3 + index * 0.1 }}
-                  className="group flex gap-4 p-4 bg-white rounded-2xl hover:shadow-lg transition-all duration-300"
+                  transition={{ duration: 0.6, delay: 0.3 + index * 0.1 }}
+                  className="flex gap-6"
                 >
-                  <div className={`w-12 h-12 rounded-xl ${value.color} flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform`}>
-                    <value.icon className={`w-6 h-6 ${value.iconColor}`} />
-                  </div>
+                  <span className="text-4xl font-light text-[var(--primary)] shrink-0 w-12">
+                    {value.number}
+                  </span>
                   <div>
-                    <h3 className="font-medium mb-1">{value.title}</h3>
-                    <p className="text-sm text-[var(--muted-foreground)] leading-relaxed">
+                    <h3 className="text-lg font-medium mb-2">{value.title}</h3>
+                    <p className="text-[var(--muted-foreground)] leading-relaxed">
                       {value.description}
                     </p>
                   </div>
@@ -119,83 +140,17 @@ export function MissionSection({
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.5, delay: 0.7 }}
+              transition={{ duration: 0.6, delay: 0.7 }}
             >
               <Link
                 href="/about"
-                className="inline-flex items-center gap-2 text-[var(--foreground)] font-medium hover:gap-3 transition-all duration-300"
+                className="group inline-flex items-center gap-3 text-sm font-medium text-[var(--foreground)] hover:text-[var(--muted-foreground)] transition-colors"
               >
-                Learn Our Story
-                <ArrowRight className="w-5 h-5" />
+                Read Our Full Story
+                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-2" />
               </Link>
             </motion.div>
           </div>
-
-          {/* Right: Visual */}
-          <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            animate={isInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.7, delay: 0.3 }}
-            className="relative"
-          >
-            {/* Main Image Card */}
-            <div className="relative aspect-square rounded-3xl overflow-hidden">
-              <Image
-                src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=800&h=800&fit=crop"
-                alt="Clean eye care"
-                fill
-                className="object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[var(--foreground)]/40 via-transparent to-transparent" />
-
-              {/* Floating Content */}
-              <div className="absolute bottom-0 left-0 right-0 p-8">
-                <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-2xl">
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="flex -space-x-2">
-                      {AVATAR_IMAGES.map((src, i) => (
-                        <div
-                          key={i}
-                          className="w-10 h-10 rounded-full border-2 border-white overflow-hidden"
-                        >
-                          <Image
-                            src={src}
-                            alt="Customer"
-                            width={40}
-                            height={40}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                      ))}
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium">Join 2,500+ customers</p>
-                      <p className="text-xs text-[var(--muted-foreground)]">who made the switch</p>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-wrap gap-2">
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs bg-[var(--primary-light)] rounded-full">
-                      <BadgeCheck className="w-3.5 h-3.5 text-[var(--primary-dark)]" />
-                      Ophthalmologist Tested
-                    </span>
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs bg-[var(--secondary)] rounded-full">
-                      <Shield className="w-3.5 h-3.5 text-green-600" />
-                      FDA Compliant
-                    </span>
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs bg-[var(--secondary)] rounded-full">
-                      <Leaf className="w-3.5 h-3.5 text-green-600" />
-                      Made in USA
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Decorative elements */}
-            <div className="absolute -top-8 -right-8 w-32 h-32 bg-[var(--primary)] rounded-full blur-3xl opacity-30" />
-            <div className="absolute -bottom-8 -left-8 w-40 h-40 bg-[var(--primary-light)] rounded-full blur-3xl opacity-50" />
-          </motion.div>
         </div>
       </div>
     </section>

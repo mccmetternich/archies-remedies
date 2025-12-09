@@ -3,9 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { X, ArrowRight } from 'lucide-react';
 
 interface EmailPopupProps {
   enabled?: boolean;
@@ -18,8 +16,8 @@ interface EmailPopupProps {
 
 export function EmailPopup({
   enabled = true,
-  title = 'Join the Archie\'s Community',
-  subtitle = 'Get 10% off your first order and be the first to know about new products and exclusive offers.',
+  title = 'Join the Clean Eye Care Movement',
+  subtitle = 'Get 10% off your first order plus exclusive access to new products and wellness tips.',
   buttonText = 'Get My 10% Off',
   imageUrl,
   delay = 3000,
@@ -84,96 +82,103 @@ export function EmailPopup({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={handleClose}
-            className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm"
+            className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm"
           />
 
           {/* Modal */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            initial={{ opacity: 0, scale: 0.96, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-[90%] max-w-lg"
+            exit={{ opacity: 0, scale: 0.96, y: 20 }}
+            transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-[92%] max-w-md"
           >
             <div className="bg-white rounded-3xl overflow-hidden shadow-2xl">
               {/* Close button */}
               <button
                 onClick={handleClose}
-                className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center hover:bg-white transition-colors"
+                className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center hover:bg-white transition-colors border border-[var(--border)]"
                 aria-label="Close popup"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
 
-              <div className="flex flex-col md:flex-row">
-                {/* Image side */}
-                <div className="relative h-48 md:h-auto md:w-2/5 bg-gradient-to-br from-[var(--primary-light)] to-[var(--primary)]">
-                  {imageUrl ? (
-                    <Image
-                      src={imageUrl}
-                      alt="Archie's Remedies"
-                      fill
-                      className="object-cover"
-                    />
-                  ) : (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="text-center text-white">
-                        <div className="text-6xl mb-2">💧</div>
-                        <span className="text-sm font-medium opacity-80">Clean Eye Care</span>
-                      </div>
+              {/* Image */}
+              <div className="relative h-48 bg-gradient-to-br from-[var(--primary-light)] via-[var(--cream)] to-[var(--primary)]">
+                {imageUrl ? (
+                  <Image
+                    src={imageUrl}
+                    alt="Archie's Remedies"
+                    fill
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="text-center">
+                      <span className="text-xs font-semibold tracking-[0.2em] uppercase text-[var(--foreground)]/60">
+                        Archie&apos;s Remedies
+                      </span>
                     </div>
-                  )}
-                </div>
+                  </div>
+                )}
+              </div>
 
-                {/* Content side */}
-                <div className="p-8 md:w-3/5">
-                  {status === 'success' ? (
-                    <div className="text-center py-8">
-                      <div className="text-5xl mb-4">🎉</div>
-                      <h3 className="text-2xl font-light mb-2">Welcome!</h3>
-                      <p className="text-[var(--muted-foreground)]">
-                        Check your email for your discount code.
-                      </p>
+              {/* Content */}
+              <div className="p-8">
+                {status === 'success' ? (
+                  <div className="text-center py-4">
+                    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-[var(--primary-light)] flex items-center justify-center">
+                      <span className="text-2xl">✓</span>
                     </div>
-                  ) : (
-                    <>
-                      <h3 className="text-2xl md:text-3xl font-light mb-3">
-                        {title}
-                      </h3>
-                      <p className="text-[var(--muted-foreground)] mb-6">
-                        {subtitle}
-                      </p>
+                    <h3 className="text-2xl font-normal mb-2 tracking-tight">Welcome!</h3>
+                    <p className="text-[var(--muted-foreground)]">
+                      Check your email for your discount code.
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    <h3 className="text-2xl md:text-3xl font-normal mb-3 tracking-tight text-center">
+                      {title}
+                    </h3>
+                    <p className="text-[var(--muted-foreground)] mb-8 text-center leading-relaxed">
+                      {subtitle}
+                    </p>
 
-                      <form onSubmit={handleSubmit} className="space-y-4">
-                        <Input
-                          type="email"
-                          placeholder="Enter your email"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          required
-                          error={status === 'error'}
-                        />
-                        {status === 'error' && (
-                          <p className="text-sm text-[var(--error)]">
-                            Something went wrong. Please try again.
-                          </p>
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                      <input
+                        type="email"
+                        placeholder="Your email address"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                        className="w-full px-5 py-4 text-base bg-[var(--cream)] border-0 rounded-full focus:outline-none focus:ring-2 focus:ring-[var(--primary)] placeholder:text-[var(--muted-foreground)]"
+                      />
+                      {status === 'error' && (
+                        <p className="text-sm text-red-500 text-center">
+                          Something went wrong. Please try again.
+                        </p>
+                      )}
+                      <button
+                        type="submit"
+                        disabled={status === 'loading'}
+                        className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-[var(--foreground)] text-white rounded-full font-medium text-sm hover:bg-black transition-colors disabled:opacity-50"
+                      >
+                        {status === 'loading' ? (
+                          <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        ) : (
+                          <>
+                            {buttonText}
+                            <ArrowRight className="w-4 h-4" />
+                          </>
                         )}
-                        <Button
-                          type="submit"
-                          className="w-full"
-                          size="lg"
-                          loading={status === 'loading'}
-                        >
-                          {buttonText}
-                        </Button>
-                      </form>
+                      </button>
+                    </form>
 
-                      <p className="text-xs text-[var(--muted-foreground)] mt-4 text-center">
-                        By subscribing, you agree to receive marketing emails. Unsubscribe anytime.
-                      </p>
-                    </>
-                  )}
-                </div>
+                    <p className="text-xs text-[var(--muted-foreground)] mt-6 text-center">
+                      No spam, ever. Unsubscribe anytime.
+                    </p>
+                  </>
+                )}
               </div>
             </div>
           </motion.div>
