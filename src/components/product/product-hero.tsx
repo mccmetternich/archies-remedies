@@ -20,6 +20,8 @@ interface ProductHeroProps {
   heroImage: string | null;
   productName: string;
   isNew?: boolean;
+  badge?: string | null;
+  badgeEmoji?: string | null;
 }
 
 // Placeholder product images for demo
@@ -29,7 +31,7 @@ const PLACEHOLDER_IMAGES = [
   'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=800&h=800&fit=crop',
 ];
 
-export function ProductHero({ images, heroImage, productName, isNew }: ProductHeroProps) {
+export function ProductHero({ images, heroImage, productName, isNew, badge, badgeEmoji }: ProductHeroProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [videoOpen, setVideoOpen] = useState(false);
   const [activeVideo, setActiveVideo] = useState<string | null>(null);
@@ -73,8 +75,18 @@ export function ProductHero({ images, heroImage, productName, isNew }: ProductHe
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
         >
-          {/* NEW Badge */}
-          {isNew && (
+          {/* Product Badge - Editable from admin */}
+          {badge && (
+            <div className="absolute top-6 right-6 z-20">
+              <span className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-[var(--foreground)] text-white rounded-full text-sm font-medium shadow-lg">
+                {badgeEmoji && <span>{badgeEmoji}</span>}
+                {badge}
+              </span>
+            </div>
+          )}
+
+          {/* Legacy NEW Badge */}
+          {isNew && !badge && (
             <div className="absolute top-6 left-6 z-20">
               <span className="badge badge-new px-4 py-2 text-sm shadow-lg">
                 NEW

@@ -48,10 +48,10 @@ export function Footer({
   };
 
   return (
-    <footer className="bg-[var(--cream)]">
-      {/* Newsletter Section */}
-      <div className="border-t border-[var(--border)]">
-        <div className="container py-20 md:py-28">
+    <footer>
+      {/* Newsletter Section - Better spacing from content above */}
+      <div className="bg-[var(--cream)] py-24 md:py-32">
+        <div className="container">
           <div className="max-w-4xl mx-auto text-center">
             <span className="inline-flex items-center gap-3 text-xs font-semibold tracking-[0.2em] uppercase text-[var(--muted-foreground)] mb-6">
               <span className="w-12 h-px bg-[var(--foreground)]" />
@@ -103,9 +103,9 @@ export function Footer({
         </div>
       </div>
 
-      {/* Main Footer */}
-      <div className="border-t border-[var(--border)]">
-        <div className="container py-16 md:py-20">
+      {/* Main Footer - Blue Background */}
+      <div className="bg-[var(--primary)]">
+        <div className="container py-20 md:py-24">
           <div className="grid grid-cols-2 md:grid-cols-12 gap-10 md:gap-8">
             {/* Brand Column */}
             <div className="col-span-2 md:col-span-4">
@@ -118,9 +118,9 @@ export function Footer({
                   className="h-9 w-auto mb-6"
                 />
               ) : (
-                <span className="text-lg font-medium block mb-6 tracking-tight">Archie&apos;s Remedies</span>
+                <span className="text-lg font-medium block mb-6 tracking-tight text-[var(--foreground)]">Archie&apos;s Remedies</span>
               )}
-              <p className="text-[var(--muted-foreground)] text-sm leading-relaxed mb-8 max-w-xs">
+              <p className="text-[var(--foreground)]/70 text-sm leading-relaxed mb-8 max-w-xs">
                 Clean, effective eye care made without preservatives, phthalates, parabens, or sulfates.
               </p>
 
@@ -131,7 +131,7 @@ export function Footer({
                     href={instagramUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-10 h-10 rounded-full bg-white border border-[var(--border)] flex items-center justify-center text-[var(--foreground)] hover:bg-[var(--foreground)] hover:text-white hover:border-[var(--foreground)] transition-all duration-300"
+                    className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-[var(--foreground)] hover:bg-white hover:text-[var(--foreground)] transition-all duration-300"
                     aria-label="Instagram"
                   >
                     <Instagram className="w-4 h-4" />
@@ -142,7 +142,7 @@ export function Footer({
                     href={facebookUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-10 h-10 rounded-full bg-white border border-[var(--border)] flex items-center justify-center text-[var(--foreground)] hover:bg-[var(--foreground)] hover:text-white hover:border-[var(--foreground)] transition-all duration-300"
+                    className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-[var(--foreground)] hover:bg-white hover:text-[var(--foreground)] transition-all duration-300"
                     aria-label="Facebook"
                   >
                     <Facebook className="w-4 h-4" />
@@ -153,7 +153,7 @@ export function Footer({
                     href={tiktokUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-10 h-10 rounded-full bg-white border border-[var(--border)] flex items-center justify-center text-[var(--foreground)] hover:bg-[var(--foreground)] hover:text-white hover:border-[var(--foreground)] transition-all duration-300"
+                    className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-[var(--foreground)] hover:bg-white hover:text-[var(--foreground)] transition-all duration-300"
                     aria-label="TikTok"
                   >
                     <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
@@ -166,14 +166,14 @@ export function Footer({
 
             {/* Shop Column */}
             <div className="md:col-span-2">
-              <h4 className="text-xs font-semibold tracking-[0.2em] uppercase text-[var(--muted-foreground)] mb-6">
+              <h4 className="text-xs font-semibold tracking-[0.2em] uppercase text-[var(--foreground)]/60 mb-6">
                 Shop
               </h4>
               <ul className="space-y-4">
                 <li>
                   <Link
                     href="/products/eye-drops"
-                    className="text-sm text-[var(--foreground)] hover:text-[var(--muted-foreground)] transition-colors"
+                    className="text-sm text-[var(--foreground)] hover:text-[var(--foreground)]/70 transition-colors"
                   >
                     Eye Drops
                   </Link>
@@ -181,7 +181,7 @@ export function Footer({
                 <li>
                   <Link
                     href="/products/eye-wipes"
-                    className="text-sm text-[var(--foreground)] hover:text-[var(--muted-foreground)] transition-colors"
+                    className="text-sm text-[var(--foreground)] hover:text-[var(--foreground)]/70 transition-colors"
                   >
                     Eye Wipes
                   </Link>
@@ -192,7 +192,7 @@ export function Footer({
                       href={amazonStoreUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sm text-[var(--foreground)] hover:text-[var(--muted-foreground)] transition-colors flex items-center gap-1"
+                      className="text-sm text-[var(--foreground)] hover:text-[var(--foreground)]/70 transition-colors flex items-center gap-1"
                     >
                       Amazon Store
                       <ArrowRight className="w-3 h-3" />
@@ -204,14 +204,14 @@ export function Footer({
 
             {/* Company Column */}
             <div className="md:col-span-2">
-              <h4 className="text-xs font-semibold tracking-[0.2em] uppercase text-[var(--muted-foreground)] mb-6">
+              <h4 className="text-xs font-semibold tracking-[0.2em] uppercase text-[var(--foreground)]/60 mb-6">
                 Company
               </h4>
               <ul className="space-y-4">
                 <li>
                   <Link
                     href="/about"
-                    className="text-sm text-[var(--foreground)] hover:text-[var(--muted-foreground)] transition-colors"
+                    className="text-sm text-[var(--foreground)] hover:text-[var(--foreground)]/70 transition-colors"
                   >
                     About Us
                   </Link>
@@ -219,7 +219,7 @@ export function Footer({
                 <li>
                   <Link
                     href="/contact"
-                    className="text-sm text-[var(--foreground)] hover:text-[var(--muted-foreground)] transition-colors"
+                    className="text-sm text-[var(--foreground)] hover:text-[var(--foreground)]/70 transition-colors"
                   >
                     Contact
                   </Link>
@@ -227,7 +227,7 @@ export function Footer({
                 <li>
                   <Link
                     href="/faq"
-                    className="text-sm text-[var(--foreground)] hover:text-[var(--muted-foreground)] transition-colors"
+                    className="text-sm text-[var(--foreground)] hover:text-[var(--foreground)]/70 transition-colors"
                   >
                     FAQ
                   </Link>
@@ -237,14 +237,14 @@ export function Footer({
 
             {/* Legal Column */}
             <div className="md:col-span-2">
-              <h4 className="text-xs font-semibold tracking-[0.2em] uppercase text-[var(--muted-foreground)] mb-6">
+              <h4 className="text-xs font-semibold tracking-[0.2em] uppercase text-[var(--foreground)]/60 mb-6">
                 Legal
               </h4>
               <ul className="space-y-4">
                 <li>
                   <Link
                     href="/privacy"
-                    className="text-sm text-[var(--foreground)] hover:text-[var(--muted-foreground)] transition-colors"
+                    className="text-sm text-[var(--foreground)] hover:text-[var(--foreground)]/70 transition-colors"
                   >
                     Privacy Policy
                   </Link>
@@ -252,7 +252,7 @@ export function Footer({
                 <li>
                   <Link
                     href="/terms"
-                    className="text-sm text-[var(--foreground)] hover:text-[var(--muted-foreground)] transition-colors"
+                    className="text-sm text-[var(--foreground)] hover:text-[var(--foreground)]/70 transition-colors"
                   >
                     Terms of Service
                   </Link>
@@ -262,28 +262,28 @@ export function Footer({
 
             {/* Reviews Badge */}
             <div className="col-span-2 md:col-span-2">
-              <h4 className="text-xs font-semibold tracking-[0.2em] uppercase text-[var(--muted-foreground)] mb-6">
+              <h4 className="text-xs font-semibold tracking-[0.2em] uppercase text-[var(--foreground)]/60 mb-6">
                 Reviews
               </h4>
-              <div className="bg-white rounded-2xl p-6 border border-[var(--border)]">
+              <div className="bg-white rounded-2xl p-6">
                 <div className="flex gap-1 mb-3">
                   {[1,2,3,4,5].map(i => (
                     <Star key={i} className="w-4 h-4 fill-[var(--foreground)] text-[var(--foreground)]" />
                   ))}
                 </div>
-                <p className="text-2xl font-normal tracking-tight mb-1">4.9</p>
+                <p className="text-2xl font-normal tracking-tight mb-1 text-[var(--foreground)]">4.9</p>
                 <p className="text-xs text-[var(--muted-foreground)]">2,500+ verified reviews</p>
               </div>
             </div>
           </div>
 
           {/* Bottom Bar */}
-          <div className="mt-16 pt-8 border-t border-[var(--border)]">
+          <div className="mt-16 pt-8 border-t border-[var(--foreground)]/10">
             <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-              <p className="text-sm text-[var(--muted-foreground)]">
+              <p className="text-sm text-[var(--foreground)]/70">
                 &copy; {new Date().getFullYear()} Archie&apos;s Remedies. All rights reserved.
               </p>
-              <p className="text-xs text-[var(--muted-foreground)]">
+              <p className="text-xs text-[var(--foreground)]/70">
                 Made with care in the USA
               </p>
             </div>

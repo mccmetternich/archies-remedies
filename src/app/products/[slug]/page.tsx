@@ -120,6 +120,8 @@ export default async function ProductPage({ params }: PageProps) {
               images={product.images}
               heroImage={product.heroImageUrl}
               productName={product.name}
+              badge={product.badge}
+              badgeEmoji={product.badgeEmoji}
             />
 
             {/* Right: Info */}

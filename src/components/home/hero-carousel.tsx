@@ -148,7 +148,7 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
                   {slide.buttonUrl && (
                     <Link
                       href={slide.buttonUrl}
-                      className="group inline-flex items-center gap-3 px-8 py-4 bg-[var(--foreground)] text-white rounded-full text-sm font-medium hover:bg-black transition-all duration-300 hover:gap-4"
+                      className="group inline-flex items-center gap-3 px-8 py-4 bg-[var(--primary)] text-[var(--foreground)] rounded-full text-sm font-medium hover:bg-[var(--primary-dark)] transition-all duration-300 hover:gap-4 shadow-lg"
                     >
                       {slide.buttonText || 'Shop Now'}
                       <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
@@ -156,9 +156,9 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
                   )}
                   <Link
                     href="/about"
-                    className="inline-flex items-center gap-2 px-6 py-4 text-sm font-medium text-[var(--foreground)] hover:text-[var(--muted-foreground)] transition-colors"
+                    className="inline-flex items-center gap-2 px-6 py-4 text-sm font-medium text-[var(--foreground)] hover:text-[var(--muted-foreground)] transition-colors border border-[var(--foreground)]/20 rounded-full"
                   >
-                    Our Story
+                    Our Mission
                     <ArrowRight className="w-4 h-4" />
                   </Link>
                 </motion.div>

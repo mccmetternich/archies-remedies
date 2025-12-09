@@ -78,8 +78,8 @@ export function Header({ logo, products = [] }: HeaderProps) {
               )}
             </Link>
 
-            {/* Desktop Navigation - Centered */}
-            <div className="hidden lg:flex items-center gap-12">
+            {/* Desktop Navigation - More to the right */}
+            <div className="hidden lg:flex items-center gap-10 ml-auto mr-8">
               {/* Shop Dropdown */}
               <div
                 className="relative"
@@ -88,14 +88,14 @@ export function Header({ logo, products = [] }: HeaderProps) {
               >
                 <button
                   className={cn(
-                    'flex items-center gap-1.5 text-sm tracking-wide transition-colors py-2',
+                    'flex items-center gap-2 text-base font-medium tracking-wide transition-colors py-3',
                     shopOpen ? 'text-[var(--muted-foreground)]' : 'hover:text-[var(--muted-foreground)]'
                   )}
                 >
                   Shop
                   <ChevronDown
                     className={cn(
-                      'w-3.5 h-3.5 transition-transform duration-300',
+                      'w-4 h-4 transition-transform duration-300',
                       shopOpen && 'rotate-180'
                     )}
                   />
@@ -104,23 +104,9 @@ export function Header({ logo, products = [] }: HeaderProps) {
 
               <Link
                 href="/about"
-                className="text-sm tracking-wide hover:text-[var(--muted-foreground)] transition-colors py-2"
+                className="text-base font-medium tracking-wide hover:text-[var(--muted-foreground)] transition-colors py-3"
               >
-                About
-              </Link>
-
-              <Link
-                href="/faq"
-                className="text-sm tracking-wide hover:text-[var(--muted-foreground)] transition-colors py-2"
-              >
-                FAQ
-              </Link>
-
-              <Link
-                href="/contact"
-                className="text-sm tracking-wide hover:text-[var(--muted-foreground)] transition-colors py-2"
-              >
-                Contact
+                Our Mission
               </Link>
             </div>
 
@@ -146,7 +132,7 @@ export function Header({ logo, products = [] }: HeaderProps) {
           </div>
         </nav>
 
-        {/* Mega Nav Dropdown */}
+        {/* Mega Nav Dropdown - Chunky and Beautiful */}
         <AnimatePresence>
           {shopOpen && (
             <motion.div
@@ -154,129 +140,110 @@ export function Header({ logo, products = [] }: HeaderProps) {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-              className="absolute top-full left-0 right-0 bg-white border-t border-[var(--border-light)] shadow-lg"
+              className="absolute top-full left-0 right-0 bg-white border-t border-[var(--border-light)] shadow-2xl"
               onMouseEnter={() => setShopOpen(true)}
               onMouseLeave={() => setShopOpen(false)}
             >
-              <div className="container py-12">
-                <div className="grid lg:grid-cols-12 gap-12">
-                  {/* Products Section */}
+              <div className="container py-16">
+                <div className="grid lg:grid-cols-12 gap-16">
+                  {/* Products Section - Bigger tiles */}
                   <div className="lg:col-span-8">
-                    <div className="flex items-center justify-between mb-8">
-                      <span className="text-xs font-semibold tracking-[0.2em] uppercase text-[var(--muted-foreground)]">
+                    <div className="flex items-center justify-between mb-10">
+                      <span className="text-sm font-semibold tracking-[0.15em] uppercase text-[var(--muted-foreground)]">
                         Our Products
                       </span>
-                      <Link
-                        href="/products"
-                        className="text-xs font-medium text-[var(--foreground)] hover:text-[var(--muted-foreground)] flex items-center gap-1 transition-colors"
-                      >
-                        View All <ArrowRight className="w-3 h-3" />
-                      </Link>
                     </div>
-                    <div className="grid md:grid-cols-2 gap-6">
-                      {/* Eye Drops */}
+                    <div className="grid md:grid-cols-2 gap-8">
+                      {/* Eye Drops - Image above copy */}
                       <Link
                         href="/products/eye-drops"
-                        className="group flex items-center gap-6 p-6 rounded-2xl bg-[var(--cream)] hover:bg-[var(--sand)] transition-all duration-500"
+                        className="group block p-6 rounded-3xl bg-[var(--cream)] hover:bg-[var(--sand)] transition-all duration-500"
                       >
-                        <div className="w-28 h-28 rounded-xl overflow-hidden bg-white shrink-0">
-                          <Image
-                            src={products.find(p => p.slug === 'eye-drops')?.heroImageUrl || PRODUCT_IMAGES['eye-drops']}
-                            alt="Eye Drops"
-                            width={112}
-                            height={112}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                          />
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <span className="text-xs px-2 py-1 bg-white rounded-full">Bestseller</span>
+                        {/* Badge */}
+                        <div className="relative mb-5">
+                          <div className="aspect-square w-full rounded-2xl overflow-hidden bg-white">
+                            <Image
+                              src={products.find(p => p.slug === 'eye-drops')?.heroImageUrl || PRODUCT_IMAGES['eye-drops']}
+                              alt="Eye Drops"
+                              width={400}
+                              height={400}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                            />
                           </div>
-                          <h4 className="text-lg font-medium mb-2 group-hover:text-[var(--muted-foreground)] transition-colors">
-                            Preservative-Free Eye Drops
-                          </h4>
-                          <div className="flex items-center gap-2">
-                            <div className="flex gap-0.5">
-                              {[1,2,3,4,5].map(i => (
-                                <Star key={i} className="w-3 h-3 fill-[var(--foreground)] text-[var(--foreground)]" />
-                              ))}
-                            </div>
-                            <span className="text-xs text-[var(--muted-foreground)]">2,100+ reviews</span>
-                          </div>
+                          <span className="absolute top-4 right-4 text-xs px-3 py-1.5 bg-[var(--foreground)] text-white rounded-full font-medium flex items-center gap-1.5">
+                            🔥 Bestseller
+                          </span>
                         </div>
-                        <ArrowRight className="w-5 h-5 text-[var(--muted-foreground)] group-hover:translate-x-1 transition-transform" />
+                        <h4 className="text-xl font-medium mb-2 group-hover:text-[var(--muted-foreground)] transition-colors">
+                          Preservative-Free Eye Drops
+                        </h4>
+                        <p className="text-sm text-[var(--muted-foreground)] mb-3">
+                          Ultra-lubricating formula for instant, lasting relief
+                        </p>
+                        <div className="flex items-center gap-2">
+                          <div className="flex gap-0.5">
+                            {[1,2,3,4,5].map(i => (
+                              <Star key={i} className="w-3.5 h-3.5 fill-[var(--foreground)] text-[var(--foreground)]" />
+                            ))}
+                          </div>
+                          <span className="text-sm text-[var(--muted-foreground)]">2,100+ reviews</span>
+                        </div>
                       </Link>
 
-                      {/* Eye Wipes */}
+                      {/* Eye Wipes - Image above copy */}
                       <Link
                         href="/products/eye-wipes"
-                        className="group flex items-center gap-6 p-6 rounded-2xl bg-[var(--cream)] hover:bg-[var(--sand)] transition-all duration-500"
+                        className="group block p-6 rounded-3xl bg-[var(--cream)] hover:bg-[var(--sand)] transition-all duration-500"
                       >
-                        <div className="w-28 h-28 rounded-xl overflow-hidden bg-white shrink-0">
-                          <Image
-                            src={products.find(p => p.slug === 'eye-wipes')?.heroImageUrl || PRODUCT_IMAGES['eye-wipes']}
-                            alt="Eye Wipes"
-                            width={112}
-                            height={112}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                          />
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <span className="text-xs px-2 py-1 bg-white rounded-full flex items-center gap-1">
-                              <span className="w-1.5 h-1.5 bg-[var(--primary)] rounded-full" />
-                              New
-                            </span>
+                        {/* Badge */}
+                        <div className="relative mb-5">
+                          <div className="aspect-square w-full rounded-2xl overflow-hidden bg-white">
+                            <Image
+                              src={products.find(p => p.slug === 'eye-wipes')?.heroImageUrl || PRODUCT_IMAGES['eye-wipes']}
+                              alt="Eye Wipes"
+                              width={400}
+                              height={400}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                            />
                           </div>
-                          <h4 className="text-lg font-medium mb-2 group-hover:text-[var(--muted-foreground)] transition-colors">
-                            Gentle Lid & Lash Wipes
-                          </h4>
-                          <div className="flex items-center gap-2">
-                            <div className="flex gap-0.5">
-                              {[1,2,3,4,5].map(i => (
-                                <Star key={i} className="w-3 h-3 fill-[var(--foreground)] text-[var(--foreground)]" />
-                              ))}
-                            </div>
-                            <span className="text-xs text-[var(--muted-foreground)]">850+ reviews</span>
-                          </div>
+                          <span className="absolute top-4 right-4 text-xs px-3 py-1.5 bg-[var(--primary)] text-[var(--foreground)] rounded-full font-medium flex items-center gap-1.5">
+                            ✨ Just Launched
+                          </span>
                         </div>
-                        <ArrowRight className="w-5 h-5 text-[var(--muted-foreground)] group-hover:translate-x-1 transition-transform" />
+                        <h4 className="text-xl font-medium mb-2 group-hover:text-[var(--muted-foreground)] transition-colors">
+                          Gentle Lid & Lash Wipes
+                        </h4>
+                        <p className="text-sm text-[var(--muted-foreground)] mb-3">
+                          Daily cleansing wipes for lids, lashes & brows
+                        </p>
+                        <div className="flex items-center gap-2">
+                          <div className="flex gap-0.5">
+                            {[1,2,3,4,5].map(i => (
+                              <Star key={i} className="w-3.5 h-3.5 fill-[var(--foreground)] text-[var(--foreground)]" />
+                            ))}
+                          </div>
+                          <span className="text-sm text-[var(--muted-foreground)]">850+ reviews</span>
+                        </div>
                       </Link>
                     </div>
                   </div>
 
-                  {/* Quick Links */}
-                  <div className="lg:col-span-4">
-                    <span className="text-xs font-semibold tracking-[0.2em] uppercase text-[var(--muted-foreground)] mb-8 block">
-                      Learn More
-                    </span>
-                    <ul className="space-y-4">
-                      <li>
-                        <Link href="/about" className="text-sm hover:text-[var(--muted-foreground)] transition-colors flex items-center gap-3">
-                          <span className="w-8 h-px bg-[var(--border)]" />
-                          Our Story
-                        </Link>
-                      </li>
-                      <li>
-                        <Link href="/faq" className="text-sm hover:text-[var(--muted-foreground)] transition-colors flex items-center gap-3">
-                          <span className="w-8 h-px bg-[var(--border)]" />
-                          Common Questions
-                        </Link>
-                      </li>
-                      <li>
-                        <Link href="/contact" className="text-sm hover:text-[var(--muted-foreground)] transition-colors flex items-center gap-3">
-                          <span className="w-8 h-px bg-[var(--border)]" />
-                          Get in Touch
-                        </Link>
-                      </li>
-                    </ul>
-
-                    {/* Trust Badge */}
-                    <div className="mt-10 p-6 rounded-2xl bg-[var(--primary-light)]">
-                      <p className="text-sm font-medium mb-2">Clean Formulas</p>
-                      <p className="text-sm text-[var(--muted-foreground)] leading-relaxed">
-                        No preservatives, phthalates, parabens, or sulfates.
+                  {/* Trust Badge - Properly aligned */}
+                  <div className="lg:col-span-4 flex items-center">
+                    <div className="w-full p-8 rounded-3xl bg-[var(--primary-light)]">
+                      <span className="inline-flex items-center gap-2 text-xs font-semibold tracking-[0.15em] uppercase text-[var(--foreground)]/60 mb-4">
+                        <span className="w-8 h-px bg-[var(--foreground)]/30" />
+                        Our Promise
+                      </span>
+                      <p className="text-2xl font-normal mb-4">Clean Formulas</p>
+                      <p className="text-[var(--muted-foreground)] leading-relaxed mb-6">
+                        No preservatives, phthalates, parabens, or sulfates. Just effective, gentle ingredients your eyes deserve.
                       </p>
+                      <div className="flex flex-wrap gap-2">
+                        <span className="text-xs px-3 py-1.5 bg-white rounded-full">Preservative-Free</span>
+                        <span className="text-xs px-3 py-1.5 bg-white rounded-full">Paraben-Free</span>
+                        <span className="text-xs px-3 py-1.5 bg-white rounded-full">Sulfate-Free</span>
+                      </div>
                     </div>
                   </div>
                 </div>

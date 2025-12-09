@@ -59,6 +59,10 @@ export const products = sqliteTable('products', {
   // Media
   heroImageUrl: text('hero_image_url'),
 
+  // Badge (editable in admin) - e.g., "Bestseller", "Just Launched"
+  badge: text('badge'),
+  badgeEmoji: text('badge_emoji'), // e.g., "🔥", "✨"
+
   // SEO
   metaTitle: text('meta_title'),
   metaDescription: text('meta_description'),
