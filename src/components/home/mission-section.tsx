@@ -39,7 +39,7 @@ export function MissionSection({
   description = 'After the alarming eye drop recalls of 2023, we knew there had to be a better way. We set out to create eye care products that prioritize safety without compromising on effectiveness.',
 }: MissionSectionProps) {
   return (
-    <section className="section bg-[var(--cream)] relative overflow-hidden">
+    <section className="py-12 md:py-16 lg:py-20 bg-[var(--cream)] relative overflow-hidden">
       {/* Background accent */}
       <div className="absolute top-0 left-0 w-1/3 h-full bg-gradient-to-r from-white to-transparent" />
 

@@ -49,8 +49,8 @@ export function Footer({
 
   return (
     <footer>
-      {/* Newsletter Section - More spacing */}
-      <div className="bg-[var(--cream)] pt-20 pb-24 md:pt-24 md:pb-32">
+      {/* Newsletter Section */}
+      <div className="bg-[var(--cream)] pt-12 pb-16 md:pt-16 md:pb-20">
         <div className="container">
           <div className="max-w-4xl mx-auto text-center">
             <span className="inline-flex items-center gap-3 text-xs font-semibold tracking-[0.2em] uppercase text-[var(--muted-foreground)] mb-8">
@@ -78,7 +78,7 @@ export function Footer({
                 <button
                   type="submit"
                   disabled={status === 'loading'}
-                  className="px-8 py-4 bg-[var(--foreground)] text-white rounded-full text-sm font-medium hover:bg-black transition-colors disabled:opacity-50"
+                  className="px-8 py-4 bg-[var(--foreground)] text-white rounded-full text-sm font-medium hover:bg-[var(--primary)] hover:text-[var(--foreground)] transition-colors disabled:opacity-50"
                 >
                   {status === 'loading' ? (
                     <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin inline-block" />
@@ -90,22 +90,22 @@ export function Footer({
                 </button>
               </div>
               {status === 'error' && (
-                <p className="text-red-500 text-sm mt-3">Something went wrong. Please try again.</p>
+                <p className="text-red-500 text-sm mt-4">Something went wrong. Please try again.</p>
               )}
               {status === 'success' && (
-                <p className="text-[var(--foreground)] text-sm mt-3">Welcome to the community!</p>
+                <p className="text-[var(--foreground)] text-sm mt-4">Welcome to the community!</p>
               )}
             </form>
-            <p className="text-xs text-[var(--muted-foreground)] mt-4">
+            <p className="text-xs text-[var(--muted-foreground)] mt-6">
               No spam, ever. Unsubscribe anytime.
             </p>
           </div>
         </div>
       </div>
 
-      {/* Main Footer - Blue Background - More room at top */}
+      {/* Main Footer - Blue Background - Proper padding */}
       <div className="bg-[var(--primary)]">
-        <div className="container pt-24 pb-20 md:pt-28 md:pb-24">
+        <div className="container py-16 md:py-20 lg:py-24">
           <div className="grid grid-cols-2 md:grid-cols-12 gap-10 md:gap-8">
             {/* Brand Column */}
             <div className="col-span-2 md:col-span-4">

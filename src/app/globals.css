@@ -548,6 +548,11 @@ a {
   animation: marquee-reverse 30s linear infinite;
 }
 
+/* Continuous marquee - fills viewport immediately */
+.animate-marquee-continuous {
+  animation: marquee 40s linear infinite;
+}
+
 /* Scrolling text bar animations */
 @keyframes scroll-left {
   0% { transform: translateX(0); }

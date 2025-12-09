@@ -10,6 +10,7 @@ import { MissionSection } from '@/components/home/mission-section';
 import { VideoTestimonials } from '@/components/home/video-testimonials';
 import { InstagramFeed } from '@/components/home/instagram-feed';
 import { EmailPopup } from '@/components/home/email-popup';
+import { ScrollingTextBar } from '@/components/ui/scrolling-text-bar';
 
 export const revalidate = 60; // Revalidate every minute
 
@@ -81,6 +82,14 @@ export default async function HomePage() {
       <main>
         {/* Hero Carousel */}
         <HeroCarousel slides={data.slides} />
+
+        {/* Scrolling Text Bar - XL Dark Style */}
+        <ScrollingTextBar
+          text="Preservative-Free ✦ Clean Ingredients ✦ Doctor Trusted ✦ Instant Relief ✦ Gentle Formula ✦ Made with Love"
+          size="xl"
+          speed="slow"
+          stylePreset="dark"
+        />
 
         {/* Product Tiles */}
         <ProductTiles

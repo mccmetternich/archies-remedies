@@ -126,7 +126,7 @@ export function Header({ logo, products = [], bumper, socialStats }: HeaderProps
               )}
             </Link>
 
-            {/* Desktop Navigation - Closer to logo on the left */}
+            {/* Desktop Navigation - Shop on left */}
             <div className="hidden lg:flex items-center gap-10 ml-12">
               {/* Shop Dropdown */}
               <div
@@ -149,23 +149,24 @@ export function Header({ logo, products = [], bumper, socialStats }: HeaderProps
                   />
                 </button>
               </div>
+            </div>
 
+            {/* Spacer to push right items */}
+            <div className="hidden lg:block flex-1" />
+
+            {/* Our Mission - on the right before CTA */}
+            <div className="hidden lg:flex items-center gap-8">
               <Link
                 href="/about"
                 className="text-base font-medium tracking-wide hover:text-[var(--muted-foreground)] transition-colors py-3"
               >
                 Our Mission
               </Link>
-            </div>
 
-            {/* Spacer to push CTA to right */}
-            <div className="hidden lg:block flex-1" />
-
-            {/* CTA Button - Bigger with blue background, readable text */}
-            <div className="hidden lg:block">
+              {/* CTA Button - Dark background with white text, blue hover */}
               <Link
                 href="/products/eye-drops"
-                className="group inline-flex items-center gap-3 px-10 py-5 bg-[var(--foreground)] text-white rounded-full text-lg font-semibold hover:bg-black transition-all duration-300 shadow-lg hover:shadow-xl"
+                className="group inline-flex items-center gap-3 px-10 py-5 bg-[var(--foreground)] text-white rounded-full text-lg font-semibold hover:bg-[var(--primary)] hover:text-[var(--foreground)] transition-all duration-300 shadow-lg hover:shadow-xl"
               >
                 Shop Now
                 <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
@@ -195,24 +196,19 @@ export function Header({ logo, products = [], bumper, socialStats }: HeaderProps
               onMouseEnter={() => setShopOpen(true)}
               onMouseLeave={() => setShopOpen(false)}
             >
-              <div className="container py-16 pb-32">
-                <div className="grid lg:grid-cols-12 gap-16">
-                  {/* Products Section - Bigger tiles */}
+              <div className="container py-12 pb-16">
+                {/* All items top-aligned in a row */}
+                <div className="grid lg:grid-cols-12 gap-8 items-start">
+                  {/* Product tiles - 2 columns */}
                   <div className="lg:col-span-8">
-                    <div className="flex items-center justify-between mb-10">
-                      <span className="text-sm font-semibold tracking-[0.15em] uppercase text-[var(--muted-foreground)]">
-                        Our Products
-                      </span>
-                    </div>
-                    <div className="grid md:grid-cols-2 gap-8 mb-8">
-                      {/* Eye Drops - Stars above title, blue */}
+                    <div className="grid md:grid-cols-2 gap-6">
+                      {/* Eye Drops */}
                       <Link
                         href="/products/eye-drops"
-                        className="group block p-6 rounded-3xl bg-[var(--cream)] hover:bg-[var(--sand)] transition-all duration-500"
+                        className="group block p-5 rounded-2xl bg-[var(--cream)] hover:bg-[var(--sand)] transition-all duration-500"
                       >
-                        {/* Badge */}
-                        <div className="relative mb-5">
-                          <div className="aspect-square w-full rounded-2xl overflow-hidden bg-white">
+                        <div className="relative mb-4">
+                          <div className="aspect-square w-full rounded-xl overflow-hidden bg-white">
                             <Image
                               src={products.find(p => p.slug === 'eye-drops')?.heroImageUrl || PRODUCT_IMAGES['eye-drops']}
                               alt="Eye Drops"
@@ -221,36 +217,34 @@ export function Header({ logo, products = [], bumper, socialStats }: HeaderProps
                               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                             />
                           </div>
-                          <span className="absolute top-4 right-4 text-xs px-3 py-1.5 bg-[var(--foreground)] text-white rounded-full font-medium flex items-center gap-1.5">
+                          <span className="absolute top-3 right-3 text-xs px-2.5 py-1 bg-[var(--foreground)] text-white rounded-full font-medium flex items-center gap-1">
                             🔥 Bestseller
                           </span>
                         </div>
-                        {/* Stars above title - Blue */}
-                        <div className="flex items-center gap-2 mb-2">
+                        <div className="flex items-center gap-2 mb-1.5">
                           <div className="flex gap-0.5">
                             {[1,2,3,4,5].map(i => (
-                              <Star key={i} className="w-4 h-4 fill-[var(--primary)] text-[var(--primary)]" />
+                              <Star key={i} className="w-3.5 h-3.5 fill-[var(--primary)] text-[var(--primary)]" />
                             ))}
                           </div>
                           <span className="text-sm text-[var(--foreground)] font-medium">4.9</span>
-                          <span className="text-sm text-[var(--muted-foreground)]">(2,100+)</span>
+                          <span className="text-xs text-[var(--muted-foreground)]">(2,100+)</span>
                         </div>
-                        <h4 className="text-xl font-medium mb-2 group-hover:text-[var(--muted-foreground)] transition-colors">
+                        <h4 className="text-lg font-medium mb-1 group-hover:text-[var(--muted-foreground)] transition-colors">
                           Preservative-Free Eye Drops
                         </h4>
                         <p className="text-sm text-[var(--muted-foreground)]">
-                          Ultra-lubricating formula for instant, lasting relief
+                          Instant, lasting relief
                         </p>
                       </Link>
 
-                      {/* Eye Wipes - Stars above title, blue */}
+                      {/* Eye Wipes */}
                       <Link
                         href="/products/eye-wipes"
-                        className="group block p-6 rounded-3xl bg-[var(--cream)] hover:bg-[var(--sand)] transition-all duration-500"
+                        className="group block p-5 rounded-2xl bg-[var(--cream)] hover:bg-[var(--sand)] transition-all duration-500"
                       >
-                        {/* Badge */}
-                        <div className="relative mb-5">
-                          <div className="aspect-square w-full rounded-2xl overflow-hidden bg-white">
+                        <div className="relative mb-4">
+                          <div className="aspect-square w-full rounded-xl overflow-hidden bg-white">
                             <Image
                               src={products.find(p => p.slug === 'eye-wipes')?.heroImageUrl || PRODUCT_IMAGES['eye-wipes']}
                               alt="Eye Wipes"
@@ -259,80 +253,64 @@ export function Header({ logo, products = [], bumper, socialStats }: HeaderProps
                               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                             />
                           </div>
-                          <span className="absolute top-4 right-4 text-xs px-3 py-1.5 bg-[var(--primary)] text-[var(--foreground)] rounded-full font-medium flex items-center gap-1.5">
-                            ✨ Just Launched
+                          <span className="absolute top-3 right-3 text-xs px-2.5 py-1 bg-[var(--primary)] text-[var(--foreground)] rounded-full font-medium flex items-center gap-1">
+                            ✨ New
                           </span>
                         </div>
-                        {/* Stars above title - Blue */}
-                        <div className="flex items-center gap-2 mb-2">
+                        <div className="flex items-center gap-2 mb-1.5">
                           <div className="flex gap-0.5">
                             {[1,2,3,4,5].map(i => (
-                              <Star key={i} className="w-4 h-4 fill-[var(--primary)] text-[var(--primary)]" />
+                              <Star key={i} className="w-3.5 h-3.5 fill-[var(--primary)] text-[var(--primary)]" />
                             ))}
                           </div>
                           <span className="text-sm text-[var(--foreground)] font-medium">4.9</span>
-                          <span className="text-sm text-[var(--muted-foreground)]">(850+)</span>
+                          <span className="text-xs text-[var(--muted-foreground)]">(850+)</span>
                         </div>
-                        <h4 className="text-xl font-medium mb-2 group-hover:text-[var(--muted-foreground)] transition-colors">
+                        <h4 className="text-lg font-medium mb-1 group-hover:text-[var(--muted-foreground)] transition-colors">
                           Gentle Lid & Lash Wipes
                         </h4>
                         <p className="text-sm text-[var(--muted-foreground)]">
-                          Daily cleansing wipes for lids, lashes & brows
+                          Daily cleansing wipes
                         </p>
                       </Link>
                     </div>
                   </div>
 
-                  {/* Clean Formulas + Social Proof - Combined into one tile */}
+                  {/* Clean Formulas - Compact tile */}
                   <div className="lg:col-span-4">
-                    <div className="w-full h-full p-8 rounded-3xl bg-[var(--primary-light)] flex flex-col">
-                      <span className="inline-flex items-center gap-2 text-xs font-semibold tracking-[0.15em] uppercase text-[var(--foreground)]/60 mb-4">
-                        <span className="w-8 h-px bg-[var(--foreground)]/30" />
-                        Our Promise
-                      </span>
-                      <p className="text-2xl font-normal mb-4">Clean Formulas</p>
-                      <p className="text-[var(--muted-foreground)] leading-relaxed mb-6">
-                        No preservatives, phthalates, parabens, or sulfates. Just effective, gentle ingredients your eyes deserve.
+                    <div className="p-6 rounded-2xl bg-[var(--primary-light)]">
+                      <p className="text-lg font-medium mb-2">Clean Formulas</p>
+                      <p className="text-sm text-[var(--muted-foreground)] leading-relaxed mb-4">
+                        No preservatives, phthalates, parabens, or sulfates.
                       </p>
-                      <div className="flex flex-wrap gap-2 mb-8">
-                        <span className="text-xs px-3 py-1.5 bg-white rounded-full">Preservative-Free</span>
-                        <span className="text-xs px-3 py-1.5 bg-white rounded-full">Paraben-Free</span>
-                        <span className="text-xs px-3 py-1.5 bg-white rounded-full">Sulfate-Free</span>
+                      <div className="flex flex-wrap gap-1.5 mb-4">
+                        <span className="text-xs px-2.5 py-1 bg-white rounded-full">Preservative-Free</span>
+                        <span className="text-xs px-2.5 py-1 bg-white rounded-full">Paraben-Free</span>
+                        <span className="text-xs px-2.5 py-1 bg-white rounded-full">Sulfate-Free</span>
                       </div>
-
-                      {/* Divider */}
-                      <div className="h-px bg-[var(--foreground)]/10 my-auto" />
-
-                      {/* Social Validation - Same tile */}
-                      <div className="pt-6 mt-auto">
-                        <div className="flex items-center gap-4">
-                          {/* Stacked Avatars */}
-                          <div className="flex -space-x-3">
-                            {SOCIAL_PROOF_AVATARS.map((avatar, idx) => (
-                              <Image
-                                key={idx}
-                                src={avatar}
-                                alt=""
-                                width={40}
-                                height={40}
-                                className="w-10 h-10 rounded-full border-2 border-white shadow-sm object-cover"
-                              />
+                      {/* Social Validation */}
+                      <div className="flex items-center gap-3 pt-4 border-t border-[var(--foreground)]/10">
+                        <div className="flex -space-x-2">
+                          {SOCIAL_PROOF_AVATARS.slice(0, 3).map((avatar, idx) => (
+                            <Image
+                              key={idx}
+                              src={avatar}
+                              alt=""
+                              width={28}
+                              height={28}
+                              className="w-7 h-7 rounded-full border-2 border-white shadow-sm object-cover"
+                            />
+                          ))}
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <div className="flex gap-0.5">
+                            {[1, 2, 3, 4, 5].map((i) => (
+                              <Star key={i} className="w-3 h-3 fill-[var(--primary)] text-[var(--primary)]" />
                             ))}
                           </div>
-                          {/* Stars and Text */}
-                          <div className="flex flex-col">
-                            <div className="flex items-center gap-1">
-                              {[1, 2, 3, 4, 5].map((i) => (
-                                <Star
-                                  key={i}
-                                  className="w-4 h-4 fill-[var(--primary)] text-[var(--primary)]"
-                                />
-                              ))}
-                            </div>
-                            <span className="text-sm text-[var(--foreground)] font-medium">
-                              {socialStats?.totalReviews?.toLocaleString() || '2,900'}+ verified reviews
-                            </span>
-                          </div>
+                          <span className="text-xs text-[var(--foreground)] font-medium">
+                            {socialStats?.totalReviews?.toLocaleString() || '2,900'}+
+                          </span>
                         </div>
                       </div>
                     </div>

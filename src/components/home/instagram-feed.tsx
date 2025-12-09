@@ -44,8 +44,8 @@ export function InstagramFeed({ posts, instagramUrl }: InstagramFeedProps) {
 
   return (
     <section className="py-16 md:py-20 bg-[var(--cream)] overflow-hidden">
-      {/* Header with better spacing */}
-      <div className="container mb-12">
+      {/* Header with proper spacing */}
+      <div className="container mb-16">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-8">
           <div>
             <span className="inline-flex items-center gap-3 text-xs font-semibold tracking-[0.2em] uppercase text-[var(--muted-foreground)] mb-6">
@@ -64,7 +64,7 @@ export function InstagramFeed({ posts, instagramUrl }: InstagramFeedProps) {
               href={instagramUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-3 px-8 py-4 bg-[var(--foreground)] text-white rounded-full font-medium text-sm hover:bg-black transition-colors"
+              className="inline-flex items-center gap-3 px-8 py-4 bg-[var(--foreground)] text-white rounded-full font-medium text-sm hover:bg-[var(--primary)] hover:text-[var(--foreground)] transition-colors"
             >
               <Instagram className="w-5 h-5" />
               Follow Us
@@ -73,9 +73,9 @@ export function InstagramFeed({ posts, instagramUrl }: InstagramFeedProps) {
         </div>
       </div>
 
-      {/* Single Row - Infinite Scrolling Marquee */}
-      <div className="relative">
-        <div className="flex animate-marquee hover:[animation-play-state:paused]">
+      {/* Single Row - Continuous Scrolling Marquee (full width visible) */}
+      <div className="relative w-screen -ml-[50vw] left-1/2">
+        <div className="flex animate-marquee-continuous hover:[animation-play-state:paused]" style={{ width: 'max-content' }}>
           {duplicatedPosts.map((post, index) => (
             <a
               key={`row1-${post.id}-${index}`}
@@ -127,8 +127,8 @@ export function InstagramFeed({ posts, instagramUrl }: InstagramFeedProps) {
         <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-[var(--cream)] to-transparent pointer-events-none z-10" />
       </div>
 
-      {/* Stats Bar - tighter spacing */}
-      <div className="container mt-12">
+      {/* Stats Bar - proper spacing from carousel */}
+      <div className="container mt-16">
         <div className="flex flex-wrap justify-center gap-10 md:gap-16">
           <div className="text-center">
             <p className="text-3xl font-normal tracking-tight">15K+</p>
