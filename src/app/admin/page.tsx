@@ -8,11 +8,12 @@ import {
   contactSubmissions,
   pages,
   pageViews,
+  clickTracking,
 } from '@/lib/db/schema';
 import { eq, desc, sql, gte } from 'drizzle-orm';
 import Link from 'next/link';
 import {
-  Package,
+  ShoppingBag,
   Image,
   Star,
   HelpCircle,
@@ -24,8 +25,13 @@ import {
   Plus,
   Settings,
   Inbox,
-  TrendingUp,
+  Zap,
   MessageSquare,
+  Play,
+  Instagram,
+  Navigation,
+  Layers,
+  MousePointerClick,
 } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
@@ -46,6 +52,7 @@ async function getDashboardData() {
     recentContacts,
     unreadContacts,
     uniqueVisitors,
+    uniqueClicks,
   ] = await Promise.all([
     db.select({ count: sql<number>`count(*)` }).from(products),
     db.select({ count: sql<number>`count(*)` }).from(heroSlides).where(eq(heroSlides.isActive, true)),
@@ -57,6 +64,7 @@ async function getDashboardData() {
     db.select().from(contactSubmissions).orderBy(desc(contactSubmissions.createdAt)).limit(5),
     db.select({ count: sql<number>`count(*)` }).from(contactSubmissions).where(eq(contactSubmissions.isRead, false)),
     db.select({ count: sql<number>`count(distinct ${pageViews.visitorId})` }).from(pageViews).where(gte(pageViews.createdAt, thirtyDaysAgo.toISOString())),
+    db.select({ count: sql<number>`count(distinct ${clickTracking.visitorId})` }).from(clickTracking).where(gte(clickTracking.createdAt, thirtyDaysAgo.toISOString())),
   ]);
 
   return {
@@ -70,6 +78,7 @@ async function getDashboardData() {
       pages: pageCount[0]?.count || 0,
       unreadContacts: unreadContacts[0]?.count || 0,
       uniqueVisitors: uniqueVisitors[0]?.count || 0,
+      uniqueClicks: uniqueClicks[0]?.count || 0,
     },
     recentContacts,
   };
@@ -87,28 +96,28 @@ export default async function AdminDashboard() {
       description: 'Last 30 days',
     },
     {
-      label: 'Products Listed',
+      label: 'Unique Clicks',
+      value: data.stats.uniqueClicks,
+      icon: MousePointerClick,
+      href: '/admin',
+      description: 'External links',
+    },
+    {
+      label: 'Products',
       value: data.stats.products,
-      icon: Package,
+      icon: ShoppingBag,
       href: '/admin/products',
       description: 'Active products',
     },
     {
-      label: 'Pages',
-      value: data.stats.pages,
-      icon: FileText,
-      href: '/admin/pages',
-      description: 'Published pages',
-    },
-    {
-      label: 'Email Subscribers',
+      label: 'Subscribers',
       value: data.stats.subscribers,
       icon: Mail,
       href: '/admin/subscribers',
       description: 'Total signups',
     },
     {
-      label: 'Inbox Messages',
+      label: 'Inbox',
       value: data.stats.contacts,
       icon: Inbox,
       href: '/admin/inbox',
@@ -121,31 +130,36 @@ export default async function AdminDashboard() {
     {
       label: 'Create New Product',
       description: 'Add a new product to your store',
-      icon: Package,
+      icon: ShoppingBag,
       href: '/admin/products/new',
-      color: 'bg-blue-500/10 text-blue-400',
     },
     {
       label: 'Create New Page',
       description: 'Add a new page to your site',
       icon: FileText,
       href: '/admin/pages/new',
-      color: 'bg-green-500/10 text-green-400',
     },
     {
       label: 'Site Settings',
       description: 'Logo, colors, tracking pixels',
       icon: Settings,
       href: '/admin/settings',
-      color: 'bg-purple-500/10 text-purple-400',
     },
     {
-      label: 'Manage Widgets',
+      label: 'Widget Library',
       description: 'Hero, testimonials, FAQs',
-      icon: Image,
+      icon: Layers,
       href: '/admin/hero-slides',
-      color: 'bg-orange-500/10 text-orange-400',
     },
+  ];
+
+  const widgetItems = [
+    { label: 'Hero Slides', value: data.stats.heroSlides, icon: Image, href: '/admin/hero-slides' },
+    { label: 'Testimonials', value: data.stats.testimonials, icon: Star, href: '/admin/testimonials' },
+    { label: 'Video Reviews', value: 0, icon: Play, href: '/admin/video-testimonials' },
+    { label: 'Instagram', value: 0, icon: Instagram, href: '/admin/instagram' },
+    { label: 'FAQs', value: data.stats.faqs, icon: HelpCircle, href: '/admin/faqs' },
+    { label: 'Navigation', value: '-', icon: Navigation, href: '/admin/navigation' },
   ];
 
   return (
@@ -167,11 +181,11 @@ export default async function AdminDashboard() {
             className="bg-[#111111] rounded-xl p-5 border border-[#1f1f1f] hover:border-[var(--primary)] transition-all group relative overflow-hidden"
           >
             <div className="flex items-center justify-between mb-4">
-              <div className="w-10 h-10 rounded-xl bg-[#1a1a1a] flex items-center justify-center group-hover:bg-[var(--primary)]/10 transition-colors">
-                <stat.icon className="w-5 h-5 text-gray-400 group-hover:text-[var(--primary)] transition-colors" />
+              <div className="w-10 h-10 rounded-full bg-[var(--primary)] flex items-center justify-center">
+                <stat.icon className="w-5 h-5 text-gray-700" />
               </div>
               {stat.badge && (
-                <span className="px-2.5 py-1 text-xs font-medium bg-[var(--primary)] text-[#0a0a0a] rounded-full">
+                <span className="px-2.5 py-1 text-xs font-medium bg-red-500 text-white rounded-full">
                   {stat.badge} new
                 </span>
               )}
@@ -192,7 +206,9 @@ export default async function AdminDashboard() {
         <div className="bg-[#111111] rounded-xl border border-[#1f1f1f] p-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="font-medium text-white flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-[var(--primary)]" />
+              <div className="w-6 h-6 rounded-full bg-[var(--primary)] flex items-center justify-center">
+                <Zap className="w-3.5 h-3.5 text-gray-700" />
+              </div>
               Quick Actions
             </h2>
           </div>
@@ -203,8 +219,8 @@ export default async function AdminDashboard() {
                 href={action.href}
                 className="flex flex-col gap-3 p-4 rounded-xl bg-[#0a0a0a] border border-[#1f1f1f] hover:border-[var(--primary)]/50 transition-all group"
               >
-                <div className={`w-10 h-10 rounded-lg ${action.color} flex items-center justify-center`}>
-                  <action.icon className="w-5 h-5" />
+                <div className="w-10 h-10 rounded-full bg-[var(--primary)] flex items-center justify-center">
+                  <action.icon className="w-5 h-5 text-gray-700" />
                 </div>
                 <div>
                   <p className="font-medium text-sm text-white group-hover:text-[var(--primary)] transition-colors">
@@ -218,32 +234,32 @@ export default async function AdminDashboard() {
 
           {/* Quick hotlinks */}
           <div className="mt-6 pt-6 border-t border-[#1f1f1f]">
-            <p className="text-xs text-gray-500 uppercase tracking-wider mb-3">Shortcuts</p>
+            <p className="text-xs text-gray-400 uppercase tracking-wider mb-3 font-medium">Shortcuts</p>
             <div className="flex flex-wrap gap-2">
               <Link
                 href="/admin/products/new"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs bg-[#1a1a1a] text-gray-300 rounded-lg hover:bg-[var(--primary)]/10 hover:text-[var(--primary)] transition-colors"
+                className="inline-flex items-center gap-1.5 px-3 py-2 text-xs bg-[#1a1a1a] text-white rounded-lg hover:bg-[var(--primary)] hover:text-gray-700 transition-colors border border-[#2a2a2a]"
               >
                 <Plus className="w-3 h-3" />
                 New Product
               </Link>
               <Link
                 href="/admin/pages/new"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs bg-[#1a1a1a] text-gray-300 rounded-lg hover:bg-[var(--primary)]/10 hover:text-[var(--primary)] transition-colors"
+                className="inline-flex items-center gap-1.5 px-3 py-2 text-xs bg-[#1a1a1a] text-white rounded-lg hover:bg-[var(--primary)] hover:text-gray-700 transition-colors border border-[#2a2a2a]"
               >
                 <Plus className="w-3 h-3" />
                 New Page
               </Link>
               <Link
                 href="/admin/hero-slides"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs bg-[#1a1a1a] text-gray-300 rounded-lg hover:bg-[var(--primary)]/10 hover:text-[var(--primary)] transition-colors"
+                className="inline-flex items-center gap-1.5 px-3 py-2 text-xs bg-[#1a1a1a] text-white rounded-lg hover:bg-[var(--primary)] hover:text-gray-700 transition-colors border border-[#2a2a2a]"
               >
                 <Image className="w-3 h-3" />
                 Hero Slides
               </Link>
               <Link
                 href="/admin/testimonials"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs bg-[#1a1a1a] text-gray-300 rounded-lg hover:bg-[var(--primary)]/10 hover:text-[var(--primary)] transition-colors"
+                className="inline-flex items-center gap-1.5 px-3 py-2 text-xs bg-[#1a1a1a] text-white rounded-lg hover:bg-[var(--primary)] hover:text-gray-700 transition-colors border border-[#2a2a2a]"
               >
                 <Star className="w-3 h-3" />
                 Testimonials
@@ -252,32 +268,33 @@ export default async function AdminDashboard() {
           </div>
         </div>
 
-        {/* Recent Messages */}
-        <div className="bg-[#111111] rounded-xl border border-[#1f1f1f]">
+        {/* Recent Messages - Entire card clickable */}
+        <Link
+          href="/admin/inbox"
+          className="block bg-[#111111] rounded-xl border border-[#1f1f1f] hover:border-[var(--primary)] transition-all group"
+        >
           <div className="px-6 py-4 border-b border-[#1f1f1f] flex items-center justify-between">
             <h2 className="font-medium text-white flex items-center gap-2">
-              <MessageSquare className="w-4 h-4 text-[var(--primary)]" />
+              <div className="w-6 h-6 rounded-full bg-[var(--primary)] flex items-center justify-center">
+                <MessageSquare className="w-3.5 h-3.5 text-gray-700" />
+              </div>
               Recent Messages
               {data.stats.unreadContacts > 0 && (
-                <span className="ml-2 px-2 py-0.5 text-xs font-medium bg-[var(--primary)] text-[#0a0a0a] rounded-full">
+                <span className="ml-2 px-2 py-0.5 text-xs font-medium bg-red-500 text-white rounded-full">
                   {data.stats.unreadContacts}
                 </span>
               )}
             </h2>
-            <Link
-              href="/admin/inbox"
-              className="text-sm text-[var(--primary)] hover:underline flex items-center gap-1"
-            >
-              Jump into inbox <ArrowRight className="w-3 h-3" />
-            </Link>
+            <span className="text-sm text-[var(--primary)] group-hover:underline flex items-center gap-1">
+              View all <ArrowRight className="w-3 h-3" />
+            </span>
           </div>
           <div className="divide-y divide-[#1f1f1f]">
             {data.recentContacts.length > 0 ? (
               data.recentContacts.map((contact) => (
-                <Link
+                <div
                   key={contact.id}
-                  href={`/admin/inbox?message=${contact.id}`}
-                  className="block px-6 py-4 hover:bg-[#1a1a1a] transition-colors"
+                  className="px-6 py-4 hover:bg-[#1a1a1a] transition-colors"
                 >
                   <div className="flex items-center justify-between mb-1.5">
                     <p className="text-sm font-medium text-white flex items-center gap-2">
@@ -296,7 +313,7 @@ export default async function AdminDashboard() {
                   <p className="text-xs text-gray-500 line-clamp-1">
                     {contact.message}
                   </p>
-                </Link>
+                </div>
               ))
             ) : (
               <div className="px-6 py-12 text-center">
@@ -306,69 +323,39 @@ export default async function AdminDashboard() {
               </div>
             )}
           </div>
-        </div>
+        </Link>
       </div>
 
-      {/* Widget Overview */}
+      {/* Widget Library Overview - Vertical Cards */}
       <div className="bg-[#111111] rounded-xl border border-[#1f1f1f] p-6">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="font-medium text-white">Widget Library Overview</h2>
+          <h2 className="font-medium text-white flex items-center gap-2">
+            <div className="w-6 h-6 rounded-full bg-[var(--primary)] flex items-center justify-center">
+              <Layers className="w-3.5 h-3.5 text-gray-700" />
+            </div>
+            Widget Library
+          </h2>
           <Link
             href="/admin/hero-slides"
             className="text-sm text-[var(--primary)] hover:underline flex items-center gap-1"
           >
-            Manage widgets <ArrowRight className="w-3 h-3" />
+            Manage all <ArrowRight className="w-3 h-3" />
           </Link>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-          <Link
-            href="/admin/hero-slides"
-            className="text-center p-4 rounded-xl bg-[#0a0a0a] border border-[#1f1f1f] hover:border-[var(--primary)]/50 transition-colors group"
-          >
-            <Image className="w-6 h-6 mx-auto mb-2 text-gray-400 group-hover:text-[var(--primary)] transition-colors" />
-            <p className="text-2xl font-semibold text-white">{data.stats.heroSlides}</p>
-            <p className="text-xs text-gray-500">Hero Slides</p>
-          </Link>
-          <Link
-            href="/admin/testimonials"
-            className="text-center p-4 rounded-xl bg-[#0a0a0a] border border-[#1f1f1f] hover:border-[var(--primary)]/50 transition-colors group"
-          >
-            <Star className="w-6 h-6 mx-auto mb-2 text-gray-400 group-hover:text-[var(--primary)] transition-colors" />
-            <p className="text-2xl font-semibold text-white">{data.stats.testimonials}</p>
-            <p className="text-xs text-gray-500">Testimonials</p>
-          </Link>
-          <Link
-            href="/admin/video-testimonials"
-            className="text-center p-4 rounded-xl bg-[#0a0a0a] border border-[#1f1f1f] hover:border-[var(--primary)]/50 transition-colors group"
-          >
-            <Users className="w-6 h-6 mx-auto mb-2 text-gray-400 group-hover:text-[var(--primary)] transition-colors" />
-            <p className="text-2xl font-semibold text-white">0</p>
-            <p className="text-xs text-gray-500">Video Reviews</p>
-          </Link>
-          <Link
-            href="/admin/instagram"
-            className="text-center p-4 rounded-xl bg-[#0a0a0a] border border-[#1f1f1f] hover:border-[var(--primary)]/50 transition-colors group"
-          >
-            <Image className="w-6 h-6 mx-auto mb-2 text-gray-400 group-hover:text-[var(--primary)] transition-colors" />
-            <p className="text-2xl font-semibold text-white">0</p>
-            <p className="text-xs text-gray-500">Instagram Posts</p>
-          </Link>
-          <Link
-            href="/admin/faqs"
-            className="text-center p-4 rounded-xl bg-[#0a0a0a] border border-[#1f1f1f] hover:border-[var(--primary)]/50 transition-colors group"
-          >
-            <HelpCircle className="w-6 h-6 mx-auto mb-2 text-gray-400 group-hover:text-[var(--primary)] transition-colors" />
-            <p className="text-2xl font-semibold text-white">{data.stats.faqs}</p>
-            <p className="text-xs text-gray-500">FAQs</p>
-          </Link>
-          <Link
-            href="/admin/navigation"
-            className="text-center p-4 rounded-xl bg-[#0a0a0a] border border-[#1f1f1f] hover:border-[var(--primary)]/50 transition-colors group"
-          >
-            <FileText className="w-6 h-6 mx-auto mb-2 text-gray-400 group-hover:text-[var(--primary)] transition-colors" />
-            <p className="text-2xl font-semibold text-white">-</p>
-            <p className="text-xs text-gray-500">Navigation</p>
-          </Link>
+          {widgetItems.map((widget) => (
+            <Link
+              key={widget.label}
+              href={widget.href}
+              className="flex flex-col items-center p-4 rounded-xl bg-[#0a0a0a] border border-[#1f1f1f] hover:border-[var(--primary)] transition-all group"
+            >
+              <div className="w-12 h-12 rounded-full bg-[var(--primary)] flex items-center justify-center mb-3">
+                <widget.icon className="w-6 h-6 text-gray-700" />
+              </div>
+              <p className="text-2xl font-semibold text-white">{widget.value}</p>
+              <p className="text-xs text-gray-500 mt-1">{widget.label}</p>
+            </Link>
+          ))}
         </div>
       </div>
     </div>

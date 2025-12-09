@@ -284,6 +284,20 @@ export const navigationItems = sqliteTable('navigation_items', {
   createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
 });
 
+// Click Tracking (external link clicks)
+export const clickTracking = sqliteTable('click_tracking', {
+  id: text('id').primaryKey(),
+  productId: text('product_id').references(() => products.id),
+  productSlug: text('product_slug'),
+  destinationUrl: text('destination_url').notNull(),
+  visitorId: text('visitor_id'),
+  sessionId: text('session_id'),
+  referrer: text('referrer'),
+  userAgent: text('user_agent'),
+
+  createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
+});
+
 // Footer Links
 export const footerLinks = sqliteTable('footer_links', {
   id: text('id').primaryKey(),
