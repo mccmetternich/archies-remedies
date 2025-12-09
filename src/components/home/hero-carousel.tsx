@@ -172,28 +172,28 @@ export function HeroCarousel({ slides, isPaused = false }: HeroCarouselProps) {
                   {slide.subtitle || 'Preservative-free eye drops crafted for sensitive eyes. Feel the difference of truly clean ingredients.'}
                 </motion.p>
 
-                {/* CTA - Primary big, secondary smaller */}
+                {/* CTA - Both buttons bigger */}
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.4, duration: 0.6 }}
-                  className="flex flex-wrap items-center gap-4"
+                  className="flex flex-wrap items-center gap-5"
                 >
                   {slide.buttonUrl && (
                     <Link
                       href={slide.buttonUrl}
-                      className="group inline-flex items-center gap-3 px-10 py-5 bg-[var(--primary)] text-[var(--foreground)] rounded-full text-lg font-semibold hover:bg-[var(--primary-dark)] transition-all duration-300 hover:gap-4 shadow-lg hover:shadow-xl"
+                      className="group inline-flex items-center gap-4 px-12 py-6 bg-[var(--primary)] text-[var(--foreground)] rounded-full text-xl font-semibold hover:bg-[var(--primary-dark)] transition-all duration-300 hover:gap-5 shadow-lg hover:shadow-xl"
                     >
                       {slide.buttonText || 'Shop Now'}
-                      <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+                      <ArrowRight className="w-6 h-6 transition-transform group-hover:translate-x-1" />
                     </Link>
                   )}
                   <Link
                     href={slide.secondaryButtonUrl || '/about'}
-                    className="group inline-flex items-center gap-2 px-6 py-3 text-sm font-medium text-[var(--foreground)] hover:text-[var(--muted-foreground)] transition-colors border border-[var(--foreground)]/20 hover:border-[var(--foreground)]/40 rounded-full"
+                    className="group inline-flex items-center gap-3 px-10 py-6 text-lg font-semibold text-[var(--foreground)] hover:text-[var(--muted-foreground)] transition-colors border-2 border-[var(--foreground)]/20 hover:border-[var(--foreground)]/40 rounded-full"
                   >
-                    {slide.secondaryButtonText || 'Learn More'}
-                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                    {slide.secondaryButtonText || 'Or Learn More'}
+                    <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
                   </Link>
                 </motion.div>
               </motion.div>

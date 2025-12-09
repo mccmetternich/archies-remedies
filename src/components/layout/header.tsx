@@ -161,11 +161,11 @@ export function Header({ logo, products = [], bumper, socialStats }: HeaderProps
             {/* Spacer to push CTA to right */}
             <div className="hidden lg:block flex-1" />
 
-            {/* CTA Button - Bigger with blue background */}
+            {/* CTA Button - Bigger with blue background, readable text */}
             <div className="hidden lg:block">
               <Link
                 href="/products/eye-drops"
-                className="group inline-flex items-center gap-3 px-8 py-4 bg-[var(--primary)] text-[var(--foreground)] rounded-full text-base font-semibold hover:bg-[var(--primary-dark)] transition-all duration-300 shadow-md hover:shadow-lg"
+                className="group inline-flex items-center gap-3 px-10 py-5 bg-[var(--foreground)] text-white rounded-full text-lg font-semibold hover:bg-black transition-all duration-300 shadow-lg hover:shadow-xl"
               >
                 Shop Now
                 <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
@@ -195,7 +195,7 @@ export function Header({ logo, products = [], bumper, socialStats }: HeaderProps
               onMouseEnter={() => setShopOpen(true)}
               onMouseLeave={() => setShopOpen(false)}
             >
-              <div className="container py-16 pb-24">
+              <div className="container py-16 pb-32">
                 <div className="grid lg:grid-cols-12 gap-16">
                   {/* Products Section - Bigger tiles */}
                   <div className="lg:col-span-8">
