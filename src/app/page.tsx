@@ -70,6 +70,12 @@ export default async function HomePage() {
           bumperLinkUrl: data.settings.bumperLinkUrl,
           bumperLinkText: data.settings.bumperLinkText,
         } : null}
+        socialStats={data.settings ? {
+          totalReviews: data.settings.totalReviews,
+          totalCustomers: data.settings.totalCustomers,
+          instagramFollowers: data.settings.instagramFollowers,
+          facebookFollowers: data.settings.facebookFollowers,
+        } : null}
       />
 
       <main>

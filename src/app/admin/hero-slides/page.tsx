@@ -21,9 +21,14 @@ interface HeroSlide {
   subtitle: string | null;
   buttonText: string | null;
   buttonUrl: string | null;
+  secondaryButtonText: string | null;
+  secondaryButtonUrl: string | null;
+  secondaryButtonType: string | null;
+  secondaryAnchorTarget: string | null;
   imageUrl: string;
   testimonialText: string | null;
   testimonialAuthor: string | null;
+  testimonialAvatarUrl: string | null;
   isActive: boolean | null;
   sortOrder: number | null;
 }
@@ -73,9 +78,14 @@ export default function HeroSlidesPage() {
       subtitle: '',
       buttonText: 'Shop Now',
       buttonUrl: '/products/eye-drops',
+      secondaryButtonText: 'Or Learn More',
+      secondaryButtonUrl: '/about',
+      secondaryButtonType: 'page',
+      secondaryAnchorTarget: null,
       imageUrl: '',
       testimonialText: '',
       testimonialAuthor: '',
+      testimonialAvatarUrl: '',
       isActive: true,
       sortOrder: slides.length,
     };
@@ -281,31 +291,90 @@ export default function HeroSlidesPage() {
                 </div>
               </div>
 
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium mb-1">Button Text</label>
-                  <Input
-                    value={editForm.buttonText || ''}
-                    onChange={(e) =>
-                      setEditForm({ ...editForm, buttonText: e.target.value })
-                    }
-                    placeholder="Shop Now"
-                  />
+              {/* Primary Button */}
+              <div className="border-t border-[var(--border-light)] pt-4 mt-4">
+                <h3 className="text-sm font-semibold text-[var(--muted-foreground)] uppercase tracking-wide mb-4">Primary Button</h3>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Button Text</label>
+                    <Input
+                      value={editForm.buttonText || ''}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, buttonText: e.target.value })
+                      }
+                      placeholder="Shop Now"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Button URL</label>
+                    <Input
+                      value={editForm.buttonUrl || ''}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, buttonUrl: e.target.value })
+                      }
+                      placeholder="/products/eye-drops"
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Button URL</label>
+              </div>
+
+              {/* Secondary Button */}
+              <div className="border-t border-[var(--border-light)] pt-4 mt-4">
+                <h3 className="text-sm font-semibold text-[var(--muted-foreground)] uppercase tracking-wide mb-4">Secondary Button</h3>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Button Text</label>
+                    <Input
+                      value={editForm.secondaryButtonText || ''}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, secondaryButtonText: e.target.value })
+                      }
+                      placeholder="Or Learn More"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Button Type</label>
+                    <select
+                      value={editForm.secondaryButtonType || 'page'}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, secondaryButtonType: e.target.value })
+                      }
+                      className="flex w-full rounded-lg border-[1.5px] border-[var(--border)] bg-[var(--background)] px-4 py-3 text-base transition-all duration-150 focus:outline-none focus:border-[var(--primary-dark)] focus:ring-[3px] focus:ring-[var(--primary-light)]"
+                    >
+                      <option value="page">Link to Page</option>
+                      <option value="anchor">Jump to Widget (Anchor)</option>
+                      <option value="external">External URL</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="mt-4">
+                  <label className="block text-sm font-medium mb-1">
+                    {editForm.secondaryButtonType === 'anchor'
+                      ? 'Anchor Target (e.g., /products/eye-drops#benefits)'
+                      : 'Button URL'}
+                  </label>
                   <Input
-                    value={editForm.buttonUrl || ''}
+                    value={editForm.secondaryButtonType === 'anchor'
+                      ? (editForm.secondaryAnchorTarget || '')
+                      : (editForm.secondaryButtonUrl || '')}
                     onChange={(e) =>
-                      setEditForm({ ...editForm, buttonUrl: e.target.value })
+                      setEditForm({
+                        ...editForm,
+                        ...(editForm.secondaryButtonType === 'anchor'
+                          ? { secondaryAnchorTarget: e.target.value }
+                          : { secondaryButtonUrl: e.target.value })
+                      })
                     }
-                    placeholder="/products/eye-drops"
+                    placeholder={editForm.secondaryButtonType === 'anchor'
+                      ? '/products/eye-drops#benefits'
+                      : '/about'}
                   />
                 </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium mb-1">Image URL</label>
+              {/* Image */}
+              <div className="border-t border-[var(--border-light)] pt-4 mt-4">
+                <h3 className="text-sm font-semibold text-[var(--muted-foreground)] uppercase tracking-wide mb-4">Background Image</h3>
                 <Input
                   value={editForm.imageUrl || ''}
                   onChange={(e) =>
@@ -315,28 +384,43 @@ export default function HeroSlidesPage() {
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium mb-1">Testimonial Quote</label>
-                <textarea
-                  value={editForm.testimonialText || ''}
-                  onChange={(e) =>
-                    setEditForm({ ...editForm, testimonialText: e.target.value })
-                  }
-                  placeholder='"Clean, gentle and highly effective..."'
-                  rows={2}
-                  className="flex w-full rounded-lg border-[1.5px] border-[var(--border)] bg-[var(--background)] px-4 py-3 text-base transition-all duration-150 placeholder:text-[var(--muted-foreground)] focus:outline-none focus:border-[var(--primary-dark)] focus:ring-[3px] focus:ring-[var(--primary-light)] resize-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">Testimonial Author</label>
-                <Input
-                  value={editForm.testimonialAuthor || ''}
-                  onChange={(e) =>
-                    setEditForm({ ...editForm, testimonialAuthor: e.target.value })
-                  }
-                  placeholder="Sarah M., Verified Buyer"
-                />
+              {/* Testimonial */}
+              <div className="border-t border-[var(--border-light)] pt-4 mt-4">
+                <h3 className="text-sm font-semibold text-[var(--muted-foreground)] uppercase tracking-wide mb-4">Testimonial Card</h3>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Testimonial Quote</label>
+                  <textarea
+                    value={editForm.testimonialText || ''}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, testimonialText: e.target.value })
+                    }
+                    placeholder='"Clean, gentle and highly effective..."'
+                    rows={2}
+                    className="flex w-full rounded-lg border-[1.5px] border-[var(--border)] bg-[var(--background)] px-4 py-3 text-base transition-all duration-150 placeholder:text-[var(--muted-foreground)] focus:outline-none focus:border-[var(--primary-dark)] focus:ring-[3px] focus:ring-[var(--primary-light)] resize-none"
+                  />
+                </div>
+                <div className="grid md:grid-cols-2 gap-4 mt-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Author Name</label>
+                    <Input
+                      value={editForm.testimonialAuthor || ''}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, testimonialAuthor: e.target.value })
+                      }
+                      placeholder="Sarah M., Verified Buyer"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Avatar Image URL</label>
+                    <Input
+                      value={editForm.testimonialAvatarUrl || ''}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, testimonialAvatarUrl: e.target.value })
+                      }
+                      placeholder="https://images.unsplash.com/..."
+                    />
+                  </div>
+                </div>
               </div>
             </div>
 

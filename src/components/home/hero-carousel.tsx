@@ -13,11 +13,18 @@ interface HeroSlide {
   subtitle: string | null;
   buttonText: string | null;
   buttonUrl: string | null;
+  secondaryButtonText: string | null;
+  secondaryButtonUrl: string | null;
+  secondaryButtonType: string | null; // 'page', 'anchor', 'external'
+  secondaryAnchorTarget: string | null;
   imageUrl: string;
   testimonialText: string | null;
   testimonialAuthor: string | null;
   testimonialAvatarUrl: string | null;
 }
+
+// Default avatar if none provided
+const DEFAULT_AVATAR = 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face';
 
 interface HeroCarouselProps {
   slides: HeroSlide[];
@@ -63,7 +70,7 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Background - Full bleed editorial image */}
+      {/* Background - Full bleed editorial image with clickable overlay */}
       <AnimatePresence mode="sync">
         <motion.div
           key={currentIndex}
@@ -89,12 +96,21 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
           ) : (
             <div className="absolute inset-0 bg-gradient-to-br from-[var(--cream)] via-white to-[var(--primary-light)]" />
           )}
+
+          {/* Clickable overlay - links entire hero to primary button URL */}
+          {slide.buttonUrl && (
+            <Link
+              href={slide.buttonUrl}
+              className="absolute inset-0 z-10"
+              aria-label={slide.buttonText || 'Shop Now'}
+            />
+          )}
         </motion.div>
       </AnimatePresence>
 
-      {/* Content */}
-      <div className="container relative min-h-screen flex items-center">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center py-32 lg:py-40">
+      {/* Content - Above the clickable overlay */}
+      <div className="container relative z-20 min-h-screen flex items-center pointer-events-none">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center py-32 lg:py-40 pointer-events-auto">
           {/* Left - Text content */}
           <div className="max-w-xl">
             <AnimatePresence mode="wait">
@@ -138,7 +154,7 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
                   {slide.subtitle || 'Preservative-free eye drops crafted for sensitive eyes. Feel the difference of truly clean ingredients.'}
                 </motion.p>
 
-                {/* CTA */}
+                {/* CTA - Bigger buttons */}
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -148,18 +164,18 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
                   {slide.buttonUrl && (
                     <Link
                       href={slide.buttonUrl}
-                      className="group inline-flex items-center gap-3 px-8 py-4 bg-[var(--primary)] text-[var(--foreground)] rounded-full text-sm font-medium hover:bg-[var(--primary-dark)] transition-all duration-300 hover:gap-4 shadow-lg"
+                      className="group inline-flex items-center gap-3 px-10 py-5 bg-[var(--primary)] text-[var(--foreground)] rounded-full text-lg font-semibold hover:bg-[var(--primary-dark)] transition-all duration-300 hover:gap-4 shadow-lg hover:shadow-xl"
                     >
                       {slide.buttonText || 'Shop Now'}
-                      <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                      <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
                     </Link>
                   )}
                   <Link
-                    href="/about"
-                    className="inline-flex items-center gap-2 px-6 py-4 text-sm font-medium text-[var(--foreground)] hover:text-[var(--muted-foreground)] transition-colors border border-[var(--foreground)]/20 rounded-full"
+                    href={slide.secondaryButtonUrl || '/about'}
+                    className="group inline-flex items-center gap-3 px-8 py-5 text-lg font-semibold text-[var(--foreground)] hover:text-[var(--muted-foreground)] transition-colors border-2 border-[var(--foreground)]/20 hover:border-[var(--foreground)]/40 rounded-full"
                   >
-                    Our Mission
-                    <ArrowRight className="w-4 h-4" />
+                    {slide.secondaryButtonText || 'Or Learn More'}
+                    <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
                   </Link>
                 </motion.div>
 
@@ -208,19 +224,13 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
                   </blockquote>
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 rounded-full overflow-hidden bg-[var(--sand)]">
-                      {slide.testimonialAvatarUrl ? (
-                        <Image
-                          src={slide.testimonialAvatarUrl}
-                          alt={slide.testimonialAuthor || 'Customer'}
-                          width={48}
-                          height={48}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-lg font-medium text-[var(--muted-foreground)]">
-                          {(slide.testimonialAuthor || 'V')[0]}
-                        </div>
-                      )}
+                      <Image
+                        src={slide.testimonialAvatarUrl || DEFAULT_AVATAR}
+                        alt={slide.testimonialAuthor || 'Customer'}
+                        width={48}
+                        height={48}
+                        className="w-full h-full object-cover"
+                      />
                     </div>
                     <div>
                       <p className="font-medium">{slide.testimonialAuthor || 'Verified Buyer'}</p>

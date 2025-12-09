@@ -23,10 +23,18 @@ interface BumperSettings {
   bumperLinkText?: string | null;
 }
 
+interface SocialStats {
+  totalReviews?: number | null;
+  totalCustomers?: number | null;
+  instagramFollowers?: number | null;
+  facebookFollowers?: number | null;
+}
+
 interface HeaderProps {
   logo?: string | null;
   products?: Product[];
   bumper?: BumperSettings | null;
+  socialStats?: SocialStats | null;
 }
 
 // Product images for mega nav
@@ -35,7 +43,15 @@ const PRODUCT_IMAGES = {
   'eye-wipes': 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=400&h=400&fit=crop',
 };
 
-export function Header({ logo, products = [], bumper }: HeaderProps) {
+// Default avatars for social proof
+const SOCIAL_PROOF_AVATARS = [
+  'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=60&h=60&fit=crop&crop=face',
+  'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=60&h=60&fit=crop&crop=face',
+  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=60&h=60&fit=crop&crop=face',
+  'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=60&h=60&fit=crop&crop=face',
+];
+
+export function Header({ logo, products = [], bumper, socialStats }: HeaderProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [shopOpen, setShopOpen] = useState(false);
@@ -133,14 +149,14 @@ export function Header({ logo, products = [], bumper }: HeaderProps) {
               </Link>
             </div>
 
-            {/* CTA Button */}
+            {/* CTA Button - Bigger with blue background */}
             <div className="hidden lg:block">
               <Link
                 href="/products/eye-drops"
-                className="group inline-flex items-center gap-2 px-6 py-3 bg-[var(--foreground)] text-white rounded-full text-sm font-medium hover:bg-black transition-all duration-300"
+                className="group inline-flex items-center gap-3 px-8 py-4 bg-[var(--primary)] text-[var(--foreground)] rounded-full text-base font-semibold hover:bg-[var(--primary-dark)] transition-all duration-300 shadow-md hover:shadow-lg"
               >
                 Shop Now
-                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
               </Link>
             </div>
 
@@ -167,7 +183,7 @@ export function Header({ logo, products = [], bumper }: HeaderProps) {
               onMouseEnter={() => setShopOpen(true)}
               onMouseLeave={() => setShopOpen(false)}
             >
-              <div className="container py-16">
+              <div className="container py-16 pb-20">
                 <div className="grid lg:grid-cols-12 gap-16">
                   {/* Products Section - Bigger tiles */}
                   <div className="lg:col-span-8">
@@ -252,7 +268,7 @@ export function Header({ logo, products = [], bumper }: HeaderProps) {
                   </div>
 
                   {/* Trust Badge - Properly aligned */}
-                  <div className="lg:col-span-4 flex items-center">
+                  <div className="lg:col-span-4 flex flex-col gap-6">
                     <div className="w-full p-8 rounded-3xl bg-[var(--primary-light)]">
                       <span className="inline-flex items-center gap-2 text-xs font-semibold tracking-[0.15em] uppercase text-[var(--foreground)]/60 mb-4">
                         <span className="w-8 h-px bg-[var(--foreground)]/30" />
@@ -266,6 +282,39 @@ export function Header({ logo, products = [], bumper }: HeaderProps) {
                         <span className="text-xs px-3 py-1.5 bg-white rounded-full">Preservative-Free</span>
                         <span className="text-xs px-3 py-1.5 bg-white rounded-full">Paraben-Free</span>
                         <span className="text-xs px-3 py-1.5 bg-white rounded-full">Sulfate-Free</span>
+                      </div>
+                    </div>
+
+                    {/* Social Validation Widget */}
+                    <div className="w-full p-6 rounded-2xl bg-[var(--cream)] border border-[var(--border-light)]">
+                      <div className="flex items-center gap-4">
+                        {/* Stacked Avatars */}
+                        <div className="flex -space-x-3">
+                          {SOCIAL_PROOF_AVATARS.map((avatar, idx) => (
+                            <Image
+                              key={idx}
+                              src={avatar}
+                              alt=""
+                              width={40}
+                              height={40}
+                              className="w-10 h-10 rounded-full border-2 border-white shadow-sm object-cover"
+                            />
+                          ))}
+                        </div>
+                        {/* Stars and Text */}
+                        <div className="flex flex-col">
+                          <div className="flex items-center gap-1">
+                            {[1, 2, 3, 4, 5].map((i) => (
+                              <Star
+                                key={i}
+                                className="w-4 h-4 fill-yellow-400 text-yellow-400"
+                              />
+                            ))}
+                          </div>
+                          <span className="text-sm text-[var(--foreground)] font-medium">
+                            {socialStats?.totalReviews?.toLocaleString() || '2,900'}+ verified reviews
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>

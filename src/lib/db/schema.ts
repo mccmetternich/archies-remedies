@@ -46,6 +46,13 @@ export const siteSettings = sqliteTable('site_settings', {
   bumperLinkUrl: text('bumper_link_url'),
   bumperLinkText: text('bumper_link_text'),
 
+  // Social Stats (for consistent social proof across the site)
+  totalReviews: integer('total_reviews').default(2900),
+  totalCustomers: integer('total_customers').default(10000),
+  instagramFollowers: integer('instagram_followers'),
+  facebookFollowers: integer('facebook_followers'),
+  tiktokFollowers: integer('tiktok_followers'),
+
   createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
   updatedAt: text('updated_at').default(sql`CURRENT_TIMESTAMP`),
 });
@@ -140,8 +147,17 @@ export const heroSlides = sqliteTable('hero_slides', {
   id: text('id').primaryKey(),
   title: text('title'),
   subtitle: text('subtitle'),
+
+  // Primary button
   buttonText: text('button_text'),
   buttonUrl: text('button_url'),
+
+  // Secondary button
+  secondaryButtonText: text('secondary_button_text'),
+  secondaryButtonUrl: text('secondary_button_url'),
+  secondaryButtonType: text('secondary_button_type').default('page'), // 'page', 'anchor', 'external'
+  secondaryAnchorTarget: text('secondary_anchor_target'), // Widget ID or path with anchor (e.g., "/products/eye-drops#benefits")
+
   imageUrl: text('image_url').notNull(),
   mobileImageUrl: text('mobile_image_url'),
   testimonialText: text('testimonial_text'),
