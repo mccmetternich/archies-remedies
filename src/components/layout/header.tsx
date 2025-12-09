@@ -75,6 +75,15 @@ export function Header({ logo, products = [], bumper, socialStats }: HeaderProps
     }
   }, [shopOpen]);
 
+  // Emit custom events when nav dropdown opens/closes to pause hero carousel
+  useEffect(() => {
+    if (shopOpen) {
+      window.dispatchEvent(new CustomEvent('nav-dropdown-open'));
+    } else {
+      window.dispatchEvent(new CustomEvent('nav-dropdown-close'));
+    }
+  }, [shopOpen]);
+
   return (
     <>
       {/* Announcement Bumper Bar */}
