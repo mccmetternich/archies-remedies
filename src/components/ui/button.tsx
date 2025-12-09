@@ -1,0 +1,67 @@
+'use client';
+
+import * as React from 'react';
+import { Slot } from '@radix-ui/react-slot';
+import { cva, type VariantProps } from 'class-variance-authority';
+import { cn } from '@/lib/utils';
+import { Loader2 } from 'lucide-react';
+
+const buttonVariants = cva(
+  'inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',
+  {
+    variants: {
+      variant: {
+        default:
+          'bg-[var(--foreground)] text-[var(--background)] hover:bg-[#333] hover:-translate-y-0.5 hover:shadow-md active:translate-y-0',
+        secondary:
+          'bg-[var(--primary)] text-[var(--foreground)] hover:bg-[var(--primary-dark)] hover:-translate-y-0.5 hover:shadow-md',
+        outline:
+          'border-[1.5px] border-[var(--foreground)] bg-transparent text-[var(--foreground)] hover:bg-[var(--foreground)] hover:text-[var(--background)]',
+        ghost:
+          'bg-transparent text-[var(--foreground)] hover:bg-[var(--muted)]',
+        link:
+          'text-[var(--foreground)] underline-offset-4 hover:underline hover:text-[var(--primary-dark)]',
+        soft:
+          'bg-[var(--primary-light)] text-[var(--foreground)] hover:bg-[var(--primary)]',
+      },
+      size: {
+        default: 'h-11 px-6 py-2.5 text-sm tracking-wide uppercase rounded-full',
+        sm: 'h-9 px-4 py-2 text-xs tracking-wide uppercase rounded-full',
+        lg: 'h-14 px-8 py-3 text-sm tracking-wide uppercase rounded-full',
+        xl: 'h-16 px-10 py-4 text-base tracking-wide uppercase rounded-full',
+        icon: 'h-10 w-10 rounded-full',
+      },
+    },
+    defaultVariants: {
+      variant: 'default',
+      size: 'default',
+    },
+  }
+);
+
+export interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof buttonVariants> {
+  asChild?: boolean;
+  loading?: boolean;
+}
+
+const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ className, variant, size, asChild = false, loading = false, children, disabled, ...props }, ref) => {
+    const Comp = asChild ? Slot : 'button';
+    return (
+      <Comp
+        className={cn(buttonVariants({ variant, size, className }))}
+        ref={ref}
+        disabled={disabled || loading}
+        {...props}
+      >
+        {loading && <Loader2 className="animate-spin" />}
+        {children}
+      </Comp>
+    );
+  }
+);
+Button.displayName = 'Button';
+
+export { Button, buttonVariants };
