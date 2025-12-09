@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import Image from 'next/image';
-import { Play, ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { Play, ChevronLeft, ChevronRight, X, Star } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 
 interface VideoTestimonial {
@@ -19,13 +19,73 @@ interface VideoTestimonialsProps {
   subtitle?: string;
 }
 
+// Social proof avatars
+const SOCIAL_PROOF_AVATARS = [
+  'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=60&h=60&fit=crop&crop=face',
+  'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=60&h=60&fit=crop&crop=face',
+  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=60&h=60&fit=crop&crop=face',
+  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&h=60&fit=crop&crop=face',
+];
+
+// Video Preview component with autoplay
+function VideoPreview({ video, onClick }: { video: VideoTestimonial; onClick: () => void }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [showVideo, setShowVideo] = useState(false);
+
+  useEffect(() => {
+    // Start showing video preview after a slight delay
+    const timer = setTimeout(() => {
+      if (video.videoUrl && !video.videoUrl.includes('vimeo')) {
+        setShowVideo(true);
+      }
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [video.videoUrl]);
+
+  return (
+    <button
+      onClick={onClick}
+      className="relative shrink-0 w-[280px] md:w-[320px] lg:w-[380px] aspect-[9/16] rounded-3xl overflow-hidden group shadow-xl"
+    >
+      {/* Video autoplay preview (muted, loop first few seconds) */}
+      {showVideo && video.videoUrl && !video.videoUrl.includes('vimeo') ? (
+        <video
+          ref={videoRef}
+          src={video.videoUrl}
+          muted
+          loop
+          playsInline
+          autoPlay
+          className="w-full h-full object-cover"
+        />
+      ) : video.thumbnailUrl ? (
+        <Image
+          src={video.thumbnailUrl}
+          alt={video.title || 'Video testimonial'}
+          fill
+          className="object-cover transition-transform duration-500 group-hover:scale-105"
+        />
+      ) : (
+        <div className="w-full h-full bg-gradient-to-br from-white/80 to-white/40" />
+      )}
+
+      {/* Play button overlay - only show on hover */}
+      <div className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/30 transition-colors duration-300">
+        <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center transform scale-0 group-hover:scale-100 transition-transform duration-300 shadow-2xl">
+          <Play className="w-6 h-6 text-[var(--foreground)] ml-0.5" fill="currentColor" />
+        </div>
+      </div>
+    </button>
+  );
+}
+
 export function VideoTestimonials({ videos, title, subtitle }: VideoTestimonialsProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [activeVideo, setActiveVideo] = useState<VideoTestimonial | null>(null);
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollRef.current) {
-      const scrollAmount = 400;
+      const scrollAmount = 420;
       scrollRef.current.scrollBy({
         left: direction === 'left' ? -scrollAmount : scrollAmount,
         behavior: 'smooth',
@@ -33,16 +93,12 @@ export function VideoTestimonials({ videos, title, subtitle }: VideoTestimonials
     }
   };
 
-  // Use placeholders if no videos
-  const displayVideos = videos.length > 0
-    ? videos
-    : Array.from({ length: 6 }).map((_, i) => ({
-        id: `placeholder-${i}`,
-        title: 'Customer Story',
-        thumbnailUrl: '',
-        videoUrl: '',
-        name: `Happy Customer ${i + 1}`,
-      }));
+  // Only show real videos, no placeholders
+  const displayVideos = videos.length > 0 ? videos : [];
+
+  if (displayVideos.length === 0) {
+    return null;
+  }
 
   return (
     <>
@@ -52,6 +108,27 @@ export function VideoTestimonials({ videos, title, subtitle }: VideoTestimonials
           <div className="grid lg:grid-cols-12 gap-12 lg:gap-16 items-start">
             {/* Left Column - Title & Subtitle */}
             <div className="lg:col-span-4 lg:sticky lg:top-32">
+              {/* Social proof above Real Stories */}
+              <div className="flex items-center gap-3 mb-6">
+                <div className="flex -space-x-2">
+                  {SOCIAL_PROOF_AVATARS.map((avatar, idx) => (
+                    <Image
+                      key={idx}
+                      src={avatar}
+                      alt=""
+                      width={32}
+                      height={32}
+                      className="w-8 h-8 rounded-full border-2 border-[var(--primary)] object-cover"
+                    />
+                  ))}
+                </div>
+                <div className="flex items-center gap-1">
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <Star key={i} className="w-3.5 h-3.5 fill-[var(--foreground)] text-[var(--foreground)]" />
+                  ))}
+                </div>
+              </div>
+
               <span className="inline-flex items-center gap-3 text-xs font-semibold tracking-[0.2em] uppercase text-[var(--foreground)]/60 mb-6">
                 <span className="w-12 h-px bg-[var(--foreground)]/30" />
                 Real Stories
@@ -86,58 +163,20 @@ export function VideoTestimonials({ videos, title, subtitle }: VideoTestimonials
               </div>
             </div>
 
-            {/* Right Column - Video Thumbnails */}
+            {/* Right Column - Video Thumbnails - 3 visible at once */}
             <div className="lg:col-span-8">
               <div
                 ref={scrollRef}
-                className="flex gap-6 overflow-x-auto scrollbar-hide pb-4 -mr-6 lg:-mr-20"
+                className="flex gap-4 overflow-x-auto scrollbar-hide pb-4 -mr-6 lg:-mr-20 snap-x snap-mandatory"
                 style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
               >
                 {displayVideos.map((video) => (
-                  <button
-                    key={video.id}
-                    onClick={() => video.videoUrl && setActiveVideo(video)}
-                    className="relative shrink-0 w-[320px] md:w-[360px] aspect-[9/16] rounded-3xl overflow-hidden group shadow-xl"
-                  >
-                    {video.thumbnailUrl ? (
-                      <Image
-                        src={video.thumbnailUrl}
-                        alt={video.title || 'Video testimonial'}
-                        fill
-                        className="object-cover transition-transform duration-500 group-hover:scale-105"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-white/80 to-white/40 flex flex-col items-center justify-center">
-                        <Play className="w-16 h-16 text-[var(--foreground)]/30 mb-4" />
-                        <span className="text-[var(--foreground)]/50 text-sm font-medium">Coming Soon</span>
-                      </div>
-                    )}
-
-                    {/* Play button overlay */}
-                    {video.videoUrl && (
-                      <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/40 transition-colors duration-300">
-                        <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center transform group-hover:scale-110 transition-transform duration-300 shadow-2xl">
-                          <Play className="w-6 h-6 text-[var(--foreground)] ml-0.5" fill="currentColor" />
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Name badge */}
-                    {video.name && (
-                      <div className="absolute bottom-5 left-5 right-5">
-                        <div className="bg-white/95 backdrop-blur-sm rounded-2xl px-5 py-4">
-                          <p className="text-base font-medium text-[var(--foreground)]">
-                            {video.name}
-                          </p>
-                          {video.title && (
-                            <p className="text-sm text-[var(--muted-foreground)]">
-                              {video.title}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    )}
-                  </button>
+                  <div key={video.id} className="snap-start">
+                    <VideoPreview
+                      video={video}
+                      onClick={() => video.videoUrl && setActiveVideo(video)}
+                    />
+                  </div>
                 ))}
               </div>
             </div>

@@ -57,9 +57,9 @@ export function TestimonialsSection({
   return (
     <section className="section bg-[var(--cream)] overflow-hidden">
       <div className="container">
-        {/* Header - Editorial Style */}
-        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8 mb-16">
-          <div className="max-w-xl">
+        {/* Header - Title with subtitle and arrows below */}
+        <div className="mb-16">
+          <div className="max-w-xl mb-8">
             <span className="inline-flex items-center gap-3 text-xs font-semibold tracking-[0.2em] uppercase text-[var(--muted-foreground)] mb-6">
               <span className="w-12 h-px bg-[var(--foreground)]" />
               Reviews
@@ -69,23 +69,24 @@ export function TestimonialsSection({
             </h2>
           </div>
 
-          <div className="flex items-center gap-6">
-            <p className="text-lg text-[var(--muted-foreground)] max-w-sm leading-relaxed hidden md:block">
+          {/* Subtitle and arrows - below title */}
+          <div className="flex items-center justify-between gap-6">
+            <p className="text-lg text-[var(--muted-foreground)] max-w-lg leading-relaxed">
               {subtitle}
             </p>
 
-            {/* Navigation - Minimal */}
-            <div className="flex gap-2">
+            {/* Navigation - Blue background circles */}
+            <div className="flex gap-3">
               <button
                 onClick={() => scroll('left')}
-                className="w-12 h-12 rounded-full border border-[var(--border)] flex items-center justify-center hover:bg-white hover:border-transparent transition-all duration-300"
+                className="w-12 h-12 rounded-full bg-[var(--primary)] flex items-center justify-center hover:bg-[var(--primary-dark)] transition-all duration-300 shadow-sm"
                 aria-label="Previous testimonials"
               >
                 <ChevronLeft className="w-5 h-5" />
               </button>
               <button
                 onClick={() => scroll('right')}
-                className="w-12 h-12 rounded-full border border-[var(--border)] flex items-center justify-center hover:bg-white hover:border-transparent transition-all duration-300"
+                className="w-12 h-12 rounded-full bg-[var(--primary)] flex items-center justify-center hover:bg-[var(--primary-dark)] transition-all duration-300 shadow-sm"
                 aria-label="Next testimonials"
               >
                 <ChevronRight className="w-5 h-5" />
@@ -95,22 +96,22 @@ export function TestimonialsSection({
         </div>
       </div>
 
-      {/* Horizontal Scroll - Full bleed */}
-      <div
-        ref={scrollRef}
-        className="flex gap-6 overflow-x-auto scrollbar-hide pb-4 px-[max(1.5rem,calc((100vw-1440px)/2+5rem))]"
-        style={{ scrollSnapType: 'x mandatory' }}
-      >
-        {testimonials.map((testimonial, index) => (
-          <div
-            key={testimonial.id}
-            className={cn(
-              'flex-shrink-0 w-[360px] md:w-[400px] bg-white rounded-2xl p-8 relative',
-              'shadow-sm hover:shadow-lg transition-shadow duration-300',
-              testimonial.isFeatured && 'ring-2 ring-[var(--primary)]'
-            )}
-            style={{ scrollSnapAlign: 'start' }}
-          >
+      {/* Horizontal Scroll - Contained within viewport, not running off */}
+      <div className="container">
+        <div
+          ref={scrollRef}
+          className="flex gap-6 overflow-x-auto scrollbar-hide pb-4 -mx-6 px-6"
+          style={{ scrollSnapType: 'x mandatory' }}
+        >
+          {testimonials.map((testimonial, index) => (
+            <div
+              key={testimonial.id}
+              className={cn(
+                'flex-shrink-0 w-[340px] md:w-[380px] bg-white rounded-2xl p-8 relative',
+                'border border-[var(--border)] hover:border-[var(--border)] hover:shadow-lg transition-all duration-300'
+              )}
+              style={{ scrollSnapAlign: 'start' }}
+            >
             {/* Stars - Black */}
             <div className="flex gap-1 mb-6">
               {Array.from({ length: testimonial.rating || 5 }).map((_, i) => (
@@ -152,25 +153,26 @@ export function TestimonialsSection({
           </div>
         ))}
 
-        {/* CTA Card - Editorial style */}
-        <div
-          className="flex-shrink-0 w-[360px] md:w-[400px] bg-[var(--foreground)] rounded-2xl p-8 flex flex-col justify-center"
-          style={{ scrollSnapAlign: 'start' }}
-        >
-          <div className="flex gap-1 mb-6">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <Star key={i} className="w-4 h-4 fill-white text-white" />
-            ))}
-          </div>
-          <p className="text-4xl font-normal text-white mb-2 tracking-tight">4.9</p>
-          <p className="text-white/60 mb-8">Average rating from 2,500+ customers</p>
-          <Link
-            href="/products/eye-drops"
-            className="group inline-flex items-center gap-3 text-sm font-medium text-white hover:text-[var(--primary)] transition-colors"
+          {/* CTA Card - Editorial style */}
+          <div
+            className="flex-shrink-0 w-[340px] md:w-[380px] bg-[var(--foreground)] rounded-2xl p-8 flex flex-col justify-center border border-[var(--foreground)]"
+            style={{ scrollSnapAlign: 'start' }}
           >
-            Join Them
-            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-2" />
-          </Link>
+            <div className="flex gap-1 mb-6">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <Star key={i} className="w-4 h-4 fill-white text-white" />
+              ))}
+            </div>
+            <p className="text-4xl font-normal text-white mb-2 tracking-tight">4.9</p>
+            <p className="text-white/60 mb-8">Average rating from 2,500+ customers</p>
+            <Link
+              href="/products/eye-drops"
+              className="group inline-flex items-center gap-3 text-sm font-medium text-white hover:text-[var(--primary)] transition-colors"
+            >
+              Join Them
+              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-2" />
+            </Link>
+          </div>
         </div>
       </div>
 

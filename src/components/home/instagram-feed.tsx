@@ -43,9 +43,9 @@ export function InstagramFeed({ posts, instagramUrl }: InstagramFeedProps) {
   const duplicatedPosts = [...displayPosts, ...displayPosts];
 
   return (
-    <section className="py-20 md:py-28 bg-[var(--cream)] overflow-hidden">
+    <section className="py-16 md:py-20 bg-[var(--cream)] overflow-hidden">
       {/* Header with better spacing */}
-      <div className="container mb-16">
+      <div className="container mb-12">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-8">
           <div>
             <span className="inline-flex items-center gap-3 text-xs font-semibold tracking-[0.2em] uppercase text-[var(--muted-foreground)] mb-6">
@@ -127,20 +127,20 @@ export function InstagramFeed({ posts, instagramUrl }: InstagramFeedProps) {
         <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-[var(--cream)] to-transparent pointer-events-none z-10" />
       </div>
 
-      {/* Stats Bar with better spacing */}
-      <div className="container mt-20">
-        <div className="flex flex-wrap justify-center gap-12 md:gap-20">
+      {/* Stats Bar - tighter spacing */}
+      <div className="container mt-12">
+        <div className="flex flex-wrap justify-center gap-10 md:gap-16">
           <div className="text-center">
-            <p className="text-4xl font-normal tracking-tight">15K+</p>
-            <p className="text-sm text-[var(--muted-foreground)] mt-2">Followers</p>
+            <p className="text-3xl font-normal tracking-tight">15K+</p>
+            <p className="text-sm text-[var(--muted-foreground)] mt-1">Followers</p>
           </div>
           <div className="text-center">
-            <p className="text-4xl font-normal tracking-tight">500+</p>
-            <p className="text-sm text-[var(--muted-foreground)] mt-2">Posts</p>
+            <p className="text-3xl font-normal tracking-tight">500+</p>
+            <p className="text-sm text-[var(--muted-foreground)] mt-1">Posts</p>
           </div>
           <div className="text-center">
-            <p className="text-4xl font-normal tracking-tight">50K+</p>
-            <p className="text-sm text-[var(--muted-foreground)] mt-2">Likes</p>
+            <p className="text-3xl font-normal tracking-tight">50K+</p>
+            <p className="text-sm text-[var(--muted-foreground)] mt-1">Likes</p>
           </div>
         </div>
       </div>

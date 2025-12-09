@@ -49,16 +49,16 @@ export function Footer({
 
   return (
     <footer>
-      {/* Newsletter Section - Better spacing from content above */}
-      <div className="bg-[var(--cream)] py-24 md:py-32">
+      {/* Newsletter Section - More spacing */}
+      <div className="bg-[var(--cream)] pt-20 pb-24 md:pt-24 md:pb-32">
         <div className="container">
           <div className="max-w-4xl mx-auto text-center">
-            <span className="inline-flex items-center gap-3 text-xs font-semibold tracking-[0.2em] uppercase text-[var(--muted-foreground)] mb-6">
+            <span className="inline-flex items-center gap-3 text-xs font-semibold tracking-[0.2em] uppercase text-[var(--muted-foreground)] mb-8">
               <span className="w-12 h-px bg-[var(--foreground)]" />
               Newsletter
               <span className="w-12 h-px bg-[var(--foreground)]" />
             </span>
-            <h3 className="text-3xl md:text-4xl font-normal mb-4 tracking-tight">
+            <h3 className="text-3xl md:text-4xl font-normal mb-6 tracking-tight">
               Stay in the Know
             </h3>
             <p className="text-[var(--muted-foreground)] leading-relaxed mb-10 max-w-md mx-auto">
@@ -103,9 +103,9 @@ export function Footer({
         </div>
       </div>
 
-      {/* Main Footer - Blue Background */}
+      {/* Main Footer - Blue Background - More room at top */}
       <div className="bg-[var(--primary)]">
-        <div className="container py-20 md:py-24">
+        <div className="container pt-24 pb-20 md:pt-28 md:pb-24">
           <div className="grid grid-cols-2 md:grid-cols-12 gap-10 md:gap-8">
             {/* Brand Column */}
             <div className="col-span-2 md:col-span-4">
@@ -213,7 +213,7 @@ export function Footer({
                     href="/about"
                     className="text-sm text-[var(--foreground)] hover:text-[var(--foreground)]/70 transition-colors"
                   >
-                    About Us
+                    Our Story
                   </Link>
                 </li>
                 <li>
@@ -260,19 +260,19 @@ export function Footer({
               </ul>
             </div>
 
-            {/* Reviews Badge */}
+            {/* Reviews Badge - integrated look */}
             <div className="col-span-2 md:col-span-2">
               <h4 className="text-xs font-semibold tracking-[0.2em] uppercase text-[var(--foreground)]/60 mb-6">
                 Reviews
               </h4>
-              <div className="bg-white rounded-2xl p-6">
+              <div className="bg-[var(--foreground)]/10 rounded-2xl p-6 border border-[var(--foreground)]/10">
                 <div className="flex gap-1 mb-3">
                   {[1,2,3,4,5].map(i => (
                     <Star key={i} className="w-4 h-4 fill-[var(--foreground)] text-[var(--foreground)]" />
                   ))}
                 </div>
                 <p className="text-2xl font-normal tracking-tight mb-1 text-[var(--foreground)]">4.9</p>
-                <p className="text-xs text-[var(--muted-foreground)]">2,500+ verified reviews</p>
+                <p className="text-xs text-[var(--foreground)]/60">2,500+ verified reviews</p>
               </div>
             </div>
           </div>

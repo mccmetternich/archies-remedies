@@ -596,3 +596,13 @@ a {
   opacity: 0.03;
   pointer-events: none;
 }
+
+/* Slow spin animation for rotating badges */
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 10s linear infinite;
+}

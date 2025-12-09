@@ -117,8 +117,8 @@ export function Header({ logo, products = [], bumper, socialStats }: HeaderProps
               )}
             </Link>
 
-            {/* Desktop Navigation - More to the right */}
-            <div className="hidden lg:flex items-center gap-10 ml-auto mr-8">
+            {/* Desktop Navigation - Closer to logo on the left */}
+            <div className="hidden lg:flex items-center gap-10 ml-12">
               {/* Shop Dropdown */}
               <div
                 className="relative"
@@ -148,6 +148,9 @@ export function Header({ logo, products = [], bumper, socialStats }: HeaderProps
                 Our Mission
               </Link>
             </div>
+
+            {/* Spacer to push CTA to right */}
+            <div className="hidden lg:block flex-1" />
 
             {/* CTA Button - Bigger with blue background */}
             <div className="hidden lg:block">
@@ -183,7 +186,7 @@ export function Header({ logo, products = [], bumper, socialStats }: HeaderProps
               onMouseEnter={() => setShopOpen(true)}
               onMouseLeave={() => setShopOpen(false)}
             >
-              <div className="container py-16 pb-20">
+              <div className="container py-16 pb-24">
                 <div className="grid lg:grid-cols-12 gap-16">
                   {/* Products Section - Bigger tiles */}
                   <div className="lg:col-span-8">
@@ -192,8 +195,8 @@ export function Header({ logo, products = [], bumper, socialStats }: HeaderProps
                         Our Products
                       </span>
                     </div>
-                    <div className="grid md:grid-cols-2 gap-8">
-                      {/* Eye Drops - Image above copy */}
+                    <div className="grid md:grid-cols-2 gap-8 mb-8">
+                      {/* Eye Drops - Stars above title, blue */}
                       <Link
                         href="/products/eye-drops"
                         className="group block p-6 rounded-3xl bg-[var(--cream)] hover:bg-[var(--sand)] transition-all duration-500"
@@ -213,23 +216,25 @@ export function Header({ logo, products = [], bumper, socialStats }: HeaderProps
                             🔥 Bestseller
                           </span>
                         </div>
+                        {/* Stars above title - Blue */}
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="flex gap-0.5">
+                            {[1,2,3,4,5].map(i => (
+                              <Star key={i} className="w-4 h-4 fill-[var(--primary)] text-[var(--primary)]" />
+                            ))}
+                          </div>
+                          <span className="text-sm text-[var(--foreground)] font-medium">4.9</span>
+                          <span className="text-sm text-[var(--muted-foreground)]">(2,100+)</span>
+                        </div>
                         <h4 className="text-xl font-medium mb-2 group-hover:text-[var(--muted-foreground)] transition-colors">
                           Preservative-Free Eye Drops
                         </h4>
-                        <p className="text-sm text-[var(--muted-foreground)] mb-3">
+                        <p className="text-sm text-[var(--muted-foreground)]">
                           Ultra-lubricating formula for instant, lasting relief
                         </p>
-                        <div className="flex items-center gap-2">
-                          <div className="flex gap-0.5">
-                            {[1,2,3,4,5].map(i => (
-                              <Star key={i} className="w-3.5 h-3.5 fill-[var(--foreground)] text-[var(--foreground)]" />
-                            ))}
-                          </div>
-                          <span className="text-sm text-[var(--muted-foreground)]">2,100+ reviews</span>
-                        </div>
                       </Link>
 
-                      {/* Eye Wipes - Image above copy */}
+                      {/* Eye Wipes - Stars above title, blue */}
                       <Link
                         href="/products/eye-wipes"
                         className="group block p-6 rounded-3xl bg-[var(--cream)] hover:bg-[var(--sand)] transition-all duration-500"
@@ -249,27 +254,29 @@ export function Header({ logo, products = [], bumper, socialStats }: HeaderProps
                             ✨ Just Launched
                           </span>
                         </div>
+                        {/* Stars above title - Blue */}
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="flex gap-0.5">
+                            {[1,2,3,4,5].map(i => (
+                              <Star key={i} className="w-4 h-4 fill-[var(--primary)] text-[var(--primary)]" />
+                            ))}
+                          </div>
+                          <span className="text-sm text-[var(--foreground)] font-medium">4.9</span>
+                          <span className="text-sm text-[var(--muted-foreground)]">(850+)</span>
+                        </div>
                         <h4 className="text-xl font-medium mb-2 group-hover:text-[var(--muted-foreground)] transition-colors">
                           Gentle Lid & Lash Wipes
                         </h4>
-                        <p className="text-sm text-[var(--muted-foreground)] mb-3">
+                        <p className="text-sm text-[var(--muted-foreground)]">
                           Daily cleansing wipes for lids, lashes & brows
                         </p>
-                        <div className="flex items-center gap-2">
-                          <div className="flex gap-0.5">
-                            {[1,2,3,4,5].map(i => (
-                              <Star key={i} className="w-3.5 h-3.5 fill-[var(--foreground)] text-[var(--foreground)]" />
-                            ))}
-                          </div>
-                          <span className="text-sm text-[var(--muted-foreground)]">850+ reviews</span>
-                        </div>
                       </Link>
                     </div>
                   </div>
 
-                  {/* Trust Badge - Properly aligned */}
-                  <div className="lg:col-span-4 flex flex-col gap-6">
-                    <div className="w-full p-8 rounded-3xl bg-[var(--primary-light)]">
+                  {/* Clean Formulas + Social Proof - Combined into one tile */}
+                  <div className="lg:col-span-4">
+                    <div className="w-full h-full p-8 rounded-3xl bg-[var(--primary-light)] flex flex-col">
                       <span className="inline-flex items-center gap-2 text-xs font-semibold tracking-[0.15em] uppercase text-[var(--foreground)]/60 mb-4">
                         <span className="w-8 h-px bg-[var(--foreground)]/30" />
                         Our Promise
@@ -278,42 +285,45 @@ export function Header({ logo, products = [], bumper, socialStats }: HeaderProps
                       <p className="text-[var(--muted-foreground)] leading-relaxed mb-6">
                         No preservatives, phthalates, parabens, or sulfates. Just effective, gentle ingredients your eyes deserve.
                       </p>
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex flex-wrap gap-2 mb-8">
                         <span className="text-xs px-3 py-1.5 bg-white rounded-full">Preservative-Free</span>
                         <span className="text-xs px-3 py-1.5 bg-white rounded-full">Paraben-Free</span>
                         <span className="text-xs px-3 py-1.5 bg-white rounded-full">Sulfate-Free</span>
                       </div>
-                    </div>
 
-                    {/* Social Validation Widget */}
-                    <div className="w-full p-6 rounded-2xl bg-[var(--cream)] border border-[var(--border-light)]">
-                      <div className="flex items-center gap-4">
-                        {/* Stacked Avatars */}
-                        <div className="flex -space-x-3">
-                          {SOCIAL_PROOF_AVATARS.map((avatar, idx) => (
-                            <Image
-                              key={idx}
-                              src={avatar}
-                              alt=""
-                              width={40}
-                              height={40}
-                              className="w-10 h-10 rounded-full border-2 border-white shadow-sm object-cover"
-                            />
-                          ))}
-                        </div>
-                        {/* Stars and Text */}
-                        <div className="flex flex-col">
-                          <div className="flex items-center gap-1">
-                            {[1, 2, 3, 4, 5].map((i) => (
-                              <Star
-                                key={i}
-                                className="w-4 h-4 fill-yellow-400 text-yellow-400"
+                      {/* Divider */}
+                      <div className="h-px bg-[var(--foreground)]/10 my-auto" />
+
+                      {/* Social Validation - Same tile */}
+                      <div className="pt-6 mt-auto">
+                        <div className="flex items-center gap-4">
+                          {/* Stacked Avatars */}
+                          <div className="flex -space-x-3">
+                            {SOCIAL_PROOF_AVATARS.map((avatar, idx) => (
+                              <Image
+                                key={idx}
+                                src={avatar}
+                                alt=""
+                                width={40}
+                                height={40}
+                                className="w-10 h-10 rounded-full border-2 border-white shadow-sm object-cover"
                               />
                             ))}
                           </div>
-                          <span className="text-sm text-[var(--foreground)] font-medium">
-                            {socialStats?.totalReviews?.toLocaleString() || '2,900'}+ verified reviews
-                          </span>
+                          {/* Stars and Text */}
+                          <div className="flex flex-col">
+                            <div className="flex items-center gap-1">
+                              {[1, 2, 3, 4, 5].map((i) => (
+                                <Star
+                                  key={i}
+                                  className="w-4 h-4 fill-[var(--primary)] text-[var(--primary)]"
+                                />
+                              ))}
+                            </div>
+                            <span className="text-sm text-[var(--foreground)] font-medium">
+                              {socialStats?.totalReviews?.toLocaleString() || '2,900'}+ verified reviews
+                            </span>
+                          </div>
                         </div>
                       </div>
                     </div>

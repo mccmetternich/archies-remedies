@@ -71,10 +71,13 @@ export const products = sqliteTable('products', {
 
   // Media
   heroImageUrl: text('hero_image_url'),
+  secondaryImageUrl: text('secondary_image_url'), // For rollover effect
 
   // Badge (editable in admin) - e.g., "Bestseller", "Just Launched"
   badge: text('badge'),
   badgeEmoji: text('badge_emoji'), // e.g., "🔥", "✨"
+  rotatingBadgeEnabled: integer('rotating_badge_enabled', { mode: 'boolean' }).default(false),
+  rotatingBadgeText: text('rotating_badge_text'), // e.g., "NEW"
 
   // SEO
   metaTitle: text('meta_title'),

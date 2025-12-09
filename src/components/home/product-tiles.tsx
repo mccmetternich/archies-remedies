@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight, Star } from 'lucide-react';
@@ -11,8 +11,13 @@ interface Product {
   name: string;
   shortDescription: string | null;
   heroImageUrl: string | null;
+  secondaryImageUrl?: string | null;
   price: number | null;
   compareAtPrice: number | null;
+  badge?: string | null;
+  badgeEmoji?: string | null;
+  rotatingBadgeEnabled?: boolean | null;
+  rotatingBadgeText?: string | null;
 }
 
 interface ProductTilesProps {
@@ -21,7 +26,43 @@ interface ProductTilesProps {
   subtitle?: string;
 }
 
+// Rotating badge component
+function RotatingBadge({ text }: { text: string }) {
+  const repeatedText = Array(8).fill(text).join(' • ');
+
+  return (
+    <div className="absolute -top-3 -right-3 w-24 h-24 z-20">
+      <div className="relative w-full h-full">
+        {/* Circle background */}
+        <div className="absolute inset-0 bg-[var(--primary)] rounded-full" />
+
+        {/* Rotating text */}
+        <svg
+          viewBox="0 0 100 100"
+          className="absolute inset-0 w-full h-full animate-spin-slow"
+        >
+          <defs>
+            <path
+              id="circlePath"
+              d="M 50,50 m -35,0 a 35,35 0 1,1 70,0 a 35,35 0 1,1 -70,0"
+            />
+          </defs>
+          <text
+            className="text-[10px] font-bold uppercase tracking-[0.15em] fill-[var(--foreground)]"
+          >
+            <textPath href="#circlePath" startOffset="0%">
+              {repeatedText}
+            </textPath>
+          </text>
+        </svg>
+      </div>
+    </div>
+  );
+}
+
 export function ProductTiles({ products, title, subtitle }: ProductTilesProps) {
+  const [hoveredProduct, setHoveredProduct] = useState<string | null>(null);
+
   return (
     <section className="section bg-white relative overflow-hidden">
       {/* Subtle background accent */}
@@ -47,44 +88,66 @@ export function ProductTiles({ products, title, subtitle }: ProductTilesProps) {
         {/* Products Grid - Magazine layout */}
         <div className="grid md:grid-cols-2 gap-10 lg:gap-16">
           {products.map((product) => {
-            const isEyeWipes = product.slug === 'eye-wipes';
+            const isHovered = hoveredProduct === product.id;
+            const showSecondaryImage = isHovered && product.secondaryImageUrl;
 
             return (
               <div key={product.id}>
-                <Link href={`/products/${product.slug}`} className="group block">
+                <Link
+                  href={`/products/${product.slug}`}
+                  className="group block"
+                  onMouseEnter={() => setHoveredProduct(product.id)}
+                  onMouseLeave={() => setHoveredProduct(null)}
+                >
                   {/* Image Container - Editorial aspect ratio */}
                   <div className="relative overflow-hidden rounded-2xl bg-[var(--cream)] aspect-[4/5] mb-8">
-                    {/* Product Image */}
-                    {product.heroImageUrl ? (
+                    {/* Main Product Image */}
+                    {product.heroImageUrl && (
                       <Image
                         src={product.heroImageUrl}
                         alt={product.name}
                         fill
-                        className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
+                        className={`object-cover transition-all duration-500 ease-out ${
+                          showSecondaryImage ? 'opacity-0 scale-105' : 'opacity-100 group-hover:scale-[1.03]'
+                        }`}
                         sizes="(max-width: 768px) 100vw, 50vw"
                       />
-                    ) : (
+                    )}
+
+                    {/* Secondary (Rollover) Image */}
+                    {product.secondaryImageUrl && (
+                      <Image
+                        src={product.secondaryImageUrl}
+                        alt={`${product.name} - alternate view`}
+                        fill
+                        className={`object-cover transition-all duration-500 ease-out ${
+                          showSecondaryImage ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
+                        }`}
+                        sizes="(max-width: 768px) 100vw, 50vw"
+                      />
+                    )}
+
+                    {/* Fallback if no image */}
+                    {!product.heroImageUrl && (
                       <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[var(--primary-light)] to-[var(--cream)]">
                         <div className="w-40 h-40 rounded-full bg-white/50" />
                       </div>
                     )}
 
-                    {/* Minimal badge */}
-                    <div className="absolute top-6 left-6">
-                      <span className="inline-flex items-center gap-2 px-4 py-2 bg-white/95 backdrop-blur-sm rounded-full text-xs font-medium tracking-wide">
-                        {isEyeWipes ? (
-                          <>
-                            <span className="w-1.5 h-1.5 bg-[var(--primary)] rounded-full" />
-                            New Arrival
-                          </>
-                        ) : (
-                          <>
-                            <Star className="w-3 h-3 fill-[var(--foreground)]" />
-                            Bestseller
-                          </>
-                        )}
-                      </span>
-                    </div>
+                    {/* Badge - 2x bigger */}
+                    {product.badge && (
+                      <div className="absolute top-6 left-6 z-10">
+                        <span className="inline-flex items-center gap-2 px-6 py-3 bg-white/95 backdrop-blur-sm rounded-full text-sm font-semibold tracking-wide shadow-lg">
+                          {product.badgeEmoji && <span className="text-base">{product.badgeEmoji}</span>}
+                          {product.badge}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Rotating "NEW" badge */}
+                    {product.rotatingBadgeEnabled && product.rotatingBadgeText && (
+                      <RotatingBadge text={product.rotatingBadgeText} />
+                    )}
 
                     {/* Hover overlay */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -100,15 +163,15 @@ export function ProductTiles({ products, title, subtitle }: ProductTilesProps) {
 
                   {/* Product Info - Clean & minimal */}
                   <div className="space-y-4">
-                    {/* Rating */}
+                    {/* Rating - Now above title, bigger stars, blue color */}
                     <div className="flex items-center gap-3">
                       <div className="flex">
                         {[1, 2, 3, 4, 5].map((i) => (
-                          <Star key={i} className="w-3.5 h-3.5 fill-[var(--foreground)] text-[var(--foreground)]" />
+                          <Star key={i} className="w-5 h-5 fill-[var(--primary)] text-[var(--primary)]" />
                         ))}
                       </div>
-                      <span className="text-sm text-[var(--muted-foreground)]">
-                        4.9 ({isEyeWipes ? '847' : '1,247'})
+                      <span className="text-base font-medium text-[var(--foreground)]">
+                        4.9 ({product.slug === 'eye-wipes' ? '847' : '2,100'} reviews)
                       </span>
                     </div>
 
@@ -138,10 +201,12 @@ export function ProductTiles({ products, title, subtitle }: ProductTilesProps) {
                       )}
                     </div>
 
-                    {/* Clean badge */}
-                    <div className="flex items-center gap-2 pt-2">
-                      <span className="w-1.5 h-1.5 bg-green-500 rounded-full" />
-                      <span className="text-sm text-[var(--muted-foreground)]">Preservative Free</span>
+                    {/* Shop Now Button */}
+                    <div className="pt-4">
+                      <span className="inline-flex items-center gap-3 px-8 py-4 bg-[var(--primary)] text-[var(--foreground)] rounded-full text-base font-semibold hover:bg-[var(--primary-dark)] transition-all duration-300 shadow-md group-hover:shadow-lg">
+                        Shop Now
+                        <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+                      </span>
                     </div>
                   </div>
                 </Link>
