@@ -202,10 +202,17 @@ export const pages = sqliteTable('pages', {
   id: text('id').primaryKey(),
   slug: text('slug').notNull().unique(),
   title: text('title').notNull(),
-  content: text('content'), // Rich text
+  pageType: text('page_type').default('content'), // content, landing, product
+  content: text('content'), // Rich text for simple pages
+  widgets: text('widgets'), // JSON array of widget configs for landing pages
+  heroImageUrl: text('hero_image_url'),
+  heroTitle: text('hero_title'),
+  heroSubtitle: text('hero_subtitle'),
   metaTitle: text('meta_title'),
   metaDescription: text('meta_description'),
   isActive: integer('is_active', { mode: 'boolean' }).default(true),
+  showInNav: integer('show_in_nav', { mode: 'boolean' }).default(false),
+  navOrder: integer('nav_order').default(0),
 
   createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
   updatedAt: text('updated_at').default(sql`CURRENT_TIMESTAMP`),
@@ -217,6 +224,7 @@ export const emailSubscribers = sqliteTable('email_subscribers', {
   email: text('email').notNull().unique(),
   source: text('source'), // popup, footer, etc.
   subscribedAt: text('subscribed_at').default(sql`CURRENT_TIMESTAMP`),
+  createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
 });
 
 // Contact Submissions
@@ -226,6 +234,7 @@ export const contactSubmissions = sqliteTable('contact_submissions', {
   email: text('email').notNull(),
   subject: text('subject'),
   message: text('message').notNull(),
+  status: text('status').default('new'), // new, pending, resolved
   isRead: integer('is_read', { mode: 'boolean' }).default(false),
 
   createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
@@ -236,9 +245,11 @@ export const navigationItems = sqliteTable('navigation_items', {
   id: text('id').primaryKey(),
   label: text('label').notNull(),
   url: text('url'),
-  type: text('type').default('link'), // link, product_tile, dropdown
+  type: text('type').default('link'), // link, dropdown, mega
   productId: text('product_id').references(() => products.id),
   parentId: text('parent_id'),
+  imageUrl: text('image_url'),
+  description: text('description'),
   isActive: integer('is_active', { mode: 'boolean' }).default(true),
   sortOrder: integer('sort_order').default(0),
 
@@ -250,7 +261,7 @@ export const footerLinks = sqliteTable('footer_links', {
   id: text('id').primaryKey(),
   label: text('label').notNull(),
   url: text('url').notNull(),
-  column: integer('column').default(1), // Which footer column
+  column: text('column').default('Shop'), // Column header: Shop, Support, Company, Legal
   isExternal: integer('is_external', { mode: 'boolean' }).default(false),
   isActive: integer('is_active', { mode: 'boolean' }).default(true),
   sortOrder: integer('sort_order').default(0),

@@ -1,0 +1,70 @@
+import { NextResponse } from 'next/server';
+import { db } from '@/lib/db';
+import { navigationItems, footerLinks } from '@/lib/db/schema';
+import { eq } from 'drizzle-orm';
+import { generateId } from '@/lib/utils';
+
+export async function GET() {
+  try {
+    const navItems = await db.select().from(navigationItems).orderBy(navigationItems.sortOrder);
+    const footer = await db.select().from(footerLinks).orderBy(footerLinks.sortOrder);
+    return NextResponse.json({ navigation: navItems, footer });
+  } catch (error) {
+    console.error('Failed to fetch navigation:', error);
+    return NextResponse.json({ error: 'Failed to fetch' }, { status: 500 });
+  }
+}
+
+export async function PUT(request: Request) {
+  try {
+    const { navigation, footer } = await request.json();
+
+    // Update navigation items
+    if (navigation) {
+      const existingNav = await db.select({ id: navigationItems.id }).from(navigationItems);
+      for (const item of existingNav) {
+        await db.delete(navigationItems).where(eq(navigationItems.id, item.id));
+      }
+
+      for (let i = 0; i < navigation.length; i++) {
+        const item = navigation[i];
+        await db.insert(navigationItems).values({
+          id: item.id.startsWith('new-') ? generateId() : item.id,
+          label: item.label,
+          url: item.url,
+          type: item.type || 'link',
+          parentId: item.parentId || null,
+          imageUrl: item.imageUrl || null,
+          description: item.description || null,
+          isActive: item.isActive ?? true,
+          sortOrder: i,
+        });
+      }
+    }
+
+    // Update footer links
+    if (footer) {
+      const existingFooter = await db.select({ id: footerLinks.id }).from(footerLinks);
+      for (const item of existingFooter) {
+        await db.delete(footerLinks).where(eq(footerLinks.id, item.id));
+      }
+
+      for (let i = 0; i < footer.length; i++) {
+        const item = footer[i];
+        await db.insert(footerLinks).values({
+          id: item.id.startsWith('new-') ? generateId() : item.id,
+          label: item.label,
+          url: item.url,
+          column: item.column || 'Shop',
+          isActive: item.isActive ?? true,
+          sortOrder: i,
+        });
+      }
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Failed to update navigation:', error);
+    return NextResponse.json({ error: 'Failed to update' }, { status: 500 });
+  }
+}
