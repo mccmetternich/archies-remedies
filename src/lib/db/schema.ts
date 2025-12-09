@@ -40,6 +40,12 @@ export const siteSettings = sqliteTable('site_settings', {
   emailPopupButtonText: text('email_popup_button_text').default('Subscribe'),
   emailPopupImageUrl: text('email_popup_image_url'),
 
+  // Announcement Bumper Bar
+  bumperEnabled: integer('bumper_enabled', { mode: 'boolean' }).default(false),
+  bumperText: text('bumper_text'),
+  bumperLinkUrl: text('bumper_link_url'),
+  bumperLinkText: text('bumper_link_text'),
+
   createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
   updatedAt: text('updated_at').default(sql`CURRENT_TIMESTAMP`),
 });

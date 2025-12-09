@@ -48,6 +48,12 @@ export default async function FAQPage() {
       <Header
         logo={data.settings?.logoUrl}
         products={data.products}
+        bumper={data.settings ? {
+          bumperEnabled: data.settings.bumperEnabled,
+          bumperText: data.settings.bumperText,
+          bumperLinkUrl: data.settings.bumperLinkUrl,
+          bumperLinkText: data.settings.bumperLinkText,
+        } : null}
       />
 
       <main>

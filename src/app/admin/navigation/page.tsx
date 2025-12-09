@@ -13,6 +13,7 @@ import {
   Menu,
   Link as LinkIcon,
   ChevronDown,
+  Megaphone,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -38,10 +39,23 @@ interface FooterLink {
   sortOrder: number | null;
 }
 
+interface BumperSettings {
+  bumperEnabled: boolean;
+  bumperText: string;
+  bumperLinkUrl: string;
+  bumperLinkText: string;
+}
+
 export default function NavigationPage() {
-  const [activeTab, setActiveTab] = useState<'header' | 'footer'>('header');
+  const [activeTab, setActiveTab] = useState<'bumper' | 'header' | 'footer'>('bumper');
   const [navItems, setNavItems] = useState<NavItem[]>([]);
   const [footerLinks, setFooterLinks] = useState<FooterLink[]>([]);
+  const [bumperSettings, setBumperSettings] = useState<BumperSettings>({
+    bumperEnabled: false,
+    bumperText: '',
+    bumperLinkUrl: '',
+    bumperLinkText: '',
+  });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -58,6 +72,14 @@ export default function NavigationPage() {
       const data = await res.json();
       setNavItems(data.navigation || []);
       setFooterLinks(data.footer || []);
+      if (data.bumper) {
+        setBumperSettings({
+          bumperEnabled: data.bumper.bumperEnabled ?? false,
+          bumperText: data.bumper.bumperText ?? '',
+          bumperLinkUrl: data.bumper.bumperLinkUrl ?? '',
+          bumperLinkText: data.bumper.bumperLinkText ?? '',
+        });
+      }
     } catch (error) {
       console.error('Failed to fetch navigation:', error);
     } finally {
@@ -71,7 +93,11 @@ export default function NavigationPage() {
       await fetch('/api/admin/navigation', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ navigation: navItems, footer: footerLinks }),
+        body: JSON.stringify({
+          navigation: navItems,
+          footer: footerLinks,
+          bumper: bumperSettings,
+        }),
       });
     } catch (error) {
       console.error('Failed to save:', error);
@@ -189,6 +215,17 @@ export default function NavigationPage() {
       {/* Tabs */}
       <div className="flex gap-2 border-b border-[var(--border)]">
         <button
+          onClick={() => setActiveTab('bumper')}
+          className={`px-4 py-2 font-medium transition-colors border-b-2 -mb-px ${
+            activeTab === 'bumper'
+              ? 'border-[var(--foreground)] text-[var(--foreground)]'
+              : 'border-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)]'
+          }`}
+        >
+          <Megaphone className="w-4 h-4 inline mr-2" />
+          Announcement Bar
+        </button>
+        <button
           onClick={() => setActiveTab('header')}
           className={`px-4 py-2 font-medium transition-colors border-b-2 -mb-px ${
             activeTab === 'header'
@@ -211,6 +248,86 @@ export default function NavigationPage() {
           Footer Links
         </button>
       </div>
+
+      {/* Announcement Bar Settings */}
+      {activeTab === 'bumper' && (
+        <div className="bg-white rounded-xl border border-[var(--border)]">
+          <div className="p-6 border-b border-[var(--border-light)]">
+            <h2 className="font-medium text-lg mb-2">Announcement Bar</h2>
+            <p className="text-sm text-[var(--muted-foreground)]">
+              Display a promotional message at the top of all pages
+            </p>
+          </div>
+
+          <div className="p-6 space-y-6">
+            {/* Enable Toggle */}
+            <div className="flex items-center gap-3">
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={bumperSettings.bumperEnabled}
+                  onChange={(e) => setBumperSettings({ ...bumperSettings, bumperEnabled: e.target.checked })}
+                  className="sr-only peer"
+                />
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[var(--primary)] rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--foreground)]"></div>
+              </label>
+              <span className="text-sm font-medium">Enable Announcement Bar</span>
+            </div>
+
+            {/* Announcement Text */}
+            <div>
+              <label className="block text-sm font-medium mb-2">Announcement Text</label>
+              <Input
+                value={bumperSettings.bumperText}
+                onChange={(e) => setBumperSettings({ ...bumperSettings, bumperText: e.target.value })}
+                placeholder="Free shipping on orders over $50!"
+                className="w-full"
+              />
+              <p className="text-xs text-[var(--muted-foreground)] mt-1">This text will be centered in the announcement bar</p>
+            </div>
+
+            {/* Link URL */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Link Text (optional)</label>
+                <Input
+                  value={bumperSettings.bumperLinkText}
+                  onChange={(e) => setBumperSettings({ ...bumperSettings, bumperLinkText: e.target.value })}
+                  placeholder="Shop Now"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Link URL (optional)</label>
+                <Input
+                  value={bumperSettings.bumperLinkUrl}
+                  onChange={(e) => setBumperSettings({ ...bumperSettings, bumperLinkUrl: e.target.value })}
+                  placeholder="/products/eye-drops"
+                />
+              </div>
+            </div>
+
+            {/* Preview */}
+            {bumperSettings.bumperText && (
+              <div>
+                <label className="block text-sm font-medium mb-2">Preview</label>
+                <div className="bg-[var(--primary)] py-3 px-4 rounded-lg">
+                  <div className="flex items-center justify-center gap-3 text-sm text-[var(--foreground)]">
+                    <span className="text-center font-medium">{bumperSettings.bumperText}</span>
+                    {bumperSettings.bumperLinkUrl && bumperSettings.bumperLinkText && (
+                      <span className="inline-flex items-center gap-1.5 font-semibold underline underline-offset-2">
+                        {bumperSettings.bumperLinkText}
+                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                        </svg>
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Header Navigation */}
       {activeTab === 'header' && (

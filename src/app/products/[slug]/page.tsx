@@ -109,6 +109,12 @@ export default async function ProductPage({ params }: PageProps) {
       <Header
         logo={siteData.settings?.logoUrl}
         products={siteData.products}
+        bumper={siteData.settings ? {
+          bumperEnabled: siteData.settings.bumperEnabled,
+          bumperText: siteData.settings.bumperText,
+          bumperLinkUrl: siteData.settings.bumperLinkUrl,
+          bumperLinkText: siteData.settings.bumperLinkText,
+        } : null}
       />
 
       <main className="pt-4">

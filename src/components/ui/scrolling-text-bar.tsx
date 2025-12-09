@@ -3,20 +3,29 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 
-type Size = 'small' | 'medium' | 'large' | 'xl' | 'xxl';
-type Speed = 'slow' | 'normal' | 'fast';
-type Direction = 'left' | 'right';
+export type Size = 'small' | 'medium' | 'large' | 'xl' | 'xxl';
+export type Speed = 'slow' | 'normal' | 'fast';
+export type Direction = 'left' | 'right';
+export type StylePreset = 'baby-blue' | 'dark' | 'light';
 
 interface ScrollingTextBarProps {
   text: string;
   size?: Size;
   speed?: Speed;
   direction?: Direction;
+  stylePreset?: StylePreset;
   className?: string;
   backgroundColor?: string;
   textColor?: string;
   separator?: string;
 }
+
+// Style presets: baby blue with dark gray text, dark gray with white text, white with off-black text
+const stylePresets: Record<StylePreset, { backgroundColor: string; textColor: string }> = {
+  'baby-blue': { backgroundColor: 'var(--primary)', textColor: '#374151' }, // Baby blue with dark gray text
+  'dark': { backgroundColor: '#1f2937', textColor: '#ffffff' }, // Dark gray/off-black with white text
+  'light': { backgroundColor: '#ffffff', textColor: '#1f2937' }, // White with off-black text
+};
 
 const sizeStyles: Record<Size, string> = {
   small: 'py-2 text-xs',
@@ -37,9 +46,10 @@ export function ScrollingTextBar({
   size = 'medium',
   speed = 'normal',
   direction = 'left',
+  stylePreset,
   className,
-  backgroundColor = 'var(--primary)',
-  textColor = 'var(--foreground)',
+  backgroundColor,
+  textColor,
   separator = '•',
 }: ScrollingTextBarProps) {
   // Duplicate text for seamless infinite scroll
@@ -49,6 +59,14 @@ export function ScrollingTextBar({
     '--scroll-duration': speedStyles[speed],
   } as React.CSSProperties;
 
+  // Use style preset if provided, otherwise fallback to explicit colors or defaults
+  const colors = stylePreset
+    ? stylePresets[stylePreset]
+    : {
+        backgroundColor: backgroundColor || 'var(--primary)',
+        textColor: textColor || 'var(--foreground)',
+      };
+
   return (
     <div
       className={cn(
@@ -56,7 +74,7 @@ export function ScrollingTextBar({
         sizeStyles[size],
         className
       )}
-      style={{ backgroundColor, color: textColor }}
+      style={{ backgroundColor: colors.backgroundColor, color: colors.textColor }}
     >
       <div
         className={cn(

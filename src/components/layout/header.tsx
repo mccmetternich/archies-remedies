@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, ChevronDown, Star, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { AnnouncementBar } from './announcement-bar';
 
 interface Product {
   id: string;
@@ -15,9 +16,17 @@ interface Product {
   heroImageUrl: string | null;
 }
 
+interface BumperSettings {
+  bumperEnabled?: boolean | null;
+  bumperText?: string | null;
+  bumperLinkUrl?: string | null;
+  bumperLinkText?: string | null;
+}
+
 interface HeaderProps {
   logo?: string | null;
   products?: Product[];
+  bumper?: BumperSettings | null;
 }
 
 // Product images for mega nav
@@ -26,10 +35,12 @@ const PRODUCT_IMAGES = {
   'eye-wipes': 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=400&h=400&fit=crop',
 };
 
-export function Header({ logo, products = [] }: HeaderProps) {
+export function Header({ logo, products = [], bumper }: HeaderProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [shopOpen, setShopOpen] = useState(false);
+
+  const showBumper = bumper?.bumperEnabled && bumper?.bumperText;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -50,9 +61,21 @@ export function Header({ logo, products = [] }: HeaderProps) {
 
   return (
     <>
+      {/* Announcement Bumper Bar */}
+      {showBumper && (
+        <div className="fixed top-0 left-0 right-0 z-[51]">
+          <AnnouncementBar
+            text={bumper.bumperText!}
+            linkUrl={bumper.bumperLinkUrl}
+            linkText={bumper.bumperLinkText}
+          />
+        </div>
+      )}
+
       <header
         className={cn(
-          'fixed top-0 left-0 right-0 z-50 transition-all duration-700',
+          'fixed left-0 right-0 z-50 transition-all duration-700',
+          showBumper ? 'top-[52px]' : 'top-0',
           isScrolled
             ? 'bg-white/98 backdrop-blur-xl shadow-sm py-4'
             : 'bg-transparent py-6'
@@ -381,8 +404,13 @@ export function Header({ logo, products = [] }: HeaderProps) {
         )}
       </AnimatePresence>
 
-      {/* Spacer for fixed header */}
-      <div className={cn('transition-all duration-500', isScrolled ? 'h-[72px]' : 'h-[88px]')} />
+      {/* Spacer for fixed header + bumper */}
+      <div className={cn(
+        'transition-all duration-500',
+        showBumper
+          ? (isScrolled ? 'h-[124px]' : 'h-[140px]')
+          : (isScrolled ? 'h-[72px]' : 'h-[88px]')
+      )} />
     </>
   );
 }
