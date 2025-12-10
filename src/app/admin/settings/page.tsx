@@ -37,9 +37,11 @@ interface SiteSettings {
   draftModeTitle: string | null;
   draftModeSubtitle: string | null;
   draftModeBadgeUrl: string | null;
+  draftModeFooterStyle: string | null;
   draftModeCallout1: string | null;
   draftModeCallout2: string | null;
   draftModeCallout3: string | null;
+  draftModeBrandQuip: string | null;
   draftModeContactType: string | null;
 }
 
@@ -1112,44 +1114,75 @@ function DraftModeTab({
 
       <div className="h-px bg-[var(--admin-hover)]" />
 
-      {/* Trust Badges / Callouts */}
+      {/* Footer Style - Trust Badges or Brand Quip */}
       <div>
-        <h3 className="font-medium text-[var(--admin-text-primary)] mb-4">Trust Badges</h3>
+        <h3 className="font-medium text-[var(--admin-text-primary)] mb-4">Footer Content</h3>
         <p className="text-sm text-[var(--admin-text-muted)] mb-4">
-          Three short callouts that appear below the signup form. Leave blank to hide.
+          Choose what appears below the signup form.
         </p>
-        <div className="grid grid-cols-3 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Badge 1</label>
-            <input
-              type="text"
-              value={settings.draftModeCallout1 || ''}
-              onChange={(e) => updateField('draftModeCallout1', e.target.value)}
-              placeholder="Preservative-Free"
-              className="w-full px-3 py-2.5 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-sm text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Badge 2</label>
-            <input
-              type="text"
-              value={settings.draftModeCallout2 || ''}
-              onChange={(e) => updateField('draftModeCallout2', e.target.value)}
-              placeholder="Clean Ingredients"
-              className="w-full px-3 py-2.5 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-sm text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Badge 3</label>
-            <input
-              type="text"
-              value={settings.draftModeCallout3 || ''}
-              onChange={(e) => updateField('draftModeCallout3', e.target.value)}
-              placeholder="Made in USA"
-              className="w-full px-3 py-2.5 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-sm text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
-            />
-          </div>
+
+        {/* Style Selector */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Style</label>
+          <select
+            value={settings.draftModeFooterStyle || 'badges'}
+            onChange={(e) => updateField('draftModeFooterStyle', e.target.value)}
+            className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+          >
+            <option value="badges">Trust Badges (3 short callouts)</option>
+            <option value="quip">Brand Quip (single tagline)</option>
+          </select>
         </div>
+
+        {/* Conditional Fields based on style */}
+        {(settings.draftModeFooterStyle || 'badges') === 'badges' ? (
+          <div className="grid grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Badge 1</label>
+              <input
+                type="text"
+                value={settings.draftModeCallout1 || ''}
+                onChange={(e) => updateField('draftModeCallout1', e.target.value)}
+                placeholder="Preservative-Free"
+                className="w-full px-3 py-2.5 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-sm text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Badge 2</label>
+              <input
+                type="text"
+                value={settings.draftModeCallout2 || ''}
+                onChange={(e) => updateField('draftModeCallout2', e.target.value)}
+                placeholder="Clean Ingredients"
+                className="w-full px-3 py-2.5 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-sm text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Badge 3</label>
+              <input
+                type="text"
+                value={settings.draftModeCallout3 || ''}
+                onChange={(e) => updateField('draftModeCallout3', e.target.value)}
+                placeholder="Made in USA"
+                className="w-full px-3 py-2.5 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-sm text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+              />
+            </div>
+          </div>
+        ) : (
+          <div>
+            <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Brand Quip</label>
+            <input
+              type="text"
+              value={settings.draftModeBrandQuip || ''}
+              onChange={(e) => updateField('draftModeBrandQuip', e.target.value)}
+              placeholder="Where clean beauty meets clear vision."
+              className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+            />
+            <p className="text-xs text-[var(--admin-text-muted)] mt-2">
+              A short, poetic tagline that captures your brand essence.
+            </p>
+          </div>
+        )}
       </div>
 
       <div className="h-px bg-[var(--admin-hover)]" />
@@ -1222,27 +1255,33 @@ function DraftModeTab({
             </div>
           </div>
 
-          {/* Trust badges preview */}
-          <div className="flex flex-wrap justify-center gap-4 text-xs text-gray-400">
-            {settings.draftModeCallout1 && (
-              <span className="flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 bg-[#bbdae9] rounded-full" />
-                {settings.draftModeCallout1}
-              </span>
-            )}
-            {settings.draftModeCallout2 && (
-              <span className="flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 bg-[#bbdae9] rounded-full" />
-                {settings.draftModeCallout2}
-              </span>
-            )}
-            {settings.draftModeCallout3 && (
-              <span className="flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 bg-[#bbdae9] rounded-full" />
-                {settings.draftModeCallout3}
-              </span>
-            )}
-          </div>
+          {/* Footer preview - badges or quip */}
+          {(settings.draftModeFooterStyle || 'badges') === 'badges' ? (
+            <div className="flex flex-wrap justify-center gap-4 text-xs text-gray-400">
+              {settings.draftModeCallout1 && (
+                <span className="flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 bg-[#bbdae9] rounded-full" />
+                  {settings.draftModeCallout1}
+                </span>
+              )}
+              {settings.draftModeCallout2 && (
+                <span className="flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 bg-[#bbdae9] rounded-full" />
+                  {settings.draftModeCallout2}
+                </span>
+              )}
+              {settings.draftModeCallout3 && (
+                <span className="flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 bg-[#bbdae9] rounded-full" />
+                  {settings.draftModeCallout3}
+                </span>
+              )}
+            </div>
+          ) : (
+            <p className="text-sm text-gray-500 italic">
+              {settings.draftModeBrandQuip || 'Where clean beauty meets clear vision.'}
+            </p>
+          )}
         </div>
       </div>
     </motion.div>

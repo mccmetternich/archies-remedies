@@ -14,10 +14,14 @@ export const siteSettings = sqliteTable('site_settings', {
   draftModeTitle: text('draft_mode_title').default('Coming Soon'),
   draftModeSubtitle: text('draft_mode_subtitle').default("Pure ingredients. Radiant you."),
   draftModeBadgeUrl: text('draft_mode_badge_url'), // Rotating badge image (PNG) that overlaps the logo
+  // Footer style: 'badges' for trust badges, 'quip' for single brand line
+  draftModeFooterStyle: text('draft_mode_footer_style').default('badges'), // 'badges' or 'quip'
   // Editable callouts (trust badges underneath form)
   draftModeCallout1: text('draft_mode_callout1').default('Preservative-Free'),
   draftModeCallout2: text('draft_mode_callout2').default('Clean Ingredients'),
   draftModeCallout3: text('draft_mode_callout3').default('Made in USA'),
+  // Single brand quip/slogan (alternative to trust badges)
+  draftModeBrandQuip: text('draft_mode_brand_quip').default('Where clean beauty meets clear vision.'),
   // Default contact type for coming soon form
   draftModeContactType: text('draft_mode_contact_type').default('phone'), // 'email' or 'phone'
 

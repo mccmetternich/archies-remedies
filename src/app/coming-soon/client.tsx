@@ -11,9 +11,11 @@ interface ComingSoonClientProps {
   title: string;
   subtitle: string;
   siteName: string;
+  footerStyle?: 'badges' | 'quip';
   callout1?: string;
   callout2?: string;
   callout3?: string;
+  brandQuip?: string;
   defaultContactType?: 'email' | 'phone';
   instagramUrl?: string;
   facebookUrl?: string;
@@ -25,9 +27,11 @@ export function ComingSoonClient({
   title,
   subtitle,
   siteName,
+  footerStyle = 'badges',
   callout1 = 'Preservative-Free',
   callout2 = 'Clean Ingredients',
   callout3 = 'Made in USA',
+  brandQuip = 'Where clean beauty meets clear vision.',
   defaultContactType = 'phone',
   instagramUrl,
   facebookUrl,
@@ -308,30 +312,38 @@ export function ComingSoonClient({
                 )}
               </motion.form>
 
-              {/* Trust badges / Callouts */}
+              {/* Footer - Trust badges or Brand quip */}
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.6, duration: 0.6 }}
-                className="mt-16 flex flex-wrap justify-center gap-6 text-sm text-gray-500"
+                className="mt-16"
               >
-                {callout1 && (
-                  <span className="flex items-center gap-2">
-                    <span className="w-2 h-2 bg-[#bbdae9] rounded-full" />
-                    {callout1}
-                  </span>
-                )}
-                {callout2 && (
-                  <span className="flex items-center gap-2">
-                    <span className="w-2 h-2 bg-[#bbdae9] rounded-full" />
-                    {callout2}
-                  </span>
-                )}
-                {callout3 && (
-                  <span className="flex items-center gap-2">
-                    <span className="w-2 h-2 bg-[#bbdae9] rounded-full" />
-                    {callout3}
-                  </span>
+                {footerStyle === 'badges' ? (
+                  <div className="flex flex-wrap justify-center gap-6 text-sm text-gray-500">
+                    {callout1 && (
+                      <span className="flex items-center gap-2">
+                        <span className="w-2 h-2 bg-[#bbdae9] rounded-full" />
+                        {callout1}
+                      </span>
+                    )}
+                    {callout2 && (
+                      <span className="flex items-center gap-2">
+                        <span className="w-2 h-2 bg-[#bbdae9] rounded-full" />
+                        {callout2}
+                      </span>
+                    )}
+                    {callout3 && (
+                      <span className="flex items-center gap-2">
+                        <span className="w-2 h-2 bg-[#bbdae9] rounded-full" />
+                        {callout3}
+                      </span>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-lg text-gray-500 italic text-center max-w-md mx-auto">
+                    {brandQuip}
+                  </p>
                 )}
               </motion.div>
             </motion.div>
