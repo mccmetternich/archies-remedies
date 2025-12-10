@@ -97,10 +97,10 @@ export function ComingSoonClient({
         >
           {logoUrl ? (
             <div className="relative inline-block">
-              {/* Rotating badge partially behind the logo */}
+              {/* Rotating badge peeking from top-right corner */}
               {badgeUrl && (
                 <motion.div
-                  className="absolute -top-4 -right-6 w-[100px] h-[100px] z-0"
+                  className="absolute -top-10 -right-12 w-[100px] h-[100px] z-0"
                   animate={{ rotate: 360 }}
                   transition={{
                     duration: 20,

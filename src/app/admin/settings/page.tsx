@@ -1161,10 +1161,10 @@ function DraftModeTab({
           {/* Logo with badge preview */}
           <div className="mb-8 flex justify-center">
             <div className="relative inline-block">
-              {/* Rotating badge partially behind logo */}
+              {/* Rotating badge peeking from top-right corner */}
               {settings.draftModeBadgeUrl && (
                 <div
-                  className="absolute -top-2 -right-4 w-[60px] h-[60px] z-0 animate-spin"
+                  className="absolute -top-6 -right-8 w-[60px] h-[60px] z-0 animate-spin"
                   style={{ animationDuration: '20s' }}
                 >
                   <img
