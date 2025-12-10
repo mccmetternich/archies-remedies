@@ -149,32 +149,33 @@ export function ComingSoonClient({
               transition={{ duration: 0.6 }}
               className="text-center"
             >
-              {/* Success checkmark animation */}
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ type: "spring", stiffness: 200, delay: 0.1 }}
-                className="w-20 h-20 bg-[#bbdae9] rounded-full flex items-center justify-center mx-auto mb-8"
-              >
-                <motion.svg
-                  initial={{ pathLength: 0 }}
-                  animate={{ pathLength: 1 }}
-                  transition={{ duration: 0.5, delay: 0.3 }}
-                  className="w-10 h-10 text-[#1a1a1a]"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
+              {/* Title with checkmark inline */}
+              <div className="flex items-center justify-center gap-4 mb-6">
+                <h1 className="text-5xl md:text-6xl font-normal tracking-tight">
+                  You're In
+                </h1>
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", stiffness: 200, delay: 0.1 }}
+                  className="w-14 h-14 bg-[#bbdae9] rounded-full flex items-center justify-center flex-shrink-0"
                 >
-                  <motion.path d="M5 13l4 4L19 7" />
-                </motion.svg>
-              </motion.div>
-
-              <h1 className="text-5xl md:text-6xl font-normal tracking-tight mb-6">
-                You're In
-              </h1>
+                  <motion.svg
+                    initial={{ pathLength: 0 }}
+                    animate={{ pathLength: 1 }}
+                    transition={{ duration: 0.5, delay: 0.3 }}
+                    className="w-7 h-7 text-[#1a1a1a]"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <motion.path d="M5 13l4 4L19 7" />
+                  </motion.svg>
+                </motion.div>
+              </div>
               <p className="text-xl text-gray-600 mb-12 max-w-md mx-auto leading-relaxed">
                 We'll let you know when we launch. Follow us for updates.
               </p>
@@ -186,7 +187,7 @@ export function ComingSoonClient({
                     href={instagramUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-14 h-14 rounded-full bg-white border border-[#e5e5e5] flex items-center justify-center text-gray-600 hover:text-[#1a1a1a] hover:border-[#bbdae9] transition-all"
+                    className="w-14 h-14 rounded-full bg-[#bbdae9] flex items-center justify-center text-[#1a1a1a] hover:bg-[#a8d0e0] transition-all"
                   >
                     <Instagram className="w-6 h-6" />
                   </a>
@@ -284,7 +285,8 @@ export function ComingSoonClient({
                     onChange={(e) => setContactValue(e.target.value)}
                     placeholder={contactType === 'email' ? 'Enter your email' : 'Enter your phone number'}
                     required
-                    className="w-full pl-16 pr-36 py-5 text-lg rounded-full border border-gray-200 bg-white shadow-sm transition-all focus:outline-none focus:border-[#bbdae9] focus:ring-0"
+                    className="w-full pl-16 pr-36 py-5 text-lg rounded-full border border-gray-200 bg-white shadow-sm transition-all outline-none focus:outline-none focus:border-[#bbdae9] focus:ring-0 focus:shadow-none"
+                    style={{ outline: 'none', boxShadow: 'none' }}
                   />
                   <button
                     type="submit"
