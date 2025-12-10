@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+  const { pathname, searchParams } = request.nextUrl;
 
   // Skip static files
   if (
@@ -10,6 +10,25 @@ export function middleware(request: NextRequest) {
     pathname.includes('.')
   ) {
     return NextResponse.next();
+  }
+
+  // Handle preview mode URL parameter
+  // When ?preview=true is present, set a preview cookie so admin can view draft site
+  const hasPreviewParam = searchParams.get('preview') === 'true';
+  const hasPreviewToken = request.cookies.get('preview_token');
+
+  if (hasPreviewParam && !hasPreviewToken && !pathname.startsWith('/admin') && !pathname.startsWith('/api')) {
+    // Set preview cookie and redirect to same page without the param
+    const url = new URL(pathname, request.url);
+    const response = NextResponse.redirect(url);
+    response.cookies.set('preview_token', 'admin-preview', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 60 * 60 * 24, // 24 hours
+    });
+    return response;
   }
 
   // Protect admin routes (except login and auth API)

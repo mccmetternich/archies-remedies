@@ -79,7 +79,7 @@ export function ComingSoonClient({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#f5f0eb] via-white to-[#bbdae9]/20 flex items-center justify-center p-6">
+    <div className="min-h-screen bg-gradient-to-br from-[#f5f0eb] via-white to-[#bbdae9]/20 flex items-center justify-center p-6 pb-24">
       {/* Background decorative elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 -left-32 w-96 h-96 bg-[#bbdae9]/30 rounded-full blur-3xl" />
@@ -104,7 +104,7 @@ export function ComingSoonClient({
               {/* Rotating badge peeking from top-right corner */}
               {badgeUrl && (
                 <motion.div
-                  className="absolute -top-10 -right-12 w-[100px] h-[100px] z-0"
+                  className="absolute -top-8 -right-14 w-[80px] h-[80px] z-0"
                   animate={{ rotate: 360 }}
                   transition={{
                     duration: 20,
@@ -115,8 +115,8 @@ export function ComingSoonClient({
                   <Image
                     src={badgeUrl}
                     alt="Badge"
-                    width={100}
-                    height={100}
+                    width={80}
+                    height={80}
                     className="w-full h-full object-contain"
                   />
                 </motion.div>
@@ -124,9 +124,9 @@ export function ComingSoonClient({
               <Image
                 src={logoUrl}
                 alt={siteName}
-                width={200}
-                height={80}
-                className="h-20 w-auto object-contain relative z-10"
+                width={180}
+                height={72}
+                className="h-[72px] w-auto object-contain relative z-10"
                 priority
               />
             </div>
