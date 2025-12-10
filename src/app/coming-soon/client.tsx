@@ -97,10 +97,10 @@ export function ComingSoonClient({
         >
           {logoUrl ? (
             <div className="relative inline-block">
-              {/* Rotating badge BEHIND the logo - 2.5x size (200px) */}
+              {/* Rotating badge partially behind the logo */}
               {badgeUrl && (
                 <motion.div
-                  className="absolute -top-12 -right-16 w-[200px] h-[200px] -z-10"
+                  className="absolute -top-4 -right-6 w-[100px] h-[100px] z-0"
                   animate={{ rotate: 360 }}
                   transition={{
                     duration: 20,
@@ -111,8 +111,8 @@ export function ComingSoonClient({
                   <Image
                     src={badgeUrl}
                     alt="Badge"
-                    width={200}
-                    height={200}
+                    width={100}
+                    height={100}
                     className="w-full h-full object-contain"
                   />
                 </motion.div>
