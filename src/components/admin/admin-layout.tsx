@@ -292,13 +292,8 @@ function AdminLayoutInner({ children, unreadMessages = 0 }: AdminLayoutProps) {
                           style={{ color: active ? 'var(--admin-button-text)' : NAV_COLORS.iconColor }}
                         />
                         <span className="flex-1">{item.label}</span>
-                        {item.badge && item.badge > 0 && (
-                          <span className={cn(
-                            'px-2 py-0.5 text-xs font-medium rounded-full',
-                            active
-                              ? 'bg-[var(--admin-button-text)]/20 text-[var(--admin-button-text)]'
-                              : 'bg-[var(--primary)] text-[var(--admin-button-text)]'
-                          )}>
+                        {item.badge !== undefined && item.badge > 0 && (
+                          <span className="min-w-[20px] h-5 px-1.5 text-xs font-medium rounded-full bg-[#3b82f6] text-white flex items-center justify-center">
                             {item.badge}
                           </span>
                         )}

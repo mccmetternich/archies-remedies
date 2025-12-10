@@ -98,6 +98,7 @@ export default function PagesListPage() {
   const [pages, setPages] = useState<Page[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [siteInDraftMode, setSiteInDraftMode] = useState(false);
   const [deleteModal, setDeleteModal] = useState<{ isOpen: boolean; page: Page | null }>({
     isOpen: false,
     page: null,
@@ -110,8 +111,18 @@ export default function PagesListPage() {
   });
 
   useEffect(() => {
-    Promise.all([fetchPages(), fetchProducts()]);
+    Promise.all([fetchPages(), fetchProducts(), fetchSiteSettings()]);
   }, []);
+
+  const fetchSiteSettings = async () => {
+    try {
+      const res = await fetch('/api/admin/settings');
+      const data = await res.json();
+      setSiteInDraftMode(data.siteInDraftMode ?? false);
+    } catch (error) {
+      console.error('Failed to fetch site settings:', error);
+    }
+  };
 
   const fetchPages = async () => {
     try {
@@ -239,7 +250,16 @@ export default function PagesListPage() {
     return page.title;
   };
 
-  const PageRow = ({ page, onToggle, onDelete }: { page: Page; onToggle: () => void; onDelete: () => void }) => (
+  // When site is in draft mode, ALL pages are effectively draft regardless of individual status
+  const isEffectivelyLive = (isActive: boolean | null) => {
+    if (siteInDraftMode) return false; // Site-level draft overrides everything
+    return isActive ?? false;
+  };
+
+  const PageRow = ({ page, onToggle, onDelete }: { page: Page; onToggle: () => void; onDelete: () => void }) => {
+    const effectivelyLive = isEffectivelyLive(page.isActive);
+
+    return (
     <Link
       href={`/admin/pages/${page.id}`}
       className="flex items-center justify-between p-4 hover:bg-[var(--primary)]/5 transition-colors group cursor-pointer"
@@ -279,7 +299,7 @@ export default function PagesListPage() {
         <div className="flex items-center gap-2">
           <span className={cn(
             "text-xs font-medium transition-colors",
-            !page.isActive ? "text-orange-400" : "text-[var(--admin-text-muted)]"
+            !effectivelyLive ? "text-orange-400" : "text-[var(--admin-text-muted)]"
           )}>
             Draft
           </span>
@@ -287,23 +307,28 @@ export default function PagesListPage() {
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              onToggle();
+              if (!siteInDraftMode) onToggle(); // Only allow toggle if site is not in draft mode
             }}
-            className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none"
+            disabled={siteInDraftMode}
+            className={cn(
+              "relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none",
+              siteInDraftMode && "opacity-50 cursor-not-allowed"
+            )}
             style={{
-              backgroundColor: page.isActive ? '#22c55e' : '#f97316'
+              backgroundColor: effectivelyLive ? '#22c55e' : '#f97316'
             }}
+            title={siteInDraftMode ? 'Site is in Draft Mode - all pages are draft' : undefined}
           >
             <span
               className={cn(
                 "inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow",
-                page.isActive ? "translate-x-6" : "translate-x-1"
+                effectivelyLive ? "translate-x-6" : "translate-x-1"
               )}
             />
           </button>
           <span className={cn(
             "text-xs font-medium transition-colors",
-            page.isActive ? "text-green-400" : "text-[var(--admin-text-muted)]"
+            effectivelyLive ? "text-green-400" : "text-[var(--admin-text-muted)]"
           )}>
             Live
           </span>
@@ -314,8 +339,8 @@ export default function PagesListPage() {
           onClick={async (e) => {
             e.preventDefault();
             e.stopPropagation();
-            // Generate preview token if page is not live
-            if (!page.isActive) {
+            // Generate preview token if page is not effectively live
+            if (!effectivelyLive) {
               try {
                 const res = await fetch('/api/admin/preview-token', { method: 'POST' });
                 if (res.ok) {
@@ -333,14 +358,14 @@ export default function PagesListPage() {
           }}
           className={cn(
             "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors",
-            page.isActive
+            effectivelyLive
               ? "text-[var(--admin-text-secondary)] hover:text-green-400 hover:bg-green-500/10"
               : "text-orange-400 hover:text-orange-300 hover:bg-orange-500/10"
           )}
-          title={page.isActive ? 'View Live Page' : 'View Draft Page'}
+          title={effectivelyLive ? 'View Live Page' : 'View Draft Page'}
         >
           <ExternalLink className="w-4 h-4" />
-          <span className="hidden sm:inline">{page.isActive ? 'View' : 'View Draft'}</span>
+          <span className="hidden sm:inline">{effectivelyLive ? 'View' : 'View Draft'}</span>
         </button>
 
         {/* Delete */}
@@ -357,8 +382,12 @@ export default function PagesListPage() {
       </div>
     </Link>
   );
+  };
 
-  const ProductRow = ({ product, onToggle, onDelete }: { product: Product; onToggle: () => void; onDelete: () => void }) => (
+  const ProductRow = ({ product, onToggle, onDelete }: { product: Product; onToggle: () => void; onDelete: () => void }) => {
+    const effectivelyLive = isEffectivelyLive(product.isActive);
+
+    return (
     <Link
       href={`/admin/products/${product.id}`}
       className="flex items-center justify-between p-4 hover:bg-[var(--primary)]/5 transition-colors group cursor-pointer"
@@ -380,7 +409,7 @@ export default function PagesListPage() {
         <div className="flex items-center gap-2">
           <span className={cn(
             "text-xs font-medium transition-colors",
-            !product.isActive ? "text-orange-400" : "text-[var(--admin-text-muted)]"
+            !effectivelyLive ? "text-orange-400" : "text-[var(--admin-text-muted)]"
           )}>
             Draft
           </span>
@@ -388,23 +417,28 @@ export default function PagesListPage() {
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              onToggle();
+              if (!siteInDraftMode) onToggle();
             }}
-            className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none"
+            disabled={siteInDraftMode}
+            className={cn(
+              "relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none",
+              siteInDraftMode && "opacity-50 cursor-not-allowed"
+            )}
             style={{
-              backgroundColor: product.isActive ? '#22c55e' : '#f97316'
+              backgroundColor: effectivelyLive ? '#22c55e' : '#f97316'
             }}
+            title={siteInDraftMode ? 'Site is in Draft Mode - all pages are draft' : undefined}
           >
             <span
               className={cn(
                 "inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow",
-                product.isActive ? "translate-x-6" : "translate-x-1"
+                effectivelyLive ? "translate-x-6" : "translate-x-1"
               )}
             />
           </button>
           <span className={cn(
             "text-xs font-medium transition-colors",
-            product.isActive ? "text-green-400" : "text-[var(--admin-text-muted)]"
+            effectivelyLive ? "text-green-400" : "text-[var(--admin-text-muted)]"
           )}>
             Live
           </span>
@@ -415,8 +449,8 @@ export default function PagesListPage() {
           onClick={async (e) => {
             e.preventDefault();
             e.stopPropagation();
-            // Generate preview token if product is not live
-            if (!product.isActive) {
+            // Generate preview token if product is not effectively live
+            if (!effectivelyLive) {
               try {
                 const res = await fetch('/api/admin/preview-token', { method: 'POST' });
                 if (res.ok) {
@@ -431,14 +465,14 @@ export default function PagesListPage() {
           }}
           className={cn(
             "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors",
-            product.isActive
+            effectivelyLive
               ? "text-[var(--admin-text-secondary)] hover:text-green-400 hover:bg-green-500/10"
               : "text-orange-400 hover:text-orange-300 hover:bg-orange-500/10"
           )}
-          title={product.isActive ? 'View Live Page' : 'View Draft Page'}
+          title={effectivelyLive ? 'View Live Page' : 'View Draft Page'}
         >
           <ExternalLink className="w-4 h-4" />
-          <span className="hidden sm:inline">{product.isActive ? 'View' : 'View Draft'}</span>
+          <span className="hidden sm:inline">{effectivelyLive ? 'View' : 'View Draft'}</span>
         </button>
 
         {/* Delete */}
@@ -455,6 +489,7 @@ export default function PagesListPage() {
       </div>
     </Link>
   );
+  };
 
   const Section = ({
     title,
@@ -525,6 +560,19 @@ export default function PagesListPage() {
         </Link>
       </div>
 
+      {/* Site Draft Mode Banner */}
+      {siteInDraftMode && (
+        <div className="bg-orange-500/10 border border-orange-500/30 rounded-xl p-4 flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg bg-orange-500/20 flex items-center justify-center">
+            <AlertCircle className="w-5 h-5 text-orange-400" />
+          </div>
+          <div>
+            <p className="font-medium text-orange-400">Site is in Draft Mode</p>
+            <p className="text-sm text-[var(--admin-text-secondary)]">All pages show as Draft to visitors. Individual page toggles are disabled.</p>
+          </div>
+        </div>
+      )}
+
       {/* Quick Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-[var(--admin-input)] rounded-xl border border-[var(--admin-border)] p-5">
@@ -540,12 +588,19 @@ export default function PagesListPage() {
         </div>
         <div className="bg-[var(--admin-input)] rounded-xl border border-[var(--admin-border)] p-5">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center">
-              <Eye className="w-5 h-5 text-green-400" />
+            <div className={cn(
+              "w-10 h-10 rounded-xl flex items-center justify-center",
+              siteInDraftMode ? "bg-orange-500/10" : "bg-green-500/10"
+            )}>
+              {siteInDraftMode ? (
+                <EyeOff className="w-5 h-5 text-orange-400" />
+              ) : (
+                <Eye className="w-5 h-5 text-green-400" />
+              )}
             </div>
             <div>
               <p className="text-2xl font-semibold text-[var(--admin-text-primary)]">
-                {pages.filter((p) => p.isActive).length}
+                {siteInDraftMode ? 0 : pages.filter((p) => p.isActive).length}
               </p>
               <p className="text-sm text-[var(--admin-text-muted)]">Live Pages</p>
             </div>
@@ -564,12 +619,18 @@ export default function PagesListPage() {
         </div>
         <div className="bg-[var(--admin-input)] rounded-xl border border-[var(--admin-border)] p-5">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gray-500/10 flex items-center justify-center">
-              <EyeOff className="w-5 h-5 text-[var(--admin-text-secondary)]" />
+            <div className={cn(
+              "w-10 h-10 rounded-xl flex items-center justify-center",
+              siteInDraftMode ? "bg-orange-500/10" : "bg-gray-500/10"
+            )}>
+              <EyeOff className={cn(
+                "w-5 h-5",
+                siteInDraftMode ? "text-orange-400" : "text-[var(--admin-text-secondary)]"
+              )} />
             </div>
             <div>
               <p className="text-2xl font-semibold text-[var(--admin-text-primary)]">
-                {pages.filter((p) => !p.isActive).length}
+                {siteInDraftMode ? pages.length : pages.filter((p) => !p.isActive).length}
               </p>
               <p className="text-sm text-[var(--admin-text-muted)]">Draft Pages</p>
             </div>
