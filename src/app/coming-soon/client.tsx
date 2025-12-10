@@ -134,90 +134,89 @@ export function ComingSoonClient({
           )}
         </motion.div>
 
-        {/* Main content */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.6 }}
-        >
-          <h1 className="text-5xl md:text-6xl font-normal tracking-tight mb-6">
-            {title}
-          </h1>
-          <p className="text-xl text-gray-600 mb-12 max-w-md mx-auto leading-relaxed">
-            {subtitle}
-          </p>
-        </motion.div>
-
-        {/* Contact form */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, duration: 0.6 }}
-        >
-          <AnimatePresence mode="wait">
-            {status === 'success' ? (
+        {/* Main content - switches between default and success state */}
+        <AnimatePresence mode="wait">
+          {status === 'success' ? (
+            <motion.div
+              key="success"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.6 }}
+              className="text-center"
+            >
+              {/* Success checkmark animation */}
               <motion.div
-                key="success"
-                initial={{ opacity: 0, scale: 0.95, y: 10 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                className="bg-[#f5f0eb] rounded-3xl p-8 max-w-md mx-auto border border-[#e5e5e5]"
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", stiffness: 200, delay: 0.1 }}
+                className="w-20 h-20 bg-[#bbdae9] rounded-full flex items-center justify-center mx-auto mb-8"
               >
-                {/* Success checkmark animation */}
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ type: "spring", stiffness: 200, delay: 0.1 }}
-                  className="w-16 h-16 bg-[#bbdae9] rounded-full flex items-center justify-center mx-auto mb-5"
+                <motion.svg
+                  initial={{ pathLength: 0 }}
+                  animate={{ pathLength: 1 }}
+                  transition={{ duration: 0.5, delay: 0.3 }}
+                  className="w-10 h-10 text-[#1a1a1a]"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                 >
-                  <motion.svg
-                    initial={{ pathLength: 0 }}
-                    animate={{ pathLength: 1 }}
-                    transition={{ duration: 0.5, delay: 0.3 }}
-                    className="w-8 h-8 text-[#1a1a1a]"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="3"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <motion.path d="M5 13l4 4L19 7" />
-                  </motion.svg>
-                </motion.div>
-
-                <h3 className="text-2xl font-normal text-[#1a1a1a] mb-2">You're In</h3>
-                <p className="text-gray-600 mb-6">
-                  We'll let you know when we launch. In the meantime, follow us for updates.
-                </p>
-
-                {/* Social links */}
-                <div className="flex items-center justify-center gap-4">
-                  {instagramUrl && (
-                    <a
-                      href={instagramUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-12 h-12 rounded-full bg-white border border-[#e5e5e5] flex items-center justify-center text-gray-600 hover:text-[#1a1a1a] hover:border-[#bbdae9] transition-all"
-                    >
-                      <Instagram className="w-5 h-5" />
-                    </a>
-                  )}
-                  {facebookUrl && (
-                    <a
-                      href={facebookUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-12 h-12 rounded-full bg-white border border-[#e5e5e5] flex items-center justify-center text-gray-600 hover:text-[#1a1a1a] hover:border-[#bbdae9] transition-all"
-                    >
-                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                      </svg>
-                    </a>
-                  )}
-                </div>
+                  <motion.path d="M5 13l4 4L19 7" />
+                </motion.svg>
               </motion.div>
-            ) : (
+
+              <h1 className="text-5xl md:text-6xl font-normal tracking-tight mb-6">
+                You're In
+              </h1>
+              <p className="text-xl text-gray-600 mb-12 max-w-md mx-auto leading-relaxed">
+                We'll let you know when we launch. Follow us for updates.
+              </p>
+
+              {/* Social links */}
+              <div className="flex items-center justify-center gap-4">
+                {instagramUrl && (
+                  <a
+                    href={instagramUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-14 h-14 rounded-full bg-white border border-[#e5e5e5] flex items-center justify-center text-gray-600 hover:text-[#1a1a1a] hover:border-[#bbdae9] transition-all"
+                  >
+                    <Instagram className="w-6 h-6" />
+                  </a>
+                )}
+                {facebookUrl && (
+                  <a
+                    href={facebookUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-14 h-14 rounded-full bg-white border border-[#e5e5e5] flex items-center justify-center text-gray-600 hover:text-[#1a1a1a] hover:border-[#bbdae9] transition-all"
+                  >
+                    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                    </svg>
+                  </a>
+                )}
+              </div>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="default"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.6 }}
+            >
+              <h1 className="text-5xl md:text-6xl font-normal tracking-tight mb-6">
+                {title}
+              </h1>
+              <p className="text-xl text-gray-600 mb-12 max-w-md mx-auto leading-relaxed">
+                {subtitle}
+              </p>
+
+              {/* Contact form */}
               <motion.form
                 key="form"
                 onSubmit={handleSubmit}
@@ -308,38 +307,36 @@ export function ComingSoonClient({
                   </motion.p>
                 )}
               </motion.form>
-            )}
-          </AnimatePresence>
-        </motion.div>
 
-        {/* Trust badges / Callouts */}
-        {status !== 'success' && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6, duration: 0.6 }}
-            className="mt-16 flex flex-wrap justify-center gap-6 text-sm text-gray-500"
-          >
-            {callout1 && (
-              <span className="flex items-center gap-2">
-                <span className="w-2 h-2 bg-[#bbdae9] rounded-full" />
-                {callout1}
-              </span>
-            )}
-            {callout2 && (
-              <span className="flex items-center gap-2">
-                <span className="w-2 h-2 bg-[#bbdae9] rounded-full" />
-                {callout2}
-              </span>
-            )}
-            {callout3 && (
-              <span className="flex items-center gap-2">
-                <span className="w-2 h-2 bg-[#bbdae9] rounded-full" />
-                {callout3}
-              </span>
-            )}
-          </motion.div>
-        )}
+              {/* Trust badges / Callouts */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.6, duration: 0.6 }}
+                className="mt-16 flex flex-wrap justify-center gap-6 text-sm text-gray-500"
+              >
+                {callout1 && (
+                  <span className="flex items-center gap-2">
+                    <span className="w-2 h-2 bg-[#bbdae9] rounded-full" />
+                    {callout1}
+                  </span>
+                )}
+                {callout2 && (
+                  <span className="flex items-center gap-2">
+                    <span className="w-2 h-2 bg-[#bbdae9] rounded-full" />
+                    {callout2}
+                  </span>
+                )}
+                {callout3 && (
+                  <span className="flex items-center gap-2">
+                    <span className="w-2 h-2 bg-[#bbdae9] rounded-full" />
+                    {callout3}
+                  </span>
+                )}
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.div>
 
       {/* Click outside to close dropdown */}
