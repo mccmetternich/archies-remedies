@@ -167,12 +167,12 @@ function AdminLayoutInner({ children, unreadMessages = 0 }: AdminLayoutProps) {
             <div className="w-8 h-8 rounded-lg bg-[var(--primary)] flex items-center justify-center text-sm font-bold text-[var(--admin-button-text)]">
               A
             </div>
-            <span className="font-medium text-white">Admin</span>
+            <span className="font-medium text-[var(--admin-text-primary)]">Admin</span>
           </Link>
           <div className="flex items-center gap-2">
             {unreadMessages > 0 && (
               <Link href="/admin/inbox" className="relative p-2">
-                <Bell className="w-5 h-5 text-gray-400" />
+                <Bell className="w-5 h-5 text-[var(--admin-text-secondary)]" />
                 <span className="absolute -top-0.5 -right-0.5 w-5 h-5 text-xs bg-[var(--primary)] text-[var(--admin-button-text)] rounded-full flex items-center justify-center font-medium">
                   {unreadMessages}
                 </span>
@@ -180,7 +180,7 @@ function AdminLayoutInner({ children, unreadMessages = 0 }: AdminLayoutProps) {
             )}
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="p-2 rounded-lg hover:bg-[var(--admin-hover)] text-gray-400"
+              className="p-2 rounded-lg hover:bg-[var(--admin-hover)] text-[var(--admin-text-secondary)]"
             >
               {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -203,8 +203,8 @@ function AdminLayoutInner({ children, unreadMessages = 0 }: AdminLayoutProps) {
                 A
               </div>
               <div>
-                <span className="font-medium block text-sm text-white">Archie&apos;s Remedies</span>
-                <span className="text-xs text-gray-500">Admin Panel</span>
+                <span className="font-medium block text-sm text-[var(--admin-text-primary)]">Archie&apos;s Remedies</span>
+                <span className="text-xs text-[var(--admin-text-muted)]">Admin Panel</span>
               </div>
             </Link>
           </div>
@@ -252,7 +252,7 @@ function AdminLayoutInner({ children, unreadMessages = 0 }: AdminLayoutProps) {
                   <div className="h-px bg-[var(--admin-border)] mb-4" />
                 )}
                 {section.title && (
-                  <p className="px-3 mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500">
+                  <p className="px-3 mb-2 text-xs font-semibold uppercase tracking-wider text-[var(--admin-text-muted)]">
                     {section.title}
                   </p>
                 )}
@@ -268,10 +268,10 @@ function AdminLayoutInner({ children, unreadMessages = 0 }: AdminLayoutProps) {
                           'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-150 group',
                           active
                             ? 'bg-[var(--primary)] text-[var(--admin-button-text)] font-medium'
-                            : 'text-gray-300 hover:bg-[var(--admin-hover)] hover:text-white'
+                            : 'text-[var(--admin-text-secondary)] hover:bg-[var(--admin-hover)] hover:text-[var(--admin-text-primary)]'
                         )}
                       >
-                        <item.icon className={cn('w-4 h-4', active ? 'text-[var(--admin-button-text)]' : 'text-gray-400')} />
+                        <item.icon className={cn('w-4 h-4', active ? 'text-[var(--admin-button-text)]' : 'text-[var(--admin-text-secondary)]')} />
                         <span className="flex-1">{item.label}</span>
                         {item.badge && item.badge > 0 && (
                           <span className={cn(
@@ -295,7 +295,7 @@ function AdminLayoutInner({ children, unreadMessages = 0 }: AdminLayoutProps) {
           <div className="p-3 border-t border-[var(--admin-border)]">
             <button
               onClick={handleLogout}
-              className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm text-gray-400 hover:bg-[var(--admin-hover)] hover:text-white transition-colors"
+              className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm text-[var(--admin-text-secondary)] hover:bg-[var(--admin-hover)] hover:text-[var(--admin-text-primary)] transition-colors"
             >
               <LogOut className="w-4 h-4" />
               Sign Out
@@ -325,14 +325,14 @@ function AdminLayoutInner({ children, unreadMessages = 0 }: AdminLayoutProps) {
                 {breadcrumbs.map((crumb, index) => (
                   <React.Fragment key={crumb.href}>
                     {index > 0 && (
-                      <ChevronRight className="w-4 h-4 text-gray-500" />
+                      <ChevronRight className="w-4 h-4 text-[var(--admin-text-muted)]" />
                     )}
                     {index === breadcrumbs.length - 1 ? (
-                      <span className="font-medium text-white">{crumb.label}</span>
+                      <span className="font-medium text-[var(--admin-text-primary)]">{crumb.label}</span>
                     ) : (
                       <Link
                         href={crumb.href}
-                        className="text-gray-400 hover:text-white transition-colors"
+                        className="text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)] transition-colors"
                       >
                         {crumb.label}
                       </Link>
