@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { ArrowRight, Droplet, Eye, Shield, FlaskConical, Award, Heart } from 'lucide-react';
+import { checkPageDraft } from '@/lib/draft-mode';
 
 export const metadata: Metadata = {
   title: "Our Story | Archie's Remedies",
@@ -25,6 +26,9 @@ async function getPageData() {
 }
 
 export default async function OurStoryPage() {
+  // Check if this page is draft - redirects if needed
+  await checkPageDraft('our-story');
+
   const data = await getPageData();
 
   const missionModules = [

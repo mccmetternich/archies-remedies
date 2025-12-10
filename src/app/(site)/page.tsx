@@ -3,6 +3,7 @@ import { heroSlides, products, testimonials, videoTestimonials, instagramPosts, 
 import { eq } from 'drizzle-orm';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
+import { checkPageDraft } from '@/lib/draft-mode';
 import { HeroCarousel } from '@/components/home/hero-carousel';
 import { ProductTiles } from '@/components/home/product-tiles';
 import { TestimonialsSection } from '@/components/home/testimonials-section';
@@ -58,6 +59,9 @@ async function getPageData() {
 }
 
 export default async function HomePage() {
+  // Check if homepage is draft - redirects to coming-soon if needed
+  await checkPageDraft('home');
+
   const data = await getPageData();
 
   return (

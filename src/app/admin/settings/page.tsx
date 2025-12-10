@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-import { Save, Loader2, Upload, Check, Palette, Share2, Bell, Code, X, ExternalLink, Link as LinkIcon, Navigation, Menu, Megaphone, Construction, Eye, Copy, Trash2, MousePointerClick } from 'lucide-react';
+import { Save, Loader2, Upload, Check, Palette, Share2, Bell, Code, X, ExternalLink, Link as LinkIcon, Navigation, Menu, Megaphone, Construction, Eye, Copy, Trash2, MousePointerClick, Mail, Phone, ChevronDown, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface SiteSettings {
@@ -37,6 +37,10 @@ interface SiteSettings {
   draftModeTitle: string | null;
   draftModeSubtitle: string | null;
   draftModeBadgeUrl: string | null;
+  draftModeCallout1: string | null;
+  draftModeCallout2: string | null;
+  draftModeCallout3: string | null;
+  draftModeContactType: string | null;
 }
 
 const tabs = [
@@ -1071,39 +1075,96 @@ function DraftModeTab({
       <div>
         <h3 className="font-medium text-[var(--admin-text-primary)] mb-4">Rotating Badge</h3>
         <p className="text-sm text-[var(--admin-text-muted)] mb-4">
-          Upload a PNG image that will appear above your logo and rotate continuously. Great for promotional badges or announcements.
+          Upload a PNG image that will rotate behind your logo. Great for promotional badges or announcements.
         </p>
         <ImageUpload
           label="Badge Image"
           value={settings.draftModeBadgeUrl}
           onChange={(url) => updateField('draftModeBadgeUrl', url)}
-          placeholder="Upload a PNG badge (recommended: 80x80px)"
+          placeholder="Upload a PNG badge (recommended: 200x200px)"
           aspectRatio="1/1"
           helpText="Transparent PNG recommended for best results"
         />
       </div>
 
-      {/* Preview of Coming Soon page */}
+      <div className="h-px bg-[var(--admin-hover)]" />
+
+      {/* Contact Form Settings */}
+      <div>
+        <h3 className="font-medium text-[var(--admin-text-primary)] mb-4">Contact Form Settings</h3>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Default Contact Type</label>
+            <select
+              value={settings.draftModeContactType || 'phone'}
+              onChange={(e) => updateField('draftModeContactType', e.target.value)}
+              className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+            >
+              <option value="phone">Phone (SMS List)</option>
+              <option value="email">Email</option>
+            </select>
+            <p className="text-xs text-[var(--admin-text-muted)] mt-1">
+              Users can switch between phone and email, but this sets the default shown.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="h-px bg-[var(--admin-hover)]" />
+
+      {/* Trust Badges / Callouts */}
+      <div>
+        <h3 className="font-medium text-[var(--admin-text-primary)] mb-4">Trust Badges</h3>
+        <p className="text-sm text-[var(--admin-text-muted)] mb-4">
+          Three short callouts that appear below the signup form. Leave blank to hide.
+        </p>
+        <div className="grid grid-cols-3 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Badge 1</label>
+            <input
+              type="text"
+              value={settings.draftModeCallout1 || ''}
+              onChange={(e) => updateField('draftModeCallout1', e.target.value)}
+              placeholder="Preservative-Free"
+              className="w-full px-3 py-2.5 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-sm text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Badge 2</label>
+            <input
+              type="text"
+              value={settings.draftModeCallout2 || ''}
+              onChange={(e) => updateField('draftModeCallout2', e.target.value)}
+              placeholder="Clean Ingredients"
+              className="w-full px-3 py-2.5 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-sm text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Badge 3</label>
+            <input
+              type="text"
+              value={settings.draftModeCallout3 || ''}
+              onChange={(e) => updateField('draftModeCallout3', e.target.value)}
+              placeholder="Made in USA"
+              className="w-full px-3 py-2.5 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-sm text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="h-px bg-[var(--admin-hover)]" />
+
+      {/* Full Preview of Coming Soon page */}
       <div>
         <h3 className="font-medium text-[var(--admin-text-primary)] mb-4">Preview</h3>
         <div className="p-8 bg-gradient-to-br from-[#f5f0eb] via-white to-[#bbdae9]/20 rounded-xl text-center">
           {/* Logo with badge preview */}
-          <div className="mb-6 flex justify-center">
+          <div className="mb-8 flex justify-center">
             <div className="relative inline-block">
-              {settings.logoUrl ? (
-                <img
-                  src={settings.logoUrl}
-                  alt="Logo"
-                  className="h-16 w-auto object-contain"
-                />
-              ) : (
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full border border-gray-200 text-sm font-medium">
-                  {settings.siteName || "Archie's Remedies"}
-                </div>
-              )}
+              {/* Rotating badge BEHIND logo */}
               {settings.draftModeBadgeUrl && (
                 <div
-                  className="absolute -top-3 -right-6 w-12 h-12 animate-spin"
+                  className="absolute -top-8 -right-10 w-[120px] h-[120px] -z-10 animate-spin"
                   style={{ animationDuration: '20s' }}
                 >
                   <img
@@ -1113,14 +1174,75 @@ function DraftModeTab({
                   />
                 </div>
               )}
+              {settings.logoUrl ? (
+                <img
+                  src={settings.logoUrl}
+                  alt="Logo"
+                  className="h-12 w-auto object-contain relative z-10"
+                />
+              ) : (
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full border border-gray-200 text-sm font-medium relative z-10">
+                  {settings.siteName || "Archie's Remedies"}
+                </div>
+              )}
             </div>
           </div>
-          <h2 className="text-3xl font-normal text-gray-900 mb-3">
+
+          <h2 className="text-2xl font-normal text-gray-900 mb-2">
             {settings.draftModeTitle || 'Coming Soon'}
           </h2>
-          <p className="text-[var(--admin-text-muted)] max-w-md mx-auto">
-            {settings.draftModeSubtitle || "We're working on something special. Leave your email to be the first to know when we launch."}
+          <p className="text-gray-500 text-sm max-w-sm mx-auto mb-6">
+            {settings.draftModeSubtitle || "Empowering you to look and feel your best, every single day."}
           </p>
+
+          {/* Form Preview */}
+          <div className="max-w-sm mx-auto mb-6">
+            <div className="relative">
+              <div className="flex items-center gap-1 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                {settings.draftModeContactType === 'email' ? (
+                  <Mail className="w-4 h-4" />
+                ) : (
+                  <Phone className="w-4 h-4" />
+                )}
+                <ChevronDown className="w-3 h-3" />
+              </div>
+              <input
+                type="text"
+                placeholder={settings.draftModeContactType === 'email' ? 'Enter your email' : 'Enter your phone number'}
+                disabled
+                className="w-full pl-12 pr-28 py-3 text-sm rounded-full border border-gray-200 bg-white text-gray-400"
+              />
+              <button
+                disabled
+                className="absolute right-1.5 top-1/2 -translate-y-1/2 px-4 py-2 bg-[#1a1a1a] text-white text-sm rounded-full font-medium flex items-center gap-1.5 hover:bg-[#bbdae9] hover:text-[#1a1a1a] transition-colors"
+              >
+                Notify Me
+                <ArrowRight className="w-3 h-3" />
+              </button>
+            </div>
+          </div>
+
+          {/* Trust badges preview */}
+          <div className="flex flex-wrap justify-center gap-4 text-xs text-gray-400">
+            {settings.draftModeCallout1 && (
+              <span className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 bg-[#bbdae9] rounded-full" />
+                {settings.draftModeCallout1}
+              </span>
+            )}
+            {settings.draftModeCallout2 && (
+              <span className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 bg-[#bbdae9] rounded-full" />
+                {settings.draftModeCallout2}
+              </span>
+            )}
+            {settings.draftModeCallout3 && (
+              <span className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 bg-[#bbdae9] rounded-full" />
+                {settings.draftModeCallout3}
+              </span>
+            )}
+          </div>
         </div>
       </div>
     </motion.div>

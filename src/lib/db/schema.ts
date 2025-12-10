@@ -12,8 +12,14 @@ export const siteSettings = sqliteTable('site_settings', {
   // Draft/Maintenance Mode
   siteInDraftMode: integer('site_in_draft_mode', { mode: 'boolean' }).default(false),
   draftModeTitle: text('draft_mode_title').default('Coming Soon'),
-  draftModeSubtitle: text('draft_mode_subtitle').default("We're working on something special. Leave your email to be the first to know when we launch."),
+  draftModeSubtitle: text('draft_mode_subtitle').default("Empowering you to look and feel your best, every single day."),
   draftModeBadgeUrl: text('draft_mode_badge_url'), // Rotating badge image (PNG) that overlaps the logo
+  // Editable callouts (trust badges underneath form)
+  draftModeCallout1: text('draft_mode_callout1').default('Preservative-Free'),
+  draftModeCallout2: text('draft_mode_callout2').default('Clean Ingredients'),
+  draftModeCallout3: text('draft_mode_callout3').default('Made in USA'),
+  // Default contact type for coming soon form
+  draftModeContactType: text('draft_mode_contact_type').default('phone'), // 'email' or 'phone'
 
   // Colors
   primaryColor: text('primary_color').default('#bbdae9'),

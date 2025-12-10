@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { motion } from 'framer-motion';
-import { Mail, ArrowRight, Check, Loader2, Sparkles } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Mail, Phone, ArrowRight, Loader2, Sparkles, ChevronDown, Instagram } from 'lucide-react';
 
 interface ComingSoonClientProps {
   logoUrl?: string;
@@ -11,6 +11,12 @@ interface ComingSoonClientProps {
   title: string;
   subtitle: string;
   siteName: string;
+  callout1?: string;
+  callout2?: string;
+  callout3?: string;
+  defaultContactType?: 'email' | 'phone';
+  instagramUrl?: string;
+  facebookUrl?: string;
 }
 
 export function ComingSoonClient({
@@ -19,26 +25,38 @@ export function ComingSoonClient({
   title,
   subtitle,
   siteName,
+  callout1 = 'Preservative-Free',
+  callout2 = 'Clean Ingredients',
+  callout3 = 'Made in USA',
+  defaultContactType = 'phone',
+  instagramUrl,
+  facebookUrl,
 }: ComingSoonClientProps) {
-  const [email, setEmail] = useState('');
+  const [contactValue, setContactValue] = useState('');
+  const [contactType, setContactType] = useState<'email' | 'phone'>(defaultContactType);
+  const [showDropdown, setShowDropdown] = useState(false);
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) return;
+    if (!contactValue) return;
 
     setStatus('loading');
     try {
-      const res = await fetch('/api/subscribe', {
+      const payload = contactType === 'email'
+        ? { email: contactValue, source: 'coming-soon' }
+        : { phone: contactValue, source: 'coming-soon' };
+
+      const res = await fetch('/api/contacts/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, source: 'coming-soon' }),
+        body: JSON.stringify(payload),
       });
 
       if (res.ok) {
         setStatus('success');
-        setEmail('');
+        setContactValue('');
       } else {
         const data = await res.json();
         setErrorMessage(data.error || 'Something went wrong');
@@ -48,6 +66,12 @@ export function ComingSoonClient({
       setErrorMessage('Failed to subscribe. Please try again.');
       setStatus('error');
     }
+  };
+
+  const toggleContactType = (type: 'email' | 'phone') => {
+    setContactType(type);
+    setContactValue('');
+    setShowDropdown(false);
   };
 
   return (
@@ -64,7 +88,7 @@ export function ComingSoonClient({
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
         className="relative max-w-xl w-full text-center"
       >
-        {/* Logo */}
+        {/* Logo with rotating badge behind */}
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -73,18 +97,10 @@ export function ComingSoonClient({
         >
           {logoUrl ? (
             <div className="relative inline-block">
-              <Image
-                src={logoUrl}
-                alt={siteName}
-                width={200}
-                height={80}
-                className="h-20 w-auto object-contain"
-                priority
-              />
-              {/* Rotating badge overlay */}
+              {/* Rotating badge BEHIND the logo - 2.5x size (200px) */}
               {badgeUrl && (
                 <motion.div
-                  className="absolute -top-4 -right-8 w-20 h-20"
+                  className="absolute -top-12 -right-16 w-[200px] h-[200px] -z-10"
                   animate={{ rotate: 360 }}
                   transition={{
                     duration: 20,
@@ -95,12 +111,20 @@ export function ComingSoonClient({
                   <Image
                     src={badgeUrl}
                     alt="Badge"
-                    width={80}
-                    height={80}
+                    width={200}
+                    height={200}
                     className="w-full h-full object-contain"
                   />
                 </motion.div>
               )}
+              <Image
+                src={logoUrl}
+                alt={siteName}
+                width={200}
+                height={80}
+                className="h-20 w-auto object-contain relative z-10"
+                priority
+              />
             </div>
           ) : (
             <div className="inline-flex items-center gap-3 px-6 py-3 bg-white rounded-full shadow-sm border border-[#e5e5e5]">
@@ -124,83 +148,207 @@ export function ComingSoonClient({
           </p>
         </motion.div>
 
-        {/* Email form */}
+        {/* Contact form */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, duration: 0.6 }}
         >
-          {status === 'success' ? (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="bg-green-50 border border-green-200 rounded-2xl p-6 max-w-md mx-auto"
-            >
-              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Check className="w-6 h-6 text-green-600" />
-              </div>
-              <h3 className="text-lg font-medium text-green-900 mb-2">You're on the list!</h3>
-              <p className="text-green-700">
-                We'll notify you as soon as we launch. Keep an eye on your inbox.
-              </p>
-            </motion.div>
-          ) : (
-            <form onSubmit={handleSubmit} className="max-w-md mx-auto">
-              <div className="relative">
-                <div className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400">
-                  <Mail className="w-5 h-5" />
-                </div>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email"
-                  required
-                  className="w-full pl-14 pr-36 py-5 text-lg rounded-full border-2 border-gray-200 focus:border-[#bbdae9] focus:outline-none focus:ring-4 focus:ring-[#bbdae9]/20 transition-all bg-white shadow-sm"
-                />
-                <button
-                  type="submit"
-                  disabled={status === 'loading'}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 px-6 py-3 bg-[#1a1a1a] text-white rounded-full font-medium hover:bg-black transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          <AnimatePresence mode="wait">
+            {status === 'success' ? (
+              <motion.div
+                key="success"
+                initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                className="bg-[#f5f0eb] rounded-3xl p-8 max-w-md mx-auto border border-[#e5e5e5]"
+              >
+                {/* Success checkmark animation */}
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", stiffness: 200, delay: 0.1 }}
+                  className="w-16 h-16 bg-[#bbdae9] rounded-full flex items-center justify-center mx-auto mb-5"
                 >
-                  {status === 'loading' ? (
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                  ) : (
-                    <>
-                      Notify Me
-                      <ArrowRight className="w-4 h-4" />
-                    </>
+                  <motion.svg
+                    initial={{ pathLength: 0 }}
+                    animate={{ pathLength: 1 }}
+                    transition={{ duration: 0.5, delay: 0.3 }}
+                    className="w-8 h-8 text-[#1a1a1a]"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <motion.path d="M5 13l4 4L19 7" />
+                  </motion.svg>
+                </motion.div>
+
+                <h3 className="text-2xl font-normal text-[#1a1a1a] mb-2">You're In</h3>
+                <p className="text-gray-600 mb-6">
+                  We'll let you know when we launch. In the meantime, follow us for updates.
+                </p>
+
+                {/* Social links */}
+                <div className="flex items-center justify-center gap-4">
+                  {instagramUrl && (
+                    <a
+                      href={instagramUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-12 h-12 rounded-full bg-white border border-[#e5e5e5] flex items-center justify-center text-gray-600 hover:text-[#1a1a1a] hover:border-[#bbdae9] transition-all"
+                    >
+                      <Instagram className="w-5 h-5" />
+                    </a>
                   )}
-                </button>
-              </div>
-              {status === 'error' && (
-                <p className="text-red-500 text-sm mt-3">{errorMessage}</p>
-              )}
-            </form>
-          )}
+                  {facebookUrl && (
+                    <a
+                      href={facebookUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-12 h-12 rounded-full bg-white border border-[#e5e5e5] flex items-center justify-center text-gray-600 hover:text-[#1a1a1a] hover:border-[#bbdae9] transition-all"
+                    >
+                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                      </svg>
+                    </a>
+                  )}
+                </div>
+              </motion.div>
+            ) : (
+              <motion.form
+                key="form"
+                onSubmit={handleSubmit}
+                className="max-w-md mx-auto"
+                initial={{ opacity: 1 }}
+                exit={{ opacity: 0, y: -10 }}
+              >
+                <div className="relative">
+                  {/* Dropdown selector for contact type */}
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2 z-10">
+                    <button
+                      type="button"
+                      onClick={() => setShowDropdown(!showDropdown)}
+                      className="flex items-center gap-1 px-2 py-2 text-gray-500 hover:text-gray-700 transition-colors rounded-lg hover:bg-gray-100"
+                    >
+                      {contactType === 'email' ? (
+                        <Mail className="w-5 h-5" />
+                      ) : (
+                        <Phone className="w-5 h-5" />
+                      )}
+                      <ChevronDown className="w-3 h-3" />
+                    </button>
+
+                    {/* Dropdown menu */}
+                    <AnimatePresence>
+                      {showDropdown && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -5 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -5 }}
+                          className="absolute top-full left-0 mt-1 bg-white rounded-xl shadow-lg border border-gray-200 py-1 min-w-[140px] z-20"
+                        >
+                          <button
+                            type="button"
+                            onClick={() => toggleContactType('phone')}
+                            className={`w-full flex items-center gap-2 px-4 py-2.5 text-sm text-left hover:bg-gray-50 transition-colors ${
+                              contactType === 'phone' ? 'text-[#1a1a1a] font-medium' : 'text-gray-600'
+                            }`}
+                          >
+                            <Phone className="w-4 h-4" />
+                            Phone
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => toggleContactType('email')}
+                            className={`w-full flex items-center gap-2 px-4 py-2.5 text-sm text-left hover:bg-gray-50 transition-colors ${
+                              contactType === 'email' ? 'text-[#1a1a1a] font-medium' : 'text-gray-600'
+                            }`}
+                          >
+                            <Mail className="w-4 h-4" />
+                            Email
+                          </button>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+
+                  <input
+                    type={contactType === 'email' ? 'email' : 'tel'}
+                    value={contactValue}
+                    onChange={(e) => setContactValue(e.target.value)}
+                    placeholder={contactType === 'email' ? 'Enter your email' : 'Enter your phone number'}
+                    required
+                    className="w-full pl-16 pr-36 py-5 text-lg rounded-full border border-gray-200 bg-white shadow-sm transition-all focus:outline-none focus:border-[#bbdae9] focus:ring-0"
+                  />
+                  <button
+                    type="submit"
+                    disabled={status === 'loading'}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 px-6 py-3 bg-[#1a1a1a] text-white rounded-full font-medium transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#bbdae9] hover:text-[#1a1a1a] group"
+                  >
+                    {status === 'loading' ? (
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : (
+                      <>
+                        Notify Me
+                        <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                      </>
+                    )}
+                  </button>
+                </div>
+                {status === 'error' && (
+                  <motion.p
+                    initial={{ opacity: 0, y: -5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-red-500 text-sm mt-3"
+                  >
+                    {errorMessage}
+                  </motion.p>
+                )}
+              </motion.form>
+            )}
+          </AnimatePresence>
         </motion.div>
 
-        {/* Trust badges */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6, duration: 0.6 }}
-          className="mt-16 flex flex-wrap justify-center gap-6 text-sm text-gray-500"
-        >
-          <span className="flex items-center gap-2">
-            <span className="w-2 h-2 bg-[#bbdae9] rounded-full" />
-            Preservative-Free
-          </span>
-          <span className="flex items-center gap-2">
-            <span className="w-2 h-2 bg-[#bbdae9] rounded-full" />
-            Clean Ingredients
-          </span>
-          <span className="flex items-center gap-2">
-            <span className="w-2 h-2 bg-[#bbdae9] rounded-full" />
-            Made in USA
-          </span>
-        </motion.div>
+        {/* Trust badges / Callouts */}
+        {status !== 'success' && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6, duration: 0.6 }}
+            className="mt-16 flex flex-wrap justify-center gap-6 text-sm text-gray-500"
+          >
+            {callout1 && (
+              <span className="flex items-center gap-2">
+                <span className="w-2 h-2 bg-[#bbdae9] rounded-full" />
+                {callout1}
+              </span>
+            )}
+            {callout2 && (
+              <span className="flex items-center gap-2">
+                <span className="w-2 h-2 bg-[#bbdae9] rounded-full" />
+                {callout2}
+              </span>
+            )}
+            {callout3 && (
+              <span className="flex items-center gap-2">
+                <span className="w-2 h-2 bg-[#bbdae9] rounded-full" />
+                {callout3}
+              </span>
+            )}
+          </motion.div>
+        )}
       </motion.div>
+
+      {/* Click outside to close dropdown */}
+      {showDropdown && (
+        <div
+          className="fixed inset-0 z-0"
+          onClick={() => setShowDropdown(false)}
+        />
+      )}
     </div>
   );
 }

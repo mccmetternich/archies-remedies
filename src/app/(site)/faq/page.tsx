@@ -5,6 +5,7 @@ import { Metadata } from 'next';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { FAQAccordion } from '@/components/faq/faq-accordion';
+import { checkPageDraft } from '@/lib/draft-mode';
 
 export const metadata: Metadata = {
   title: "FAQ | Archie's Remedies",
@@ -31,6 +32,9 @@ async function getPageData() {
 }
 
 export default async function FAQPage() {
+  // Check if this page is draft - redirects if needed
+  await checkPageDraft('faq');
+
   const data = await getPageData();
 
   // Group FAQs by category

@@ -5,6 +5,7 @@ import { Metadata } from 'next';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { ContactForm } from '@/components/contact/contact-form';
+import { checkPageDraft } from '@/lib/draft-mode';
 
 export const metadata: Metadata = {
   title: "Contact Us | Archie's Remedies",
@@ -23,6 +24,9 @@ async function getPageData() {
 }
 
 export default async function ContactPage() {
+  // Check if this page is draft - redirects if needed
+  await checkPageDraft('contact');
+
   const data = await getPageData();
 
   return (

@@ -310,25 +310,38 @@ export default function PagesListPage() {
         </div>
 
         {/* Preview - Dynamic label */}
-        <a
-          href={page.isActive
-            ? (page.slug === 'home' ? '/' : `/${page.slug}`)
-            : (page.slug === 'home' ? '/?preview=true' : `/${page.slug}?preview=true`)
-          }
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={(e) => e.stopPropagation()}
+        <button
+          onClick={async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            // Generate preview token if page is not live
+            if (!page.isActive) {
+              try {
+                const res = await fetch('/api/admin/preview-token', { method: 'POST' });
+                if (res.ok) {
+                  // Token is set as cookie, now open the page
+                  const url = page.slug === 'home' ? '/' : `/${page.slug}`;
+                  window.open(url, '_blank');
+                }
+              } catch (error) {
+                console.error('Failed to generate preview token:', error);
+              }
+            } else {
+              const url = page.slug === 'home' ? '/' : `/${page.slug}`;
+              window.open(url, '_blank');
+            }
+          }}
           className={cn(
             "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors",
             page.isActive
-              ? "text-[var(--admin-text-muted)] hover:text-green-400 hover:bg-green-500/10"
-              : "text-[var(--admin-text-muted)] hover:text-orange-400 hover:bg-orange-500/10"
+              ? "text-[var(--admin-text-secondary)] hover:text-green-400 hover:bg-green-500/10"
+              : "text-orange-400 hover:text-orange-300 hover:bg-orange-500/10"
           )}
           title={page.isActive ? 'View Live Page' : 'View Draft Page'}
         >
           <ExternalLink className="w-4 h-4" />
-          <span className="hidden sm:inline">{page.isActive ? 'Live' : 'Draft'}</span>
-        </a>
+          <span className="hidden sm:inline">{page.isActive ? 'View' : 'View Draft'}</span>
+        </button>
 
         {/* Delete */}
         <button
@@ -398,25 +411,35 @@ export default function PagesListPage() {
         </div>
 
         {/* Preview - Dynamic label */}
-        <a
-          href={product.isActive
-            ? `/products/${product.slug}`
-            : `/products/${product.slug}?preview=true`
-          }
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={(e) => e.stopPropagation()}
+        <button
+          onClick={async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            // Generate preview token if product is not live
+            if (!product.isActive) {
+              try {
+                const res = await fetch('/api/admin/preview-token', { method: 'POST' });
+                if (res.ok) {
+                  window.open(`/products/${product.slug}`, '_blank');
+                }
+              } catch (error) {
+                console.error('Failed to generate preview token:', error);
+              }
+            } else {
+              window.open(`/products/${product.slug}`, '_blank');
+            }
+          }}
           className={cn(
             "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors",
             product.isActive
-              ? "text-[var(--admin-text-muted)] hover:text-green-400 hover:bg-green-500/10"
-              : "text-[var(--admin-text-muted)] hover:text-orange-400 hover:bg-orange-500/10"
+              ? "text-[var(--admin-text-secondary)] hover:text-green-400 hover:bg-green-500/10"
+              : "text-orange-400 hover:text-orange-300 hover:bg-orange-500/10"
           )}
           title={product.isActive ? 'View Live Page' : 'View Draft Page'}
         >
           <ExternalLink className="w-4 h-4" />
-          <span className="hidden sm:inline">{product.isActive ? 'Live' : 'Draft'}</span>
-        </a>
+          <span className="hidden sm:inline">{product.isActive ? 'View' : 'View Draft'}</span>
+        </button>
 
         {/* Delete */}
         <button

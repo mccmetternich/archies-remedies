@@ -10,8 +10,9 @@ import {
   productCertifications,
   videoTestimonials,
 } from '@/lib/db/schema';
-import { eq, and, desc } from 'drizzle-orm';
+import { eq, desc, and } from 'drizzle-orm';
 import { notFound } from 'next/navigation';
+import { checkProductDraft, hasPreviewAccess } from '@/lib/draft-mode';
 import { Metadata } from 'next';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
@@ -30,14 +31,18 @@ interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
-async function getProduct(slug: string) {
+async function getProduct(slug: string, includeInactive: boolean = false) {
+  // If includeInactive (preview mode), get regardless of status
   const [product] = await db
     .select()
     .from(products)
-    .where(and(eq(products.slug, slug), eq(products.isActive, true)))
+    .where(eq(products.slug, slug))
     .limit(1);
 
   if (!product) return null;
+
+  // If not in preview mode and product is inactive, return null
+  if (!includeInactive && !product.isActive) return null;
 
   const [variants, images, benefits, productReviews, keywords, certifications] =
     await Promise.all([
@@ -123,7 +128,18 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function ProductPage({ params }: PageProps) {
   const { slug } = await params;
-  const [product, siteData] = await Promise.all([getProduct(slug), getSiteData()]);
+
+  // Check if product is draft and user doesn't have preview access
+  // This will redirect if needed
+  await checkProductDraft(slug);
+
+  // Check if user has preview access to show draft products
+  const previewAccess = await hasPreviewAccess();
+
+  const [product, siteData] = await Promise.all([
+    getProduct(slug, previewAccess),
+    getSiteData(),
+  ]);
 
   if (!product) {
     notFound();

@@ -4,6 +4,7 @@ import { eq } from 'drizzle-orm';
 import { Metadata } from 'next';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
+import { checkPageDraft } from '@/lib/draft-mode';
 
 export const revalidate = 60;
 
@@ -38,6 +39,9 @@ async function getPageData() {
 }
 
 export default async function TermsPage() {
+  // Check if this page is draft - redirects if needed
+  await checkPageDraft('terms');
+
   const data = await getPageData();
 
   return (

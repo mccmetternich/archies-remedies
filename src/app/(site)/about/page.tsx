@@ -2,10 +2,10 @@ import { db } from '@/lib/db';
 import { pages, products, siteSettings, testimonials } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { Metadata } from 'next';
-import Image from 'next/image';
 import Link from 'next/link';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
+import { checkPageDraft } from '@/lib/draft-mode';
 import { AboutHero } from '@/components/about/about-hero';
 import { AboutStory } from '@/components/about/about-story';
 import { AboutValues } from '@/components/about/about-values';
@@ -52,6 +52,9 @@ async function getPageData() {
 }
 
 export default async function AboutPage() {
+  // Check if this page is draft - redirects if needed
+  await checkPageDraft('about');
+
   const data = await getPageData();
 
   return (
