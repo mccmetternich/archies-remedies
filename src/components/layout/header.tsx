@@ -99,11 +99,11 @@ export function Header({ logo, products = [], bumper, socialStats }: HeaderProps
 
       <header
         className={cn(
-          'fixed left-0 right-0 z-50 transition-all duration-700',
+          'fixed left-0 right-0 z-50 transition-all duration-500 bg-white',
           showBumper ? 'top-[52px]' : 'top-0',
           isScrolled
-            ? 'bg-white/98 backdrop-blur-xl shadow-sm py-4'
-            : 'bg-transparent py-6'
+            ? 'shadow-[0_2px_20px_rgba(0,0,0,0.08)] py-4'
+            : 'shadow-[0_1px_3px_rgba(0,0,0,0.05)] py-5'
         )}
       >
         <nav className="container">
@@ -450,12 +450,12 @@ export function Header({ logo, products = [], bumper, socialStats }: HeaderProps
         )}
       </AnimatePresence>
 
-      {/* Spacer for fixed header + bumper */}
+      {/* Spacer for fixed header + bumper - increased for more breathing room */}
       <div className={cn(
         'transition-all duration-500',
         showBumper
-          ? (isScrolled ? 'h-[124px]' : 'h-[140px]')
-          : (isScrolled ? 'h-[72px]' : 'h-[88px]')
+          ? (isScrolled ? 'h-[140px]' : 'h-[160px]')
+          : (isScrolled ? 'h-[90px]' : 'h-[110px]')
       )} />
     </>
   );

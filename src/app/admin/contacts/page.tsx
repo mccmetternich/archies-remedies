@@ -123,7 +123,7 @@ export default function ContactsPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <button
           onClick={() => setStatusFilter('new')}
-          className={`bg-white rounded-xl border p-6 text-left transition-colors ${
+          className={`bg-[var(--card)] rounded-xl border p-6 text-left transition-colors ${
             statusFilter === 'new' ? 'border-blue-500 ring-2 ring-blue-100' : 'border-[var(--border)]'
           }`}
         >
@@ -139,7 +139,7 @@ export default function ContactsPage() {
         </button>
         <button
           onClick={() => setStatusFilter('pending')}
-          className={`bg-white rounded-xl border p-6 text-left transition-colors ${
+          className={`bg-[var(--card)] rounded-xl border p-6 text-left transition-colors ${
             statusFilter === 'pending' ? 'border-yellow-500 ring-2 ring-yellow-100' : 'border-[var(--border)]'
           }`}
         >
@@ -155,7 +155,7 @@ export default function ContactsPage() {
         </button>
         <button
           onClick={() => setStatusFilter('resolved')}
-          className={`bg-white rounded-xl border p-6 text-left transition-colors ${
+          className={`bg-[var(--card)] rounded-xl border p-6 text-left transition-colors ${
             statusFilter === 'resolved' ? 'border-green-500 ring-2 ring-green-100' : 'border-[var(--border)]'
           }`}
         >
@@ -190,7 +190,7 @@ export default function ContactsPage() {
       </div>
 
       {/* Messages List */}
-      <div className="bg-white rounded-xl border border-[var(--border)] overflow-hidden">
+      <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] overflow-hidden">
         <div className="divide-y divide-[var(--border-light)]">
           {filteredContacts.map((contact) => (
             <div
@@ -250,7 +250,7 @@ export default function ContactsPage() {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="relative bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-auto"
+            className="relative bg-[var(--card)] rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-auto"
           >
             <div className="p-6 border-b border-[var(--border)] flex items-center justify-between">
               <div className="flex items-center gap-3">

@@ -135,7 +135,7 @@ export default function FAQsPage() {
         </div>
       </div>
 
-      <div className="bg-white rounded-xl border border-[var(--border)]">
+      <div className="bg-[var(--card)] rounded-xl border border-[var(--border)]">
         <Reorder.Group
           axis="y"
           values={faqs}
@@ -206,7 +206,7 @@ export default function FAQsPage() {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="relative bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-auto"
+            className="relative bg-[var(--card)] rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-auto"
           >
             <div className="p-6 border-b border-[var(--border)] flex items-center justify-between">
               <h2 className="text-xl font-medium">Edit FAQ</h2>

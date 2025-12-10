@@ -9,25 +9,16 @@ import {
   Settings,
   FileText,
   Package,
-  Image,
-  MessageSquare,
-  HelpCircle,
   Mail,
   Menu,
   X,
   ChevronRight,
-  ChevronDown,
-  Navigation,
-  Star,
-  Play,
-  Instagram,
-  Home,
   LogOut,
   Inbox,
-  Layers,
-  PlusCircle,
   Eye,
   Bell,
+  Construction,
+  ExternalLink,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -55,21 +46,28 @@ export function AdminLayout({ children, unreadMessages = 0 }: AdminLayoutProps) 
   const pathname = usePathname();
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [widgetLibraryOpen, setWidgetLibraryOpen] = useState(false);
+  const [isInDraftMode, setIsInDraftMode] = useState(false);
 
-  // Check if current path is in widget library
+  // Check draft mode status on mount
   useEffect(() => {
-    const widgetPaths = ['/admin/hero-slides', '/admin/testimonials', '/admin/video-testimonials', '/admin/instagram', '/admin/faqs', '/admin/navigation'];
-    if (widgetPaths.some(p => pathname.startsWith(p))) {
-      setWidgetLibraryOpen(true);
+    fetch('/api/admin/settings')
+      .then(res => res.json())
+      .then(data => setIsInDraftMode(data.siteInDraftMode ?? false))
+      .catch(() => {});
+  }, []);
+
+  const handlePreviewSite = async () => {
+    if (isInDraftMode) {
+      // Generate preview token first
+      await fetch('/api/admin/preview', { method: 'POST' });
     }
-  }, [pathname]);
+    window.open('/', '_blank');
+  };
 
   const navSections: NavSection[] = [
     {
       items: [
         { href: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
-        { href: '/admin/settings', label: 'Site Settings', icon: Settings },
       ],
     },
     {
@@ -80,26 +78,16 @@ export function AdminLayout({ children, unreadMessages = 0 }: AdminLayoutProps) 
       ],
     },
     {
-      title: 'Widget Library',
-      items: [
-        { href: '/admin/hero-slides', label: 'Hero Slides', icon: Image },
-        { href: '/admin/testimonials', label: 'Testimonials', icon: Star },
-        { href: '/admin/video-testimonials', label: 'Video Testimonials', icon: Play },
-        { href: '/admin/instagram', label: 'Instagram Feed', icon: Instagram },
-        { href: '/admin/faqs', label: 'FAQs', icon: HelpCircle },
-        { href: '/admin/navigation', label: 'Navigation', icon: Navigation },
-      ],
-    },
-    {
       title: 'Marketing',
       items: [
         { href: '/admin/subscribers', label: 'Email Subscribers', icon: Mail },
+        { href: '/admin/inbox', label: 'Inbox', icon: Inbox, badge: unreadMessages },
       ],
     },
     {
       separator: true,
       items: [
-        { href: '/admin/inbox', label: 'Inbox', icon: Inbox, badge: unreadMessages },
+        { href: '/admin/settings', label: 'Site Settings', icon: Settings },
       ],
     },
   ];
@@ -137,7 +125,7 @@ export function AdminLayout({ children, unreadMessages = 0 }: AdminLayoutProps) 
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a]">
+    <div className="min-h-screen bg-[#0a0a0a] admin-theme">
       {/* Mobile Header */}
       <header className="sticky top-0 z-40 md:hidden bg-[#111111] border-b border-[#1f1f1f]">
         <div className="flex items-center justify-between px-4 h-16">
@@ -189,15 +177,29 @@ export function AdminLayout({ children, unreadMessages = 0 }: AdminLayoutProps) 
 
           {/* View Site Link */}
           <div className="px-3 py-3 border-b border-[#1f1f1f]">
-            <Link
-              href="/"
-              target="_blank"
-              className="flex items-center gap-2 px-3 py-2 text-sm text-[#a1a1aa] hover:text-white hover:bg-[#1a1a1a] rounded-lg transition-colors"
+            {isInDraftMode && (
+              <div className="flex items-center gap-2 px-3 py-2 mb-2 text-xs bg-orange-500/10 text-orange-400 rounded-lg">
+                <Construction className="w-3.5 h-3.5" />
+                Draft Mode Active
+              </div>
+            )}
+            <button
+              onClick={handlePreviewSite}
+              className="flex items-center gap-2 px-3 py-2 w-full text-sm text-[#a1a1aa] hover:text-white hover:bg-[#1a1a1a] rounded-lg transition-colors"
             >
-              <Eye className="w-4 h-4" />
-              View Live Site
+              {isInDraftMode ? (
+                <>
+                  <Eye className="w-4 h-4" />
+                  Preview Site
+                </>
+              ) : (
+                <>
+                  <ExternalLink className="w-4 h-4" />
+                  View Live Site
+                </>
+              )}
               <ChevronRight className="w-3 h-3 ml-auto" />
-            </Link>
+            </button>
           </div>
 
           {/* Navigation */}

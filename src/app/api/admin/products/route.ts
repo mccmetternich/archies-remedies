@@ -3,6 +3,16 @@ import { db } from '@/lib/db';
 import { products, productVariants, productBenefits } from '@/lib/db/schema';
 import { generateId } from '@/lib/utils';
 
+export async function GET() {
+  try {
+    const data = await db.select().from(products).orderBy(products.sortOrder);
+    return NextResponse.json(data);
+  } catch (error) {
+    console.error('Failed to fetch products:', error);
+    return NextResponse.json({ error: 'Failed to fetch' }, { status: 500 });
+  }
+}
+
 export async function POST(request: Request) {
   try {
     const { product, variants, benefits } = await request.json();

@@ -173,27 +173,31 @@ export default async function ProductPage({ params }: PageProps) {
       />
 
       <main className="pt-6 md:pt-8">
-        {/* Product Hero Section - Split Screen Layout */}
+        {/* Product Hero Section - Split Screen Layout (Buy Box Left, Gallery Right) */}
         <section className="container mb-12 md:mb-16">
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-16">
-            {/* Left: Gallery (NOT sticky) */}
-            <PDPGallery
-              images={product.images}
-              heroImage={product.heroImageUrl}
-              productName={product.name}
-              badge={product.badge}
-              badgeEmoji={product.badgeEmoji}
-              rotatingSealEnabled={product.rotatingSealEnabled || false}
-              rotatingSealImageUrl={product.rotatingSealImageUrl}
-            />
+            {/* Left: Buy Box (sticky) - shows first on mobile too */}
+            <div className="order-1">
+              <PDPBuyBox
+                product={product}
+                variants={product.variants}
+                reviewCount={product.reviews.length}
+                averageRating={averageRating}
+              />
+            </div>
 
-            {/* Right: Buy Box (sticky) */}
-            <PDPBuyBox
-              product={product}
-              variants={product.variants}
-              reviewCount={product.reviews.length}
-              averageRating={averageRating}
-            />
+            {/* Right: Gallery */}
+            <div className="order-2">
+              <PDPGallery
+                images={product.images}
+                heroImage={product.heroImageUrl}
+                productName={product.name}
+                badge={product.badge}
+                badgeEmoji={product.badgeEmoji}
+                rotatingSealEnabled={product.rotatingSealEnabled || false}
+                rotatingSealImageUrl={product.rotatingSealImageUrl}
+              />
+            </div>
           </div>
         </section>
 

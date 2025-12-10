@@ -24,6 +24,32 @@
   /* Semantic */
   --success: #22c55e;
   --error: #ef4444;
+}
+
+/* =============================================
+   ADMIN DARK THEME
+   Scoped overrides for all admin pages
+   ============================================= */
+.admin-theme {
+  /* Override core palette for dark theme */
+  --background: #111111;
+  --foreground: #ffffff;
+  --muted: #1a1a1a;
+  --muted-foreground: #a1a1aa;
+  --border: #2a2a2a;
+  --border-light: #1f1f1f;
+
+  /* Dark theme specific */
+  --card: #1a1a1a;
+  --card-foreground: #ffffff;
+  --input-bg: #1a1a1a;
+  --input-border: #2a2a2a;
+
+  /* Adjust primary colors for dark bg */
+  --primary-light: #1e3a4a;
+  --cream: #1a1a1a;
+  --sand: #222222;
+  --stone: #2a2a2a;
 
   /* Editorial Shadows - Soft & Sophisticated */
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.03);

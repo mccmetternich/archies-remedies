@@ -17,6 +17,7 @@ import {
   AlertCircle,
   ChevronDown,
   ChevronRight,
+  Home,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -197,8 +198,13 @@ export default function PagesListPage() {
   };
 
   // Categorize pages
-  const mainNavPages = pages.filter((p) => p.showInNav && p.slug !== 'about' && !['terms', 'privacy', 'shipping', 'returns'].includes(p.slug));
-  const footerPages = pages.filter((p) => ['about', 'terms', 'privacy', 'shipping', 'returns', 'contact'].includes(p.slug));
+  // Homepage gets its own special treatment - always first in main nav
+  const homePage = pages.find((p) => p.slug === 'home');
+  // Main navigation pages: showInNav=true OR is homepage
+  const mainNavPages = pages.filter((p) => p.showInNav || p.slug === 'home');
+  // Footer/legal pages
+  const footerPages = pages.filter((p) => ['about', 'terms', 'privacy', 'shipping', 'returns', 'contact'].includes(p.slug) && !p.showInNav);
+  // Other pages: not in main nav and not in footer
   const otherPages = pages.filter((p) => !mainNavPages.includes(p) && !footerPages.includes(p));
 
   if (loading) {
@@ -215,18 +221,32 @@ export default function PagesListPage() {
       className="flex items-center justify-between p-4 hover:bg-[var(--primary)]/5 transition-colors group cursor-pointer"
     >
       <div className="flex items-center gap-4 flex-1 min-w-0">
-        <div className="w-10 h-10 rounded-lg bg-[#1a1a1a] flex items-center justify-center shrink-0 group-hover:bg-[var(--primary)]/10 transition-colors">
-          {page.pageType === 'landing' ? (
+        <div className={cn(
+          "w-10 h-10 rounded-lg flex items-center justify-center shrink-0 transition-colors",
+          page.slug === 'home'
+            ? "bg-[var(--primary)]/20 group-hover:bg-[var(--primary)]/30"
+            : "bg-[#1a1a1a] group-hover:bg-[var(--primary)]/10"
+        )}>
+          {page.slug === 'home' ? (
+            <Home className="w-5 h-5 text-[var(--primary)]" />
+          ) : page.pageType === 'landing' ? (
             <Layout className="w-5 h-5 text-gray-400 group-hover:text-[var(--primary)]" />
           ) : (
             <FileText className="w-5 h-5 text-gray-400 group-hover:text-[var(--primary)]" />
           )}
         </div>
         <div className="min-w-0">
-          <h3 className="font-medium text-white group-hover:text-[var(--primary)] transition-colors truncate">
-            {page.title}
-          </h3>
-          <p className="text-sm text-gray-500 truncate">/{page.slug}</p>
+          <div className="flex items-center gap-2">
+            <h3 className="font-medium text-white group-hover:text-[var(--primary)] transition-colors truncate">
+              {page.title}
+            </h3>
+            {page.slug === 'home' && (
+              <span className="px-2 py-0.5 text-xs bg-[var(--primary)]/20 text-[var(--primary)] rounded-full">
+                Main
+              </span>
+            )}
+          </div>
+          <p className="text-sm text-gray-500 truncate">{page.slug === 'home' ? '/' : `/${page.slug}`}</p>
         </div>
       </div>
 
@@ -260,7 +280,7 @@ export default function PagesListPage() {
 
         {/* Preview */}
         <a
-          href={`/${page.slug}`}
+          href={page.slug === 'home' ? '/' : `/${page.slug}`}
           target="_blank"
           rel="noopener noreferrer"
           onClick={(e) => e.stopPropagation()}

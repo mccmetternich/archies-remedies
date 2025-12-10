@@ -9,6 +9,11 @@ export const siteSettings = sqliteTable('site_settings', {
   logoUrl: text('logo_url'),
   faviconUrl: text('favicon_url'),
 
+  // Draft/Maintenance Mode
+  siteInDraftMode: integer('site_in_draft_mode', { mode: 'boolean' }).default(false),
+  draftModeTitle: text('draft_mode_title').default('Coming Soon'),
+  draftModeSubtitle: text('draft_mode_subtitle').default("We're working on something special. Leave your email to be the first to know when we launch."),
+
   // Colors
   primaryColor: text('primary_color').default('#bbdae9'),
   secondaryColor: text('secondary_color').default('#f5f0eb'),

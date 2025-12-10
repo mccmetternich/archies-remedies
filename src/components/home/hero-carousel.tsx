@@ -172,7 +172,7 @@ export function HeroCarousel({ slides, isPaused = false }: HeroCarouselProps) {
                   {slide.subtitle || 'Preservative-free eye drops crafted for sensitive eyes. Feel the difference of truly clean ingredients.'}
                 </motion.p>
 
-                {/* CTA - Both buttons bigger */}
+                {/* CTA - Both buttons bigger with guaranteed contrast */}
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -182,7 +182,7 @@ export function HeroCarousel({ slides, isPaused = false }: HeroCarouselProps) {
                   {slide.buttonUrl && (
                     <Link
                       href={slide.buttonUrl}
-                      className="group inline-flex items-center gap-4 px-12 py-6 bg-[var(--primary)] text-[var(--foreground)] rounded-full text-xl font-semibold hover:bg-[var(--primary-dark)] transition-all duration-300 hover:gap-5 shadow-lg hover:shadow-xl"
+                      className="group inline-flex items-center gap-4 px-12 py-6 bg-[#1a1a1a] text-white rounded-full text-xl font-semibold hover:bg-[#bbdae9] hover:text-[#1a1a1a] transition-all duration-300 hover:gap-5 shadow-lg hover:shadow-xl"
                     >
                       {slide.buttonText || 'Shop Now'}
                       <ArrowRight className="w-6 h-6 transition-transform group-hover:translate-x-1" />
@@ -190,7 +190,7 @@ export function HeroCarousel({ slides, isPaused = false }: HeroCarouselProps) {
                   )}
                   <Link
                     href={slide.secondaryButtonUrl || '/about'}
-                    className="group inline-flex items-center gap-3 px-10 py-6 text-lg font-semibold text-[var(--foreground)] hover:text-[var(--muted-foreground)] transition-colors border-2 border-[var(--foreground)]/20 hover:border-[var(--foreground)]/40 rounded-full"
+                    className="group inline-flex items-center gap-3 px-10 py-6 text-lg font-semibold text-[#1a1a1a] bg-white hover:bg-[#f5f5f5] transition-colors border-2 border-[#1a1a1a]/20 hover:border-[#1a1a1a]/40 rounded-full"
                   >
                     {slide.secondaryButtonText || 'Or Learn More'}
                     <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />

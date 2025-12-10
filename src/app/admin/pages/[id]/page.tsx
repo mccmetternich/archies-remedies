@@ -291,7 +291,7 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
       {activeTab === 'content' && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
-            <div className="bg-white rounded-xl border border-[var(--border)] p-6 space-y-4">
+            <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] p-6 space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-1">Page Title</label>
                 <Input
@@ -351,7 +351,7 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
 
             {/* Hero Section for Landing Pages */}
             {page.pageType === 'landing' && (
-              <div className="bg-white rounded-xl border border-[var(--border)] p-6 space-y-4">
+              <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] p-6 space-y-4">
                 <h3 className="font-medium">Hero Section</h3>
 
                 <div>
@@ -386,7 +386,7 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
 
           {/* Sidebar */}
           <div className="space-y-6">
-            <div className="bg-white rounded-xl border border-[var(--border)] p-6 space-y-4">
+            <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] p-6 space-y-4">
               <h3 className="font-medium">Settings</h3>
 
               <label className="flex items-center gap-2 cursor-pointer">
@@ -418,7 +418,7 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
       {activeTab === 'widgets' && page.pageType === 'landing' && (
         <div className="space-y-6">
           {/* Widget List */}
-          <div className="bg-white rounded-xl border border-[var(--border)]">
+          <div className="bg-[var(--card)] rounded-xl border border-[var(--border)]">
             <div className="p-4 border-b border-[var(--border-light)] flex items-center justify-between">
               <h3 className="font-medium">Page Widgets</h3>
               <Button variant="outline" size="sm" onClick={() => setShowWidgetPicker(true)}>
@@ -442,7 +442,7 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
                     <Reorder.Item
                       key={widget.id}
                       value={widget}
-                      className="bg-white"
+                      className="bg-[var(--card)]"
                     >
                       <div className="p-4 flex items-center gap-4 cursor-grab active:cursor-grabbing">
                         <GripVertical className="w-4 h-4 text-[var(--muted-foreground)]" />
@@ -629,7 +629,7 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="relative bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-auto"
+                className="relative bg-[var(--card)] rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-auto"
               >
                 <div className="p-6 border-b border-[var(--border)]">
                   <h2 className="text-xl font-medium">Add Widget</h2>
@@ -669,7 +669,7 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
 
       {/* SEO Tab */}
       {activeTab === 'seo' && (
-        <div className="bg-white rounded-xl border border-[var(--border)] p-6 space-y-4 max-w-2xl">
+        <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] p-6 space-y-4 max-w-2xl">
           <h3 className="font-medium">Search Engine Optimization</h3>
 
           <div>

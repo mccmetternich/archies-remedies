@@ -251,7 +251,7 @@ export default function NavigationPage() {
 
       {/* Announcement Bar Settings */}
       {activeTab === 'bumper' && (
-        <div className="bg-white rounded-xl border border-[var(--border)]">
+        <div className="bg-[var(--card)] rounded-xl border border-[var(--border)]">
           <div className="p-6 border-b border-[var(--border-light)]">
             <h2 className="font-medium text-lg mb-2">Announcement Bar</h2>
             <p className="text-sm text-[var(--muted-foreground)]">
@@ -269,7 +269,7 @@ export default function NavigationPage() {
                   onChange={(e) => setBumperSettings({ ...bumperSettings, bumperEnabled: e.target.checked })}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[var(--primary)] rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--foreground)]"></div>
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[var(--primary)] rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-[var(--card)] after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--foreground)]"></div>
               </label>
               <span className="text-sm font-medium">Enable Announcement Bar</span>
             </div>
@@ -331,7 +331,7 @@ export default function NavigationPage() {
 
       {/* Header Navigation */}
       {activeTab === 'header' && (
-        <div className="bg-white rounded-xl border border-[var(--border)]">
+        <div className="bg-[var(--card)] rounded-xl border border-[var(--border)]">
           <div className="p-4 border-b border-[var(--border-light)] flex items-center justify-between">
             <h2 className="font-medium">Navigation Items</h2>
             <Button variant="outline" size="sm" onClick={handleAddNav}>
@@ -402,7 +402,7 @@ export default function NavigationPage() {
 
       {/* Footer Links */}
       {activeTab === 'footer' && (
-        <div className="bg-white rounded-xl border border-[var(--border)]">
+        <div className="bg-[var(--card)] rounded-xl border border-[var(--border)]">
           <div className="p-4 border-b border-[var(--border-light)] flex items-center justify-between">
             <h2 className="font-medium">Footer Links</h2>
             <Button variant="outline" size="sm" onClick={handleAddFooter}>
@@ -478,7 +478,7 @@ export default function NavigationPage() {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="relative bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-auto"
+            className="relative bg-[var(--card)] rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-auto"
           >
             <div className="p-6 border-b border-[var(--border)] flex items-center justify-between">
               <h2 className="text-xl font-medium">
