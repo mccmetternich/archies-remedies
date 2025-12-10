@@ -41,16 +41,113 @@ export function ComingSoonClient({
   const [showDropdown, setShowDropdown] = useState(false);
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
+  const [validationError, setValidationError] = useState('');
+
+  // Format phone number as user types (XXX-XXX-XXXX)
+  const formatPhoneNumber = (value: string): string => {
+    // Strip all non-digits
+    const digits = value.replace(/\D/g, '');
+
+    // Limit to 10 digits
+    const limited = digits.slice(0, 10);
+
+    // Format with dashes
+    if (limited.length <= 3) {
+      return limited;
+    } else if (limited.length <= 6) {
+      return `${limited.slice(0, 3)}-${limited.slice(3)}`;
+    } else {
+      return `${limited.slice(0, 3)}-${limited.slice(3, 6)}-${limited.slice(6)}`;
+    }
+  };
+
+  // Validate phone number (must be exactly 10 digits)
+  const validatePhone = (value: string): string | null => {
+    const digits = value.replace(/\D/g, '');
+    if (digits.length === 0) return null;
+    if (digits.length < 10) return 'Please enter a complete 10-digit phone number';
+    if (digits.length > 10) return 'Phone number must be 10 digits';
+    return null;
+  };
+
+  // Validate email with proper TLD
+  const validateEmail = (value: string): string | null => {
+    if (!value) return null;
+
+    // Basic email regex with TLD requirement (at least 2 chars after last dot)
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
+
+    if (!value.includes('@')) {
+      return 'Please include an @ symbol';
+    }
+
+    if (!emailRegex.test(value)) {
+      return 'Please enter a valid email address';
+    }
+
+    return null;
+  };
+
+  // Handle input change with formatting
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+
+    if (contactType === 'phone') {
+      const formatted = formatPhoneNumber(value);
+      setContactValue(formatted);
+      // Clear validation error as user types
+      setValidationError('');
+    } else {
+      setContactValue(value);
+      setValidationError('');
+    }
+
+    // Clear any previous submission error
+    if (status === 'error') {
+      setStatus('idle');
+    }
+  };
+
+  // Validate on blur
+  const handleBlur = () => {
+    if (contactType === 'phone') {
+      const error = validatePhone(contactValue);
+      setValidationError(error || '');
+    } else {
+      const error = validateEmail(contactValue);
+      setValidationError(error || '');
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!contactValue) return;
 
+    // Validate before submission
+    if (contactType === 'phone') {
+      const error = validatePhone(contactValue);
+      if (error) {
+        setValidationError(error);
+        return;
+      }
+    } else {
+      const error = validateEmail(contactValue);
+      if (error) {
+        setValidationError(error);
+        return;
+      }
+    }
+
+    setValidationError('');
     setStatus('loading');
+
     try {
+      // For phone, send just the digits
+      const phoneDigits = contactType === 'phone' ? contactValue.replace(/\D/g, '') : null;
+
       const payload = contactType === 'email'
         ? { email: contactValue, source: 'coming-soon' }
-        : { phone: contactValue, source: 'coming-soon' };
+        : { phone: phoneDigits, source: 'coming-soon' };
 
       const res = await fetch('/api/contacts/subscribe', {
         method: 'POST',
@@ -75,7 +172,11 @@ export function ComingSoonClient({
   const toggleContactType = (type: 'email' | 'phone') => {
     setContactType(type);
     setContactValue('');
+    setValidationError('');
     setShowDropdown(false);
+    if (status === 'error') {
+      setStatus('idle');
+    }
   };
 
   return (
@@ -284,10 +385,13 @@ export function ComingSoonClient({
                   <input
                     type={contactType === 'email' ? 'email' : 'tel'}
                     value={contactValue}
-                    onChange={(e) => setContactValue(e.target.value)}
+                    onChange={handleInputChange}
+                    onBlur={handleBlur}
                     placeholder={contactType === 'email' ? 'Enter your email' : 'Enter Phone #'}
                     required
-                    className="w-full pl-16 pr-36 py-5 text-lg rounded-full border border-gray-200 bg-white shadow-sm transition-all outline-none focus:outline-none focus:border-[#bbdae9] focus:ring-0 focus:shadow-none"
+                    className={`w-full pl-16 pr-36 py-5 text-lg rounded-full border bg-white shadow-sm transition-all outline-none focus:outline-none focus:ring-0 focus:shadow-none ${
+                      validationError ? 'border-red-300 focus:border-red-300' : 'border-gray-200 focus:border-[#bbdae9]'
+                    }`}
                     style={{ outline: 'none', boxShadow: 'none' }}
                   />
                   <button
@@ -305,15 +409,27 @@ export function ComingSoonClient({
                     )}
                   </button>
                 </div>
-                {status === 'error' && (
-                  <motion.p
-                    initial={{ opacity: 0, y: -5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-red-500 text-sm mt-3"
-                  >
-                    {errorMessage}
-                  </motion.p>
-                )}
+                {/* Validation or submission error */}
+                <AnimatePresence mode="wait">
+                  {(validationError || status === 'error') && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -8 }}
+                      transition={{ duration: 0.2 }}
+                      className="mt-4 flex items-center justify-center gap-2"
+                    >
+                      <div className="inline-flex items-center gap-2 px-4 py-2 bg-red-50 border border-red-100 rounded-full">
+                        <svg className="w-4 h-4 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span className="text-sm text-red-600">
+                          {validationError || errorMessage}
+                        </span>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </motion.form>
 
               {/* Footer - Trust badges or Brand quip */}
