@@ -13,20 +13,21 @@ export function middleware(request: NextRequest) {
   }
 
   // Handle preview mode URL parameter
-  // When ?preview=true is present, set a preview cookie so admin can view draft site
+  // When ?preview=true is present, set a SESSION-based preview cookie (no maxAge = session cookie)
+  // This means preview access is lost when the browser is closed
   const hasPreviewParam = searchParams.get('preview') === 'true';
   const hasPreviewToken = request.cookies.get('preview_token');
 
-  if (hasPreviewParam && !hasPreviewToken && !pathname.startsWith('/admin') && !pathname.startsWith('/api')) {
-    // Set preview cookie and redirect to same page without the param
-    const url = new URL(pathname, request.url);
-    const response = NextResponse.redirect(url);
+  if (hasPreviewParam && !pathname.startsWith('/admin') && !pathname.startsWith('/api')) {
+    // Set preview cookie as a session cookie (deleted when browser closes)
+    // Don't redirect - keep the ?preview=true in URL so internal navigation works
+    const response = NextResponse.next();
     response.cookies.set('preview_token', 'admin-preview', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       path: '/',
-      maxAge: 60 * 60 * 24, // 24 hours
+      // No maxAge = session cookie, deleted when browser closes
     });
     return response;
   }

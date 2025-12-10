@@ -13,22 +13,23 @@ export async function POST() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Generate a preview token (valid for 24 hours)
+    // Generate a preview token (session-based - expires when browser closes)
     const previewToken = crypto.randomBytes(32).toString('hex');
 
-    // Set the preview token as a cookie (accessible on the main site, not just /admin)
+    // Set the preview token as a SESSION cookie (no maxAge = deleted when browser closes)
+    // This ensures admins must explicitly request preview access each browser session
     cookieStore.set('preview_token', previewToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       path: '/',
-      maxAge: 60 * 60 * 24, // 24 hours
+      // No maxAge = session cookie
     });
 
     return NextResponse.json({
       success: true,
       token: previewToken,
-      expiresIn: '24 hours'
+      expiresIn: 'browser session'
     });
   } catch (error) {
     console.error('Failed to generate preview token:', error);

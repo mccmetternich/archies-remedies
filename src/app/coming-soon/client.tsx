@@ -341,9 +341,12 @@ export function ComingSoonClient({
                     )}
                   </div>
                 ) : (
-                  <p className="text-lg text-gray-500 italic text-center max-w-md mx-auto">
-                    {brandQuip}
-                  </p>
+                  <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#bbdae9]/20 border border-[#bbdae9]/30 rounded-full mx-auto">
+                    <Sparkles className="w-4 h-4 text-[#bbdae9]" />
+                    <span className="text-sm text-gray-600 font-medium">
+                      {brandQuip}
+                    </span>
+                  </div>
                 )}
               </motion.div>
             </motion.div>

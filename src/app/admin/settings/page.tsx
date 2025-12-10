@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-import { Save, Loader2, Upload, Check, Palette, Share2, Bell, Code, X, ExternalLink, Link as LinkIcon, Navigation, Menu, Megaphone, Construction, Eye, Copy, Trash2, MousePointerClick, Mail, Phone, ChevronDown, ArrowRight } from 'lucide-react';
+import { Save, Loader2, Upload, Check, Palette, Share2, Bell, Code, X, ExternalLink, Link as LinkIcon, Navigation, Menu, Megaphone, Construction, Eye, Copy, Trash2, MousePointerClick, Mail, Phone, ChevronDown, ArrowRight, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface SiteSettings {
@@ -1019,7 +1019,7 @@ function ComingSoonTab({
         <div className="p-6 bg-[var(--admin-bg)] rounded-xl border border-[var(--admin-border)]">
           <h3 className="font-medium text-[var(--admin-text-primary)] mb-4">Preview Access</h3>
           <p className="text-sm text-[var(--admin-text-secondary)] mb-4">
-            Generate a preview token to view the full site while in Coming Soon mode. Share this link with team members who need access. The token is valid for 24 hours.
+            Preview the full site while in Coming Soon mode. Access lasts until you close your browser. To see what visitors see, open a new incognito/private window.
           </p>
           <div className="flex gap-3">
             <button
@@ -1289,9 +1289,12 @@ function ComingSoonTab({
               )}
             </div>
           ) : (
-            <p className="text-sm text-gray-500 italic">
-              {settings.draftModeBrandQuip || 'Where clean beauty meets clear vision.'}
-            </p>
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#bbdae9]/20 border border-[#bbdae9]/30 rounded-full">
+              <Sparkles className="w-3 h-3 text-[#bbdae9]" />
+              <span className="text-xs text-gray-600 font-medium">
+                {settings.draftModeBrandQuip || 'Where clean beauty meets clear vision.'}
+              </span>
+            </div>
           )}
         </div>
       </div>
