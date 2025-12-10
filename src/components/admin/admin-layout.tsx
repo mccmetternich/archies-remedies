@@ -16,7 +16,6 @@ import {
   Inbox,
   Eye,
   Bell,
-  Construction,
   ExternalLink,
   Navigation,
   Layers,
@@ -49,12 +48,21 @@ interface NavItem {
   badge?: number;
 }
 
+// Hard-coded colors that CANNOT be overridden
+const NAV_COLORS = {
+  textPrimary: '#ffffff',
+  textSecondary: '#9ca3af',
+  textMuted: '#71717a',
+  iconColor: '#9ca3af',
+};
+
 function AdminLayoutInner({ children, unreadMessages = 0 }: AdminLayoutProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isInDraftMode, setIsInDraftMode] = useState(false);
   const [previewToken, setPreviewToken] = useState<string | null>(null);
+  const [isTogglingDraft, setIsTogglingDraft] = useState(false);
   const { theme } = useAdminTheme();
 
   // Check draft mode status on mount
@@ -90,6 +98,27 @@ function AdminLayoutInner({ children, unreadMessages = 0 }: AdminLayoutProps) {
     } else {
       window.open('/', '_blank');
     }
+  };
+
+  const handleToggleDraftMode = async () => {
+    setIsTogglingDraft(true);
+    try {
+      const res = await fetch('/api/admin/settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ siteInDraftMode: !isInDraftMode }),
+      });
+      if (res.ok) {
+        setIsInDraftMode(!isInDraftMode);
+        if (!isInDraftMode) {
+          // Switching to draft mode, generate preview token
+          generatePreviewToken();
+        }
+      }
+    } catch (error) {
+      console.error('Failed to toggle draft mode:', error);
+    }
+    setIsTogglingDraft(false);
   };
 
   const navSections: NavSection[] = [
@@ -167,12 +196,25 @@ function AdminLayoutInner({ children, unreadMessages = 0 }: AdminLayoutProps) {
             <div className="w-8 h-8 rounded-lg bg-[var(--primary)] flex items-center justify-center text-sm font-bold text-[var(--admin-button-text)]">
               A
             </div>
-            <span className="font-medium text-[var(--admin-text-primary)]">Admin</span>
+            <span className="font-medium" style={{ color: NAV_COLORS.textPrimary }}>Admin</span>
           </Link>
           <div className="flex items-center gap-2">
+            {/* Mobile Draft Toggle */}
+            <button
+              onClick={handleToggleDraftMode}
+              disabled={isTogglingDraft}
+              className={cn(
+                'flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-xs font-medium transition-colors',
+                isInDraftMode
+                  ? 'bg-orange-500/20 text-orange-400'
+                  : 'bg-green-500/20 text-green-400'
+              )}
+            >
+              {isInDraftMode ? 'Draft' : 'Live'}
+            </button>
             {unreadMessages > 0 && (
               <Link href="/admin/inbox" className="relative p-2">
-                <Bell className="w-5 h-5 text-[var(--admin-text-secondary)]" />
+                <Bell className="w-5 h-5" style={{ color: NAV_COLORS.textSecondary }} />
                 <span className="absolute -top-0.5 -right-0.5 w-5 h-5 text-xs bg-[var(--primary)] text-[var(--admin-button-text)] rounded-full flex items-center justify-center font-medium">
                   {unreadMessages}
                 </span>
@@ -180,7 +222,8 @@ function AdminLayoutInner({ children, unreadMessages = 0 }: AdminLayoutProps) {
             )}
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="p-2 rounded-lg hover:bg-[var(--admin-hover)] text-[var(--admin-text-secondary)]"
+              className="p-2 rounded-lg hover:bg-[var(--admin-hover)]"
+              style={{ color: NAV_COLORS.textSecondary }}
             >
               {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -196,55 +239,20 @@ function AdminLayoutInner({ children, unreadMessages = 0 }: AdminLayoutProps) {
             sidebarOpen ? 'translate-x-0' : '-translate-x-full'
           )}
         >
-          {/* Logo + View Site Button Row */}
+          {/* Logo */}
           <div className="h-16 flex items-center justify-between px-4 border-b border-[var(--admin-border)]">
             <Link href="/admin" className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-xl bg-[var(--primary)] flex items-center justify-center text-lg font-bold text-[var(--admin-button-text)]">
                 A
               </div>
               <div>
-                <span className="font-medium block text-sm text-[var(--admin-text-primary)]">Archie&apos;s Remedies</span>
-                <span className="text-xs text-[var(--admin-text-muted)]">Admin Panel</span>
+                <span className="font-medium block text-sm" style={{ color: NAV_COLORS.textPrimary }}>Archie&apos;s Remedies</span>
+                <span className="text-xs" style={{ color: NAV_COLORS.textMuted }}>Admin Panel</span>
               </div>
             </Link>
           </div>
 
-          {/* View Site Button - Full Width at Top */}
-          <div className="px-3 py-3 border-b border-[var(--admin-border)]">
-            <button
-              onClick={handleViewSite}
-              className={cn(
-                'w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors',
-                isInDraftMode
-                  ? 'bg-orange-500/20 text-orange-400 hover:bg-orange-500/30'
-                  : 'bg-green-500/20 text-green-400 hover:bg-green-500/30'
-              )}
-            >
-              {isInDraftMode ? (
-                <>
-                  <Eye className="w-4 h-4" />
-                  View Draft
-                </>
-              ) : (
-                <>
-                  <ExternalLink className="w-4 h-4" />
-                  View Live Site
-                </>
-              )}
-            </button>
-          </div>
-
-          {/* Draft Mode Indicator */}
-          {isInDraftMode && (
-            <div className="px-3 py-2 border-b border-[var(--admin-border)]">
-              <div className="flex items-center gap-2 px-3 py-2 text-xs bg-orange-500/10 text-orange-400 rounded-lg">
-                <Construction className="w-3.5 h-3.5" />
-                <span>Draft Mode Active</span>
-              </div>
-            </div>
-          )}
-
-          {/* Navigation */}
+          {/* Navigation - Using INLINE STYLES for text colors */}
           <nav className="flex-1 p-3 space-y-6 overflow-y-auto">
             {navSections.map((section, sectionIndex) => (
               <div key={sectionIndex}>
@@ -252,7 +260,10 @@ function AdminLayoutInner({ children, unreadMessages = 0 }: AdminLayoutProps) {
                   <div className="h-px bg-[var(--admin-border)] mb-4" />
                 )}
                 {section.title && (
-                  <p className="px-3 mb-2 text-xs font-semibold uppercase tracking-wider text-[var(--admin-text-muted)]">
+                  <p
+                    className="px-3 mb-2 text-xs font-semibold uppercase tracking-wider"
+                    style={{ color: NAV_COLORS.textMuted }}
+                  >
                     {section.title}
                   </p>
                 )}
@@ -267,11 +278,27 @@ function AdminLayoutInner({ children, unreadMessages = 0 }: AdminLayoutProps) {
                         className={cn(
                           'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-150 group',
                           active
-                            ? 'bg-[var(--primary)] text-[var(--admin-button-text)] font-medium'
-                            : 'text-[var(--admin-text-secondary)] hover:bg-[var(--admin-hover)] hover:text-[var(--admin-text-primary)]'
+                            ? 'bg-[var(--primary)] font-medium'
+                            : 'hover:bg-[var(--admin-hover)]'
                         )}
+                        style={{
+                          color: active ? 'var(--admin-button-text)' : NAV_COLORS.textSecondary
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!active) {
+                            e.currentTarget.style.color = NAV_COLORS.textPrimary;
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!active) {
+                            e.currentTarget.style.color = NAV_COLORS.textSecondary;
+                          }
+                        }}
                       >
-                        <item.icon className={cn('w-4 h-4', active ? 'text-[var(--admin-button-text)]' : 'text-[var(--admin-text-secondary)]')} />
+                        <item.icon
+                          className="w-4 h-4"
+                          style={{ color: active ? 'var(--admin-button-text)' : NAV_COLORS.iconColor }}
+                        />
                         <span className="flex-1">{item.label}</span>
                         {item.badge && item.badge > 0 && (
                           <span className={cn(
@@ -295,7 +322,10 @@ function AdminLayoutInner({ children, unreadMessages = 0 }: AdminLayoutProps) {
           <div className="p-3 border-t border-[var(--admin-border)]">
             <button
               onClick={handleLogout}
-              className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm text-[var(--admin-text-secondary)] hover:bg-[var(--admin-hover)] hover:text-[var(--admin-text-primary)] transition-colors"
+              className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm hover:bg-[var(--admin-hover)] transition-colors"
+              style={{ color: NAV_COLORS.textSecondary }}
+              onMouseEnter={(e) => e.currentTarget.style.color = NAV_COLORS.textPrimary}
+              onMouseLeave={(e) => e.currentTarget.style.color = NAV_COLORS.textSecondary}
             >
               <LogOut className="w-4 h-4" />
               Sign Out
@@ -318,21 +348,23 @@ function AdminLayoutInner({ children, unreadMessages = 0 }: AdminLayoutProps) {
 
         {/* Main Content */}
         <main className="flex-1 min-h-screen">
-          {/* Breadcrumbs */}
+          {/* Top Horizontal Bar with Breadcrumbs + Draft Toggle + View Site */}
           <div className="hidden md:flex items-center justify-between bg-[var(--admin-sidebar)] border-b border-[var(--admin-border)]">
+            {/* Left: Breadcrumbs */}
             <div className="px-6 py-4">
               <div className="flex items-center gap-2 text-sm">
                 {breadcrumbs.map((crumb, index) => (
                   <React.Fragment key={crumb.href}>
                     {index > 0 && (
-                      <ChevronRight className="w-4 h-4 text-[var(--admin-text-muted)]" />
+                      <ChevronRight className="w-4 h-4" style={{ color: NAV_COLORS.textMuted }} />
                     )}
                     {index === breadcrumbs.length - 1 ? (
-                      <span className="font-medium text-[var(--admin-text-primary)]">{crumb.label}</span>
+                      <span className="font-medium" style={{ color: NAV_COLORS.textPrimary }}>{crumb.label}</span>
                     ) : (
                       <Link
                         href={crumb.href}
-                        className="text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)] transition-colors"
+                        className="hover:underline transition-colors"
+                        style={{ color: NAV_COLORS.textSecondary }}
                       >
                         {crumb.label}
                       </Link>
@@ -341,15 +373,72 @@ function AdminLayoutInner({ children, unreadMessages = 0 }: AdminLayoutProps) {
                 ))}
               </div>
             </div>
-            {unreadMessages > 0 && (
-              <Link
-                href="/admin/inbox"
-                className="mr-6 flex items-center gap-2 px-3 py-1.5 bg-[var(--primary)]/10 text-[var(--primary)] rounded-lg text-sm hover:bg-[var(--primary)]/20 transition-colors"
+
+            {/* Right: Draft Toggle + View Site Button */}
+            <div className="flex items-center gap-4 pr-6">
+              {/* Unread Messages Badge */}
+              {unreadMessages > 0 && (
+                <Link
+                  href="/admin/inbox"
+                  className="flex items-center gap-2 px-3 py-1.5 bg-[var(--primary)]/10 text-[var(--primary)] rounded-lg text-sm hover:bg-[var(--primary)]/20 transition-colors"
+                >
+                  <Inbox className="w-4 h-4" />
+                  <span>{unreadMessages} new</span>
+                </Link>
+              )}
+
+              {/* Draft Mode Toggle Switch */}
+              <div className="flex items-center gap-3">
+                <span
+                  className="text-sm font-medium"
+                  style={{ color: isInDraftMode ? '#f97316' : '#22c55e' }}
+                >
+                  {isInDraftMode ? 'Draft Mode' : 'Live'}
+                </span>
+                <button
+                  onClick={handleToggleDraftMode}
+                  disabled={isTogglingDraft}
+                  className={cn(
+                    'relative w-12 h-6 rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--admin-sidebar)]',
+                    isInDraftMode
+                      ? 'bg-orange-500 focus:ring-orange-500'
+                      : 'bg-green-500 focus:ring-green-500',
+                    isTogglingDraft && 'opacity-50 cursor-not-allowed'
+                  )}
+                  aria-label={isInDraftMode ? 'Switch to Live' : 'Switch to Draft'}
+                >
+                  <span
+                    className={cn(
+                      'absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200',
+                      isInDraftMode ? 'translate-x-6' : 'translate-x-0'
+                    )}
+                  />
+                </button>
+              </div>
+
+              {/* View Site Button */}
+              <button
+                onClick={handleViewSite}
+                className={cn(
+                  'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors',
+                  isInDraftMode
+                    ? 'bg-orange-500/20 text-orange-400 hover:bg-orange-500/30'
+                    : 'bg-green-500/20 text-green-400 hover:bg-green-500/30'
+                )}
               >
-                <Inbox className="w-4 h-4" />
-                <span>{unreadMessages} new message{unreadMessages > 1 ? 's' : ''}</span>
-              </Link>
-            )}
+                {isInDraftMode ? (
+                  <>
+                    <Eye className="w-4 h-4" />
+                    View Draft
+                  </>
+                ) : (
+                  <>
+                    <ExternalLink className="w-4 h-4" />
+                    View Live Site
+                  </>
+                )}
+              </button>
+            </div>
           </div>
 
           {/* Page Content */}
