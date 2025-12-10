@@ -229,10 +229,10 @@ function AdminLayoutInner({ children, unreadMessages = 0 }: AdminLayoutProps) {
       </header>
 
       <div className="flex">
-        {/* Sidebar */}
+        {/* Sidebar - Fixed on desktop so footer is always visible */}
         <aside
           className={cn(
-            'fixed inset-y-0 left-0 z-50 w-64 bg-[var(--admin-sidebar)] border-r border-[var(--admin-border)] transform transition-transform duration-200 ease-in-out md:translate-x-0 md:static md:z-auto flex flex-col',
+            'fixed inset-y-0 left-0 z-50 w-64 bg-[var(--admin-sidebar)] border-r border-[var(--admin-border)] transform transition-transform duration-200 ease-in-out md:translate-x-0 flex flex-col',
             sidebarOpen ? 'translate-x-0' : '-translate-x-full'
           )}
         >
@@ -250,7 +250,7 @@ function AdminLayoutInner({ children, unreadMessages = 0 }: AdminLayoutProps) {
           </div>
 
           {/* Navigation - Using INLINE STYLES for text colors */}
-          <nav className="flex-1 p-3 pt-8 space-y-6 overflow-y-auto">
+          <nav className="flex-1 p-3 pt-4 space-y-6 overflow-y-auto">
             {navSections.map((section, sectionIndex) => (
               <div key={sectionIndex}>
                 {section.separator && (
@@ -369,8 +369,8 @@ function AdminLayoutInner({ children, unreadMessages = 0 }: AdminLayoutProps) {
           )}
         </AnimatePresence>
 
-        {/* Main Content */}
-        <main className="flex-1 min-h-screen">
+        {/* Main Content - Add left margin for fixed sidebar on desktop */}
+        <main className="flex-1 min-h-screen md:ml-64">
           {/* Top Horizontal Bar with Breadcrumbs + Draft Toggle + View Site */}
           <div className="hidden md:flex items-center justify-between bg-[var(--admin-sidebar)] border-b border-[var(--admin-border)]">
             {/* Left: Breadcrumbs */}
