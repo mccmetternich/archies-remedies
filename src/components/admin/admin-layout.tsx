@@ -130,11 +130,10 @@ function AdminLayoutInner({ children, unreadMessages = 0 }: AdminLayoutProps) {
     {
       title: 'Content',
       items: [
-        { href: '/admin/pages', label: 'Pages', icon: FileText },
-        { href: '/admin/products', label: 'Products', icon: Package },
-        { href: '/admin/blog', label: 'Blog', icon: PenSquare },
-        { href: '/admin/widgets', label: 'Widget Library', icon: Layers },
         { href: '/admin/navigation', label: 'Navigation', icon: Navigation },
+        { href: '/admin/products', label: 'Products', icon: Package },
+        { href: '/admin/pages', label: 'Pages', icon: FileText },
+        { href: '/admin/blog', label: 'Blog', icon: PenSquare },
       ],
     },
     {
@@ -143,13 +142,13 @@ function AdminLayoutInner({ children, unreadMessages = 0 }: AdminLayoutProps) {
         { href: '/admin/inbox', label: 'Inbox', icon: Inbox, badge: unreadMessages },
         { href: '/admin/performance', label: 'Performance', icon: Rocket },
         { href: '/admin/contacts', label: 'Contacts', icon: Users },
-        { href: '/admin/popups', label: 'Pop-ups', icon: MousePointerClick },
+        { href: '/admin/settings?tab=popup', label: 'Pop-ups', icon: MousePointerClick },
       ],
     },
     {
-      title: 'Settings',
+      title: 'Widgets',
       items: [
-        { href: '/admin/settings/global', label: 'Global Settings', icon: Globe },
+        { href: '/admin/widgets', label: 'Widget Library', icon: Layers },
       ],
     },
   ];
@@ -251,7 +250,7 @@ function AdminLayoutInner({ children, unreadMessages = 0 }: AdminLayoutProps) {
           </div>
 
           {/* Navigation - Using INLINE STYLES for text colors */}
-          <nav className="flex-1 p-3 space-y-6 overflow-y-auto">
+          <nav className="flex-1 p-3 pt-8 space-y-6 overflow-y-auto">
             {navSections.map((section, sectionIndex) => (
               <div key={sectionIndex}>
                 {section.separator && (
@@ -317,7 +316,33 @@ function AdminLayoutInner({ children, unreadMessages = 0 }: AdminLayoutProps) {
           </nav>
 
           {/* Footer */}
-          <div className="p-3 border-t border-[var(--admin-border)]">
+          <div className="p-3 border-t border-[var(--admin-border)] space-y-1">
+            <Link
+              href="/admin/settings/global"
+              onClick={() => setSidebarOpen(false)}
+              className={cn(
+                'flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm transition-colors',
+                pathname === '/admin/settings/global'
+                  ? 'bg-[var(--primary)] font-medium'
+                  : 'hover:bg-[var(--admin-hover)]'
+              )}
+              style={{
+                color: pathname === '/admin/settings/global' ? 'var(--admin-button-text)' : NAV_COLORS.textSecondary
+              }}
+              onMouseEnter={(e) => {
+                if (pathname !== '/admin/settings/global') {
+                  e.currentTarget.style.color = NAV_COLORS.textPrimary;
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (pathname !== '/admin/settings/global') {
+                  e.currentTarget.style.color = NAV_COLORS.textSecondary;
+                }
+              }}
+            >
+              <Globe className="w-4 h-4" style={{ color: pathname === '/admin/settings/global' ? 'var(--admin-button-text)' : NAV_COLORS.iconColor }} />
+              Global Settings
+            </Link>
             <button
               onClick={handleLogout}
               className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm hover:bg-[var(--admin-hover)] transition-colors"

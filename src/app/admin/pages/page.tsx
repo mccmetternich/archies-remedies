@@ -193,6 +193,16 @@ export default function PagesListPage() {
     }
   };
 
+  const handleDeleteProduct = async (product: Product) => {
+    if (!confirm(`Are you sure you want to delete "${product.name}"?`)) return;
+    try {
+      await fetch(`/api/admin/products/${product.id}`, { method: 'DELETE' });
+      setProducts(products.filter((p) => p.id !== product.id));
+    } catch (error) {
+      console.error('Failed to delete product:', error);
+    }
+  };
+
   const toggleSection = (section: keyof typeof expandedSections) => {
     setExpandedSections((prev) => ({ ...prev, [section]: !prev[section] }));
   };
@@ -201,9 +211,17 @@ export default function PagesListPage() {
   // Homepage gets its own special treatment - always first in main nav
   const homePage = pages.find((p) => p.slug === 'home');
   // Main navigation pages: showInNav=true OR is homepage
-  const mainNavPages = pages.filter((p) => p.showInNav || p.slug === 'home');
-  // Footer/legal pages
-  const footerPages = pages.filter((p) => ['about', 'terms', 'privacy', 'shipping', 'returns', 'contact'].includes(p.slug) && !p.showInNav);
+  const mainNavPages = pages
+    .filter((p) => p.showInNav || p.slug === 'home')
+    .sort((a, b) => {
+      // Home page always first
+      if (a.slug === 'home') return -1;
+      if (b.slug === 'home') return 1;
+      // Then by navOrder
+      return (a.navOrder || 999) - (b.navOrder || 999);
+    });
+  // Footer/legal pages (include FAQ here)
+  const footerPages = pages.filter((p) => ['about', 'terms', 'privacy', 'shipping', 'returns', 'contact', 'faq'].includes(p.slug) && !p.showInNav);
   // Other pages: not in main nav and not in footer
   const otherPages = pages.filter((p) => !mainNavPages.includes(p) && !footerPages.includes(p));
 
@@ -214,6 +232,12 @@ export default function PagesListPage() {
       </div>
     );
   }
+
+  // Helper to get display title
+  const getDisplayTitle = (page: Page) => {
+    if (page.slug === 'home') return 'Home Page';
+    return page.title;
+  };
 
   const PageRow = ({ page, onToggle, onDelete }: { page: Page; onToggle: () => void; onDelete: () => void }) => (
     <Link
@@ -238,7 +262,7 @@ export default function PagesListPage() {
         <div className="min-w-0">
           <div className="flex items-center gap-2">
             <h3 className="font-medium text-[var(--admin-text-primary)] group-hover:text-[var(--primary)] transition-colors truncate">
-              {page.title}
+              {getDisplayTitle(page)}
             </h3>
             {page.slug === 'home' && (
               <span className="px-2 py-0.5 text-xs bg-[var(--primary)]/20 text-[var(--primary)] rounded-full">
@@ -251,42 +275,59 @@ export default function PagesListPage() {
       </div>
 
       <div className="flex items-center gap-4" onClick={(e) => e.preventDefault()}>
-        {/* Status Toggle */}
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            onToggle();
-          }}
-          className={cn(
-            'flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors',
-            page.isActive
-              ? 'bg-green-500/10 text-green-400 hover:bg-green-500/20'
-              : 'bg-gray-500/10 text-[var(--admin-text-secondary)] hover:bg-gray-500/20'
-          )}
-        >
-          {page.isActive ? (
-            <>
-              <Eye className="w-3.5 h-3.5" />
-              Live
-            </>
-          ) : (
-            <>
-              <EyeOff className="w-3.5 h-3.5" />
-              Draft
-            </>
-          )}
-        </button>
+        {/* Draft/Live Toggle Switch */}
+        <div className="flex items-center gap-2">
+          <span className={cn(
+            "text-xs font-medium transition-colors",
+            !page.isActive ? "text-orange-400" : "text-[var(--admin-text-muted)]"
+          )}>
+            Draft
+          </span>
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onToggle();
+            }}
+            className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none"
+            style={{
+              backgroundColor: page.isActive ? '#22c55e' : '#f97316'
+            }}
+          >
+            <span
+              className={cn(
+                "inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow",
+                page.isActive ? "translate-x-6" : "translate-x-1"
+              )}
+            />
+          </button>
+          <span className={cn(
+            "text-xs font-medium transition-colors",
+            page.isActive ? "text-green-400" : "text-[var(--admin-text-muted)]"
+          )}>
+            Live
+          </span>
+        </div>
 
-        {/* Preview */}
+        {/* Preview - Dynamic label */}
         <a
-          href={page.slug === 'home' ? '/' : `/${page.slug}`}
+          href={page.isActive
+            ? (page.slug === 'home' ? '/' : `/${page.slug}`)
+            : (page.slug === 'home' ? '/?preview=true' : `/${page.slug}?preview=true`)
+          }
           target="_blank"
           rel="noopener noreferrer"
           onClick={(e) => e.stopPropagation()}
-          className="p-2 rounded-lg text-[var(--admin-text-muted)] hover:text-[var(--admin-text-secondary)] hover:bg-[var(--admin-input)] transition-colors"
+          className={cn(
+            "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors",
+            page.isActive
+              ? "text-[var(--admin-text-muted)] hover:text-green-400 hover:bg-green-500/10"
+              : "text-[var(--admin-text-muted)] hover:text-orange-400 hover:bg-orange-500/10"
+          )}
+          title={page.isActive ? 'View Live Page' : 'View Draft Page'}
         >
           <ExternalLink className="w-4 h-4" />
+          <span className="hidden sm:inline">{page.isActive ? 'Live' : 'Draft'}</span>
         </a>
 
         {/* Delete */}
@@ -304,7 +345,7 @@ export default function PagesListPage() {
     </Link>
   );
 
-  const ProductRow = ({ product, onToggle }: { product: Product; onToggle: () => void }) => (
+  const ProductRow = ({ product, onToggle, onDelete }: { product: Product; onToggle: () => void; onDelete: () => void }) => (
     <Link
       href={`/admin/products/${product.id}`}
       className="flex items-center justify-between p-4 hover:bg-[var(--primary)]/5 transition-colors group cursor-pointer"
@@ -322,43 +363,72 @@ export default function PagesListPage() {
       </div>
 
       <div className="flex items-center gap-4" onClick={(e) => e.preventDefault()}>
-        {/* Status Toggle */}
+        {/* Draft/Live Toggle Switch */}
+        <div className="flex items-center gap-2">
+          <span className={cn(
+            "text-xs font-medium transition-colors",
+            !product.isActive ? "text-orange-400" : "text-[var(--admin-text-muted)]"
+          )}>
+            Draft
+          </span>
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onToggle();
+            }}
+            className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none"
+            style={{
+              backgroundColor: product.isActive ? '#22c55e' : '#f97316'
+            }}
+          >
+            <span
+              className={cn(
+                "inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow",
+                product.isActive ? "translate-x-6" : "translate-x-1"
+              )}
+            />
+          </button>
+          <span className={cn(
+            "text-xs font-medium transition-colors",
+            product.isActive ? "text-green-400" : "text-[var(--admin-text-muted)]"
+          )}>
+            Live
+          </span>
+        </div>
+
+        {/* Preview - Dynamic label */}
+        <a
+          href={product.isActive
+            ? `/products/${product.slug}`
+            : `/products/${product.slug}?preview=true`
+          }
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={(e) => e.stopPropagation()}
+          className={cn(
+            "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors",
+            product.isActive
+              ? "text-[var(--admin-text-muted)] hover:text-green-400 hover:bg-green-500/10"
+              : "text-[var(--admin-text-muted)] hover:text-orange-400 hover:bg-orange-500/10"
+          )}
+          title={product.isActive ? 'View Live Page' : 'View Draft Page'}
+        >
+          <ExternalLink className="w-4 h-4" />
+          <span className="hidden sm:inline">{product.isActive ? 'Live' : 'Draft'}</span>
+        </a>
+
+        {/* Delete */}
         <button
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            onToggle();
+            onDelete();
           }}
-          className={cn(
-            'flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors',
-            product.isActive
-              ? 'bg-green-500/10 text-green-400 hover:bg-green-500/20'
-              : 'bg-gray-500/10 text-[var(--admin-text-secondary)] hover:bg-gray-500/20'
-          )}
+          className="p-2 rounded-lg text-[var(--admin-text-muted)] hover:text-red-400 hover:bg-red-500/10 transition-colors"
         >
-          {product.isActive ? (
-            <>
-              <Eye className="w-3.5 h-3.5" />
-              Live
-            </>
-          ) : (
-            <>
-              <EyeOff className="w-3.5 h-3.5" />
-              Hidden
-            </>
-          )}
+          <Trash2 className="w-4 h-4" />
         </button>
-
-        {/* Preview */}
-        <a
-          href={`/products/${product.slug}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={(e) => e.stopPropagation()}
-          className="p-2 rounded-lg text-[var(--admin-text-muted)] hover:text-[var(--admin-text-secondary)] hover:bg-[var(--admin-input)] transition-colors"
-        >
-          <ExternalLink className="w-4 h-4" />
-        </a>
       </div>
     </Link>
   );
@@ -528,6 +598,7 @@ export default function PagesListPage() {
                 key={product.id}
                 product={product}
                 onToggle={() => toggleProductStatus(product)}
+                onDelete={() => handleDeleteProduct(product)}
               />
             ))
           ) : (

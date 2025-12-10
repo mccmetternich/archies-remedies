@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-import { Save, Loader2, Upload, Check, Palette, Share2, Bell, Code, X, ExternalLink, Link as LinkIcon, Navigation, Menu, Megaphone, Construction, Eye, Copy } from 'lucide-react';
+import { Save, Loader2, Upload, Check, Palette, Share2, Bell, Code, X, ExternalLink, Link as LinkIcon, Navigation, Menu, Megaphone, Construction, Eye, Copy, Trash2, MousePointerClick } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface SiteSettings {
@@ -41,7 +42,7 @@ const tabs = [
   { id: 'general', label: 'General', icon: Share2 },
   { id: 'appearance', label: 'Appearance', icon: Palette },
   { id: 'navigation', label: 'Navigation', icon: Navigation },
-  { id: 'popup', label: 'Email Popup', icon: Bell },
+  { id: 'popup', label: 'Pop-ups', icon: MousePointerClick },
   { id: 'tracking', label: 'Tracking', icon: Code },
   { id: 'draft', label: 'Draft Mode', icon: Construction },
 ];
@@ -177,16 +178,35 @@ function ImageUpload({ label, value, onChange, placeholder, aspectRatio = '1/1',
   );
 }
 
-export default function SettingsPage() {
+function SettingsPageContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [settings, setSettings] = useState<SiteSettings | null>(null);
   const [originalSettings, setOriginalSettings] = useState<SiteSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
-  const [activeTab, setActiveTab] = useState('general');
+  const [activeTab, setActiveTab] = useState(() => {
+    // Check URL param for initial tab
+    const tabParam = searchParams.get('tab');
+    if (tabParam && tabs.some(t => t.id === tabParam)) {
+      return tabParam;
+    }
+    return 'general';
+  });
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   // Track if there are unsaved changes
   const hasChanges = settings && originalSettings && JSON.stringify(settings) !== JSON.stringify(originalSettings);
+
+  // Update tab when URL changes
+  useEffect(() => {
+    const tabParam = searchParams.get('tab');
+    if (tabParam && tabs.some(t => t.id === tabParam)) {
+      setActiveTab(tabParam);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     fetchSettings();
@@ -252,6 +272,20 @@ export default function SettingsPage() {
     setSettings({ ...settings, [field]: value });
   };
 
+  const handleDeleteSite = async () => {
+    setDeleting(true);
+    try {
+      // For now, just reset settings to defaults or show a message
+      // In a real implementation, this would delete all site data
+      alert('Site deletion not implemented yet. This would delete all site data.');
+      setShowDeleteModal(false);
+    } catch (error) {
+      console.error('Failed to delete site:', error);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -271,39 +305,70 @@ export default function SettingsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-6">
-          <div>
-            <h1 className="text-2xl font-medium text-[var(--admin-text-primary)]">Site Settings</h1>
-            <p className="text-[var(--admin-text-secondary)] mt-1">
-              Manage your site configuration
-            </p>
-          </div>
-          {/* Quick Draft/Live Toggle */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <h1 className="text-2xl font-medium text-[var(--admin-text-primary)]">Site Settings</h1>
+
+          {/* Big Draft/Live Toggle */}
           {settings && (
-            <button
-              onClick={handleQuickToggleDraft}
+            <div className="flex items-center gap-2">
+              <span className={cn(
+                "text-sm font-medium transition-colors",
+                settings.siteInDraftMode ? "text-orange-400" : "text-[var(--admin-text-muted)]"
+              )}>
+                Draft
+              </span>
+              <button
+                onClick={handleQuickToggleDraft}
+                className="relative inline-flex h-8 w-16 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--admin-bg)]"
+                style={{
+                  backgroundColor: settings.siteInDraftMode ? '#f97316' : '#22c55e'
+                }}
+              >
+                <span
+                  className={cn(
+                    "inline-block h-6 w-6 transform rounded-full bg-white transition-transform shadow-lg",
+                    settings.siteInDraftMode ? "translate-x-1" : "translate-x-9"
+                  )}
+                />
+              </button>
+              <span className={cn(
+                "text-sm font-medium transition-colors",
+                !settings.siteInDraftMode ? "text-green-400" : "text-[var(--admin-text-muted)]"
+              )}>
+                Live
+              </span>
+            </div>
+          )}
+
+          {/* View Draft/Live Button */}
+          {settings && (
+            <a
+              href={settings.siteInDraftMode ? '/?preview=true' : '/'}
+              target="_blank"
+              rel="noopener noreferrer"
               className={cn(
-                'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors',
+                'inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors',
                 settings.siteInDraftMode
                   ? 'bg-orange-500/10 text-orange-400 hover:bg-orange-500/20'
                   : 'bg-green-500/10 text-green-400 hover:bg-green-500/20'
               )}
             >
-              {settings.siteInDraftMode ? (
-                <>
-                  <Construction className="w-4 h-4" />
-                  Draft Mode
-                </>
-              ) : (
-                <>
-                  <Eye className="w-4 h-4" />
-                  Live
-                </>
-              )}
-            </button>
+              <ExternalLink className="w-4 h-4" />
+              {settings.siteInDraftMode ? 'View Draft' : 'View Live Site'}
+            </a>
           )}
+
+          {/* Delete Site Button */}
+          <button
+            onClick={() => setShowDeleteModal(true)}
+            className="p-2 rounded-lg text-red-400 hover:bg-red-500/10 transition-colors"
+            title="Delete Site"
+          >
+            <Trash2 className="w-5 h-5" />
+          </button>
         </div>
+
         {hasChanges && (
           <button
             onClick={handleSave}
@@ -335,6 +400,41 @@ export default function SettingsPage() {
           </button>
         )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/50" onClick={() => setShowDeleteModal(false)} />
+          <div className="relative bg-[var(--admin-card)] rounded-xl p-6 w-full max-w-md mx-4 shadow-xl border border-[var(--admin-border)]">
+            <h3 className="text-lg font-medium text-[var(--admin-text-primary)] mb-2">Delete Site?</h3>
+            <p className="text-[var(--admin-text-secondary)] mb-6">
+              Are you sure you want to delete this site? This action cannot be undone and will permanently delete all pages, products, and settings.
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="px-4 py-2 rounded-lg bg-[var(--admin-input)] text-[var(--admin-text-secondary)] hover:bg-[var(--admin-hover)] transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteSite}
+                disabled={deleting}
+                className="px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors disabled:opacity-50"
+              >
+                {deleting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin inline mr-2" />
+                    Deleting...
+                  </>
+                ) : (
+                  'Yes, Delete Site'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Tabs */}
       <div className="flex gap-2 border-b border-[var(--admin-border)] overflow-x-auto">
@@ -763,6 +863,18 @@ export default function SettingsPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function SettingsPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="w-8 h-8 animate-spin text-[var(--admin-text-muted)]" />
+      </div>
+    }>
+      <SettingsPageContent />
+    </Suspense>
   );
 }
 
