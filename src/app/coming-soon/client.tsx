@@ -139,81 +139,83 @@ export function ComingSoonClient({
         </motion.div>
 
         {/* Main content - switches between default and success state */}
-        <AnimatePresence mode="wait">
-          {status === 'success' ? (
-            <motion.div
-              key="success"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.6 }}
-              className="text-center"
-            >
-              {/* Title with checkmark inline */}
-              <div className="flex items-center justify-center gap-4 mb-6">
-                <h1 className="text-5xl md:text-6xl font-normal tracking-tight">
-                  You're In
-                </h1>
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ type: "spring", stiffness: 200, delay: 0.1 }}
-                  className="w-14 h-14 bg-[#bbdae9] rounded-full flex items-center justify-center flex-shrink-0"
-                >
-                  <motion.svg
-                    initial={{ pathLength: 0 }}
-                    animate={{ pathLength: 1 }}
-                    transition={{ duration: 0.5, delay: 0.3 }}
-                    className="w-7 h-7 text-[#1a1a1a]"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="3"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
+        {/* Fixed height container to prevent layout shift during transitions */}
+        <div className="min-h-[320px] flex flex-col justify-center">
+          <AnimatePresence mode="wait">
+            {status === 'success' ? (
+              <motion.div
+                key="success"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.4 }}
+                className="text-center"
+              >
+                {/* Title with checkmark inline - checkmark BEFORE text */}
+                <div className="flex items-center justify-center gap-4 mb-6">
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring", stiffness: 200, delay: 0.1 }}
+                    className="w-14 h-14 bg-[#bbdae9] rounded-full flex items-center justify-center flex-shrink-0"
                   >
-                    <motion.path d="M5 13l4 4L19 7" />
-                  </motion.svg>
-                </motion.div>
-              </div>
-              <p className="text-xl text-gray-600 mb-12 max-w-md mx-auto leading-relaxed">
-                We'll let you know when we launch. Follow us for updates.
-              </p>
+                    <motion.svg
+                      initial={{ pathLength: 0 }}
+                      animate={{ pathLength: 1 }}
+                      transition={{ duration: 0.5, delay: 0.3 }}
+                      className="w-7 h-7 text-[#1a1a1a]"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <motion.path d="M5 13l4 4L19 7" />
+                    </motion.svg>
+                  </motion.div>
+                  <h1 className="text-5xl md:text-6xl font-normal tracking-tight">
+                    You're In
+                  </h1>
+                </div>
+                <p className="text-xl text-gray-600 mb-12 max-w-md mx-auto leading-relaxed">
+                  We'll let you know when we launch. Follow us for updates.
+                </p>
 
-              {/* Social links */}
-              <div className="flex items-center justify-center gap-4">
-                {instagramUrl && (
-                  <a
-                    href={instagramUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-14 h-14 rounded-full bg-[#bbdae9] flex items-center justify-center text-[#1a1a1a] hover:bg-[#a8d0e0] transition-all"
-                  >
-                    <Instagram className="w-6 h-6" />
-                  </a>
-                )}
-                {facebookUrl && (
-                  <a
-                    href={facebookUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-14 h-14 rounded-full bg-white border border-[#e5e5e5] flex items-center justify-center text-gray-600 hover:text-[#1a1a1a] hover:border-[#bbdae9] transition-all"
-                  >
-                    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                    </svg>
-                  </a>
-                )}
-              </div>
-            </motion.div>
-          ) : (
-            <motion.div
-              key="default"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.6 }}
-            >
+                {/* Social links */}
+                <div className="flex items-center justify-center gap-4">
+                  {instagramUrl && (
+                    <a
+                      href={instagramUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-14 h-14 rounded-full bg-[#bbdae9] flex items-center justify-center text-[#1a1a1a] hover:bg-[#a8d0e0] transition-all"
+                    >
+                      <Instagram className="w-6 h-6" />
+                    </a>
+                  )}
+                  {facebookUrl && (
+                    <a
+                      href={facebookUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-14 h-14 rounded-full bg-white border border-[#e5e5e5] flex items-center justify-center text-gray-600 hover:text-[#1a1a1a] hover:border-[#bbdae9] transition-all"
+                    >
+                      <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                      </svg>
+                    </a>
+                  )}
+                </div>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="default"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.4 }}
+              >
               <h1 className="text-5xl md:text-6xl font-normal tracking-tight mb-6">
                 {title}
               </h1>
@@ -283,7 +285,7 @@ export function ComingSoonClient({
                     type={contactType === 'email' ? 'email' : 'tel'}
                     value={contactValue}
                     onChange={(e) => setContactValue(e.target.value)}
-                    placeholder={contactType === 'email' ? 'Enter your email' : 'Enter your phone number'}
+                    placeholder={contactType === 'email' ? 'Enter your email' : 'Enter Phone #'}
                     required
                     className="w-full pl-16 pr-36 py-5 text-lg rounded-full border border-gray-200 bg-white shadow-sm transition-all outline-none focus:outline-none focus:border-[#bbdae9] focus:ring-0 focus:shadow-none"
                     style={{ outline: 'none', boxShadow: 'none' }}
@@ -372,6 +374,7 @@ export function ComingSoonClient({
             </motion.div>
           )}
         </AnimatePresence>
+        </div>
       </motion.div>
 
       {/* Click outside to close dropdown */}
