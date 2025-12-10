@@ -342,18 +342,22 @@ export function ComingSoonClient({
                   </div>
                 ) : (
                   <motion.div
-                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#bbdae9]/30 border border-[#bbdae9]/40 rounded-full mx-auto shadow-[0_0_15px_rgba(187,218,233,0.3)]"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#bbdae9]/40 border border-[#bbdae9]/50 rounded-full mx-auto"
                     animate={{
                       boxShadow: [
-                        '0 0 15px rgba(187,218,233,0.3)',
-                        '0 0 25px rgba(187,218,233,0.5)',
-                        '0 0 15px rgba(187,218,233,0.3)',
+                        '0 0 20px rgba(187,218,233,0.4)',
+                        '0 0 35px rgba(187,218,233,0.7)',
+                        '0 0 20px rgba(187,218,233,0.4)',
                       ],
+                      opacity: [0.85, 1, 0.85],
                     }}
                     transition={{
-                      duration: 3,
+                      duration: 2.5,
                       repeat: Infinity,
                       ease: 'easeInOut',
+                    }}
+                    style={{
+                      boxShadow: '0 0 20px rgba(187,218,233,0.4)',
                     }}
                   >
                     <span className="text-base">✨</span>
