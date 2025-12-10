@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Star, ChevronDown, ArrowRight, Mail, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { trackClick } from '@/lib/tracking';
 
 interface ProductVariant {
   id: string;
@@ -16,6 +17,7 @@ interface ProductVariant {
 
 interface Product {
   id: string;
+  slug: string;
   name: string;
   subtitle: string | null;
   shortDescription: string | null;
@@ -201,6 +203,19 @@ export function PDPBuyBox({
         href={amazonUrl}
         target="_blank"
         rel="noopener noreferrer"
+        onClick={(e) => {
+          e.preventDefault();
+          // Track the click
+          trackClick({
+            destinationUrl: amazonUrl,
+            productId: product.id,
+            productSlug: product.slug,
+          });
+          // Open in new tab after small delay to ensure tracking
+          setTimeout(() => {
+            window.open(amazonUrl, '_blank', 'noopener,noreferrer');
+          }, 100);
+        }}
         className="group flex items-center justify-center gap-3 w-full py-4 bg-[var(--primary)] text-[var(--foreground)] rounded-full font-medium hover:translate-y-[-2px] hover:shadow-lg transition-all duration-300"
       >
         Buy Now on Amazon

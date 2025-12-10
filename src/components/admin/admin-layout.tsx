@@ -23,7 +23,6 @@ import {
   Rocket,
   PenSquare,
   MousePointerClick,
-  BarChart3,
   Users,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -125,7 +124,7 @@ function AdminLayoutInner({ children, unreadMessages = 0 }: AdminLayoutProps) {
     {
       items: [
         { href: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
-        { href: '/admin/performance', label: 'Performance', icon: Rocket },
+        { href: '/admin/settings', label: 'Site Settings', icon: Settings },
       ],
     },
     {
@@ -141,16 +140,15 @@ function AdminLayoutInner({ children, unreadMessages = 0 }: AdminLayoutProps) {
     {
       title: 'Marketing',
       items: [
+        { href: '/admin/inbox', label: 'Inbox', icon: Inbox, badge: unreadMessages },
+        { href: '/admin/performance', label: 'Performance', icon: Rocket },
         { href: '/admin/contacts', label: 'Contacts', icon: Users },
         { href: '/admin/popups', label: 'Pop-ups', icon: MousePointerClick },
-        { href: '/admin/tracking', label: 'Tracking', icon: BarChart3 },
-        { href: '/admin/inbox', label: 'Inbox', icon: Inbox, badge: unreadMessages },
       ],
     },
     {
       title: 'Settings',
       items: [
-        { href: '/admin/settings', label: 'Site Settings', icon: Settings },
         { href: '/admin/settings/global', label: 'Global Settings', icon: Globe },
       ],
     },
@@ -387,13 +385,13 @@ function AdminLayoutInner({ children, unreadMessages = 0 }: AdminLayoutProps) {
                 </Link>
               )}
 
-              {/* Draft Mode Toggle Switch */}
+              {/* Draft Mode Toggle Switch - LEFT=Draft, RIGHT=Live */}
               <div className="flex items-center gap-3">
                 <span
-                  className="text-sm font-medium"
-                  style={{ color: isInDraftMode ? '#f97316' : '#22c55e' }}
+                  className="text-xs font-medium"
+                  style={{ color: isInDraftMode ? '#f97316' : '#71717a' }}
                 >
-                  {isInDraftMode ? 'Draft Mode' : 'Live'}
+                  Draft
                 </span>
                 <button
                   onClick={handleToggleDraftMode}
@@ -410,10 +408,16 @@ function AdminLayoutInner({ children, unreadMessages = 0 }: AdminLayoutProps) {
                   <span
                     className={cn(
                       'absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200',
-                      isInDraftMode ? 'translate-x-6' : 'translate-x-0'
+                      isInDraftMode ? 'translate-x-0' : 'translate-x-6'
                     )}
                   />
                 </button>
+                <span
+                  className="text-xs font-medium"
+                  style={{ color: isInDraftMode ? '#71717a' : '#22c55e' }}
+                >
+                  Live
+                </span>
               </div>
 
               {/* View Site Button */}

@@ -10,6 +10,7 @@ import {
   pageViews,
   clickTracking,
   videoTestimonials,
+  siteSettings,
 } from '@/lib/db/schema';
 import { eq, desc, sql, gte } from 'drizzle-orm';
 import Link from 'next/link';
@@ -29,6 +30,7 @@ import {
   Clock,
   FileText,
   Package,
+  Settings,
 } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
@@ -55,6 +57,7 @@ async function getDashboardData() {
     uniqueClicks,
     recentPages,
     recentProducts,
+    settings,
   ] = await Promise.all([
     db.select({ count: sql<number>`count(*)` }).from(products),
     db.select({ count: sql<number>`count(*)` }).from(heroSlides).where(eq(heroSlides.isActive, true)),
@@ -72,6 +75,7 @@ async function getDashboardData() {
     db.select({ count: sql<number>`count(distinct ${clickTracking.visitorId})` }).from(clickTracking).where(gte(clickTracking.createdAt, thirtyDaysAgo.toISOString())),
     db.select({ id: pages.id, title: pages.title, slug: pages.slug, updatedAt: pages.updatedAt }).from(pages).orderBy(desc(pages.updatedAt)).limit(3),
     db.select({ id: products.id, name: products.name, slug: products.slug, updatedAt: products.updatedAt }).from(products).orderBy(desc(products.updatedAt)).limit(2),
+    db.select().from(siteSettings).limit(1),
   ]);
 
   return {
@@ -93,6 +97,7 @@ async function getDashboardData() {
     recentContacts,
     recentPages,
     recentProducts,
+    siteSettings: settings[0] || null,
   };
 }
 
@@ -203,37 +208,102 @@ export default async function AdminDashboard() {
         ))}
       </div>
 
-      {/* Widget Library - Full Width */}
-      <Link
-        href="/admin/widgets"
-        className="block bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] hover:border-[var(--primary)] transition-all group"
-      >
-        <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-[var(--admin-border-light)] flex items-center justify-between">
-          <h2 className="font-medium text-[var(--admin-text-primary)] flex items-center gap-2 text-sm sm:text-base">
-            <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-[var(--primary)] flex items-center justify-center">
-              <Layers className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[var(--admin-button-text)]" />
-            </div>
-            Widget Library
-          </h2>
-          <span className="text-xs sm:text-sm text-[var(--primary)] group-hover:underline flex items-center gap-1">
-            <span className="hidden sm:inline">Manage Widgets</span> <ArrowRight className="w-3 h-3" />
-          </span>
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 p-3 sm:p-6">
-          {widgetItems.map((widget) => (
-            <div
-              key={widget.label}
-              className="flex flex-col items-center p-3 sm:p-4 rounded-xl bg-[var(--admin-input)] border border-[var(--admin-border-light)] group-hover:border-[var(--primary)]/30 transition-all"
-            >
-              <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-full bg-[var(--primary)] flex items-center justify-center mb-2 sm:mb-3">
-                <widget.icon className="w-4 h-4 sm:w-6 sm:h-6 text-[var(--admin-button-text)]" />
+      {/* Site Overview + Widget Library Grid */}
+      <div className="grid lg:grid-cols-2 gap-4 sm:gap-6">
+        {/* Site Overview Tile */}
+        <Link
+          href="/admin/settings"
+          className="block bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] hover:border-[var(--primary)] transition-all group"
+        >
+          <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-[var(--admin-border-light)] flex items-center justify-between">
+            <h2 className="font-medium text-[var(--admin-text-primary)] flex items-center gap-2 text-sm sm:text-base">
+              <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-[var(--primary)] flex items-center justify-center">
+                <Settings className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[var(--admin-button-text)]" />
               </div>
-              <p className="text-lg sm:text-2xl font-semibold text-[var(--admin-text-primary)]">{widget.value}</p>
-              <p className="text-[10px] sm:text-xs text-[var(--admin-text-secondary)] mt-0.5 sm:mt-1 text-center">{widget.label}</p>
+              Site Overview
+            </h2>
+            <span className="text-xs sm:text-sm text-[var(--primary)] group-hover:underline flex items-center gap-1">
+              <span className="hidden sm:inline">Site Settings</span> <ArrowRight className="w-3 h-3" />
+            </span>
+          </div>
+          <div className="p-4 sm:p-6 space-y-4">
+            {/* Site Name & Status */}
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-[var(--primary)] flex items-center justify-center text-xl sm:text-2xl font-bold text-[var(--admin-button-text)]">
+                A
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-base sm:text-lg font-semibold text-[var(--admin-text-primary)] truncate">
+                  {data.siteSettings?.siteName || "Archie's Remedies"}
+                </p>
+                <p className="text-xs sm:text-sm text-[var(--admin-text-secondary)] truncate">
+                  {data.siteSettings?.tagline || 'Your tagline here'}
+                </p>
+                <div className="flex items-center gap-2 mt-2">
+                  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
+                    data.siteSettings?.siteInDraftMode
+                      ? 'bg-orange-500/20 text-orange-400'
+                      : 'bg-green-500/20 text-green-400'
+                  }`}>
+                    <span className={`w-1.5 h-1.5 rounded-full ${
+                      data.siteSettings?.siteInDraftMode ? 'bg-orange-400' : 'bg-green-400'
+                    }`} />
+                    {data.siteSettings?.siteInDraftMode ? 'Draft Mode' : 'Live'}
+                  </span>
+                </div>
+              </div>
             </div>
-          ))}
-        </div>
-      </Link>
+
+            {/* Quick Stats */}
+            <div className="grid grid-cols-3 gap-3 pt-2 border-t border-[var(--admin-border-light)]">
+              <div className="text-center">
+                <p className="text-lg sm:text-xl font-semibold text-[var(--admin-text-primary)]">{data.stats.pages}</p>
+                <p className="text-[10px] sm:text-xs text-[var(--admin-text-muted)]">Pages</p>
+              </div>
+              <div className="text-center">
+                <p className="text-lg sm:text-xl font-semibold text-[var(--admin-text-primary)]">{data.stats.products}</p>
+                <p className="text-[10px] sm:text-xs text-[var(--admin-text-muted)]">Products</p>
+              </div>
+              <div className="text-center">
+                <p className="text-lg sm:text-xl font-semibold text-[var(--admin-text-primary)]">{data.stats.totalContacts}</p>
+                <p className="text-[10px] sm:text-xs text-[var(--admin-text-muted)]">Contacts</p>
+              </div>
+            </div>
+          </div>
+        </Link>
+
+        {/* Widget Library */}
+        <Link
+          href="/admin/widgets"
+          className="block bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] hover:border-[var(--primary)] transition-all group"
+        >
+          <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-[var(--admin-border-light)] flex items-center justify-between">
+            <h2 className="font-medium text-[var(--admin-text-primary)] flex items-center gap-2 text-sm sm:text-base">
+              <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-[var(--primary)] flex items-center justify-center">
+                <Layers className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[var(--admin-button-text)]" />
+              </div>
+              Widget Library
+            </h2>
+            <span className="text-xs sm:text-sm text-[var(--primary)] group-hover:underline flex items-center gap-1">
+              <span className="hidden sm:inline">Manage Widgets</span> <ArrowRight className="w-3 h-3" />
+            </span>
+          </div>
+          <div className="grid grid-cols-2 gap-2 sm:gap-4 p-3 sm:p-6">
+            {widgetItems.map((widget) => (
+              <div
+                key={widget.label}
+                className="flex flex-col items-center p-3 sm:p-4 rounded-xl bg-[var(--admin-input)] border border-[var(--admin-border-light)] group-hover:border-[var(--primary)]/30 transition-all"
+              >
+                <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-full bg-[var(--primary)] flex items-center justify-center mb-2 sm:mb-3">
+                  <widget.icon className="w-4 h-4 sm:w-6 sm:h-6 text-[var(--admin-button-text)]" />
+                </div>
+                <p className="text-lg sm:text-2xl font-semibold text-[var(--admin-text-primary)]">{widget.value}</p>
+                <p className="text-[10px] sm:text-xs text-[var(--admin-text-secondary)] mt-0.5 sm:mt-1 text-center">{widget.label}</p>
+              </div>
+            ))}
+          </div>
+        </Link>
+      </div>
 
       {/* Recently Edited */}
       {recentlyEdited.length > 0 && (
