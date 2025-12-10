@@ -4,33 +4,15 @@ import type { NextRequest } from 'next/server';
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Skip static files and API routes
+  // Skip static files
   if (
     pathname.startsWith('/_next') ||
-    pathname.startsWith('/api') ||
-    pathname.includes('.') ||
-    pathname === '/coming-soon'
+    pathname.includes('.')
   ) {
     return NextResponse.next();
   }
 
-  // Check for draft mode on public pages (not admin)
-  if (!pathname.startsWith('/admin')) {
-    const draftModeCookie = request.cookies.get('site_draft_mode');
-    const previewToken = request.cookies.get('preview_token');
-    const adminSession = request.cookies.get('admin_session');
-
-    // If site is in draft mode and user doesn't have preview access
-    if (draftModeCookie?.value === 'true') {
-      // Allow access if they have preview token or admin session
-      if (!previewToken?.value && !adminSession?.value) {
-        // Redirect to coming soon page
-        return NextResponse.redirect(new URL('/coming-soon', request.url));
-      }
-    }
-  }
-
-  // Protect admin routes (except login)
+  // Protect admin routes (except login and auth API)
   if (pathname.startsWith('/admin') && pathname !== '/admin/login') {
     const sessionCookie = request.cookies.get('admin_session');
 
@@ -38,6 +20,27 @@ export function middleware(request: NextRequest) {
       // Redirect to login if no session
       return NextResponse.redirect(new URL('/admin/login', request.url));
     }
+
+    // Note: Full session validation happens in API routes via requireAuth()
+    // Middleware only checks cookie existence for page routes
+    // This is a security trade-off for performance (no DB call in middleware)
+  }
+
+  // Protect admin API routes (except auth endpoints)
+  if (
+    pathname.startsWith('/api/admin') &&
+    !pathname.startsWith('/api/admin/auth')
+  ) {
+    const sessionCookie = request.cookies.get('admin_session');
+
+    if (!sessionCookie?.value) {
+      return NextResponse.json(
+        { error: 'Authentication required' },
+        { status: 401 }
+      );
+    }
+
+    // Full validation happens in the API route handlers via requireAuth()
   }
 
   // Redirect /admin/login to /admin if already logged in

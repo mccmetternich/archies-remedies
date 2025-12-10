@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer, real } from 'drizzle-orm/sqlite-core';
+import { sqliteTable, text, integer, real, index } from 'drizzle-orm/sqlite-core';
 import { sql } from 'drizzle-orm';
 
 // Site Settings - single row for global config
@@ -38,7 +38,25 @@ export const siteSettings = sqliteTable('site_settings', {
   // Contact
   contactEmail: text('contact_email'),
 
-  // Email Popup
+  // Welcome Popup (shows on entry)
+  welcomePopupEnabled: integer('welcome_popup_enabled', { mode: 'boolean' }).default(true),
+  welcomePopupTitle: text('welcome_popup_title').default('Join Our Community'),
+  welcomePopupSubtitle: text('welcome_popup_subtitle'),
+  welcomePopupButtonText: text('welcome_popup_button_text').default('Subscribe'),
+  welcomePopupImageUrl: text('welcome_popup_image_url'),
+  welcomePopupDelay: integer('welcome_popup_delay').default(3), // seconds before showing
+  welcomePopupDismissDays: integer('welcome_popup_dismiss_days').default(7), // days before showing again
+
+  // Exit Intent Popup
+  exitPopupEnabled: integer('exit_popup_enabled', { mode: 'boolean' }).default(false),
+  exitPopupTitle: text('exit_popup_title').default('Wait! Before You Go...'),
+  exitPopupSubtitle: text('exit_popup_subtitle'),
+  exitPopupButtonText: text('exit_popup_button_text').default('Get My Discount'),
+  exitPopupImageUrl: text('exit_popup_image_url'),
+  exitPopupMinTimeOnSite: integer('exit_popup_min_time_on_site').default(10), // seconds before exit popup can trigger
+  exitPopupDismissDays: integer('exit_popup_dismiss_days').default(3), // days before showing again
+
+  // Legacy fields (for backwards compatibility)
   emailPopupEnabled: integer('email_popup_enabled', { mode: 'boolean' }).default(true),
   emailPopupTitle: text('email_popup_title').default('Join Our Community'),
   emailPopupSubtitle: text('email_popup_subtitle'),
@@ -315,6 +333,16 @@ export const adminUsers = sqliteTable('admin_users', {
   createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
 });
 
+// Admin Sessions (for secure session management)
+export const adminSessions = sqliteTable('admin_sessions', {
+  id: text('id').primaryKey(),
+  userId: text('user_id').notNull().references(() => adminUsers.id, { onDelete: 'cascade' }),
+  token: text('token').notNull().unique(),
+  expiresAt: text('expires_at').notNull(),
+
+  createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
+});
+
 // Navigation Items
 export const navigationItems = sqliteTable('navigation_items', {
   id: text('id').primaryKey(),
@@ -398,3 +426,222 @@ export const productCertifications = sqliteTable('product_certifications', {
 
   createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
 });
+
+// Blog Posts
+export const blogPosts = sqliteTable('blog_posts', {
+  id: text('id').primaryKey(),
+  slug: text('slug').notNull().unique(),
+  title: text('title').notNull(),
+  excerpt: text('excerpt'), // Short preview text
+  content: text('content'), // Rich text content
+  featuredImageUrl: text('featured_image_url'),
+  authorName: text('author_name').default('Archie\'s Remedies'),
+  authorAvatarUrl: text('author_avatar_url'),
+
+  // Status
+  status: text('status').default('draft'), // draft, published, scheduled
+  publishedAt: text('published_at'),
+  scheduledAt: text('scheduled_at'),
+
+  // Feature flags
+  isFeatured: integer('is_featured', { mode: 'boolean' }).default(false), // Featured = full-width hero
+
+  // SEO
+  metaTitle: text('meta_title'),
+  metaDescription: text('meta_description'),
+
+  // Reading time estimate (in minutes)
+  readingTime: integer('reading_time').default(5),
+
+  createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: text('updated_at').default(sql`CURRENT_TIMESTAMP`),
+});
+
+// Blog Tags
+export const blogTags = sqliteTable('blog_tags', {
+  id: text('id').primaryKey(),
+  name: text('name').notNull().unique(),
+  slug: text('slug').notNull().unique(),
+  description: text('description'),
+  color: text('color').default('#bbdae9'), // Tag color for styling
+
+  createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
+});
+
+// Blog Post Tags (many-to-many)
+export const blogPostTags = sqliteTable('blog_post_tags', {
+  id: text('id').primaryKey(),
+  postId: text('post_id').notNull().references(() => blogPosts.id, { onDelete: 'cascade' }),
+  tagId: text('tag_id').notNull().references(() => blogTags.id, { onDelete: 'cascade' }),
+
+  createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
+});
+
+// Media Library
+export const mediaFiles = sqliteTable('media_files', {
+  id: text('id').primaryKey(),
+  filename: text('filename').notNull(), // Original filename
+  url: text('url').notNull(), // Full URL to the file
+  thumbnailUrl: text('thumbnail_url'), // Optional thumbnail for images
+  mimeType: text('mime_type'), // image/jpeg, image/png, etc.
+  fileSize: integer('file_size'), // Size in bytes
+  width: integer('width'), // Image width in pixels
+  height: integer('height'), // Image height in pixels
+  altText: text('alt_text'), // Alt text for accessibility
+  folder: text('folder').default('general'), // Folder/category: general, products, blog, etc.
+  tags: text('tags'), // JSON array of tags for searching
+
+  createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: text('updated_at').default(sql`CURRENT_TIMESTAMP`),
+});
+
+// Custom Popups - page-specific with advanced features
+export const customPopups = sqliteTable('custom_popups', {
+  id: text('id').primaryKey(),
+  name: text('name').notNull(), // Internal name for admin
+  title: text('title'), // Popup headline
+  body: text('body'), // Rich text body content
+
+  // Media
+  videoUrl: text('video_url'), // YouTube/Vimeo embed URL
+  videoThumbnailUrl: text('video_thumbnail_url'), // Thumbnail for video
+  imageUrl: text('image_url'), // Alternative to video
+
+  // CTA Configuration
+  ctaType: text('cta_type').default('email'), // 'email' | 'sms' | 'download' | 'none'
+  ctaButtonText: text('cta_button_text').default('Subscribe'),
+  downloadFileUrl: text('download_file_url'), // PDF/file URL for download CTA
+  downloadFileName: text('download_file_name'), // Display name for download
+
+  // Targeting
+  targetType: text('target_type').default('all'), // 'all' | 'specific' | 'product'
+  targetPages: text('target_pages'), // JSON array of page slugs
+  targetProductIds: text('target_product_ids'), // JSON array of product IDs
+
+  // Trigger Configuration
+  triggerType: text('trigger_type').default('timer'), // 'timer' | 'exit' | 'scroll'
+  triggerDelay: integer('trigger_delay').default(5), // Seconds for timer trigger
+  triggerScrollPercent: integer('trigger_scroll_percent').default(50), // % for scroll trigger
+  dismissDays: integer('dismiss_days').default(7), // Days before showing again after dismiss
+
+  // Status
+  status: text('status').default('draft'), // 'draft' | 'live'
+  priority: integer('priority').default(0), // Higher = shows first if multiple match
+
+  // Analytics
+  viewCount: integer('view_count').default(0),
+  conversionCount: integer('conversion_count').default(0),
+
+  createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: text('updated_at').default(sql`CURRENT_TIMESTAMP`),
+});
+
+// Unified Contacts (replaces emailSubscribers)
+export const contacts = sqliteTable('contacts', {
+  id: text('id').primaryKey(),
+  email: text('email').unique(), // Can be null if SMS-only
+  phone: text('phone'), // E.164 format for SMS
+
+  // Profile
+  firstName: text('first_name'),
+  lastName: text('last_name'),
+
+  // Address
+  address: text('address'),
+  city: text('city'),
+  state: text('state'),
+  zipCode: text('zip_code'),
+  country: text('country'),
+
+  // Notes
+  notes: text('notes'), // Editable notes by admin
+
+  // Source Tracking
+  source: text('source'), // 'welcome_popup' | 'exit_popup' | 'custom_popup' | 'footer' | 'product_page'
+  sourcePopupId: text('source_popup_id').references(() => customPopups.id),
+  visitorId: text('visitor_id'), // Link to anonymous visitor
+
+  // Status
+  emailStatus: text('email_status').default('active'), // 'active' | 'inactive' | 'bounced'
+  smsStatus: text('sms_status').default('none'), // 'active' | 'inactive' | 'none'
+
+  // Consent timestamps
+  emailConsentAt: text('email_consent_at'),
+  smsConsentAt: text('sms_consent_at'),
+
+  createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: text('updated_at').default(sql`CURRENT_TIMESTAMP`),
+});
+
+// Contact Activity Tracking
+export const contactActivity = sqliteTable('contact_activity', {
+  id: text('id').primaryKey(),
+  contactId: text('contact_id').references(() => contacts.id, { onDelete: 'cascade' }),
+
+  // Activity Type
+  activityType: text('activity_type').notNull(), // 'popup_view' | 'popup_submit' | 'product_cta_click' | 'page_view' | 'email_open' | 'sms_click'
+
+  // Activity Context
+  activityData: text('activity_data'), // JSON with additional context
+  popupId: text('popup_id').references(() => customPopups.id),
+  productId: text('product_id').references(() => products.id),
+  pageSlug: text('page_slug'),
+
+  // Visitor Info (for linking before contact created)
+  visitorId: text('visitor_id'),
+  sessionId: text('session_id'),
+
+  createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
+});
+
+// ============================================
+// DATABASE INDEXES FOR PERFORMANCE
+// ============================================
+
+// Product indexes - for slug lookups and listing queries
+export const productsSlugIdx = index('idx_products_slug').on(products.slug);
+export const productsActiveIdx = index('idx_products_active').on(products.isActive);
+
+// Blog post indexes - for slug lookups and status filtering
+export const blogPostsSlugIdx = index('idx_blog_posts_slug').on(blogPosts.slug);
+export const blogPostsStatusIdx = index('idx_blog_posts_status').on(blogPosts.status);
+export const blogPostsPublishedAtIdx = index('idx_blog_posts_published_at').on(blogPosts.publishedAt);
+
+// Blog post tags - for many-to-many joins
+export const blogPostTagsPostIdIdx = index('idx_blog_post_tags_post_id').on(blogPostTags.postId);
+export const blogPostTagsTagIdIdx = index('idx_blog_post_tags_tag_id').on(blogPostTags.tagId);
+
+// Contact indexes - for email lookups and filtering
+export const contactsEmailIdx = index('idx_contacts_email').on(contacts.email);
+export const contactsEmailStatusIdx = index('idx_contacts_email_status').on(contacts.emailStatus);
+export const contactsCreatedAtIdx = index('idx_contacts_created_at').on(contacts.createdAt);
+
+// Contact activity - for lookup by contact and type
+export const contactActivityContactIdIdx = index('idx_contact_activity_contact_id').on(contactActivity.contactId);
+export const contactActivityTypeIdx = index('idx_contact_activity_type').on(contactActivity.activityType);
+
+// Page views - for analytics queries
+export const pageViewsVisitorIdIdx = index('idx_page_views_visitor_id').on(pageViews.visitorId);
+export const pageViewsCreatedAtIdx = index('idx_page_views_created_at').on(pageViews.createdAt);
+export const pageViewsPathIdx = index('idx_page_views_path').on(pageViews.path);
+
+// Click tracking - for analytics
+export const clickTrackingProductIdIdx = index('idx_click_tracking_product_id').on(clickTracking.productId);
+export const clickTrackingCreatedAtIdx = index('idx_click_tracking_created_at').on(clickTracking.createdAt);
+
+// Admin sessions - for token lookups
+export const adminSessionsTokenIdx = index('idx_admin_sessions_token').on(adminSessions.token);
+export const adminSessionsUserIdIdx = index('idx_admin_sessions_user_id').on(adminSessions.userId);
+
+// Pages - for slug lookups
+export const pagesSlugIdx = index('idx_pages_slug').on(pages.slug);
+
+// Media files - for folder filtering
+export const mediaFilesFolderIdx = index('idx_media_files_folder').on(mediaFiles.folder);
+
+// Testimonials - for active filtering
+export const testimonialsActiveIdx = index('idx_testimonials_active').on(testimonials.isActive);
+
+// Reviews - for product-specific queries
+export const reviewsProductIdIdx = index('idx_reviews_product_id').on(reviews.productId);
+export const reviewsActiveIdx = index('idx_reviews_active').on(reviews.isActive);

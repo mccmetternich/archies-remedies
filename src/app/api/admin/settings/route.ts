@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 import { db } from '@/lib/db';
 import { siteSettings } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
@@ -35,7 +34,6 @@ export async function GET() {
 export async function PUT(request: Request) {
   try {
     const data = await request.json();
-    const cookieStore = await cookies();
 
     await db
       .update(siteSettings)
@@ -45,21 +43,8 @@ export async function PUT(request: Request) {
       })
       .where(eq(siteSettings.id, data.id || 'default'));
 
-    // Set or clear the draft mode cookie based on the setting
-    // This cookie is read by middleware to enforce draft mode
-    if (data.siteInDraftMode !== undefined) {
-      if (data.siteInDraftMode) {
-        cookieStore.set('site_draft_mode', 'true', {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === 'production',
-          sameSite: 'lax',
-          path: '/',
-          maxAge: 60 * 60 * 24 * 365, // 1 year
-        });
-      } else {
-        cookieStore.delete('site_draft_mode');
-      }
-    }
+    // Draft mode is now checked directly from the database
+    // No need for cookies anymore
 
     return NextResponse.json({ success: true });
   } catch (error) {

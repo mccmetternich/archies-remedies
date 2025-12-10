@@ -186,7 +186,7 @@ export default function HeroSlidesPage() {
                 <div className="flex items-center gap-2">
                   <h3 className="font-medium">{slide.title || 'Untitled'}</h3>
                   {!slide.isActive && (
-                    <span className="px-2 py-0.5 text-xs bg-gray-100 text-gray-600 rounded-full">
+                    <span className="px-2 py-0.5 text-xs bg-gray-100 text-[var(--admin-text-muted)] rounded-full">
                       Hidden
                     </span>
                   )}

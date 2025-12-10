@@ -1,0 +1,235 @@
+/*
+ * Admin Theme CSS Variables
+ *
+ * This file controls all admin panel styling colors.
+ * To update the admin theme, modify these variables and they will apply everywhere.
+ *
+ * Usage in components:
+ * - Background: bg-[var(--admin-bg)] or className styles using var(--admin-bg)
+ * - Cards: bg-[var(--admin-card)]
+ * - Inputs: bg-[var(--admin-input)]
+ * - Borders: border-[var(--admin-border)]
+ * - Text: text-[var(--admin-text-primary)], text-[var(--admin-text-secondary)], text-[var(--admin-text-muted)]
+ */
+
+.admin-theme {
+  /* ========================================
+   * BACKGROUND COLORS
+   * ======================================== */
+
+  /* Main page background - lightened for better visibility */
+  --admin-bg: #1a1a1a;
+
+  /* Sidebar and header background */
+  --admin-sidebar: #212121;
+
+  /* Card/panel backgrounds - more visible against main bg */
+  --admin-card: #262626;
+
+  /* Input fields, hover states, nested elements */
+  --admin-input: #2d2d2d;
+
+  /* Hover states for interactive elements */
+  --admin-hover: #363636;
+
+  /* ========================================
+   * BORDER COLORS
+   * ======================================== */
+
+  /* Primary border color - more visible */
+  --admin-border: #3a3a3a;
+
+  /* Lighter border for cards and sections */
+  --admin-border-light: #404040;
+
+  /* Subtle dividers */
+  --admin-divider: #4a4a4a;
+
+  /* ========================================
+   * TEXT COLORS
+   * ======================================== */
+
+  /* Primary text - white */
+  --admin-text-primary: #ffffff;
+
+  /* Secondary text - light gray */
+  --admin-text-secondary: #9ca3af;
+
+  /* Muted text - darker gray */
+  --admin-text-muted: #71717a;
+
+  /* Placeholder text */
+  --admin-text-placeholder: #6b7280;
+
+  /* ========================================
+   * INTERACTIVE COLORS
+   * ======================================== */
+
+  /* Button text on primary background */
+  --admin-button-text: #121212;
+
+  /* Focus ring color */
+  --admin-focus-ring: var(--primary);
+
+  /* ========================================
+   * STATUS COLORS
+   * ======================================== */
+
+  /* Success states */
+  --admin-success: #22c55e;
+  --admin-success-bg: rgba(34, 197, 94, 0.1);
+  --admin-success-border: rgba(34, 197, 94, 0.2);
+
+  /* Warning states */
+  --admin-warning: #f97316;
+  --admin-warning-bg: rgba(249, 115, 22, 0.1);
+  --admin-warning-border: rgba(249, 115, 22, 0.2);
+
+  /* Error states */
+  --admin-error: #ef4444;
+  --admin-error-bg: rgba(239, 68, 68, 0.1);
+  --admin-error-border: rgba(239, 68, 68, 0.2);
+
+  /* Info states */
+  --admin-info: #3b82f6;
+  --admin-info-bg: rgba(59, 130, 246, 0.1);
+  --admin-info-border: rgba(59, 130, 246, 0.2);
+}
+
+/* ========================================
+ * COMPONENT-SPECIFIC STYLES
+ * ======================================== */
+
+/* Admin cards */
+.admin-card {
+  background-color: var(--admin-card);
+  border: 1px solid var(--admin-border-light);
+  border-radius: 0.75rem;
+}
+
+/* Admin inputs */
+.admin-input {
+  background-color: var(--admin-input);
+  border: 1px solid var(--admin-border-light);
+  border-radius: 0.75rem;
+  color: var(--admin-text-primary);
+  transition: border-color 0.15s ease;
+}
+
+.admin-input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.admin-input::placeholder {
+  color: var(--admin-text-placeholder);
+}
+
+/* Admin buttons */
+.admin-btn-primary {
+  background-color: var(--primary);
+  color: var(--admin-button-text);
+  font-weight: 500;
+  border-radius: 0.5rem;
+  transition: all 0.15s ease;
+}
+
+.admin-btn-primary:hover {
+  background-color: var(--primary-dark);
+}
+
+.admin-btn-secondary {
+  background-color: var(--admin-input);
+  border: 1px solid var(--admin-border-light);
+  color: var(--admin-text-primary);
+  font-weight: 500;
+  border-radius: 0.5rem;
+  transition: all 0.15s ease;
+}
+
+.admin-btn-secondary:hover {
+  background-color: var(--admin-hover);
+}
+
+/* Admin table rows */
+.admin-table-row {
+  border-bottom: 1px solid var(--admin-border);
+  transition: background-color 0.15s ease;
+}
+
+.admin-table-row:hover {
+  background-color: var(--admin-hover);
+}
+
+/* Admin sidebar nav items */
+.admin-nav-item {
+  color: var(--admin-text-secondary);
+  transition: all 0.15s ease;
+}
+
+.admin-nav-item:hover {
+  background-color: var(--admin-hover);
+  color: var(--admin-text-primary);
+}
+
+.admin-nav-item.active {
+  background-color: var(--primary);
+  color: var(--admin-button-text);
+  font-weight: 500;
+}
+
+/* Status badges */
+.admin-badge-success {
+  background-color: var(--admin-success-bg);
+  color: var(--admin-success);
+  border: 1px solid var(--admin-success-border);
+}
+
+.admin-badge-warning {
+  background-color: var(--admin-warning-bg);
+  color: var(--admin-warning);
+  border: 1px solid var(--admin-warning-border);
+}
+
+.admin-badge-error {
+  background-color: var(--admin-error-bg);
+  color: var(--admin-error);
+  border: 1px solid var(--admin-error-border);
+}
+
+.admin-badge-info {
+  background-color: var(--admin-info-bg);
+  color: var(--admin-info);
+  border: 1px solid var(--admin-info-border);
+}
+
+/* Modal overlay */
+.admin-modal-overlay {
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+}
+
+.admin-modal {
+  background-color: var(--admin-card);
+  border: 1px solid var(--admin-border-light);
+  border-radius: 1rem;
+}
+
+/* Scrollbar styling for admin */
+.admin-theme ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.admin-theme ::-webkit-scrollbar-track {
+  background: var(--admin-bg);
+}
+
+.admin-theme ::-webkit-scrollbar-thumb {
+  background: var(--admin-border);
+  border-radius: 4px;
+}
+
+.admin-theme ::-webkit-scrollbar-thumb:hover {
+  background: var(--admin-divider);
+}

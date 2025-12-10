@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -9,7 +9,6 @@ import {
   Settings,
   FileText,
   Package,
-  Mail,
   Menu,
   X,
   ChevronRight,
@@ -19,8 +18,17 @@ import {
   Bell,
   Construction,
   ExternalLink,
+  Navigation,
+  Layers,
+  Globe,
+  Rocket,
+  PenSquare,
+  MousePointerClick,
+  BarChart3,
+  Users,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { AdminThemeProvider, useAdminTheme } from '@/contexts/AdminThemeContext';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -39,14 +47,15 @@ interface NavItem {
   icon: React.ElementType;
   exact?: boolean;
   badge?: number;
-  children?: NavItem[];
 }
 
-export function AdminLayout({ children, unreadMessages = 0 }: AdminLayoutProps) {
+function AdminLayoutInner({ children, unreadMessages = 0 }: AdminLayoutProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isInDraftMode, setIsInDraftMode] = useState(false);
+  const [previewToken, setPreviewToken] = useState<string | null>(null);
+  const { theme } = useAdminTheme();
 
   // Check draft mode status on mount
   useEffect(() => {
@@ -56,18 +65,38 @@ export function AdminLayout({ children, unreadMessages = 0 }: AdminLayoutProps) 
       .catch(() => {});
   }, []);
 
-  const handlePreviewSite = async () => {
-    if (isInDraftMode) {
-      // Generate preview token first
-      await fetch('/api/admin/preview', { method: 'POST' });
+  // Generate preview token when in draft mode
+  const generatePreviewToken = useCallback(async () => {
+    try {
+      const res = await fetch('/api/admin/preview', { method: 'POST' });
+      const data = await res.json();
+      if (data.token) {
+        setPreviewToken(data.token);
+      }
+    } catch (error) {
+      console.error('Failed to generate preview token:', error);
     }
-    window.open('/', '_blank');
+  }, []);
+
+  useEffect(() => {
+    if (isInDraftMode) {
+      generatePreviewToken();
+    }
+  }, [isInDraftMode, generatePreviewToken]);
+
+  const handleViewSite = () => {
+    if (isInDraftMode && previewToken) {
+      window.open(`/?preview=${previewToken}`, '_blank');
+    } else {
+      window.open('/', '_blank');
+    }
   };
 
   const navSections: NavSection[] = [
     {
       items: [
         { href: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
+        { href: '/admin/performance', label: 'Performance', icon: Rocket },
       ],
     },
     {
@@ -75,19 +104,25 @@ export function AdminLayout({ children, unreadMessages = 0 }: AdminLayoutProps) 
       items: [
         { href: '/admin/pages', label: 'Pages', icon: FileText },
         { href: '/admin/products', label: 'Products', icon: Package },
+        { href: '/admin/blog', label: 'Blog', icon: PenSquare },
+        { href: '/admin/widgets', label: 'Widget Library', icon: Layers },
+        { href: '/admin/navigation', label: 'Navigation', icon: Navigation },
       ],
     },
     {
       title: 'Marketing',
       items: [
-        { href: '/admin/subscribers', label: 'Email Subscribers', icon: Mail },
+        { href: '/admin/contacts', label: 'Contacts', icon: Users },
+        { href: '/admin/popups', label: 'Pop-ups', icon: MousePointerClick },
+        { href: '/admin/tracking', label: 'Tracking', icon: BarChart3 },
         { href: '/admin/inbox', label: 'Inbox', icon: Inbox, badge: unreadMessages },
       ],
     },
     {
-      separator: true,
+      title: 'Settings',
       items: [
         { href: '/admin/settings', label: 'Site Settings', icon: Settings },
+        { href: '/admin/settings/global', label: 'Global Settings', icon: Globe },
       ],
     },
   ];
@@ -117,7 +152,6 @@ export function AdminLayout({ children, unreadMessages = 0 }: AdminLayoutProps) 
     try {
       await fetch('/api/admin/auth/logout', { method: 'POST' });
     } catch {
-      // Clear cookie manually as fallback
       document.cookie = 'admin_session=; path=/admin; expires=Thu, 01 Jan 1970 00:00:00 GMT';
     }
     router.push('/admin/login');
@@ -125,12 +159,12 @@ export function AdminLayout({ children, unreadMessages = 0 }: AdminLayoutProps) 
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] admin-theme">
+    <div className={cn('min-h-screen bg-[var(--admin-bg)] admin-theme', theme === 'light' && 'admin-theme-light')}>
       {/* Mobile Header */}
-      <header className="sticky top-0 z-40 md:hidden bg-[#111111] border-b border-[#1f1f1f]">
+      <header className="sticky top-0 z-40 md:hidden bg-[var(--admin-sidebar)] border-b border-[var(--admin-border)]">
         <div className="flex items-center justify-between px-4 h-16">
           <Link href="/admin" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-[var(--primary)] flex items-center justify-center text-sm font-bold text-[#0a0a0a]">
+            <div className="w-8 h-8 rounded-lg bg-[var(--primary)] flex items-center justify-center text-sm font-bold text-[var(--admin-button-text)]">
               A
             </div>
             <span className="font-medium text-white">Admin</span>
@@ -138,15 +172,15 @@ export function AdminLayout({ children, unreadMessages = 0 }: AdminLayoutProps) 
           <div className="flex items-center gap-2">
             {unreadMessages > 0 && (
               <Link href="/admin/inbox" className="relative p-2">
-                <Bell className="w-5 h-5 text-[#a1a1aa]" />
-                <span className="absolute -top-0.5 -right-0.5 w-5 h-5 text-xs bg-[var(--primary)] text-[#0a0a0a] rounded-full flex items-center justify-center font-medium">
+                <Bell className="w-5 h-5 text-gray-400" />
+                <span className="absolute -top-0.5 -right-0.5 w-5 h-5 text-xs bg-[var(--primary)] text-[var(--admin-button-text)] rounded-full flex items-center justify-center font-medium">
                   {unreadMessages}
                 </span>
               </Link>
             )}
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="p-2 rounded-lg hover:bg-[#1f1f1f] text-[#a1a1aa]"
+              className="p-2 rounded-lg hover:bg-[var(--admin-hover)] text-gray-400"
             >
               {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -158,39 +192,38 @@ export function AdminLayout({ children, unreadMessages = 0 }: AdminLayoutProps) 
         {/* Sidebar */}
         <aside
           className={cn(
-            'fixed inset-y-0 left-0 z-50 w-64 bg-[#111111] border-r border-[#1f1f1f] transform transition-transform duration-200 ease-in-out md:translate-x-0 md:static md:z-auto flex flex-col',
+            'fixed inset-y-0 left-0 z-50 w-64 bg-[var(--admin-sidebar)] border-r border-[var(--admin-border)] transform transition-transform duration-200 ease-in-out md:translate-x-0 md:static md:z-auto flex flex-col',
             sidebarOpen ? 'translate-x-0' : '-translate-x-full'
           )}
         >
-          {/* Logo */}
-          <div className="h-16 flex items-center px-5 border-b border-[#1f1f1f]">
+          {/* Logo + View Site Button Row */}
+          <div className="h-16 flex items-center justify-between px-4 border-b border-[var(--admin-border)]">
             <Link href="/admin" className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-[var(--primary)] flex items-center justify-center text-lg font-bold text-[#0a0a0a]">
+              <div className="w-9 h-9 rounded-xl bg-[var(--primary)] flex items-center justify-center text-lg font-bold text-[var(--admin-button-text)]">
                 A
               </div>
               <div>
                 <span className="font-medium block text-sm text-white">Archie&apos;s Remedies</span>
-                <span className="text-xs text-[#6b6b73]">Admin Panel</span>
+                <span className="text-xs text-gray-500">Admin Panel</span>
               </div>
             </Link>
           </div>
 
-          {/* View Site Link */}
-          <div className="px-3 py-3 border-b border-[#1f1f1f]">
-            {isInDraftMode && (
-              <div className="flex items-center gap-2 px-3 py-2 mb-2 text-xs bg-orange-500/10 text-orange-400 rounded-lg">
-                <Construction className="w-3.5 h-3.5" />
-                Draft Mode Active
-              </div>
-            )}
+          {/* View Site Button - Full Width at Top */}
+          <div className="px-3 py-3 border-b border-[var(--admin-border)]">
             <button
-              onClick={handlePreviewSite}
-              className="flex items-center gap-2 px-3 py-2 w-full text-sm text-[#a1a1aa] hover:text-white hover:bg-[#1a1a1a] rounded-lg transition-colors"
+              onClick={handleViewSite}
+              className={cn(
+                'w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors',
+                isInDraftMode
+                  ? 'bg-orange-500/20 text-orange-400 hover:bg-orange-500/30'
+                  : 'bg-green-500/20 text-green-400 hover:bg-green-500/30'
+              )}
             >
               {isInDraftMode ? (
                 <>
                   <Eye className="w-4 h-4" />
-                  Preview Site
+                  View Draft
                 </>
               ) : (
                 <>
@@ -198,19 +231,28 @@ export function AdminLayout({ children, unreadMessages = 0 }: AdminLayoutProps) 
                   View Live Site
                 </>
               )}
-              <ChevronRight className="w-3 h-3 ml-auto" />
             </button>
           </div>
+
+          {/* Draft Mode Indicator */}
+          {isInDraftMode && (
+            <div className="px-3 py-2 border-b border-[var(--admin-border)]">
+              <div className="flex items-center gap-2 px-3 py-2 text-xs bg-orange-500/10 text-orange-400 rounded-lg">
+                <Construction className="w-3.5 h-3.5" />
+                <span>Draft Mode Active</span>
+              </div>
+            </div>
+          )}
 
           {/* Navigation */}
           <nav className="flex-1 p-3 space-y-6 overflow-y-auto">
             {navSections.map((section, sectionIndex) => (
               <div key={sectionIndex}>
                 {section.separator && (
-                  <div className="h-px bg-[#1f1f1f] mb-4" />
+                  <div className="h-px bg-[var(--admin-border)] mb-4" />
                 )}
                 {section.title && (
-                  <p className="px-3 mb-2 text-xs font-semibold uppercase tracking-wider text-[#6b6b73]">
+                  <p className="px-3 mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500">
                     {section.title}
                   </p>
                 )}
@@ -225,18 +267,18 @@ export function AdminLayout({ children, unreadMessages = 0 }: AdminLayoutProps) 
                         className={cn(
                           'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-150 group',
                           active
-                            ? 'bg-[var(--primary)] text-[#0a0a0a] font-medium'
-                            : 'text-[#a1a1aa] hover:bg-[#1a1a1a] hover:text-white'
+                            ? 'bg-[var(--primary)] text-[var(--admin-button-text)] font-medium'
+                            : 'text-gray-300 hover:bg-[var(--admin-hover)] hover:text-white'
                         )}
                       >
-                        <item.icon className={cn('w-4 h-4', active && 'text-[#0a0a0a]')} />
+                        <item.icon className={cn('w-4 h-4', active ? 'text-[var(--admin-button-text)]' : 'text-gray-400')} />
                         <span className="flex-1">{item.label}</span>
                         {item.badge && item.badge > 0 && (
                           <span className={cn(
                             'px-2 py-0.5 text-xs font-medium rounded-full',
                             active
-                              ? 'bg-[#0a0a0a]/20 text-[#0a0a0a]'
-                              : 'bg-[var(--primary)] text-[#0a0a0a]'
+                              ? 'bg-[var(--admin-button-text)]/20 text-[var(--admin-button-text)]'
+                              : 'bg-[var(--primary)] text-[var(--admin-button-text)]'
                           )}>
                             {item.badge}
                           </span>
@@ -250,10 +292,10 @@ export function AdminLayout({ children, unreadMessages = 0 }: AdminLayoutProps) 
           </nav>
 
           {/* Footer */}
-          <div className="p-3 border-t border-[#1f1f1f]">
+          <div className="p-3 border-t border-[var(--admin-border)]">
             <button
               onClick={handleLogout}
-              className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm text-[#a1a1aa] hover:bg-[#1a1a1a] hover:text-white transition-colors"
+              className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm text-gray-400 hover:bg-[var(--admin-hover)] hover:text-white transition-colors"
             >
               <LogOut className="w-4 h-4" />
               Sign Out
@@ -277,20 +319,20 @@ export function AdminLayout({ children, unreadMessages = 0 }: AdminLayoutProps) 
         {/* Main Content */}
         <main className="flex-1 min-h-screen">
           {/* Breadcrumbs */}
-          <div className="hidden md:flex items-center justify-between bg-[#111111] border-b border-[#1f1f1f]">
+          <div className="hidden md:flex items-center justify-between bg-[var(--admin-sidebar)] border-b border-[var(--admin-border)]">
             <div className="px-6 py-4">
               <div className="flex items-center gap-2 text-sm">
                 {breadcrumbs.map((crumb, index) => (
                   <React.Fragment key={crumb.href}>
                     {index > 0 && (
-                      <ChevronRight className="w-4 h-4 text-[#6b6b73]" />
+                      <ChevronRight className="w-4 h-4 text-gray-500" />
                     )}
                     {index === breadcrumbs.length - 1 ? (
                       <span className="font-medium text-white">{crumb.label}</span>
                     ) : (
                       <Link
                         href={crumb.href}
-                        className="text-[#a1a1aa] hover:text-white transition-colors"
+                        className="text-gray-400 hover:text-white transition-colors"
                       >
                         {crumb.label}
                       </Link>
@@ -315,5 +357,14 @@ export function AdminLayout({ children, unreadMessages = 0 }: AdminLayoutProps) 
         </main>
       </div>
     </div>
+  );
+}
+
+// Wrapper component that provides theme context
+export function AdminLayout(props: AdminLayoutProps) {
+  return (
+    <AdminThemeProvider>
+      <AdminLayoutInner {...props} />
+    </AdminThemeProvider>
   );
 }

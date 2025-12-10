@@ -1,45 +1,121 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Loader2,
-  MessageSquare,
+  Mail,
+  Phone,
+  Download,
   Search,
+  Users,
+  Calendar,
+  ChevronDown,
   X,
-  CheckCircle,
-  Clock,
-  AlertCircle,
+  TrendingUp,
+  MessageSquare,
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
 
 interface Contact {
   id: string;
-  name: string;
-  email: string;
-  subject: string | null;
-  message: string;
-  status: string | null;
+  email: string | null;
+  phone: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  source: string | null;
+  emailStatus: string | null;
+  smsStatus: string | null;
   createdAt: string;
 }
 
+interface Stats {
+  total: number;
+  emails: {
+    active: number;
+    inactive: number;
+    total: number;
+  };
+  sms: {
+    active: number;
+    inactive: number;
+    total: number;
+  };
+}
+
+type DateFilter = 'all' | 'today' | 'week' | 'month' | 'quarter' | 'year';
+type StatusFilter = 'active' | 'inactive';
+
+const dateFilterOptions: { value: DateFilter; label: string }[] = [
+  { value: 'all', label: 'All Time' },
+  { value: 'today', label: 'Today' },
+  { value: 'week', label: 'This Week' },
+  { value: 'month', label: 'This Month' },
+  { value: 'quarter', label: 'This Quarter' },
+  { value: 'year', label: 'This Year' },
+];
+
 export default function ContactsPage() {
+  const router = useRouter();
   const [contacts, setContacts] = useState<Contact[]>([]);
+  const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
-  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [dateFilter, setDateFilter] = useState<DateFilter>('all');
+  const [showDateDropdown, setShowDateDropdown] = useState(false);
+  const [emailTab, setEmailTab] = useState<StatusFilter>('active');
+  const [smsTab, setSmsTab] = useState<StatusFilter>('active');
 
   useEffect(() => {
-    fetchContacts();
-  }, []);
+    fetchData();
+  }, [dateFilter]);
 
-  const fetchContacts = async () => {
+  const fetchData = async () => {
     try {
-      const res = await fetch('/api/admin/contacts');
-      const data = await res.json();
-      setContacts(data);
+      setLoading(true);
+
+      // Build date filter
+      let dateFrom = '';
+      if (dateFilter !== 'all') {
+        const now = new Date();
+        let startDate: Date;
+
+        switch (dateFilter) {
+          case 'today':
+            startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            break;
+          case 'week':
+            startDate = new Date(now);
+            startDate.setDate(now.getDate() - 7);
+            break;
+          case 'month':
+            startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+            break;
+          case 'quarter':
+            startDate = new Date(now.getFullYear(), Math.floor(now.getMonth() / 3) * 3, 1);
+            break;
+          case 'year':
+            startDate = new Date(now.getFullYear(), 0, 1);
+            break;
+          default:
+            startDate = new Date(0);
+        }
+        dateFrom = startDate.toISOString();
+      }
+
+      const params = new URLSearchParams();
+      if (dateFrom) params.set('dateFrom', dateFrom);
+
+      const [contactsRes, statsRes] = await Promise.all([
+        fetch(`/api/admin/subscribers?${params.toString()}`),
+        fetch(`/api/admin/subscribers/stats?${params.toString()}`),
+      ]);
+
+      const contactsData = await contactsRes.json();
+      const statsData = await statsRes.json();
+
+      setContacts(contactsData);
+      setStats(statsData);
     } catch (error) {
       console.error('Failed to fetch contacts:', error);
     } finally {
@@ -47,302 +123,360 @@ export default function ContactsPage() {
     }
   };
 
-  const handleStatusChange = async (id: string, status: string) => {
-    try {
-      await fetch('/api/admin/contacts', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, status }),
-      });
-      setContacts(contacts.map((c) => (c.id === id ? { ...c, status } : c)));
-      if (selectedContact?.id === id) {
-        setSelectedContact({ ...selectedContact, status });
+  // Filter contacts for email list
+  const emailContacts = useMemo(() => {
+    return contacts.filter((c) => {
+      if (!c.email) return false;
+      if (c.emailStatus !== emailTab) return false;
+      if (search) {
+        const searchLower = search.toLowerCase();
+        if (c.email.toLowerCase().includes(searchLower)) return true;
+        if (c.firstName && c.firstName.toLowerCase().includes(searchLower)) return true;
+        if (c.lastName && c.lastName.toLowerCase().includes(searchLower)) return true;
+        return false;
       }
-    } catch (error) {
-      console.error('Failed to update status:', error);
-    }
+      return true;
+    });
+  }, [contacts, emailTab, search]);
+
+  // Filter contacts for SMS list
+  const smsContacts = useMemo(() => {
+    return contacts.filter((c) => {
+      if (!c.phone) return false;
+      if (c.smsStatus !== smsTab) return false;
+      if (search) {
+        const searchLower = search.toLowerCase();
+        if (c.phone.includes(search)) return true;
+        if (c.firstName && c.firstName.toLowerCase().includes(searchLower)) return true;
+        if (c.lastName && c.lastName.toLowerCase().includes(searchLower)) return true;
+        return false;
+      }
+      return true;
+    });
+  }, [contacts, smsTab, search]);
+
+  const handleExport = (type?: 'email' | 'sms') => {
+    const params = new URLSearchParams();
+    if (type) params.set('type', type);
+
+    const url = `/api/admin/subscribers/export?${params.toString()}`;
+    window.open(url, '_blank');
   };
 
-  const getStatusIcon = (status: string | null) => {
-    switch (status) {
-      case 'resolved':
-        return <CheckCircle className="w-4 h-4 text-green-500" />;
-      case 'pending':
-        return <Clock className="w-4 h-4 text-yellow-500" />;
-      default:
-        return <AlertCircle className="w-4 h-4 text-blue-500" />;
-    }
+  const handleContactClick = (contactId: string) => {
+    router.push(`/admin/contacts/${contactId}`);
   };
 
-  const getStatusBadge = (status: string | null) => {
-    switch (status) {
-      case 'resolved':
-        return 'bg-green-100 text-green-700';
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-700';
-      default:
-        return 'bg-blue-100 text-blue-700';
-    }
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+    });
   };
 
-  const filteredContacts = contacts.filter((c) => {
-    const matchesSearch =
-      c.name.toLowerCase().includes(search.toLowerCase()) ||
-      c.email.toLowerCase().includes(search.toLowerCase()) ||
-      c.message.toLowerCase().includes(search.toLowerCase());
-    const matchesStatus =
-      statusFilter === 'all' || c.status === statusFilter || (!c.status && statusFilter === 'new');
-    return matchesSearch && matchesStatus;
-  });
-
-  // Stats
-  const newCount = contacts.filter((c) => !c.status || c.status === 'new').length;
-  const pendingCount = contacts.filter((c) => c.status === 'pending').length;
-  const resolvedCount = contacts.filter((c) => c.status === 'resolved').length;
+  const getDisplayName = (contact: Contact) => {
+    if (contact.firstName || contact.lastName) {
+      return `${contact.firstName || ''} ${contact.lastName || ''}`.trim();
+    }
+    return null;
+  };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-8 h-8 animate-spin text-[var(--muted-foreground)]" />
+        <Loader2 className="w-8 h-8 animate-spin text-[var(--admin-text-muted)]" />
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-medium">Contact Messages</h1>
-          <p className="text-[var(--muted-foreground)] mt-1">
-            Manage customer inquiries and messages
+      {/* Header */}
+      <div className="flex items-center justify-between gap-4">
+        <div className="min-w-0">
+          <h1 className="text-xl sm:text-2xl font-medium text-[var(--admin-text-primary)] flex items-center gap-2 sm:gap-3">
+            <Users className="w-5 h-5 sm:w-6 sm:h-6 text-[var(--primary)]" />
+            Contacts
+          </h1>
+          <p className="text-[var(--admin-text-secondary)] mt-1 text-sm hidden sm:block">
+            Unified contact management
           </p>
         </div>
+        <button
+          onClick={() => handleExport()}
+          className="inline-flex items-center gap-2 px-3 sm:px-5 py-2 sm:py-2.5 bg-[var(--primary)] text-[var(--admin-button-text)] rounded-lg font-medium hover:bg-[var(--primary-dark)] transition-colors text-sm sm:text-base shrink-0"
+        >
+          <Download className="w-4 h-4" />
+          <span className="hidden sm:inline">Export CSV</span>
+          <span className="sm:hidden">Export</span>
+        </button>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <button
-          onClick={() => setStatusFilter('new')}
-          className={`bg-[var(--card)] rounded-xl border p-6 text-left transition-colors ${
-            statusFilter === 'new' ? 'border-blue-500 ring-2 ring-blue-100' : 'border-[var(--border)]'
-          }`}
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-              <AlertCircle className="w-5 h-5 text-blue-600" />
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+        <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-3 sm:p-5">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-[var(--primary)]/10 flex items-center justify-center shrink-0">
+              <Users className="w-4 h-4 sm:w-5 sm:h-5 text-[var(--primary)]" />
             </div>
-            <div>
-              <p className="text-2xl font-semibold">{newCount}</p>
-              <p className="text-sm text-[var(--muted-foreground)]">New</p>
+            <div className="min-w-0">
+              <p className="text-lg sm:text-2xl font-semibold text-[var(--admin-text-primary)]">{stats?.total || 0}</p>
+              <p className="text-xs sm:text-sm text-[var(--admin-text-muted)]">Total</p>
             </div>
           </div>
-        </button>
-        <button
-          onClick={() => setStatusFilter('pending')}
-          className={`bg-[var(--card)] rounded-xl border p-6 text-left transition-colors ${
-            statusFilter === 'pending' ? 'border-yellow-500 ring-2 ring-yellow-100' : 'border-[var(--border)]'
-          }`}
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center">
-              <Clock className="w-5 h-5 text-yellow-600" />
+        </div>
+        <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-3 sm:p-5">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-blue-500/10 flex items-center justify-center shrink-0">
+              <Mail className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400" />
             </div>
-            <div>
-              <p className="text-2xl font-semibold">{pendingCount}</p>
-              <p className="text-sm text-[var(--muted-foreground)]">Pending</p>
+            <div className="min-w-0">
+              <p className="text-lg sm:text-2xl font-semibold text-[var(--admin-text-primary)]">{stats?.emails.total || 0}</p>
+              <p className="text-xs sm:text-sm text-[var(--admin-text-muted)]">Emails</p>
             </div>
           </div>
-        </button>
-        <button
-          onClick={() => setStatusFilter('resolved')}
-          className={`bg-[var(--card)] rounded-xl border p-6 text-left transition-colors ${
-            statusFilter === 'resolved' ? 'border-green-500 ring-2 ring-green-100' : 'border-[var(--border)]'
-          }`}
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
-              <CheckCircle className="w-5 h-5 text-green-600" />
+        </div>
+        <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-3 sm:p-5">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-green-500/10 flex items-center justify-center shrink-0">
+              <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
             </div>
-            <div>
-              <p className="text-2xl font-semibold">{resolvedCount}</p>
-              <p className="text-sm text-[var(--muted-foreground)]">Resolved</p>
+            <div className="min-w-0">
+              <p className="text-lg sm:text-2xl font-semibold text-[var(--admin-text-primary)]">{stats?.sms.total || 0}</p>
+              <p className="text-xs sm:text-sm text-[var(--admin-text-muted)]">SMS</p>
             </div>
           </div>
-        </button>
+        </div>
+        <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-3 sm:p-5">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-purple-500/10 flex items-center justify-center shrink-0">
+              <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-lg sm:text-2xl font-semibold text-[var(--admin-text-primary)]">
+                {(stats?.emails.active || 0) + (stats?.sms.active || 0)}
+              </p>
+              <p className="text-xs sm:text-sm text-[var(--admin-text-muted)]">Active</p>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Search and Filter */}
-      <div className="flex gap-4">
+      {/* Filters */}
+      <div className="flex flex-col sm:flex-row gap-4">
+        {/* Search */}
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--muted-foreground)]" />
-          <Input
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--admin-text-muted)]" />
+          <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search messages..."
-            className="pl-10"
+            placeholder="Search contacts..."
+            className="w-full pl-10 pr-4 py-2.5 bg-[var(--admin-input)] border border-[var(--admin-border-light)] rounded-lg text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
           />
         </div>
-        {statusFilter !== 'all' && (
-          <Button variant="outline" onClick={() => setStatusFilter('all')}>
-            Clear Filter
-          </Button>
-        )}
-      </div>
 
-      {/* Messages List */}
-      <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] overflow-hidden">
-        <div className="divide-y divide-[var(--border-light)]">
-          {filteredContacts.map((contact) => (
-            <div
-              key={contact.id}
-              onClick={() => setSelectedContact(contact)}
-              className="p-4 flex items-start gap-4 hover:bg-[var(--muted)] transition-colors cursor-pointer"
-            >
-              <div className="w-10 h-10 rounded-full bg-[var(--primary)] flex items-center justify-center text-sm font-medium shrink-0">
-                {contact.name.charAt(0).toUpperCase()}
-              </div>
-
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <h3 className="font-medium">{contact.name}</h3>
-                  <span className="text-sm text-[var(--muted-foreground)]">{contact.email}</span>
-                  <span className={`px-2 py-0.5 text-xs rounded-full ${getStatusBadge(contact.status)}`}>
-                    {contact.status || 'New'}
-                  </span>
-                </div>
-                {contact.subject && (
-                  <p className="text-sm font-medium mt-1">{contact.subject}</p>
-                )}
-                <p className="text-sm text-[var(--muted-foreground)] line-clamp-1 mt-1">
-                  {contact.message}
-                </p>
-              </div>
-
-              <div className="text-sm text-[var(--muted-foreground)] shrink-0">
-                {new Date(contact.createdAt).toLocaleDateString('en-US', {
-                  month: 'short',
-                  day: 'numeric',
-                })}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {filteredContacts.length === 0 && (
-          <div className="py-12 text-center">
-            <MessageSquare className="w-12 h-12 mx-auto mb-4 text-[var(--muted-foreground)] opacity-50" />
-            <h3 className="font-medium mb-2">
-              {search || statusFilter !== 'all' ? 'No matching messages' : 'No messages yet'}
-            </h3>
-            <p className="text-sm text-[var(--muted-foreground)]">
-              {search || statusFilter !== 'all'
-                ? 'Try a different search or filter'
-                : 'Contact form submissions will appear here'}
-            </p>
-          </div>
-        )}
-      </div>
-
-      {/* Message Detail Modal */}
-      {selectedContact && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={() => setSelectedContact(null)} />
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="relative bg-[var(--card)] rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-auto"
+        {/* Date Filter */}
+        <div className="relative">
+          <button
+            onClick={() => setShowDateDropdown(!showDateDropdown)}
+            className={cn(
+              'flex items-center gap-2 px-4 py-2.5 bg-[var(--admin-input)] border border-[var(--admin-border-light)] rounded-lg text-sm transition-colors min-w-[160px] justify-between',
+              dateFilter !== 'all' ? 'text-[var(--primary)] border-[var(--primary)]' : 'text-[var(--admin-text-secondary)]'
+            )}
           >
-            <div className="p-6 border-b border-[var(--border)] flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-[var(--primary)] flex items-center justify-center text-lg font-medium">
-                  {selectedContact.name.charAt(0).toUpperCase()}
-                </div>
-                <div>
-                  <h2 className="text-xl font-medium">{selectedContact.name}</h2>
-                  <p className="text-sm text-[var(--muted-foreground)]">{selectedContact.email}</p>
-                </div>
-              </div>
-              <button onClick={() => setSelectedContact(null)} className="p-2 rounded-lg hover:bg-[var(--muted)]">
-                <X className="w-5 h-5" />
-              </button>
+            <div className="flex items-center gap-2">
+              <Calendar className="w-4 h-4" />
+              <span>{dateFilterOptions.find((o) => o.value === dateFilter)?.label}</span>
             </div>
+            <ChevronDown className="w-4 h-4" />
+          </button>
 
-            <div className="p-6 space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  {getStatusIcon(selectedContact.status)}
-                  <span className={`px-3 py-1 text-sm rounded-full ${getStatusBadge(selectedContact.status)}`}>
-                    {selectedContact.status || 'New'}
-                  </span>
-                </div>
-                <p className="text-sm text-[var(--muted-foreground)]">
-                  {new Date(selectedContact.createdAt).toLocaleString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                    hour: 'numeric',
-                    minute: '2-digit',
-                  })}
+          {showDateDropdown && (
+            <>
+              <div className="fixed inset-0 z-10" onClick={() => setShowDateDropdown(false)} />
+              <div className="absolute top-full mt-2 right-0 w-48 bg-[var(--admin-card)] border border-[var(--admin-border-light)] rounded-lg shadow-xl z-20 py-1">
+                {dateFilterOptions.map((option) => (
+                  <button
+                    key={option.value}
+                    onClick={() => {
+                      setDateFilter(option.value);
+                      setShowDateDropdown(false);
+                    }}
+                    className={cn(
+                      'w-full px-4 py-2 text-left text-sm hover:bg-[var(--admin-hover)] transition-colors',
+                      dateFilter === option.value ? 'text-[var(--primary)]' : 'text-[var(--admin-text-secondary)]'
+                    )}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Clear Search */}
+        {search && (
+          <button
+            onClick={() => setSearch('')}
+            className="flex items-center gap-2 px-4 py-2.5 bg-[var(--admin-input)] text-[var(--admin-text-secondary)] rounded-lg text-sm hover:text-[var(--admin-text-primary)] transition-colors"
+          >
+            <X className="w-4 h-4" />
+            Clear
+          </button>
+        )}
+      </div>
+
+      {/* Two-Column Lists */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+        {/* Email List */}
+        <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] overflow-hidden">
+          <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-[var(--admin-border-light)]">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                <Mail className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400 shrink-0" />
+                <h2 className="font-medium text-[var(--admin-text-primary)] text-sm sm:text-base truncate">Email</h2>
+              </div>
+              <div className="flex shrink-0">
+                <button
+                  onClick={() => setEmailTab('active')}
+                  className={cn(
+                    'px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium rounded-l-lg transition-colors',
+                    emailTab === 'active'
+                      ? 'bg-[var(--primary)] text-[var(--admin-button-text)]'
+                      : 'bg-[var(--admin-input)] text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)]'
+                  )}
+                >
+                  {stats?.emails.active || 0}
+                </button>
+                <button
+                  onClick={() => setEmailTab('inactive')}
+                  className={cn(
+                    'px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium rounded-r-lg transition-colors',
+                    emailTab === 'inactive'
+                      ? 'bg-[var(--primary)] text-[var(--admin-button-text)]'
+                      : 'bg-[var(--admin-input)] text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)]'
+                  )}
+                >
+                  {stats?.emails.inactive || 0}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="max-h-[400px] sm:max-h-[500px] overflow-y-auto">
+            {emailContacts.length > 0 ? (
+              <div className="divide-y divide-[var(--admin-border-light)]">
+                {emailContacts.map((contact) => (
+                  <button
+                    key={contact.id}
+                    onClick={() => handleContactClick(contact.id)}
+                    className="w-full px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between hover:bg-[var(--admin-hover)] transition-colors text-left gap-3"
+                  >
+                    <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                      <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[var(--primary)]/10 flex items-center justify-center text-xs sm:text-sm font-medium text-[var(--primary)] shrink-0">
+                        {(contact.email || '?').charAt(0).toUpperCase()}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-medium text-[var(--admin-text-primary)] text-sm truncate">
+                          {getDisplayName(contact) || contact.email}
+                        </p>
+                        {getDisplayName(contact) && (
+                          <p className="text-xs text-[var(--admin-text-muted)] truncate">{contact.email}</p>
+                        )}
+                      </div>
+                    </div>
+                    <span className="text-xs text-[var(--admin-text-muted)] shrink-0 hidden sm:block">
+                      {formatDate(contact.createdAt)}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div className="py-8 sm:py-12 text-center">
+                <Mail className="w-8 h-8 sm:w-10 sm:h-10 mx-auto mb-2 sm:mb-3 text-[var(--admin-text-muted)]" />
+                <p className="text-[var(--admin-text-muted)] text-sm">
+                  No {emailTab} emails
                 </p>
               </div>
-
-              {selectedContact.subject && (
-                <div>
-                  <label className="block text-sm font-medium text-[var(--muted-foreground)] mb-1">Subject</label>
-                  <p className="font-medium">{selectedContact.subject}</p>
-                </div>
-              )}
-
-              <div>
-                <label className="block text-sm font-medium text-[var(--muted-foreground)] mb-1">Message</label>
-                <div className="bg-[var(--muted)] rounded-lg p-4 whitespace-pre-wrap">
-                  {selectedContact.message}
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-[var(--muted-foreground)] mb-2">Update Status</label>
-                <div className="flex gap-2">
-                  <Button
-                    variant={selectedContact.status === 'new' || !selectedContact.status ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => handleStatusChange(selectedContact.id, 'new')}
-                  >
-                    <AlertCircle className="w-4 h-4" />
-                    New
-                  </Button>
-                  <Button
-                    variant={selectedContact.status === 'pending' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => handleStatusChange(selectedContact.id, 'pending')}
-                  >
-                    <Clock className="w-4 h-4" />
-                    Pending
-                  </Button>
-                  <Button
-                    variant={selectedContact.status === 'resolved' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => handleStatusChange(selectedContact.id, 'resolved')}
-                  >
-                    <CheckCircle className="w-4 h-4" />
-                    Resolved
-                  </Button>
-                </div>
-              </div>
-            </div>
-
-            <div className="p-6 border-t border-[var(--border)] flex justify-between">
-              <a
-                href={`mailto:${selectedContact.email}?subject=Re: ${selectedContact.subject || 'Your inquiry'}`}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--primary)] hover:bg-[var(--primary-dark)] transition-colors font-medium"
-              >
-                Reply via Email
-              </a>
-              <Button variant="outline" onClick={() => setSelectedContact(null)}>Close</Button>
-            </div>
-          </motion.div>
+            )}
+          </div>
         </div>
-      )}
+
+        {/* SMS List */}
+        <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] overflow-hidden">
+          <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-[var(--admin-border-light)]">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                <Phone className="w-4 h-4 sm:w-5 sm:h-5 text-green-400 shrink-0" />
+                <h2 className="font-medium text-[var(--admin-text-primary)] text-sm sm:text-base truncate">SMS</h2>
+              </div>
+              <div className="flex shrink-0">
+                <button
+                  onClick={() => setSmsTab('active')}
+                  className={cn(
+                    'px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium rounded-l-lg transition-colors',
+                    smsTab === 'active'
+                      ? 'bg-[var(--primary)] text-[var(--admin-button-text)]'
+                      : 'bg-[var(--admin-input)] text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)]'
+                  )}
+                >
+                  {stats?.sms.active || 0}
+                </button>
+                <button
+                  onClick={() => setSmsTab('inactive')}
+                  className={cn(
+                    'px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium rounded-r-lg transition-colors',
+                    smsTab === 'inactive'
+                      ? 'bg-[var(--primary)] text-[var(--admin-button-text)]'
+                      : 'bg-[var(--admin-input)] text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)]'
+                  )}
+                >
+                  {stats?.sms.inactive || 0}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="max-h-[400px] sm:max-h-[500px] overflow-y-auto">
+            {smsContacts.length > 0 ? (
+              <div className="divide-y divide-[var(--admin-border-light)]">
+                {smsContacts.map((contact) => (
+                  <button
+                    key={contact.id}
+                    onClick={() => handleContactClick(contact.id)}
+                    className="w-full px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between hover:bg-[var(--admin-hover)] transition-colors text-left gap-3"
+                  >
+                    <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                      <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-green-500/10 flex items-center justify-center text-xs sm:text-sm font-medium text-green-400 shrink-0">
+                        <Phone className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-medium text-[var(--admin-text-primary)] text-sm truncate">
+                          {getDisplayName(contact) || contact.phone}
+                        </p>
+                        {getDisplayName(contact) && (
+                          <p className="text-xs text-[var(--admin-text-muted)] truncate">{contact.phone}</p>
+                        )}
+                      </div>
+                    </div>
+                    <span className="text-xs text-[var(--admin-text-muted)] shrink-0 hidden sm:block">
+                      {formatDate(contact.createdAt)}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div className="py-8 sm:py-12 text-center">
+                <Phone className="w-8 h-8 sm:w-10 sm:h-10 mx-auto mb-2 sm:mb-3 text-[var(--admin-text-muted)]" />
+                <p className="text-[var(--admin-text-muted)] text-sm">
+                  No {smsTab} SMS contacts
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

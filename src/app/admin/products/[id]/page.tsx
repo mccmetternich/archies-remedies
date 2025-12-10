@@ -191,7 +191,7 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-8 h-8 animate-spin text-[var(--muted-foreground)]" />
+        <Loader2 className="w-8 h-8 animate-spin text-[var(--admin-text-muted)]" />
       </div>
     );
   }
@@ -199,7 +199,7 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
   if (!product) {
     return (
       <div className="text-center py-12">
-        <p className="text-[var(--muted-foreground)]">Product not found</p>
+        <p className="text-[var(--admin-text-muted)]">Product not found</p>
       </div>
     );
   }
@@ -218,16 +218,16 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
         <div className="flex items-center gap-4">
           <Link
             href="/admin/products"
-            className="p-2 rounded-lg hover:bg-[var(--muted)] transition-colors"
+            className="p-2 rounded-lg hover:bg-[var(--admin-input)] transition-colors text-[var(--admin-text-secondary)]"
           >
             <ArrowLeft className="w-5 h-5" />
           </Link>
           <div>
-            <h1 className="text-2xl font-medium">
+            <h1 className="text-2xl font-medium text-[var(--admin-text-primary)]">
               {isNew ? 'New Product' : product.name || 'Edit Product'}
             </h1>
             {!isNew && (
-              <p className="text-[var(--muted-foreground)] mt-1">
+              <p className="text-[var(--admin-text-secondary)] mt-1">
                 /products/{product.slug}
               </p>
             )}
@@ -257,16 +257,16 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 border-b border-[var(--border)] overflow-x-auto">
+      <div className="flex gap-1 bg-[var(--admin-input)] rounded-xl p-1 border border-[var(--admin-border)]">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             className={cn(
-              'px-4 py-3 text-sm font-medium border-b-2 -mb-px transition-colors whitespace-nowrap',
+              'flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm transition-all',
               activeTab === tab.id
-                ? 'border-[var(--foreground)] text-[var(--foreground)]'
-                : 'border-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)]'
+                ? 'bg-[var(--primary)] text-[var(--admin-button-text)]'
+                : 'text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)] hover:bg-[var(--admin-input)]'
             )}
           >
             {tab.label}
@@ -275,7 +275,7 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
       </div>
 
       {/* Tab Content */}
-      <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] p-6">
+      <div className="bg-[var(--admin-input)] rounded-xl border border-[var(--admin-border)] p-6">
         {activeTab === 'details' && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
@@ -290,14 +290,14 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
                   onChange={(e) => setProduct({ ...product, isActive: e.target.checked })}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[var(--primary-light)] rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-[var(--card)] after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
+                <div className="w-11 h-6 bg-[var(--admin-hover)] peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[var(--primary)] rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
               </label>
-              <span className="font-medium">Published</span>
+              <span className="font-medium text-[var(--admin-text-primary)]">Published</span>
             </div>
 
             <div className="grid md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium mb-2">Product Name *</label>
+                <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Product Name *</label>
                 <Input
                   value={product.name}
                   onChange={(e) => setProduct({ ...product, name: e.target.value })}
@@ -305,7 +305,7 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-2">URL Slug *</label>
+                <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">URL Slug *</label>
                 <Input
                   value={product.slug}
                   onChange={(e) => setProduct({ ...product, slug: e.target.value })}
@@ -315,18 +315,18 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">Short Description</label>
+              <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Short Description</label>
               <textarea
                 value={product.shortDescription || ''}
                 onChange={(e) => setProduct({ ...product, shortDescription: e.target.value })}
                 placeholder="Brief description for product cards..."
                 rows={2}
-                className="flex w-full rounded-lg border-[1.5px] border-[var(--border)] bg-[var(--background)] px-4 py-3 text-base transition-all duration-150 placeholder:text-[var(--muted-foreground)] hover:border-[var(--muted-foreground)] focus:outline-none focus:border-[var(--primary-dark)] focus:ring-[3px] focus:ring-[var(--primary-light)] resize-none"
+                className="flex w-full rounded-lg border border-[var(--admin-border)] bg-[var(--admin-input)] px-4 py-3 text-base text-[var(--admin-text-primary)] transition-all duration-150 placeholder:text-[var(--admin-text-placeholder)] hover:border-[var(--admin-text-muted)] focus:outline-none focus:border-[var(--primary)] resize-none"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">Full Description</label>
+              <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Full Description</label>
               <RichTextEditor
                 value={product.longDescription || ''}
                 onChange={(value) => setProduct({ ...product, longDescription: value })}
@@ -335,7 +335,7 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
 
             <div className="grid md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium mb-2">Price ($)</label>
+                <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Price ($)</label>
                 <Input
                   type="number"
                   step="0.01"
@@ -345,7 +345,7 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-2">Compare at Price ($)</label>
+                <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Compare at Price ($)</label>
                 <Input
                   type="number"
                   step="0.01"
@@ -357,7 +357,7 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">Hero Image URL</label>
+              <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Hero Image URL</label>
               <Input
                 value={product.heroImageUrl || ''}
                 onChange={(e) => setProduct({ ...product, heroImageUrl: e.target.value })}
@@ -374,7 +374,7 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
             className="space-y-6"
           >
             <div className="flex items-center justify-between">
-              <p className="text-sm text-[var(--muted-foreground)]">
+              <p className="text-sm text-[var(--admin-text-secondary)]">
                 Add variants like &quot;30 Count&quot; or &quot;60 Count&quot; with different Amazon URLs.
               </p>
               <Button variant="outline" onClick={addVariant}>
@@ -387,12 +387,12 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
               {variants.map((variant, index) => (
                 <div
                   key={variant.id}
-                  className="p-4 border border-[var(--border)] rounded-lg space-y-4"
+                  className="p-4 border border-[var(--admin-border)] rounded-lg space-y-4 bg-[var(--admin-sidebar)]"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <GripVertical className="w-4 h-4 text-[var(--muted-foreground)] cursor-grab" />
-                      <span className="font-medium">Variant {index + 1}</span>
+                      <GripVertical className="w-4 h-4 text-[var(--admin-text-muted)] cursor-grab" />
+                      <span className="font-medium text-[var(--admin-text-primary)]">Variant {index + 1}</span>
                       {variant.isDefault && (
                         <span className="px-2 py-0.5 text-xs bg-green-100 text-green-700 rounded-full">
                           Default
@@ -409,7 +409,7 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
 
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium mb-1">Name</label>
+                      <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-1">Name</label>
                       <Input
                         value={variant.name}
                         onChange={(e) => updateVariant(variant.id, 'name', e.target.value)}
@@ -417,7 +417,7 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-1">Amazon URL</label>
+                      <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-1">Amazon URL</label>
                       <Input
                         value={variant.amazonUrl}
                         onChange={(e) => updateVariant(variant.id, 'amazonUrl', e.target.value)}
@@ -428,7 +428,7 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
 
                   <div className="grid md:grid-cols-3 gap-4">
                     <div>
-                      <label className="block text-sm font-medium mb-1">Price ($)</label>
+                      <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-1">Price ($)</label>
                       <Input
                         type="number"
                         step="0.01"
@@ -438,7 +438,7 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-1">Compare at ($)</label>
+                      <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-1">Compare at ($)</label>
                       <Input
                         type="number"
                         step="0.01"
@@ -463,7 +463,7 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
                           }}
                           className="rounded"
                         />
-                        <span className="text-sm">Default variant</span>
+                        <span className="text-sm text-[var(--admin-text-secondary)]">Default variant</span>
                       </label>
                     </div>
                   </div>
@@ -471,8 +471,8 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
               ))}
 
               {variants.length === 0 && (
-                <div className="py-8 text-center border-2 border-dashed border-[var(--border)] rounded-lg">
-                  <p className="text-[var(--muted-foreground)]">No variants yet</p>
+                <div className="py-8 text-center border-2 border-dashed border-[var(--admin-border)] rounded-lg">
+                  <p className="text-[var(--admin-text-muted)]">No variants yet</p>
                 </div>
               )}
             </div>
@@ -488,7 +488,7 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
             {/* What's In */}
             <div>
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-medium text-green-600">What&apos;s In</h3>
+                <h3 className="font-medium text-green-400">What&apos;s In</h3>
                 <Button variant="outline" size="sm" onClick={() => addBenefit(true)}>
                   <Plus className="w-4 h-4" />
                   Add
@@ -500,25 +500,23 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
                   .map((benefit) => (
                     <div
                       key={benefit.id}
-                      className="flex items-start gap-3 p-3 bg-green-50 rounded-lg"
+                      className="flex items-start gap-3 p-3 bg-green-500/10 border border-green-500/30 rounded-lg"
                     >
                       <div className="flex-1 space-y-2">
                         <Input
                           value={benefit.title}
                           onChange={(e) => updateBenefit(benefit.id, 'title', e.target.value)}
                           placeholder="Preservative-Free"
-                          className="bg-[var(--card)]"
                         />
                         <Input
                           value={benefit.description || ''}
                           onChange={(e) => updateBenefit(benefit.id, 'description', e.target.value)}
                           placeholder="Description (optional)"
-                          className="bg-[var(--card)]"
                         />
                       </div>
                       <button
                         onClick={() => removeBenefit(benefit.id)}
-                        className="p-1 rounded hover:bg-red-100 text-red-500"
+                        className="p-1 rounded hover:bg-red-500/10 text-red-400"
                       >
                         <X className="w-4 h-4" />
                       </button>
@@ -530,7 +528,7 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
             {/* What's Not */}
             <div>
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-medium text-red-600">What&apos;s Not</h3>
+                <h3 className="font-medium text-red-400">What&apos;s Not</h3>
                 <Button variant="outline" size="sm" onClick={() => addBenefit(false)}>
                   <Plus className="w-4 h-4" />
                   Add
@@ -542,25 +540,23 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
                   .map((benefit) => (
                     <div
                       key={benefit.id}
-                      className="flex items-start gap-3 p-3 bg-red-50 rounded-lg"
+                      className="flex items-start gap-3 p-3 bg-red-500/10 border border-red-500/30 rounded-lg"
                     >
                       <div className="flex-1 space-y-2">
                         <Input
                           value={benefit.title}
                           onChange={(e) => updateBenefit(benefit.id, 'title', e.target.value)}
                           placeholder="No Preservatives"
-                          className="bg-[var(--card)]"
                         />
                         <Input
                           value={benefit.description || ''}
                           onChange={(e) => updateBenefit(benefit.id, 'description', e.target.value)}
                           placeholder="Description (optional)"
-                          className="bg-[var(--card)]"
                         />
                       </div>
                       <button
                         onClick={() => removeBenefit(benefit.id)}
-                        className="p-1 rounded hover:bg-red-100 text-red-500"
+                        className="p-1 rounded hover:bg-red-500/10 text-red-400"
                       >
                         <X className="w-4 h-4" />
                       </button>
@@ -578,25 +574,25 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
             className="space-y-6"
           >
             <div>
-              <label className="block text-sm font-medium mb-2">Meta Title</label>
+              <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Meta Title</label>
               <Input
                 value={product.metaTitle || ''}
                 onChange={(e) => setProduct({ ...product, metaTitle: e.target.value })}
                 placeholder={`${product.name} | Archie's Remedies`}
               />
-              <p className="text-xs text-[var(--muted-foreground)] mt-1">
+              <p className="text-xs text-[var(--admin-text-muted)] mt-1">
                 Leave empty to use default format
               </p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">Meta Description</label>
+              <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Meta Description</label>
               <textarea
                 value={product.metaDescription || ''}
                 onChange={(e) => setProduct({ ...product, metaDescription: e.target.value })}
                 placeholder="Description for search engines..."
                 rows={3}
-                className="flex w-full rounded-lg border-[1.5px] border-[var(--border)] bg-[var(--background)] px-4 py-3 text-base transition-all duration-150 placeholder:text-[var(--muted-foreground)] hover:border-[var(--muted-foreground)] focus:outline-none focus:border-[var(--primary-dark)] focus:ring-[3px] focus:ring-[var(--primary-light)] resize-none"
+                className="flex w-full rounded-lg border border-[var(--admin-border)] bg-[var(--admin-input)] px-4 py-3 text-base text-[var(--admin-text-primary)] transition-all duration-150 placeholder:text-[var(--admin-text-placeholder)] hover:border-[var(--admin-text-muted)] focus:outline-none focus:border-[var(--primary)] resize-none"
               />
             </div>
           </motion.div>

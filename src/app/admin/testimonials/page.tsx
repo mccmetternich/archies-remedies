@@ -167,7 +167,7 @@ export default function TestimonialsPage() {
                     </span>
                   )}
                   {!item.isActive && (
-                    <span className="px-2 py-0.5 text-xs bg-gray-100 text-gray-600 rounded-full">
+                    <span className="px-2 py-0.5 text-xs bg-gray-100 text-[var(--admin-text-muted)] rounded-full">
                       Hidden
                     </span>
                   )}
@@ -292,7 +292,7 @@ export default function TestimonialsPage() {
                         className={`w-6 h-6 ${
                           n <= (editForm.rating || 5)
                             ? 'fill-yellow-400 text-yellow-400'
-                            : 'text-gray-300'
+                            : 'text-[var(--admin-text-secondary)]'
                         }`}
                       />
                     </button>

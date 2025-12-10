@@ -29,27 +29,94 @@
 /* =============================================
    ADMIN DARK THEME
    Scoped overrides for all admin pages
+
+   To update admin styling, modify these variables.
+   All admin pages use these CSS variables for consistency.
+   See also: src/styles/admin-theme.ts for TypeScript constants
    ============================================= */
 .admin-theme {
-  /* Override core palette for dark theme */
-  --background: #111111;
-  --foreground: #ffffff;
-  --muted: #1a1a1a;
-  --muted-foreground: #a1a1aa;
-  --border: #2a2a2a;
-  --border-light: #1f1f1f;
+  /* ========================================
+   * BACKGROUND COLORS (Lightened)
+   * ======================================== */
 
-  /* Dark theme specific */
-  --card: #1a1a1a;
-  --card-foreground: #ffffff;
-  --input-bg: #1a1a1a;
-  --input-border: #2a2a2a;
+  /* Main page background */
+  --admin-bg: #121212;
+
+  /* Sidebar and header background */
+  --admin-sidebar: #1a1a1a;
+
+  /* Card/panel backgrounds */
+  --admin-card: #1e1e1e;
+
+  /* Input fields, nested elements */
+  --admin-input: #242424;
+
+  /* Hover states */
+  --admin-hover: #2a2a2a;
+
+  /* ========================================
+   * BORDER COLORS
+   * ======================================== */
+
+  --admin-border: #2a2a2a;
+  --admin-border-light: #2e2e2e;
+  --admin-divider: #353535;
+
+  /* ========================================
+   * TEXT COLORS
+   * ======================================== */
+
+  --admin-text-primary: #ffffff;
+  --admin-text-secondary: #9ca3af;
+  --admin-text-muted: #71717a;
+  --admin-text-placeholder: #6b7280;
+
+  /* ========================================
+   * INTERACTIVE COLORS
+   * ======================================== */
+
+  --admin-button-text: #121212;
+
+  /* ========================================
+   * STATUS COLORS
+   * ======================================== */
+
+  --admin-success: #22c55e;
+  --admin-success-bg: rgba(34, 197, 94, 0.1);
+  --admin-success-border: rgba(34, 197, 94, 0.2);
+
+  --admin-warning: #f97316;
+  --admin-warning-bg: rgba(249, 115, 22, 0.1);
+  --admin-warning-border: rgba(249, 115, 22, 0.2);
+
+  --admin-error: #ef4444;
+  --admin-error-bg: rgba(239, 68, 68, 0.1);
+  --admin-error-border: rgba(239, 68, 68, 0.2);
+
+  --admin-info: #3b82f6;
+  --admin-info-bg: rgba(59, 130, 246, 0.1);
+  --admin-info-border: rgba(59, 130, 246, 0.2);
+
+  /* ========================================
+   * LEGACY MAPPINGS (for backwards compat)
+   * ======================================== */
+
+  --background: var(--admin-bg);
+  --foreground: var(--admin-text-primary);
+  --muted: var(--admin-input);
+  --muted-foreground: var(--admin-text-secondary);
+  --border: var(--admin-border);
+  --border-light: var(--admin-border-light);
+  --card: var(--admin-card);
+  --card-foreground: var(--admin-text-primary);
+  --input-bg: var(--admin-input);
+  --input-border: var(--admin-border);
 
   /* Adjust primary colors for dark bg */
   --primary-light: #1e3a4a;
-  --cream: #1a1a1a;
-  --sand: #222222;
-  --stone: #2a2a2a;
+  --cream: var(--admin-input);
+  --sand: var(--admin-hover);
+  --stone: var(--admin-border);
 
   /* Editorial Shadows - Soft & Sophisticated */
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.03);
@@ -78,6 +145,98 @@
   --radius-xl: 24px;
   --radius-2xl: 32px;
   --radius-full: 9999px;
+}
+
+/* =============================================
+   ADMIN LIGHT THEME
+   Activated when .admin-theme-light class is present
+   ============================================= */
+.admin-theme.admin-theme-light {
+  /* Background Colors */
+  --admin-bg: #f8f9fa;
+  --admin-sidebar: #ffffff;
+  --admin-card: #ffffff;
+  --admin-input: #f1f3f5;
+  --admin-hover: #e9ecef;
+
+  /* Border Colors */
+  --admin-border: #dee2e6;
+  --admin-border-light: #e9ecef;
+  --admin-divider: #ced4da;
+
+  /* Text Colors */
+  --admin-text-primary: #212529;
+  --admin-text-secondary: #495057;
+  --admin-text-muted: #868e96;
+  --admin-text-placeholder: #adb5bd;
+
+  /* Interactive Colors */
+  --admin-button-text: #ffffff;
+
+  /* Status Colors (darker for light bg) */
+  --admin-success: #198754;
+  --admin-success-bg: rgba(25, 135, 84, 0.1);
+  --admin-success-border: rgba(25, 135, 84, 0.2);
+
+  --admin-warning: #fd7e14;
+  --admin-warning-bg: rgba(253, 126, 20, 0.1);
+  --admin-warning-border: rgba(253, 126, 20, 0.2);
+
+  --admin-error: #dc3545;
+  --admin-error-bg: rgba(220, 53, 69, 0.1);
+  --admin-error-border: rgba(220, 53, 69, 0.2);
+
+  --admin-info: #0d6efd;
+  --admin-info-bg: rgba(13, 110, 253, 0.1);
+  --admin-info-border: rgba(13, 110, 253, 0.2);
+
+  /* Legacy mappings */
+  --background: var(--admin-bg);
+  --foreground: var(--admin-text-primary);
+  --muted: var(--admin-input);
+  --muted-foreground: var(--admin-text-secondary);
+  --border: var(--admin-border);
+  --card: var(--admin-card);
+  --card-foreground: var(--admin-text-primary);
+
+  /* Shadows for light mode */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 8px 30px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.12);
+}
+
+/* Light theme scrollbar */
+.admin-theme.admin-theme-light ::-webkit-scrollbar-track {
+  background: var(--admin-bg);
+}
+
+.admin-theme.admin-theme-light ::-webkit-scrollbar-thumb {
+  background: var(--admin-border);
+}
+
+.admin-theme.admin-theme-light ::-webkit-scrollbar-thumb:hover {
+  background: var(--admin-text-muted);
+}
+
+/* Admin scrollbar styling */
+.admin-theme ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.admin-theme ::-webkit-scrollbar-track {
+  background: var(--admin-bg);
+}
+
+.admin-theme ::-webkit-scrollbar-thumb {
+  background: var(--admin-border);
+  border-radius: 4px;
+}
+
+.admin-theme ::-webkit-scrollbar-thumb:hover {
+  background: var(--admin-divider);
 }
 
 @theme inline {

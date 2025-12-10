@@ -1,31 +1,27 @@
 import { NextResponse } from 'next/server';
 import { db, contactSubmissions } from '@/lib/db';
 import { generateId } from '@/lib/utils';
+import { contactFormSchema, validateRequest } from '@/lib/validations';
 
 export async function POST(request: Request) {
   try {
-    const { firstName, lastName, name, email, subject, message } = await request.json();
+    const body = await request.json();
+
+    // Validate input with Zod
+    const validation = validateRequest(contactFormSchema, body);
+    if (!validation.success) {
+      return NextResponse.json(
+        { error: validation.error },
+        { status: 400 }
+      );
+    }
+
+    const { firstName, lastName, name, email, subject, message } = validation.data;
 
     // Support both old (name) and new (firstName/lastName) formats
     const resolvedFirstName = firstName || name?.split(' ')[0] || '';
     const resolvedLastName = lastName || name?.split(' ').slice(1).join(' ') || '';
     const fullName = name || `${resolvedFirstName} ${resolvedLastName}`.trim();
-
-    if (!fullName || !email || !message) {
-      return NextResponse.json(
-        { error: 'Name, email, and message are required' },
-        { status: 400 }
-      );
-    }
-
-    // Basic email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return NextResponse.json(
-        { error: 'Invalid email format' },
-        { status: 400 }
-      );
-    }
 
     // Insert contact submission
     await db.insert(contactSubmissions).values({

@@ -88,7 +88,7 @@ export function Header({ logo, products = [], bumper, socialStats }: HeaderProps
     <>
       {/* Announcement Bumper Bar */}
       {showBumper && (
-        <div className="fixed top-0 left-0 right-0 z-[51]">
+        <div className="lg:fixed lg:top-0 lg:left-0 lg:right-0 z-[51]">
           <AnnouncementBar
             text={bumper.bumperText!}
             linkUrl={bumper.bumperLinkUrl}
@@ -99,8 +99,8 @@ export function Header({ logo, products = [], bumper, socialStats }: HeaderProps
 
       <header
         className={cn(
-          'fixed left-0 right-0 z-50 transition-all duration-500 bg-white',
-          showBumper ? 'top-[52px]' : 'top-0',
+          'lg:fixed left-0 right-0 z-50 transition-all duration-500 bg-white',
+          showBumper ? 'lg:top-[52px]' : 'lg:top-0',
           isScrolled
             ? 'shadow-[0_2px_20px_rgba(0,0,0,0.08)] py-4'
             : 'shadow-[0_1px_3px_rgba(0,0,0,0.05)] py-5'
@@ -136,8 +136,8 @@ export function Header({ logo, products = [], bumper, socialStats }: HeaderProps
               >
                 <button
                   className={cn(
-                    'flex items-center gap-2 text-base font-medium tracking-wide transition-colors py-3',
-                    shopOpen ? 'text-[var(--muted-foreground)]' : 'hover:text-[var(--muted-foreground)]'
+                    'flex items-center gap-2 text-base font-medium tracking-wide transition-colors py-3 text-[#1a1a1a]',
+                    shopOpen ? 'text-[#737373]' : 'hover:text-[#737373]'
                   )}
                 >
                   Shop
@@ -158,7 +158,7 @@ export function Header({ logo, products = [], bumper, socialStats }: HeaderProps
             <div className="hidden lg:flex items-center gap-8">
               <Link
                 href="/our-story"
-                className="text-base font-medium tracking-wide hover:text-[var(--muted-foreground)] transition-colors py-3"
+                className="text-base font-medium tracking-wide text-[#1a1a1a] hover:text-[#737373] transition-colors py-3"
               >
                 Our Story
               </Link>
@@ -450,9 +450,9 @@ export function Header({ logo, products = [], bumper, socialStats }: HeaderProps
         )}
       </AnimatePresence>
 
-      {/* Spacer for fixed header + bumper - increased for more breathing room */}
+      {/* Spacer for fixed header + bumper - only on desktop */}
       <div className={cn(
-        'transition-all duration-500',
+        'hidden lg:block transition-all duration-500',
         showBumper
           ? (isScrolled ? 'h-[140px]' : 'h-[160px]')
           : (isScrolled ? 'h-[90px]' : 'h-[110px]')
