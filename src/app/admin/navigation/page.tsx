@@ -47,7 +47,7 @@ interface BumperSettings {
 }
 
 export default function NavigationPage() {
-  const [activeTab, setActiveTab] = useState<'bumper' | 'header' | 'footer'>('bumper');
+  const [activeTab, setActiveTab] = useState<'header' | 'footer' | 'bumper'>('header');
   const [navItems, setNavItems] = useState<NavItem[]>([]);
   const [footerLinks, setFooterLinks] = useState<FooterLink[]>([]);
   const [bumperSettings, setBumperSettings] = useState<BumperSettings>({
@@ -62,6 +62,22 @@ export default function NavigationPage() {
   const [editForm, setEditForm] = useState<Partial<NavItem | FooterLink>>({});
   const [editType, setEditType] = useState<'nav' | 'footer'>('nav');
 
+  // Track original state for change detection
+  const [originalNavItems, setOriginalNavItems] = useState<NavItem[]>([]);
+  const [originalFooterLinks, setOriginalFooterLinks] = useState<FooterLink[]>([]);
+  const [originalBumperSettings, setOriginalBumperSettings] = useState<BumperSettings>({
+    bumperEnabled: false,
+    bumperText: '',
+    bumperLinkUrl: '',
+    bumperLinkText: '',
+  });
+
+  // Check if there are unsaved changes
+  const hasChanges =
+    JSON.stringify(navItems) !== JSON.stringify(originalNavItems) ||
+    JSON.stringify(footerLinks) !== JSON.stringify(originalFooterLinks) ||
+    JSON.stringify(bumperSettings) !== JSON.stringify(originalBumperSettings);
+
   useEffect(() => {
     fetchNavigation();
   }, []);
@@ -70,16 +86,23 @@ export default function NavigationPage() {
     try {
       const res = await fetch('/api/admin/navigation');
       const data = await res.json();
-      setNavItems(data.navigation || []);
-      setFooterLinks(data.footer || []);
-      if (data.bumper) {
-        setBumperSettings({
-          bumperEnabled: data.bumper.bumperEnabled ?? false,
-          bumperText: data.bumper.bumperText ?? '',
-          bumperLinkUrl: data.bumper.bumperLinkUrl ?? '',
-          bumperLinkText: data.bumper.bumperLinkText ?? '',
-        });
-      }
+      const nav = data.navigation || [];
+      const footer = data.footer || [];
+      const bumper = {
+        bumperEnabled: data.bumper?.bumperEnabled ?? false,
+        bumperText: data.bumper?.bumperText ?? '',
+        bumperLinkUrl: data.bumper?.bumperLinkUrl ?? '',
+        bumperLinkText: data.bumper?.bumperLinkText ?? '',
+      };
+
+      setNavItems(nav);
+      setFooterLinks(footer);
+      setBumperSettings(bumper);
+
+      // Store original state
+      setOriginalNavItems(JSON.parse(JSON.stringify(nav)));
+      setOriginalFooterLinks(JSON.parse(JSON.stringify(footer)));
+      setOriginalBumperSettings({ ...bumper });
     } catch (error) {
       console.error('Failed to fetch navigation:', error);
     } finally {
@@ -99,6 +122,10 @@ export default function NavigationPage() {
           bumper: bumperSettings,
         }),
       });
+      // Update original state after successful save
+      setOriginalNavItems(JSON.parse(JSON.stringify(navItems)));
+      setOriginalFooterLinks(JSON.parse(JSON.stringify(footerLinks)));
+      setOriginalBumperSettings({ ...bumperSettings });
     } catch (error) {
       console.error('Failed to save:', error);
     } finally {
@@ -211,53 +238,43 @@ export default function NavigationPage() {
         <div>
           <h1 className="text-2xl font-medium text-[var(--admin-text-primary)]">Navigation</h1>
           <p className="text-[var(--admin-text-secondary)] mt-1">
-            Manage header navigation, announcement bar, and footer links
+            Manage global navigation, footer links, and announcement bar
           </p>
         </div>
-        <button
-          onClick={handleSaveWithFeedback}
-          disabled={saving}
-          className={cn(
-            'inline-flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-all',
-            saved
-              ? 'bg-green-500 text-[var(--admin-text-primary)]'
-              : 'bg-[var(--primary)] text-[var(--admin-button-text)] hover:bg-[var(--primary-dark)]',
-            saving && 'opacity-50 cursor-not-allowed'
-          )}
-        >
-          {saving ? (
-            <>
-              <Loader2 className="w-4 h-4 animate-spin" />
-              Saving...
-            </>
-          ) : saved ? (
-            <>
-              <Check className="w-4 h-4" />
-              Saved!
-            </>
-          ) : (
-            <>
-              <Save className="w-4 h-4" />
-              Save All
-            </>
-          )}
-        </button>
+        {hasChanges && (
+          <button
+            onClick={handleSaveWithFeedback}
+            disabled={saving}
+            className={cn(
+              'inline-flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-all',
+              saved
+                ? 'bg-green-500 text-white'
+                : 'bg-[var(--primary)] text-[var(--admin-button-text)] hover:bg-[var(--primary-dark)]',
+              saving && 'opacity-50 cursor-not-allowed'
+            )}
+          >
+            {saving ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Saving...
+              </>
+            ) : saved ? (
+              <>
+                <Check className="w-4 h-4" />
+                Saved!
+              </>
+            ) : (
+              <>
+                <Save className="w-4 h-4" />
+                Save All
+              </>
+            )}
+          </button>
+        )}
       </div>
 
-      {/* Tabs */}
+      {/* Tabs - Order: Global Navigation, Footer, Announcement Bar */}
       <div className="flex gap-1 bg-[var(--admin-input)] rounded-xl p-1 border border-[var(--admin-border)]">
-        <button
-          onClick={() => setActiveTab('bumper')}
-          className={cn(
-            'flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm transition-all',
-            activeTab === 'bumper'
-              ? 'bg-[var(--primary)] text-[var(--admin-button-text)]'
-              : 'text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)] hover:bg-[var(--admin-input)]'
-          )}
-        >
-          <Megaphone className="w-4 h-4" />
-          Announcement Bar
-        </button>
         <button
           onClick={() => setActiveTab('header')}
           className={cn(
@@ -268,7 +285,7 @@ export default function NavigationPage() {
           )}
         >
           <Menu className="w-4 h-4" />
-          Header Navigation
+          Global Navigation
         </button>
         <button
           onClick={() => setActiveTab('footer')}
@@ -280,7 +297,19 @@ export default function NavigationPage() {
           )}
         >
           <LinkIcon className="w-4 h-4" />
-          Footer Links
+          Footer Navigation
+        </button>
+        <button
+          onClick={() => setActiveTab('bumper')}
+          className={cn(
+            'flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm transition-all',
+            activeTab === 'bumper'
+              ? 'bg-[var(--primary)] text-[var(--admin-button-text)]'
+              : 'text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)] hover:bg-[var(--admin-input)]'
+          )}
+        >
+          <Megaphone className="w-4 h-4" />
+          Announcement Bar
         </button>
       </div>
 
@@ -295,18 +324,34 @@ export default function NavigationPage() {
           </div>
 
           <div className="p-6 space-y-6">
-            {/* Enable Toggle */}
+            {/* Enable Toggle - Green (left/enabled) / Red (right/disabled) */}
             <div className="flex items-center gap-3">
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={bumperSettings.bumperEnabled}
-                  onChange={(e) => setBumperSettings({ ...bumperSettings, bumperEnabled: e.target.checked })}
-                  className="sr-only peer"
+              <span className={cn(
+                "text-sm font-medium transition-colors",
+                bumperSettings.bumperEnabled ? "text-green-400" : "text-[var(--admin-text-muted)]"
+              )}>
+                Enabled
+              </span>
+              <button
+                onClick={() => setBumperSettings({ ...bumperSettings, bumperEnabled: !bumperSettings.bumperEnabled })}
+                className="relative inline-flex h-8 w-16 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--admin-bg)]"
+                style={{
+                  backgroundColor: bumperSettings.bumperEnabled ? '#22c55e' : '#ef4444'
+                }}
+              >
+                <span
+                  className={cn(
+                    "inline-block h-6 w-6 transform rounded-full bg-white transition-transform shadow-lg",
+                    bumperSettings.bumperEnabled ? "translate-x-1" : "translate-x-9"
+                  )}
                 />
-                <div className="w-11 h-6 bg-[var(--admin-hover)] peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[var(--primary)] rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--primary)]"></div>
-              </label>
-              <span className="text-sm font-medium text-[var(--admin-text-primary)]">Enable Announcement Bar</span>
+              </button>
+              <span className={cn(
+                "text-sm font-medium transition-colors",
+                !bumperSettings.bumperEnabled ? "text-red-400" : "text-[var(--admin-text-muted)]"
+              )}>
+                Disabled
+              </span>
             </div>
 
             {/* Announcement Text */}

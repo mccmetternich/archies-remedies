@@ -204,7 +204,7 @@ export default function BlogAdminPage() {
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           <Link
             href="/admin/blog/tags"
-            className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-[var(--admin-input)] text-[var(--admin-text-secondary)] rounded-lg font-medium hover:bg-[var(--admin-border-light)] transition-colors text-sm"
+            className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-[var(--admin-card)] border border-[var(--admin-border)] text-[var(--admin-text-primary)] rounded-lg font-medium hover:bg-[var(--admin-hover)] transition-colors text-sm"
           >
             <Tag className="w-4 h-4" />
             <span className="hidden sm:inline">Manage Tags</span>
