@@ -154,13 +154,13 @@ export function Header({ logo, products = [], bumper, socialStats }: HeaderProps
             {/* Spacer to push right items */}
             <div className="hidden lg:block flex-1" />
 
-            {/* Our Mission - on the right before CTA */}
+            {/* Our Story - on the right before CTA */}
             <div className="hidden lg:flex items-center gap-8">
               <Link
-                href="/about"
+                href="/our-story"
                 className="text-base font-medium tracking-wide hover:text-[var(--muted-foreground)] transition-colors py-3"
               >
-                Our Mission
+                Our Story
               </Link>
 
               {/* CTA Button - Dark background with white text, blue hover */}
@@ -406,11 +406,11 @@ export function Header({ logo, products = [], bumper, socialStats }: HeaderProps
                     {/* Links */}
                     <div className="space-y-1">
                       <Link
-                        href="/about"
+                        href="/our-story"
                         onClick={() => setIsOpen(false)}
                         className="flex items-center justify-between py-4 border-b border-[var(--border-light)] hover:text-[var(--muted-foreground)] transition-colors"
                       >
-                        <span className="text-lg">About Us</span>
+                        <span className="text-lg">Our Story</span>
                         <ArrowRight className="w-4 h-4" />
                       </Link>
                       <Link

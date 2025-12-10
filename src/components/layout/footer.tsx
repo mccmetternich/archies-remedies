@@ -219,8 +219,8 @@ export function Footer({
               </h4>
               <ul className="space-y-4">
                 <li>
-                  <Link href="/about" className="text-sm text-white/60 hover:text-white transition-colors leading-relaxed">
-                    Our Mission
+                  <Link href="/our-story" className="text-sm text-white/60 hover:text-white transition-colors leading-relaxed">
+                    Our Story
                   </Link>
                 </li>
                 <li>
@@ -377,8 +377,8 @@ export function Footer({
             >
               <ul className="space-y-4 pb-4">
                 <li>
-                  <Link href="/about" className="text-sm text-white/60">
-                    Our Mission
+                  <Link href="/our-story" className="text-sm text-white/60">
+                    Our Story
                   </Link>
                 </li>
                 <li>
