@@ -1192,7 +1192,7 @@ function DraftModeTab({
             {settings.draftModeTitle || 'Coming Soon'}
           </h2>
           <p className="text-gray-500 text-sm max-w-sm mx-auto mb-6">
-            {settings.draftModeSubtitle || "Empowering you to look and feel your best, every single day."}
+            {settings.draftModeSubtitle || "Pure ingredients. Radiant you."}
           </p>
 
           {/* Form Preview */}

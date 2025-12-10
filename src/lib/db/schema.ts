@@ -12,7 +12,7 @@ export const siteSettings = sqliteTable('site_settings', {
   // Draft/Maintenance Mode
   siteInDraftMode: integer('site_in_draft_mode', { mode: 'boolean' }).default(false),
   draftModeTitle: text('draft_mode_title').default('Coming Soon'),
-  draftModeSubtitle: text('draft_mode_subtitle').default("Empowering you to look and feel your best, every single day."),
+  draftModeSubtitle: text('draft_mode_subtitle').default("Pure ingredients. Radiant you."),
   draftModeBadgeUrl: text('draft_mode_badge_url'), // Rotating badge image (PNG) that overlaps the logo
   // Editable callouts (trust badges underneath form)
   draftModeCallout1: text('draft_mode_callout1').default('Preservative-Free'),
