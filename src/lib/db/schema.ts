@@ -62,6 +62,7 @@ export const products = sqliteTable('products', {
   id: text('id').primaryKey(),
   slug: text('slug').notNull().unique(),
   name: text('name').notNull(),
+  subtitle: text('subtitle'), // Editorial subtitle e.g., "The Instant Relief Ritual"
   shortDescription: text('short_description'),
   longDescription: text('long_description'), // Rich text
 
@@ -78,6 +79,18 @@ export const products = sqliteTable('products', {
   badgeEmoji: text('badge_emoji'), // e.g., "🔥", "✨"
   rotatingBadgeEnabled: integer('rotating_badge_enabled', { mode: 'boolean' }).default(false),
   rotatingBadgeText: text('rotating_badge_text'), // e.g., "NEW"
+
+  // Rotating Seal (slow-spinning circular badge on gallery)
+  rotatingSealEnabled: integer('rotating_seal_enabled', { mode: 'boolean' }).default(false),
+  rotatingSealImageUrl: text('rotating_seal_image_url'), // CMS uploadable PNG
+
+  // PDP Drawer Content (accordions)
+  ritualTitle: text('ritual_title').default('The Ritual'),
+  ritualContent: text('ritual_content'), // How to use/apply - rich text
+  ingredientsTitle: text('ingredients_title').default('Ingredients'),
+  ingredientsContent: text('ingredients_content'), // Full transparency list - rich text
+  shippingTitle: text('shipping_title').default('Good to Know'),
+  shippingContent: text('shipping_content'), // Shipping & Returns - rich text
 
   // SEO
   metaTitle: text('meta_title'),
@@ -335,6 +348,47 @@ export const footerLinks = sqliteTable('footer_links', {
   column: text('column').default('Shop'), // Column header: Shop, Support, Company, Legal
   isExternal: integer('is_external', { mode: 'boolean' }).default(false),
   isActive: integer('is_active', { mode: 'boolean' }).default(true),
+  sortOrder: integer('sort_order').default(0),
+
+  createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
+});
+
+// Product Reviews (detailed reviews for PDP)
+export const reviews = sqliteTable('reviews', {
+  id: text('id').primaryKey(),
+  productId: text('product_id').notNull().references(() => products.id, { onDelete: 'cascade' }),
+  rating: integer('rating').default(5), // 1-5 stars
+  title: text('title'), // Review headline e.g., "Finally, a drop that doesn't burn."
+  authorName: text('author_name').notNull(),
+  authorInitial: text('author_initial'), // e.g., "Sarah J."
+  text: text('text').notNull(), // Full review text
+  keywords: text('keywords'), // JSON array of keyword strings e.g., ["No Stinging", "Contacts Safe"]
+  isVerified: integer('is_verified', { mode: 'boolean' }).default(true),
+  isFeatured: integer('is_featured', { mode: 'boolean' }).default(false),
+  isActive: integer('is_active', { mode: 'boolean' }).default(true),
+  sortOrder: integer('sort_order').default(0),
+
+  createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
+});
+
+// Review Keywords (aggregated for filter bubbles)
+export const reviewKeywords = sqliteTable('review_keywords', {
+  id: text('id').primaryKey(),
+  productId: text('product_id').notNull().references(() => products.id, { onDelete: 'cascade' }),
+  keyword: text('keyword').notNull(),
+  count: integer('count').default(1), // Number of reviews with this keyword
+  sortOrder: integer('sort_order').default(0),
+
+  createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
+});
+
+// Product Certifications (Certification Trio widget)
+export const productCertifications = sqliteTable('product_certifications', {
+  id: text('id').primaryKey(),
+  productId: text('product_id').notNull().references(() => products.id, { onDelete: 'cascade' }),
+  icon: text('icon').notNull(), // Icon name: droplet, eye, flag, leaf, sparkle, cross
+  title: text('title').notNull(), // e.g., "Preservative Free"
+  description: text('description'), // e.g., "Single-use vials, no irritating preservatives"
   sortOrder: integer('sort_order').default(0),
 
   createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),

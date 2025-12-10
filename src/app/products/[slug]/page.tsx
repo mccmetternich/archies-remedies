@@ -1,14 +1,27 @@
 import { db } from '@/lib/db';
-import { products, productVariants, productImages, productBenefits, testimonials, siteSettings } from '@/lib/db/schema';
-import { eq, and } from 'drizzle-orm';
+import {
+  products,
+  productVariants,
+  productImages,
+  productBenefits,
+  siteSettings,
+  reviews,
+  reviewKeywords,
+  productCertifications,
+  videoTestimonials,
+} from '@/lib/db/schema';
+import { eq, and, desc } from 'drizzle-orm';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
-import { ProductHero } from '@/components/product/product-hero';
-import { ProductInfo } from '@/components/product/product-info';
+import { PDPGallery } from '@/components/product/pdp-gallery';
+import { PDPBuyBox } from '@/components/product/pdp-buy-box';
+import { PDPReviews } from '@/components/product/pdp-reviews';
 import { BenefitsWidget } from '@/components/product/benefits-widget';
-import { ProductReviews } from '@/components/product/product-reviews';
+import { MarqueeBar } from '@/components/widgets/marquee-bar';
+import { CertificationTrio } from '@/components/widgets/certification-trio';
+import { VideoTestimonialsGrid } from '@/components/widgets/video-testimonials-grid';
 import { InstagramFeed } from '@/components/home/instagram-feed';
 
 export const revalidate = 60;
@@ -26,37 +39,48 @@ async function getProduct(slug: string) {
 
   if (!product) return null;
 
-  const variants = await db
-    .select()
-    .from(productVariants)
-    .where(eq(productVariants.productId, product.id))
-    .orderBy(productVariants.sortOrder);
-
-  const images = await db
-    .select()
-    .from(productImages)
-    .where(eq(productImages.productId, product.id))
-    .orderBy(productImages.sortOrder);
-
-  const benefits = await db
-    .select()
-    .from(productBenefits)
-    .where(eq(productBenefits.productId, product.id))
-    .orderBy(productBenefits.sortOrder);
-
-  const productTestimonials = await db
-    .select()
-    .from(testimonials)
-    .where(eq(testimonials.isActive, true))
-    .orderBy(testimonials.sortOrder)
-    .limit(6);
+  const [variants, images, benefits, productReviews, keywords, certifications] =
+    await Promise.all([
+      db
+        .select()
+        .from(productVariants)
+        .where(eq(productVariants.productId, product.id))
+        .orderBy(productVariants.sortOrder),
+      db
+        .select()
+        .from(productImages)
+        .where(eq(productImages.productId, product.id))
+        .orderBy(productImages.sortOrder),
+      db
+        .select()
+        .from(productBenefits)
+        .where(eq(productBenefits.productId, product.id))
+        .orderBy(productBenefits.sortOrder),
+      db
+        .select()
+        .from(reviews)
+        .where(and(eq(reviews.productId, product.id), eq(reviews.isActive, true)))
+        .orderBy(desc(reviews.isFeatured), reviews.sortOrder),
+      db
+        .select()
+        .from(reviewKeywords)
+        .where(eq(reviewKeywords.productId, product.id))
+        .orderBy(reviewKeywords.sortOrder),
+      db
+        .select()
+        .from(productCertifications)
+        .where(eq(productCertifications.productId, product.id))
+        .orderBy(productCertifications.sortOrder),
+    ]);
 
   return {
     ...product,
     variants,
     images,
     benefits,
-    testimonials: productTestimonials,
+    reviews: productReviews,
+    keywords,
+    certifications,
   };
 }
 
@@ -68,7 +92,14 @@ async function getSiteData() {
     .where(eq(products.isActive, true))
     .orderBy(products.sortOrder);
 
-  return { settings, products: productList };
+  const videos = await db
+    .select()
+    .from(videoTestimonials)
+    .where(eq(videoTestimonials.isActive, true))
+    .orderBy(videoTestimonials.sortOrder)
+    .limit(4);
+
+  return { settings, products: productList, videos };
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -92,10 +123,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function ProductPage({ params }: PageProps) {
   const { slug } = await params;
-  const [product, siteData] = await Promise.all([
-    getProduct(slug),
-    getSiteData(),
-  ]);
+  const [product, siteData] = await Promise.all([getProduct(slug), getSiteData()]);
 
   if (!product) {
     notFound();
@@ -104,43 +132,82 @@ export default async function ProductPage({ params }: PageProps) {
   const positiveBenefits = product.benefits.filter((b) => b.isPositive);
   const negativeBenefits = product.benefits.filter((b) => !b.isPositive);
 
+  // Calculate average rating
+  const validReviews = product.reviews.filter((r) => r.rating !== null);
+  const averageRating =
+    validReviews.length > 0
+      ? validReviews.reduce((acc, r) => acc + (r.rating || 5), 0) / validReviews.length
+      : 5;
+
+  // Map certifications to the format expected by CertificationTrio
+  const certificationData = product.certifications.map((c) => ({
+    icon: c.icon as 'droplet' | 'eye' | 'flag' | 'leaf' | 'sparkle' | 'cross',
+    title: c.title,
+    description: c.description || undefined,
+  }));
+
+  // Map video testimonials
+  const videoData = siteData.videos.map((v) => ({
+    id: v.id,
+    thumbnailUrl: v.thumbnailUrl,
+    videoUrl: v.videoUrl,
+    title: v.title || undefined,
+    name: v.name || undefined,
+  }));
+
   return (
     <>
       <Header
         logo={siteData.settings?.logoUrl}
         products={siteData.products}
-        bumper={siteData.settings ? {
-          bumperEnabled: siteData.settings.bumperEnabled,
-          bumperText: siteData.settings.bumperText,
-          bumperLinkUrl: siteData.settings.bumperLinkUrl,
-          bumperLinkText: siteData.settings.bumperLinkText,
-        } : null}
+        bumper={
+          siteData.settings
+            ? {
+                bumperEnabled: siteData.settings.bumperEnabled,
+                bumperText: siteData.settings.bumperText,
+                bumperLinkUrl: siteData.settings.bumperLinkUrl,
+                bumperLinkText: siteData.settings.bumperLinkText,
+              }
+            : null
+        }
       />
 
-      <main className="pt-4">
-        {/* Product Hero Section */}
-        <section className="container">
-          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
-            {/* Left: Images */}
-            <ProductHero
+      <main className="pt-6 md:pt-8">
+        {/* Product Hero Section - Split Screen Layout */}
+        <section className="container mb-12 md:mb-16">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-16">
+            {/* Left: Gallery (NOT sticky) */}
+            <PDPGallery
               images={product.images}
               heroImage={product.heroImageUrl}
               productName={product.name}
               badge={product.badge}
               badgeEmoji={product.badgeEmoji}
+              rotatingSealEnabled={product.rotatingSealEnabled || false}
+              rotatingSealImageUrl={product.rotatingSealImageUrl}
             />
 
-            {/* Right: Info */}
-            <ProductInfo
+            {/* Right: Buy Box (sticky) */}
+            <PDPBuyBox
               product={product}
               variants={product.variants}
+              reviewCount={product.reviews.length}
+              averageRating={averageRating}
             />
           </div>
         </section>
 
+        {/* Marquee Bar */}
+        <MarqueeBar
+          text="Ophthalmologist Tested • Preservative Free • Clean Formula • Made in USA"
+          speed="medium"
+          backgroundColor="var(--primary)"
+          textColor="var(--foreground)"
+        />
+
         {/* Benefits Widget */}
         {(positiveBenefits.length > 0 || negativeBenefits.length > 0) && (
-          <section className="section">
+          <section className="py-16 md:py-20">
             <div className="container">
               <BenefitsWidget
                 positiveBenefits={positiveBenefits}
@@ -150,22 +217,26 @@ export default async function ProductPage({ params }: PageProps) {
           </section>
         )}
 
-        {/* Product Description */}
-        {product.longDescription && (
-          <section className="section bg-[var(--secondary)]">
-            <div className="container">
-              <div className="max-w-3xl mx-auto">
-                <div
-                  className="prose prose-lg"
-                  dangerouslySetInnerHTML={{ __html: product.longDescription }}
-                />
-              </div>
-            </div>
-          </section>
+        {/* Certification Trio */}
+        {certificationData.length > 0 && (
+          <CertificationTrio certifications={certificationData} />
+        )}
+
+        {/* Video Testimonials */}
+        {videoData.length > 0 && (
+          <VideoTestimonialsGrid
+            videos={videoData}
+            title="Real Results"
+            subtitle="Hear from our community"
+          />
         )}
 
         {/* Reviews Section */}
-        <ProductReviews testimonials={product.testimonials} />
+        <PDPReviews
+          reviews={product.reviews}
+          keywords={product.keywords}
+          productName={product.name}
+        />
 
         {/* Instagram Feed */}
         <InstagramFeed
