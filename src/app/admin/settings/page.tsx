@@ -53,7 +53,7 @@ const tabs = [
   { id: 'navigation', label: 'Navigation', icon: Navigation },
   { id: 'popup', label: 'Pop-ups', icon: MousePointerClick },
   { id: 'tracking', label: 'Tracking', icon: Code },
-  { id: 'draft', label: 'Draft Mode', icon: Construction },
+  { id: 'coming-soon', label: 'Coming Soon', icon: Construction },
 ];
 
 interface ImageUploadProps {
@@ -876,8 +876,8 @@ function SettingsPageContent() {
           </motion.div>
         )}
 
-        {activeTab === 'draft' && (
-          <DraftModeTab
+        {activeTab === 'coming-soon' && (
+          <ComingSoonTab
             settings={settings}
             updateField={updateField}
           />
@@ -899,8 +899,8 @@ export default function SettingsPage() {
   );
 }
 
-// Draft Mode Tab Component
-function DraftModeTab({
+// Coming Soon Tab Component
+function ComingSoonTab({
   settings,
   updateField,
 }: {
@@ -957,7 +957,7 @@ function DraftModeTab({
       animate={{ opacity: 1, y: 0 }}
       className="space-y-6"
     >
-      {/* Draft Mode Status */}
+      {/* Coming Soon Mode Status */}
       <div className={cn(
         "p-6 rounded-xl border-2 transition-colors",
         settings.siteInDraftMode
@@ -978,22 +978,22 @@ function DraftModeTab({
             </div>
             <div>
               <p className="font-medium text-[var(--admin-text-primary)]">
-                {settings.siteInDraftMode ? 'Site is in Draft Mode' : 'Site is Live'}
+                {settings.siteInDraftMode ? 'Coming Soon Mode Active' : 'Site is Live'}
               </p>
               <p className="text-sm text-[var(--admin-text-secondary)]">
                 {settings.siteInDraftMode
-                  ? 'Visitors will see a "Coming Soon" page'
+                  ? 'Visitors will see the "Coming Soon" page below'
                   : 'Your site is publicly accessible'}
               </p>
             </div>
           </div>
-          {/* Toggle: OFF (left) = Draft, ON (right) = Live */}
+          {/* Toggle: OFF (left) = Coming Soon, ON (right) = Live */}
           <div className="flex items-center gap-3">
             <span className={cn(
               "text-xs font-medium",
               settings.siteInDraftMode ? "text-orange-400" : "text-[var(--admin-text-muted)]"
             )}>
-              Draft
+              Coming Soon
             </span>
             <label className="relative inline-flex items-center cursor-pointer">
               <input
@@ -1014,12 +1014,12 @@ function DraftModeTab({
         </div>
       </div>
 
-      {/* Preview Access - Only show when in draft mode */}
+      {/* Preview Access - Only show when in Coming Soon mode */}
       {settings.siteInDraftMode && (
         <div className="p-6 bg-[var(--admin-bg)] rounded-xl border border-[var(--admin-border)]">
           <h3 className="font-medium text-[var(--admin-text-primary)] mb-4">Preview Access</h3>
           <p className="text-sm text-[var(--admin-text-secondary)] mb-4">
-            Generate a preview token to view the site while in draft mode. The token is valid for 24 hours.
+            Generate a preview token to view the full site while in Coming Soon mode. Share this link with team members who need access. The token is valid for 24 hours.
           </p>
           <div className="flex gap-3">
             <button
