@@ -160,6 +160,17 @@ export default function BlogPostEditorPage({ params }: { params: Promise<{ id: s
     await handleSave();
   };
 
+  const handleDeletePost = async () => {
+    if (!confirm('Are you sure you want to delete this blog post? This action cannot be undone.')) return;
+
+    try {
+      await fetch(`/api/admin/blog/posts/${id}`, { method: 'DELETE' });
+      router.push('/admin/blog');
+    } catch (error) {
+      console.error('Failed to delete post:', error);
+    }
+  };
+
   const handleAddTag = (tag: BlogTag) => {
     if (!post.tags?.find((t) => t.id === tag.id)) {
       setPost((prev) => ({
@@ -289,6 +300,15 @@ export default function BlogPostEditorPage({ params }: { params: Promise<{ id: s
                   Save Changes
                 </>
               )}
+            </button>
+          )}
+          {!isNew && (
+            <button
+              onClick={handleDeletePost}
+              className="p-2.5 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors"
+              title="Delete Post"
+            >
+              <Trash2 className="w-5 h-5" />
             </button>
           )}
         </div>

@@ -309,7 +309,25 @@ function SettingsPageContent() {
         <div className="flex items-center gap-4">
           <h1 className="text-2xl font-medium text-[var(--admin-text-primary)]">Site Settings</h1>
 
-          {/* Big Draft/Live Toggle */}
+          {/* View Draft/Live Button - First */}
+          {settings && (
+            <a
+              href={settings.siteInDraftMode ? '/?preview=true' : '/'}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={cn(
+                'inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors',
+                settings.siteInDraftMode
+                  ? 'bg-orange-500 text-white hover:bg-orange-600'
+                  : 'bg-green-500 text-white hover:bg-green-600'
+              )}
+            >
+              <ExternalLink className="w-4 h-4" />
+              {settings.siteInDraftMode ? 'View Draft' : 'View Live Site'}
+            </a>
+          )}
+
+          {/* Draft/Live Toggle - Second */}
           {settings && (
             <div className="flex items-center gap-2">
               <span className={cn(
@@ -340,65 +358,50 @@ function SettingsPageContent() {
               </span>
             </div>
           )}
+        </div>
 
-          {/* View Draft/Live Button */}
-          {settings && (
-            <a
-              href={settings.siteInDraftMode ? '/?preview=true' : '/'}
-              target="_blank"
-              rel="noopener noreferrer"
+        <div className="flex items-center gap-3">
+          {/* Save Changes Button */}
+          {hasChanges && (
+            <button
+              onClick={handleSave}
+              disabled={saving}
               className={cn(
-                'inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors',
-                settings.siteInDraftMode
-                  ? 'bg-orange-500/10 text-orange-400 hover:bg-orange-500/20'
-                  : 'bg-green-500/10 text-green-400 hover:bg-green-500/20'
+                'inline-flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-all',
+                saved
+                  ? 'bg-green-500 text-white'
+                  : 'bg-[var(--primary)] text-[var(--admin-button-text)] hover:bg-[var(--primary-dark)]',
+                saving && 'opacity-50 cursor-not-allowed'
               )}
             >
-              <ExternalLink className="w-4 h-4" />
-              {settings.siteInDraftMode ? 'View Draft' : 'View Live Site'}
-            </a>
+              {saving ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Saving...
+                </>
+              ) : saved ? (
+                <>
+                  <Check className="w-4 h-4" />
+                  Saved!
+                </>
+              ) : (
+                <>
+                  <Save className="w-4 h-4" />
+                  Save Changes
+                </>
+              )}
+            </button>
           )}
 
-          {/* Delete Site Button */}
+          {/* Delete Site Button - Far Right */}
           <button
             onClick={() => setShowDeleteModal(true)}
-            className="p-2 rounded-lg text-red-400 hover:bg-red-500/10 transition-colors"
+            className="p-2.5 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors"
             title="Delete Site"
           >
             <Trash2 className="w-5 h-5" />
           </button>
         </div>
-
-        {hasChanges && (
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className={cn(
-              'inline-flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-all',
-              saved
-                ? 'bg-green-500 text-[var(--admin-text-primary)]'
-                : 'bg-[var(--primary)] text-[var(--admin-button-text)] hover:bg-[var(--primary-dark)]',
-              saving && 'opacity-50 cursor-not-allowed'
-            )}
-          >
-            {saving ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Saving...
-              </>
-            ) : saved ? (
-              <>
-                <Check className="w-4 h-4" />
-                Saved!
-              </>
-            ) : (
-              <>
-                <Save className="w-4 h-4" />
-                Save Changes
-              </>
-            )}
-          </button>
-        )}
       </div>
 
       {/* Delete Confirmation Modal */}

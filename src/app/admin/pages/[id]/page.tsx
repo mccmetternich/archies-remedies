@@ -270,6 +270,17 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
     }
   };
 
+  const handleDeletePage = async () => {
+    if (!confirm('Are you sure you want to delete this page? This action cannot be undone.')) return;
+
+    try {
+      await fetch(`/api/admin/pages/${id}`, { method: 'DELETE' });
+      router.push('/admin/pages');
+    } catch (error) {
+      console.error('Failed to delete page:', error);
+    }
+  };
+
   const handleReorderWidgets = (newOrder: PageWidget[]) => {
     setWidgets(newOrder);
   };
@@ -382,6 +393,15 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
                   {isNew ? 'Create Page' : 'Save Changes'}
                 </>
               )}
+            </button>
+          )}
+          {!isNew && (
+            <button
+              onClick={handleDeletePage}
+              className="p-2.5 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors"
+              title="Delete Page"
+            >
+              <Trash2 className="w-5 h-5" />
             </button>
           )}
         </div>

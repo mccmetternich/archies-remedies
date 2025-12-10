@@ -234,12 +234,6 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
           </div>
         </div>
         <div className="flex items-center gap-3">
-          {!isNew && (
-            <Button variant="outline" onClick={handleDelete}>
-              <Trash2 className="w-4 h-4" />
-              Delete
-            </Button>
-          )}
           <Button onClick={handleSave} loading={saving}>
             {saved ? (
               <>
@@ -253,6 +247,15 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
               </>
             )}
           </Button>
+          {!isNew && (
+            <button
+              onClick={handleDelete}
+              className="p-2.5 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors"
+              title="Delete Product"
+            >
+              <Trash2 className="w-5 h-5" />
+            </button>
+          )}
         </div>
       </div>
 
