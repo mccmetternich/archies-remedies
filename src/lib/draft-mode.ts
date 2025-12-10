@@ -9,8 +9,9 @@ import { siteSettings } from '@/lib/db/schema';
  *
  * Access is granted if:
  * 1. Site is NOT in draft mode (siteInDraftMode = false)
- * 2. User has a valid preview_token cookie
- * 3. User has an admin_session cookie (admin user)
+ * 2. User has a valid preview_token cookie (from clicking "View Draft" in admin)
+ *
+ * Note: Admin session alone does NOT grant access - admins must use the preview link
  */
 export async function checkDraftMode(): Promise<{ isInDraftMode: boolean }> {
   // Get site settings from database
@@ -23,13 +24,12 @@ export async function checkDraftMode(): Promise<{ isInDraftMode: boolean }> {
     return { isInDraftMode: false };
   }
 
-  // Check for preview token or admin session
+  // Only allow access with explicit preview token
   const cookieStore = await cookies();
   const previewToken = cookieStore.get('preview_token');
-  const adminSession = cookieStore.get('admin_session');
 
-  // If user has preview token or admin session, allow access
-  if (previewToken?.value || adminSession?.value) {
+  // If user has preview token, allow access
+  if (previewToken?.value) {
     return { isInDraftMode: true };
   }
 
@@ -54,9 +54,9 @@ export async function getDraftModeStatus(): Promise<{
 
   const cookieStore = await cookies();
   const previewToken = cookieStore.get('preview_token');
-  const adminSession = cookieStore.get('admin_session');
 
-  const hasAccess = !!(previewToken?.value || adminSession?.value);
+  // Only preview token grants access, not admin session
+  const hasAccess = !!previewToken?.value;
 
   return { isInDraftMode, hasAccess };
 }
