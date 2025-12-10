@@ -132,6 +132,7 @@ export default async function HomePage() {
         facebookUrl={data.settings?.facebookUrl}
         tiktokUrl={data.settings?.tiktokUrl}
         amazonStoreUrl={data.settings?.amazonStoreUrl}
+        massiveFooterLogoUrl={data.settings?.massiveFooterLogoUrl}
       />
 
       {/* Email Popup */}

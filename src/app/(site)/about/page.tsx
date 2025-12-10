@@ -120,6 +120,7 @@ export default async function AboutPage() {
         facebookUrl={data.settings?.facebookUrl}
         tiktokUrl={data.settings?.tiktokUrl}
         amazonStoreUrl={data.settings?.amazonStoreUrl}
+        massiveFooterLogoUrl={data.settings?.massiveFooterLogoUrl}
       />
     </>
   );

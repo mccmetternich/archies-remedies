@@ -43,6 +43,8 @@ interface SiteSettings {
   draftModeCallout3: string | null;
   draftModeBrandQuip: string | null;
   draftModeContactType: string | null;
+  // Footer
+  massiveFooterLogoUrl: string | null;
 }
 
 const tabs = [
@@ -490,6 +492,15 @@ function SettingsPageContent() {
                   onChange={(url) => updateField('faviconUrl', url)}
                   placeholder="https://..."
                   helpText="Recommended: Square PNG or ICO, 32x32px"
+                />
+              </div>
+              <div className="md:col-span-2">
+                <ImageUpload
+                  label="Massive Footer Logo"
+                  value={settings.massiveFooterLogoUrl}
+                  onChange={(url) => updateField('massiveFooterLogoUrl', url)}
+                  placeholder="https://..."
+                  helpText="Full-width brand texture that spans the footer. Recommended: Large PNG with transparent background, at least 1920px wide."
                 />
               </div>
             </div>

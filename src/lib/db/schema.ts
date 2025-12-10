@@ -80,6 +80,9 @@ export const siteSettings = sqliteTable('site_settings', {
   bumperLinkUrl: text('bumper_link_url'),
   bumperLinkText: text('bumper_link_text'),
 
+  // Footer
+  massiveFooterLogoUrl: text('massive_footer_logo_url'), // Full-width brand texture logo that spans viewport
+
   // Social Stats (for consistent social proof across the site)
   totalReviews: integer('total_reviews').default(2900),
   totalCustomers: integer('total_customers').default(10000),

@@ -94,6 +94,7 @@ export default async function PrivacyPage() {
         facebookUrl={data.settings?.facebookUrl}
         tiktokUrl={data.settings?.tiktokUrl}
         amazonStoreUrl={data.settings?.amazonStoreUrl}
+        massiveFooterLogoUrl={data.settings?.massiveFooterLogoUrl}
       />
     </>
   );

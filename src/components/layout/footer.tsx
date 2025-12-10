@@ -12,6 +12,7 @@ interface FooterProps {
   facebookUrl?: string | null;
   tiktokUrl?: string | null;
   amazonStoreUrl?: string | null;
+  massiveFooterLogoUrl?: string | null;
 }
 
 export function Footer({
@@ -20,6 +21,7 @@ export function Footer({
   facebookUrl,
   tiktokUrl,
   amazonStoreUrl,
+  massiveFooterLogoUrl,
 }: FooterProps) {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
@@ -438,6 +440,23 @@ export function Footer({
           </div>
         </div>
       </div>
+
+      {/* Massive Footer Logo - Full Width Brand Texture */}
+      {massiveFooterLogoUrl && (
+        <div className="w-full overflow-hidden">
+          <div className="relative w-full flex justify-center">
+            <Image
+              src={massiveFooterLogoUrl}
+              alt=""
+              width={1920}
+              height={400}
+              className="w-full max-w-none object-contain opacity-10"
+              style={{ minWidth: '100vw' }}
+              priority={false}
+            />
+          </div>
+        </div>
+      )}
 
       {/* Separator */}
       <div className="container">

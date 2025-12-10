@@ -271,6 +271,7 @@ export default async function ProductPage({ params }: PageProps) {
         facebookUrl={siteData.settings?.facebookUrl}
         tiktokUrl={siteData.settings?.tiktokUrl}
         amazonStoreUrl={siteData.settings?.amazonStoreUrl}
+        massiveFooterLogoUrl={siteData.settings?.massiveFooterLogoUrl}
       />
     </>
   );
