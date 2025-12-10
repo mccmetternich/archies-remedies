@@ -341,12 +341,26 @@ export function ComingSoonClient({
                     )}
                   </div>
                 ) : (
-                  <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#bbdae9]/20 border border-[#bbdae9]/30 rounded-full mx-auto">
-                    <Sparkles className="w-4 h-4 text-[#bbdae9]" />
+                  <motion.div
+                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#bbdae9]/30 border border-[#bbdae9]/40 rounded-full mx-auto shadow-[0_0_15px_rgba(187,218,233,0.3)]"
+                    animate={{
+                      boxShadow: [
+                        '0 0 15px rgba(187,218,233,0.3)',
+                        '0 0 25px rgba(187,218,233,0.5)',
+                        '0 0 15px rgba(187,218,233,0.3)',
+                      ],
+                    }}
+                    transition={{
+                      duration: 3,
+                      repeat: Infinity,
+                      ease: 'easeInOut',
+                    }}
+                  >
+                    <span className="text-base">✨</span>
                     <span className="text-sm text-gray-600 font-medium">
                       {brandQuip}
                     </span>
-                  </div>
+                  </motion.div>
                 )}
               </motion.div>
             </motion.div>

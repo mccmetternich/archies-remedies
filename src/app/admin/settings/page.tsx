@@ -1289,8 +1289,8 @@ function ComingSoonTab({
               )}
             </div>
           ) : (
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#bbdae9]/20 border border-[#bbdae9]/30 rounded-full">
-              <Sparkles className="w-3 h-3 text-[#bbdae9]" />
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#bbdae9]/30 border border-[#bbdae9]/40 rounded-full shadow-[0_0_15px_rgba(187,218,233,0.3)] animate-pulse">
+              <span className="text-sm">✨</span>
               <span className="text-xs text-gray-600 font-medium">
                 {settings.draftModeBrandQuip || 'Where clean beauty meets clear vision.'}
               </span>
