@@ -60,9 +60,9 @@ export function Footer({
 
   return (
     <footer className="bg-[#1a1a1a] text-white">
-      {/* ROW 1: Community Invitation - Full Width */}
+      {/* ROW 1: Community Invitation - Full Width with wider spread */}
       <div className="py-20 md:py-24">
-        <div className="container">
+        <div className="w-full px-6 md:px-12 lg:px-20 xl:px-28">
           {status === 'success' ? (
             <div className="text-center py-8">
               <p className="text-2xl font-light tracking-wide animate-fade-in">
@@ -70,9 +70,9 @@ export function Footer({
               </p>
             </div>
           ) : (
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-10 lg:gap-20">
-              {/* Text Group - Left */}
-              <div className="lg:max-w-md">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-10 lg:gap-32">
+              {/* Text Group - Left - anchored to left edge */}
+              <div className="lg:max-w-sm">
                 <h3 className="text-sm font-semibold tracking-[0.15em] uppercase mb-4">
                   Join the Archie&apos;s Community
                 </h3>
@@ -81,8 +81,8 @@ export function Footer({
                 </p>
               </div>
 
-              {/* Input Group - Right */}
-              <form onSubmit={handleSubscribe} className="flex-1 lg:max-w-lg">
+              {/* Input Group - Right - anchored to right edge */}
+              <form onSubmit={handleSubscribe} className="flex-1 lg:max-w-md">
                 <div className="flex items-center gap-4 border-b border-white/30 pb-3 group focus-within:border-white transition-colors">
                   <input
                     type="email"
@@ -123,11 +123,11 @@ export function Footer({
 
       {/* ROW 2: Navigation Grid */}
       <div className="py-16 md:py-20">
-        <div className="container">
-          {/* Desktop Grid - 5 Columns */}
-          <div className="hidden md:grid md:grid-cols-12 gap-10 lg:gap-16">
-            {/* Column 1: Brand Anchor */}
-            <div className="col-span-3">
+        <div className="w-full px-6 md:px-12 lg:px-20 xl:px-28">
+          {/* Desktop Grid - 5 Columns with wider spread */}
+          <div className="hidden md:grid md:grid-cols-12 gap-8 lg:gap-12">
+            {/* Column 1: Brand Anchor - pushed left */}
+            <div className="col-span-3 lg:col-span-2">
               {logo ? (
                 <Image
                   src={logo}
@@ -182,8 +182,11 @@ export function Footer({
               </div>
             </div>
 
+            {/* Spacer to push columns right */}
+            <div className="hidden lg:block lg:col-span-2" />
+
             {/* Column 2: Shop */}
-            <div className="col-span-2">
+            <div className="col-span-2 lg:col-span-2">
               <h4 className="text-xs font-bold tracking-[0.15em] uppercase mb-6 text-white">
                 Shop
               </h4>
@@ -252,28 +255,28 @@ export function Footer({
               </ul>
             </div>
 
-            {/* Column 5: Certifications - Icons Only */}
-            <div className="col-span-3">
+            {/* Column 5: Certifications - Icons Only - left aligned */}
+            <div className="col-span-3 lg:col-span-2">
               <h4 className="text-xs font-bold tracking-[0.15em] uppercase mb-6 text-white">
                 Certifications
               </h4>
-              <div className="flex gap-6">
+              <div className="flex gap-5">
                 {/* Preservative Free */}
-                <div className="flex flex-col items-center gap-2">
+                <div className="flex flex-col items-start gap-2">
                   <div className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center">
                     <Droplet className="w-4 h-4 text-white/80" />
                   </div>
                   <span className="text-[10px] text-white/50 uppercase tracking-wide">Preservative Free</span>
                 </div>
                 {/* Made in USA */}
-                <div className="flex flex-col items-center gap-2">
+                <div className="flex flex-col items-start gap-2">
                   <div className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center">
                     <Flag className="w-4 h-4 text-white/80" />
                   </div>
                   <span className="text-[10px] text-white/50 uppercase tracking-wide">Made in USA</span>
                 </div>
                 {/* Cruelty Free */}
-                <div className="flex flex-col items-center gap-2">
+                <div className="flex flex-col items-start gap-2">
                   <div className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center">
                     <svg className="w-4 h-4 text-white/80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                       <path d="M12 4c-2 0-3.5 1-4.5 2.5S6 9.5 6 11c0 2 1 3.5 2 4.5s2 2 2 3.5v1h4v-1c0-1.5 1-2.5 2-3.5s2-2.5 2-4.5c0-1.5-.5-3-1.5-4.5S14 4 12 4z" />
@@ -287,7 +290,7 @@ export function Footer({
           </div>
 
           {/* Mobile Layout - Accordions */}
-          <div className="md:hidden space-y-0">
+          <div className="md:hidden space-y-0 px-6">
             {/* Brand - Always Visible */}
             <div className="pb-8">
               {logo ? (
@@ -443,15 +446,15 @@ export function Footer({
 
       {/* Massive Footer Logo - Full Width Brand Texture */}
       {massiveFooterLogoUrl && (
-        <div className="w-full overflow-hidden">
+        <div className="w-full overflow-hidden mb-12 md:mb-16">
           <div className="relative w-full flex justify-center">
             <Image
               src={massiveFooterLogoUrl}
               alt=""
-              width={1920}
-              height={400}
-              className="w-full max-w-none object-contain opacity-10"
-              style={{ minWidth: '100vw' }}
+              width={2400}
+              height={500}
+              className="w-[120vw] max-w-none object-contain opacity-15 brightness-0 invert"
+              style={{ marginLeft: '-10vw', marginRight: '-10vw' }}
               priority={false}
             />
           </div>
