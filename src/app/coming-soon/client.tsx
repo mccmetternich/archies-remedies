@@ -65,8 +65,7 @@ export function ComingSoonClient({
   const validatePhone = (value: string): string | null => {
     const digits = value.replace(/\D/g, '');
     if (digits.length === 0) return null;
-    if (digits.length < 10) return 'Please enter a complete 10-digit phone number';
-    if (digits.length > 10) return 'Phone number must be 10 digits';
+    if (digits.length !== 10) return 'Whoops. Please enter a valid #';
     return null;
   };
 
@@ -77,12 +76,8 @@ export function ComingSoonClient({
     // Basic email regex with TLD requirement (at least 2 chars after last dot)
     const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
 
-    if (!value.includes('@')) {
-      return 'Please include an @ symbol';
-    }
-
     if (!emailRegex.test(value)) {
-      return 'Please enter a valid email address';
+      return 'Whoops. Please enter a valid email.';
     }
 
     return null;
@@ -280,7 +275,7 @@ export function ComingSoonClient({
                   </h1>
                 </div>
                 <p className="text-xl text-gray-600 mb-12 max-w-md mx-auto leading-relaxed">
-                  We'll let you know when we launch. Follow us for updates.
+                  We'll let you know when we launch.<br />Follow us for updates.
                 </p>
 
                 {/* Social links */}
@@ -390,7 +385,7 @@ export function ComingSoonClient({
                     placeholder={contactType === 'email' ? 'Enter your email' : 'Enter Phone #'}
                     required
                     className={`w-full pl-16 pr-36 py-5 text-lg rounded-full border bg-white shadow-sm transition-all outline-none focus:outline-none focus:ring-0 focus:shadow-none ${
-                      validationError ? 'border-red-300 focus:border-red-300' : 'border-gray-200 focus:border-[#bbdae9]'
+                      validationError ? 'border-[#bbdae9] focus:border-[#bbdae9]' : 'border-gray-200 focus:border-[#bbdae9]'
                     }`}
                     style={{ outline: 'none', boxShadow: 'none' }}
                   />
@@ -419,11 +414,11 @@ export function ComingSoonClient({
                       transition={{ duration: 0.2 }}
                       className="mt-4 flex items-center justify-center gap-2"
                     >
-                      <div className="inline-flex items-center gap-2 px-4 py-2 bg-red-50 border border-red-100 rounded-full">
-                        <svg className="w-4 h-4 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#bbdae9]/20 border border-[#bbdae9]/40 rounded-full">
+                        <svg className="w-4 h-4 text-[#7ab8d4]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        <span className="text-sm text-red-600">
+                        <span className="text-sm text-gray-600">
                           {validationError || errorMessage}
                         </span>
                       </div>
