@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { pageViews, clickTracking, contacts } from '@/lib/db/schema';
-import { sql, gte, and, isNotNull, count, desc } from 'drizzle-orm';
+import { sql, gte, and, isNotNull, count, desc, countDistinct } from 'drizzle-orm';
 
 export async function GET(request: NextRequest) {
   try {
@@ -53,21 +53,40 @@ export async function GET(request: NextRequest) {
     weekStart.setDate(weekStart.getDate() - 7);
     const weekStartStr = weekStart.toISOString();
 
-    // Get visitor counts
+    // Get unique visitor counts (distinct by visitorId)
+    // Also exclude admin and coming-soon pages from counting
     const totalVisitors = await db
-      .select({ count: count() })
+      .select({ count: countDistinct(pageViews.visitorId) })
       .from(pageViews)
-      .where(gte(pageViews.createdAt, startDateStr));
+      .where(
+        and(
+          gte(pageViews.createdAt, startDateStr),
+          sql`${pageViews.path} NOT LIKE '/admin%'`,
+          sql`${pageViews.path} != '/coming-soon'`
+        )
+      );
 
     const todayVisitors = await db
-      .select({ count: count() })
+      .select({ count: countDistinct(pageViews.visitorId) })
       .from(pageViews)
-      .where(gte(pageViews.createdAt, todayStr));
+      .where(
+        and(
+          gte(pageViews.createdAt, todayStr),
+          sql`${pageViews.path} NOT LIKE '/admin%'`,
+          sql`${pageViews.path} != '/coming-soon'`
+        )
+      );
 
     const weekVisitors = await db
-      .select({ count: count() })
+      .select({ count: countDistinct(pageViews.visitorId) })
       .from(pageViews)
-      .where(gte(pageViews.createdAt, weekStartStr));
+      .where(
+        and(
+          gte(pageViews.createdAt, weekStartStr),
+          sql`${pageViews.path} NOT LIKE '/admin%'`,
+          sql`${pageViews.path} != '/coming-soon'`
+        )
+      );
 
     // Get click counts
     const totalClicks = await db
@@ -115,14 +134,20 @@ export async function GET(request: NextRequest) {
         )
       );
 
-    // Get top pages
+    // Get top pages (excluding admin and coming-soon)
     const topPages = await db
       .select({
         path: pageViews.path,
         count: count(),
       })
       .from(pageViews)
-      .where(gte(pageViews.createdAt, startDateStr))
+      .where(
+        and(
+          gte(pageViews.createdAt, startDateStr),
+          sql`${pageViews.path} NOT LIKE '/admin%'`,
+          sql`${pageViews.path} != '/coming-soon'`
+        )
+      )
       .groupBy(pageViews.path)
       .orderBy(desc(count()))
       .limit(10);
@@ -140,13 +165,15 @@ export async function GET(request: NextRequest) {
       .orderBy(desc(count()))
       .limit(10);
 
-    // Get daily visitors for chart
+    // Get daily unique visitors for chart (excluding admin and coming-soon)
     const dailyVisitorsResult = await db.all(sql`
       SELECT
         date(created_at) as date,
-        COUNT(*) as count
+        COUNT(DISTINCT visitor_id) as count
       FROM page_views
       WHERE created_at >= ${startDateStr}
+        AND path NOT LIKE '/admin%'
+        AND path != '/coming-soon'
       GROUP BY date(created_at)
       ORDER BY date(created_at) ASC
     `);

@@ -17,6 +17,9 @@ import {
   Tag,
   ExternalLink,
   FileText,
+  X,
+  AlertTriangle,
+  UserMinus,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -64,6 +67,7 @@ export default function ContactDetailPage({ params }: { params: Promise<{ id: st
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>('info');
   const [formData, setFormData] = useState<Partial<Contact>>({});
   const [hasChanges, setHasChanges] = useState(false);
@@ -133,7 +137,6 @@ export default function ContactDetailPage({ params }: { params: Promise<{ id: st
 
   const handleDelete = async () => {
     if (!contact) return;
-    if (!confirm('Are you sure you want to delete this contact? This action cannot be undone.')) return;
 
     setDeleting(true);
     try {
@@ -141,7 +144,29 @@ export default function ContactDetailPage({ params }: { params: Promise<{ id: st
       router.push('/admin/contacts');
     } catch (error) {
       console.error('Failed to delete contact:', error);
-    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const handleSetInactive = async () => {
+    if (!contact) return;
+
+    setDeleting(true);
+    try {
+      const res = await fetch(`/api/admin/subscribers/${contact.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          emailStatus: contact.email ? 'inactive' : contact.emailStatus,
+          smsStatus: contact.phone ? 'inactive' : contact.smsStatus,
+        }),
+      });
+
+      if (res.ok) {
+        router.push('/admin/contacts');
+      }
+    } catch (error) {
+      console.error('Failed to set contact inactive:', error);
       setDeleting(false);
     }
   };
@@ -217,7 +242,7 @@ export default function ContactDetailPage({ params }: { params: Promise<{ id: st
         </div>
         <div className="flex items-center gap-3">
           <button
-            onClick={handleDelete}
+            onClick={() => setShowDeleteModal(true)}
             disabled={deleting}
             className="inline-flex items-center gap-2 px-4 py-2.5 bg-red-500/10 text-red-400 rounded-lg font-medium hover:bg-red-500/20 transition-colors disabled:opacity-50"
           >
@@ -325,9 +350,8 @@ export default function ContactDetailPage({ params }: { params: Promise<{ id: st
                     className="px-3 py-2.5 bg-[var(--admin-input)] border border-[var(--admin-border-light)] rounded-lg text-[var(--admin-text-primary)] focus:outline-none focus:border-[var(--primary)] transition-colors"
                   >
                     <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
+                    <option value="inactive">Unsubscribed</option>
                     <option value="bounced">Bounced</option>
-                    <option value="none">None</option>
                   </select>
                 </div>
               </div>
@@ -347,8 +371,7 @@ export default function ContactDetailPage({ params }: { params: Promise<{ id: st
                     className="px-3 py-2.5 bg-[var(--admin-input)] border border-[var(--admin-border-light)] rounded-lg text-[var(--admin-text-primary)] focus:outline-none focus:border-[var(--primary)] transition-colors"
                   >
                     <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                    <option value="none">None</option>
+                    <option value="inactive">Unsubscribed</option>
                   </select>
                 </div>
               </div>
@@ -497,6 +520,89 @@ export default function ContactDetailPage({ params }: { params: Promise<{ id: st
               </p>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Delete Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={() => !deleting && setShowDeleteModal(false)}
+          />
+
+          {/* Modal */}
+          <div className="relative bg-[var(--admin-card)] rounded-2xl border border-[var(--admin-border-light)] shadow-2xl w-full max-w-md mx-4 overflow-hidden">
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--admin-border-light)]">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center">
+                  <AlertTriangle className="w-5 h-5 text-red-400" />
+                </div>
+                <h2 className="text-lg font-medium text-[var(--admin-text-primary)]">
+                  Remove Contact
+                </h2>
+              </div>
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                disabled={deleting}
+                className="p-2 rounded-lg hover:bg-[var(--admin-hover)] text-[var(--admin-text-muted)] hover:text-[var(--admin-text-primary)] transition-colors disabled:opacity-50"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="px-6 py-5">
+              <p className="text-[var(--admin-text-secondary)] mb-6">
+                What would you like to do with <span className="font-medium text-[var(--admin-text-primary)]">{displayName}</span>?
+              </p>
+
+              <div className="space-y-3">
+                {/* Set Inactive Option */}
+                <button
+                  onClick={handleSetInactive}
+                  disabled={deleting}
+                  className="w-full flex items-center gap-4 p-4 rounded-xl border border-[var(--admin-border-light)] hover:border-orange-400/50 hover:bg-orange-500/5 transition-all text-left group disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <div className="w-10 h-10 rounded-lg bg-orange-500/10 flex items-center justify-center group-hover:bg-orange-500/20 transition-colors">
+                    <UserMinus className="w-5 h-5 text-orange-400" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-medium text-[var(--admin-text-primary)]">Set as Unsubscribed</p>
+                    <p className="text-sm text-[var(--admin-text-muted)]">Keep contact data but mark as inactive</p>
+                  </div>
+                </button>
+
+                {/* Delete Permanently Option */}
+                <button
+                  onClick={handleDelete}
+                  disabled={deleting}
+                  className="w-full flex items-center gap-4 p-4 rounded-xl border border-[var(--admin-border-light)] hover:border-red-400/50 hover:bg-red-500/5 transition-all text-left group disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <div className="w-10 h-10 rounded-lg bg-red-500/10 flex items-center justify-center group-hover:bg-red-500/20 transition-colors">
+                    <Trash2 className="w-5 h-5 text-red-400" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-medium text-[var(--admin-text-primary)]">Delete Permanently</p>
+                    <p className="text-sm text-[var(--admin-text-muted)]">Remove all data for this contact</p>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="px-6 py-4 border-t border-[var(--admin-border-light)] bg-[var(--admin-input)]">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                disabled={deleting}
+                className="w-full px-4 py-2.5 rounded-lg text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)] hover:bg-[var(--admin-hover)] transition-colors font-medium disabled:opacity-50"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

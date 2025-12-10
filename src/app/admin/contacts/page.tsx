@@ -10,12 +10,17 @@ import {
   Search,
   Users,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   X,
   TrendingUp,
   MessageSquare,
   RefreshCw,
+  UserCheck,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+
+const ITEMS_PER_PAGE = 50;
 
 interface Contact {
   id: string;
@@ -75,6 +80,8 @@ export default function ContactsPage() {
   const [showDropdown, setShowDropdown] = useState(false);
   const [emailTab, setEmailTab] = useState<StatusFilter>('active');
   const [smsTab, setSmsTab] = useState<StatusFilter>('active');
+  const [emailPage, setEmailPage] = useState(1);
+  const [smsPage, setSmsPage] = useState(1);
 
   const selectedOption = DATE_RANGE_OPTIONS.find(o => o.value === dateRange);
 
@@ -161,8 +168,21 @@ export default function ContactsPage() {
     });
   };
 
+  // Get counts for tabs
+  const emailCounts = useMemo(() => {
+    const active = contacts.filter(c => c.email && c.emailStatus === 'active').length;
+    const inactive = contacts.filter(c => c.email && c.emailStatus === 'inactive').length;
+    return { active, inactive };
+  }, [contacts]);
+
+  const smsCounts = useMemo(() => {
+    const active = contacts.filter(c => c.phone && c.smsStatus === 'active').length;
+    const inactive = contacts.filter(c => c.phone && c.smsStatus === 'inactive').length;
+    return { active, inactive };
+  }, [contacts]);
+
   // Filter contacts for email list
-  const emailContacts = useMemo(() => {
+  const allEmailContacts = useMemo(() => {
     return contacts.filter((c) => {
       if (!c.email) return false;
       if (c.emailStatus !== emailTab) return false;
@@ -177,8 +197,16 @@ export default function ContactsPage() {
     });
   }, [contacts, emailTab, search]);
 
+  // Paginated email contacts
+  const emailContacts = useMemo(() => {
+    const start = (emailPage - 1) * ITEMS_PER_PAGE;
+    return allEmailContacts.slice(start, start + ITEMS_PER_PAGE);
+  }, [allEmailContacts, emailPage]);
+
+  const emailTotalPages = Math.ceil(allEmailContacts.length / ITEMS_PER_PAGE);
+
   // Filter contacts for SMS list
-  const smsContacts = useMemo(() => {
+  const allSmsContacts = useMemo(() => {
     return contacts.filter((c) => {
       if (!c.phone) return false;
       if (c.smsStatus !== smsTab) return false;
@@ -192,6 +220,23 @@ export default function ContactsPage() {
       return true;
     });
   }, [contacts, smsTab, search]);
+
+  // Paginated SMS contacts
+  const smsContacts = useMemo(() => {
+    const start = (smsPage - 1) * ITEMS_PER_PAGE;
+    return allSmsContacts.slice(start, start + ITEMS_PER_PAGE);
+  }, [allSmsContacts, smsPage]);
+
+  const smsTotalPages = Math.ceil(allSmsContacts.length / ITEMS_PER_PAGE);
+
+  // Reset page when tab or search changes
+  useEffect(() => {
+    setEmailPage(1);
+  }, [emailTab, search]);
+
+  useEffect(() => {
+    setSmsPage(1);
+  }, [smsTab, search]);
 
   const handleExport = (type?: 'email' | 'sms') => {
     const params = new URLSearchParams();
@@ -262,9 +307,28 @@ export default function ContactsPage() {
 
       {/* Stats */}
       <div className={cn(
-        'grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 transition-opacity duration-200',
+        'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 transition-opacity duration-200',
         isPending && 'opacity-60'
       )}>
+        {/* Total Active (unique people with at least one active channel) */}
+        <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-3 sm:p-5">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-green-500/10 flex items-center justify-center shrink-0">
+              <UserCheck className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-lg sm:text-2xl font-semibold text-[var(--admin-text-primary)]">
+                {/* Unique active contacts - count people with either active email OR active SMS */}
+                {contacts.filter(c =>
+                  (c.email && c.emailStatus === 'active') ||
+                  (c.phone && c.smsStatus === 'active')
+                ).length}
+              </p>
+              <p className="text-xs sm:text-sm text-[var(--admin-text-muted)]">Total Active</p>
+            </div>
+          </div>
+        </div>
+        {/* Total Contacts */}
         <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-3 sm:p-5">
           <div className="flex items-center gap-2 sm:gap-3">
             <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-[var(--primary)]/10 flex items-center justify-center shrink-0">
@@ -272,42 +336,55 @@ export default function ContactsPage() {
             </div>
             <div className="min-w-0">
               <p className="text-lg sm:text-2xl font-semibold text-[var(--admin-text-primary)]">{stats?.total || 0}</p>
-              <p className="text-xs sm:text-sm text-[var(--admin-text-muted)]">Total</p>
+              <p className="text-xs sm:text-sm text-[var(--admin-text-muted)]">Total Contacts</p>
             </div>
           </div>
         </div>
+        {/* Active Emails */}
         <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-3 sm:p-5">
           <div className="flex items-center gap-2 sm:gap-3">
             <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-blue-500/10 flex items-center justify-center shrink-0">
               <Mail className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400" />
             </div>
             <div className="min-w-0">
-              <p className="text-lg sm:text-2xl font-semibold text-[var(--admin-text-primary)]">{stats?.emails.total || 0}</p>
-              <p className="text-xs sm:text-sm text-[var(--admin-text-muted)]">Emails</p>
+              <p className="text-lg sm:text-2xl font-semibold text-[var(--admin-text-primary)]">{stats?.emails.active || 0}</p>
+              <p className="text-xs sm:text-sm text-[var(--admin-text-muted)]">Active Emails</p>
             </div>
           </div>
         </div>
+        {/* Total Emails */}
         <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-3 sm:p-5">
           <div className="flex items-center gap-2 sm:gap-3">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-green-500/10 flex items-center justify-center shrink-0">
-              <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-blue-500/5 flex items-center justify-center shrink-0">
+              <Mail className="w-4 h-4 sm:w-5 sm:h-5 text-blue-300" />
             </div>
             <div className="min-w-0">
-              <p className="text-lg sm:text-2xl font-semibold text-[var(--admin-text-primary)]">{stats?.sms.total || 0}</p>
-              <p className="text-xs sm:text-sm text-[var(--admin-text-muted)]">SMS</p>
+              <p className="text-lg sm:text-2xl font-semibold text-[var(--admin-text-primary)]">{stats?.emails.total || 0}</p>
+              <p className="text-xs sm:text-sm text-[var(--admin-text-muted)]">Total Emails</p>
             </div>
           </div>
         </div>
+        {/* Active SMS */}
         <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-3 sm:p-5">
           <div className="flex items-center gap-2 sm:gap-3">
             <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-purple-500/10 flex items-center justify-center shrink-0">
-              <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400" />
+              <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400" />
             </div>
             <div className="min-w-0">
-              <p className="text-lg sm:text-2xl font-semibold text-[var(--admin-text-primary)]">
-                {(stats?.emails.active || 0) + (stats?.sms.active || 0)}
-              </p>
-              <p className="text-xs sm:text-sm text-[var(--admin-text-muted)]">Active</p>
+              <p className="text-lg sm:text-2xl font-semibold text-[var(--admin-text-primary)]">{stats?.sms.active || 0}</p>
+              <p className="text-xs sm:text-sm text-[var(--admin-text-muted)]">Active SMS</p>
+            </div>
+          </div>
+        </div>
+        {/* Total SMS */}
+        <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-3 sm:p-5">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-purple-500/5 flex items-center justify-center shrink-0">
+              <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5 text-purple-300" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-lg sm:text-2xl font-semibold text-[var(--admin-text-primary)]">{stats?.sms.total || 0}</p>
+              <p className="text-xs sm:text-sm text-[var(--admin-text-muted)]">Total SMS</p>
             </div>
           </div>
         </div>
@@ -438,7 +515,7 @@ export default function ContactsPage() {
                       : 'bg-[var(--admin-input)] text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)]'
                   )}
                 >
-                  Active
+                  Active ({emailCounts.active})
                 </button>
                 <button
                   onClick={() => setEmailTab('inactive')}
@@ -449,13 +526,13 @@ export default function ContactsPage() {
                       : 'bg-[var(--admin-input)] text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)]'
                   )}
                 >
-                  Unsubscribed
+                  Unsubscribed ({emailCounts.inactive})
                 </button>
               </div>
             </div>
           </div>
 
-          <div className="max-h-[400px] sm:max-h-[500px] overflow-y-auto">
+          <div className="flex-1 overflow-y-auto" style={{ maxHeight: '400px' }}>
             {emailContacts.length > 0 ? (
               <div className="divide-y divide-[var(--admin-border-light)]">
                 {emailContacts.map((contact) => (
@@ -487,15 +564,43 @@ export default function ContactsPage() {
               <div className="py-8 sm:py-12 text-center">
                 <Mail className="w-8 h-8 sm:w-10 sm:h-10 mx-auto mb-2 sm:mb-3 text-[var(--admin-text-muted)]" />
                 <p className="text-[var(--admin-text-muted)] text-sm">
-                  No {emailTab} emails
+                  No {emailTab === 'inactive' ? 'unsubscribed' : emailTab} emails
                 </p>
               </div>
             )}
           </div>
+
+          {/* Email Pagination */}
+          {emailTotalPages > 1 && (
+            <div className="px-4 sm:px-6 py-3 border-t border-[var(--admin-border-light)] flex items-center justify-between">
+              <span className="text-xs text-[var(--admin-text-muted)]">
+                Showing {(emailPage - 1) * ITEMS_PER_PAGE + 1}-{Math.min(emailPage * ITEMS_PER_PAGE, allEmailContacts.length)} of {allEmailContacts.length}
+              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setEmailPage(p => Math.max(1, p - 1))}
+                  disabled={emailPage === 1}
+                  className="p-1.5 rounded-lg bg-[var(--admin-input)] text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)] disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <span className="text-xs text-[var(--admin-text-secondary)] min-w-[60px] text-center">
+                  {emailPage} / {emailTotalPages}
+                </span>
+                <button
+                  onClick={() => setEmailPage(p => Math.min(emailTotalPages, p + 1))}
+                  disabled={emailPage === emailTotalPages}
+                  className="p-1.5 rounded-lg bg-[var(--admin-input)] text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)] disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* SMS List */}
-        <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] overflow-hidden">
+        <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] overflow-hidden flex flex-col">
           <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-[var(--admin-border-light)]">
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2 sm:gap-3 min-w-0">
@@ -512,7 +617,7 @@ export default function ContactsPage() {
                       : 'bg-[var(--admin-input)] text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)]'
                   )}
                 >
-                  Active
+                  Active ({smsCounts.active})
                 </button>
                 <button
                   onClick={() => setSmsTab('inactive')}
@@ -523,13 +628,13 @@ export default function ContactsPage() {
                       : 'bg-[var(--admin-input)] text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)]'
                   )}
                 >
-                  Unsubscribed
+                  Unsubscribed ({smsCounts.inactive})
                 </button>
               </div>
             </div>
           </div>
 
-          <div className="max-h-[400px] sm:max-h-[500px] overflow-y-auto">
+          <div className="flex-1 overflow-y-auto" style={{ maxHeight: '400px' }}>
             {smsContacts.length > 0 ? (
               <div className="divide-y divide-[var(--admin-border-light)]">
                 {smsContacts.map((contact) => (
@@ -561,11 +666,39 @@ export default function ContactsPage() {
               <div className="py-8 sm:py-12 text-center">
                 <Phone className="w-8 h-8 sm:w-10 sm:h-10 mx-auto mb-2 sm:mb-3 text-[var(--admin-text-muted)]" />
                 <p className="text-[var(--admin-text-muted)] text-sm">
-                  No {smsTab} SMS contacts
+                  No {smsTab === 'inactive' ? 'unsubscribed' : smsTab} SMS contacts
                 </p>
               </div>
             )}
           </div>
+
+          {/* SMS Pagination */}
+          {smsTotalPages > 1 && (
+            <div className="px-4 sm:px-6 py-3 border-t border-[var(--admin-border-light)] flex items-center justify-between">
+              <span className="text-xs text-[var(--admin-text-muted)]">
+                Showing {(smsPage - 1) * ITEMS_PER_PAGE + 1}-{Math.min(smsPage * ITEMS_PER_PAGE, allSmsContacts.length)} of {allSmsContacts.length}
+              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setSmsPage(p => Math.max(1, p - 1))}
+                  disabled={smsPage === 1}
+                  className="p-1.5 rounded-lg bg-[var(--admin-input)] text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)] disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <span className="text-xs text-[var(--admin-text-secondary)] min-w-[60px] text-center">
+                  {smsPage} / {smsTotalPages}
+                </span>
+                <button
+                  onClick={() => setSmsPage(p => Math.min(smsTotalPages, p + 1))}
+                  disabled={smsPage === smsTotalPages}
+                  className="p-1.5 rounded-lg bg-[var(--admin-input)] text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)] disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

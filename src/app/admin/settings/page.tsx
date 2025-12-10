@@ -36,6 +36,7 @@ interface SiteSettings {
   siteInDraftMode: boolean | null;
   draftModeTitle: string | null;
   draftModeSubtitle: string | null;
+  draftModeBadgeUrl: string | null;
 }
 
 const tabs = [
@@ -1066,10 +1067,54 @@ function DraftModeTab({
         </div>
       </div>
 
+      {/* Rotating Badge */}
+      <div>
+        <h3 className="font-medium text-[var(--admin-text-primary)] mb-4">Rotating Badge</h3>
+        <p className="text-sm text-[var(--admin-text-muted)] mb-4">
+          Upload a PNG image that will appear above your logo and rotate continuously. Great for promotional badges or announcements.
+        </p>
+        <ImageUpload
+          label="Badge Image"
+          value={settings.draftModeBadgeUrl}
+          onChange={(url) => updateField('draftModeBadgeUrl', url)}
+          placeholder="Upload a PNG badge (recommended: 80x80px)"
+          aspectRatio="1/1"
+          helpText="Transparent PNG recommended for best results"
+        />
+      </div>
+
       {/* Preview of Coming Soon page */}
       <div>
         <h3 className="font-medium text-[var(--admin-text-primary)] mb-4">Preview</h3>
         <div className="p-8 bg-gradient-to-br from-[#f5f0eb] via-white to-[#bbdae9]/20 rounded-xl text-center">
+          {/* Logo with badge preview */}
+          <div className="mb-6 flex justify-center">
+            <div className="relative inline-block">
+              {settings.logoUrl ? (
+                <img
+                  src={settings.logoUrl}
+                  alt="Logo"
+                  className="h-16 w-auto object-contain"
+                />
+              ) : (
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full border border-gray-200 text-sm font-medium">
+                  {settings.siteName || "Archie's Remedies"}
+                </div>
+              )}
+              {settings.draftModeBadgeUrl && (
+                <div
+                  className="absolute -top-3 -right-6 w-12 h-12 animate-spin"
+                  style={{ animationDuration: '20s' }}
+                >
+                  <img
+                    src={settings.draftModeBadgeUrl}
+                    alt="Badge"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+              )}
+            </div>
+          </div>
           <h2 className="text-3xl font-normal text-gray-900 mb-3">
             {settings.draftModeTitle || 'Coming Soon'}
           </h2>

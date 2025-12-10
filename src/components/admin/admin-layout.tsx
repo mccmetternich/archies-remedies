@@ -85,18 +85,15 @@ function AdminLayoutInner({ children, unreadMessages = 0 }: AdminLayoutProps) {
     }
   }, []);
 
-  useEffect(() => {
-    if (isInDraftMode) {
-      generatePreviewToken();
-    }
-  }, [isInDraftMode, generatePreviewToken]);
+  // Note: We no longer auto-generate preview tokens when entering admin
+  // The user must explicitly click "View Draft" to get a preview token
 
-  const handleViewSite = () => {
-    if (isInDraftMode && previewToken) {
-      window.open(`/?preview=${previewToken}`, '_blank');
-    } else {
-      window.open('/', '_blank');
+  const handleViewSite = async () => {
+    if (isInDraftMode) {
+      // Generate preview token on demand when clicking View Draft
+      await generatePreviewToken();
     }
+    window.open('/', '_blank');
   };
 
   const handleToggleDraftMode = async () => {
@@ -109,10 +106,8 @@ function AdminLayoutInner({ children, unreadMessages = 0 }: AdminLayoutProps) {
       });
       if (res.ok) {
         setIsInDraftMode(!isInDraftMode);
-        if (!isInDraftMode) {
-          // Switching to draft mode, generate preview token
-          generatePreviewToken();
-        }
+        // Note: We no longer auto-generate preview tokens
+        // User must explicitly click "View Draft" to access the site
       }
     } catch (error) {
       console.error('Failed to toggle draft mode:', error);

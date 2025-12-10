@@ -13,6 +13,7 @@ export const siteSettings = sqliteTable('site_settings', {
   siteInDraftMode: integer('site_in_draft_mode', { mode: 'boolean' }).default(false),
   draftModeTitle: text('draft_mode_title').default('Coming Soon'),
   draftModeSubtitle: text('draft_mode_subtitle').default("We're working on something special. Leave your email to be the first to know when we launch."),
+  draftModeBadgeUrl: text('draft_mode_badge_url'), // Rotating badge image (PNG) that overlaps the logo
 
   // Colors
   primaryColor: text('primary_color').default('#bbdae9'),

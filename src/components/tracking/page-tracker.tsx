@@ -7,8 +7,9 @@ export function PageTracker() {
   const pathname = usePathname();
 
   useEffect(() => {
-    // Don't track admin pages
+    // Don't track admin pages or coming-soon page
     if (pathname.startsWith('/admin')) return;
+    if (pathname === '/coming-soon') return;
 
     // Track page view
     fetch('/api/track', {
