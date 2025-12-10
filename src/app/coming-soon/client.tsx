@@ -196,7 +196,7 @@ export function ComingSoonClient({
           <div className="absolute bottom-1/4 -right-24 w-64 h-64 md:w-96 md:h-96 bg-[#bbdae9]/15 rounded-full blur-3xl" />
         </div>
 
-        <div className="relative max-w-md w-full text-center">
+        <div className="relative max-w-md md:max-w-xl w-full text-center">
           {/* Logo with rotating badge - using CSS animation */}
           <div className="mb-8 md:mb-12">
             {logoUrl ? (
@@ -258,7 +258,7 @@ export function ComingSoonClient({
                         <path d="M5 13l4 4L19 7" />
                       </svg>
                     </div>
-                    <h1 className="text-4xl md:text-5xl font-normal tracking-tight">
+                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-normal tracking-tight">
                       You're In
                     </h1>
                   </div>
@@ -301,23 +301,24 @@ export function ComingSoonClient({
                   transition={{ duration: 0.3 }}
                   className="absolute inset-0 flex flex-col justify-center"
                 >
-                  <h1 className="text-3xl md:text-5xl font-normal tracking-tight mb-4 md:mb-6">
+                  <h1 className="text-3xl md:text-5xl lg:text-6xl font-normal tracking-tight mb-4 md:mb-6">
                     {title}
                   </h1>
-                  <p className="text-base md:text-xl text-gray-600 mb-8 md:mb-10 leading-relaxed px-2 max-w-sm mx-auto">
+                  <p className="text-base md:text-xl text-gray-600 mb-8 md:mb-12 leading-relaxed px-2 max-w-sm md:max-w-md mx-auto">
                     {subtitle}
                   </p>
 
-                  {/* Contact form - stacked on mobile */}
-                  <form onSubmit={handleSubmit} className="w-full px-2">
-                    {/* Input row with type selector */}
-                    <div className="relative mb-3">
+                  {/* Contact form - stacked on mobile, inline on desktop */}
+                  <form onSubmit={handleSubmit} className="w-full px-2 md:max-w-md md:mx-auto">
+                    {/* Desktop: inline input with button inside */}
+                    {/* Mobile: stacked input and button */}
+                    <div className="relative">
                       {/* Dropdown selector */}
-                      <div className="absolute left-3 top-1/2 -translate-y-1/2 z-10">
+                      <div className="absolute left-3 top-1/2 -translate-y-1/2 z-10 md:top-[26px] md:-translate-y-1/2">
                         <button
                           type="button"
                           onClick={() => setShowDropdown(!showDropdown)}
-                          className="flex items-center gap-1 px-2 py-2 text-gray-500 active:text-gray-700 transition-colors rounded-lg active:bg-gray-100"
+                          className="flex items-center gap-1 px-2 py-2 text-gray-500 active:text-gray-700 md:hover:text-gray-700 transition-colors rounded-lg active:bg-gray-100 md:hover:bg-gray-100"
                         >
                           {contactType === 'email' ? (
                             <Mail className="w-5 h-5" />
@@ -339,7 +340,7 @@ export function ComingSoonClient({
                               <button
                                 type="button"
                                 onClick={() => toggleContactType('phone')}
-                                className={`w-full flex items-center gap-2 px-4 py-2.5 text-sm text-left active:bg-gray-50 transition-colors ${
+                                className={`w-full flex items-center gap-2 px-4 py-2.5 text-sm text-left active:bg-gray-50 md:hover:bg-gray-50 transition-colors ${
                                   contactType === 'phone' ? 'text-[#1a1a1a] font-medium' : 'text-gray-600'
                                 }`}
                               >
@@ -349,7 +350,7 @@ export function ComingSoonClient({
                               <button
                                 type="button"
                                 onClick={() => toggleContactType('email')}
-                                className={`w-full flex items-center gap-2 px-4 py-2.5 text-sm text-left active:bg-gray-50 transition-colors ${
+                                className={`w-full flex items-center gap-2 px-4 py-2.5 text-sm text-left active:bg-gray-50 md:hover:bg-gray-50 transition-colors ${
                                   contactType === 'email' ? 'text-[#1a1a1a] font-medium' : 'text-gray-600'
                                 }`}
                               >
@@ -361,6 +362,7 @@ export function ComingSoonClient({
                         </AnimatePresence>
                       </div>
 
+                      {/* Input - different padding for mobile vs desktop */}
                       <input
                         type={contactType === 'email' ? 'email' : 'tel'}
                         inputMode={contactType === 'email' ? 'email' : 'tel'}
@@ -370,18 +372,34 @@ export function ComingSoonClient({
                         placeholder={contactType === 'email' ? 'Enter your email' : 'Enter Phone #'}
                         required
                         autoComplete={contactType === 'email' ? 'email' : 'tel'}
-                        className={`w-full pl-14 pr-4 py-4 text-base rounded-full border bg-white shadow-sm transition-colors outline-none ${
+                        className={`w-full pl-14 pr-4 py-4 md:pl-16 md:pr-36 md:py-5 text-base md:text-lg rounded-full border bg-white shadow-sm transition-colors outline-none ${
                           validationError ? 'border-[#bbdae9]' : 'border-gray-200 focus:border-[#bbdae9]'
                         }`}
-                        style={{ fontSize: '16px' }} // Prevents iOS zoom
+                        style={{ fontSize: '16px' }}
                       />
+
+                      {/* Desktop only: button inside input */}
+                      <button
+                        type="submit"
+                        disabled={status === 'loading'}
+                        className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 px-6 py-3 bg-[#1a1a1a] text-white rounded-full font-medium transition-all items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#bbdae9] hover:text-[#1a1a1a] group"
+                      >
+                        {status === 'loading' ? (
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                        ) : (
+                          <>
+                            Notify Me
+                            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                          </>
+                        )}
+                      </button>
                     </div>
 
-                    {/* Submit button - full width on mobile */}
+                    {/* Mobile only: separate button below input */}
                     <button
                       type="submit"
                       disabled={status === 'loading'}
-                      className="w-full py-4 bg-[#1a1a1a] text-white rounded-full font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-50 active:bg-[#bbdae9] active:text-[#1a1a1a]"
+                      className="md:hidden w-full mt-3 py-4 bg-[#1a1a1a] text-white rounded-full font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-50 active:bg-[#bbdae9] active:text-[#1a1a1a]"
                     >
                       {status === 'loading' ? (
                         <Loader2 className="w-5 h-5 animate-spin" />
@@ -417,7 +435,7 @@ export function ComingSoonClient({
                   </form>
 
                   {/* Footer - Brand quip */}
-                  <div className="mt-8 md:mt-12">
+                  <div className="mt-8 md:mt-16">
                     {footerStyle === 'badges' ? (
                       <div className="flex flex-wrap justify-center gap-4 md:gap-6 text-xs md:text-sm text-gray-500">
                         {callout1 && (
@@ -441,9 +459,9 @@ export function ComingSoonClient({
                       </div>
                     ) : (
                       <div className="flex justify-center">
-                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#bbdae9]/40 border border-[#bbdae9]/50 rounded-full animate-gentle-glow">
-                          <span className="text-sm">✨</span>
-                          <span className="text-xs text-gray-600 font-medium whitespace-nowrap">
+                        <div className="inline-flex items-center gap-2 px-4 py-2 md:px-5 md:py-2.5 bg-[#bbdae9]/40 border border-[#bbdae9]/50 rounded-full animate-gentle-glow">
+                          <span className="text-sm md:text-base">✨</span>
+                          <span className="text-xs md:text-sm text-gray-600 font-medium whitespace-nowrap">
                             {brandQuip}
                           </span>
                         </div>
