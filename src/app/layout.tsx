@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import { PageTracker } from '@/components/tracking/page-tracker';
 
 export const metadata: Metadata = {
   title: "Archie's Remedies - Safe, Clean Eye Care",
@@ -31,6 +32,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased">
+        <PageTracker />
         {children}
       </body>
     </html>

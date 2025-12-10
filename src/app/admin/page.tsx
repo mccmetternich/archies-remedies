@@ -167,7 +167,7 @@ export default async function AdminDashboard() {
       {/* Header */}
       <div>
         <h1 className="text-2xl font-medium text-white">Dashboard</h1>
-        <p className="text-gray-400 mt-1">
+        <p className="text-[#a1a1aa] mt-1">
           Welcome to your Archie&apos;s Remedies admin panel
         </p>
       </div>
@@ -182,7 +182,7 @@ export default async function AdminDashboard() {
           >
             <div className="flex items-center justify-between mb-4">
               <div className="w-10 h-10 rounded-full bg-[var(--primary)] flex items-center justify-center">
-                <stat.icon className="w-5 h-5 text-gray-700" />
+                <stat.icon className="w-5 h-5 text-[#1a1a1a]" />
               </div>
               {stat.badge && (
                 <span className="px-2.5 py-1 text-xs font-medium bg-red-500 text-white rounded-full">
@@ -191,11 +191,11 @@ export default async function AdminDashboard() {
               )}
             </div>
             <p className="text-3xl font-semibold text-white mb-1">{stat.value}</p>
-            <p className="text-sm text-gray-400 group-hover:text-gray-300 transition-colors">
+            <p className="text-sm text-[#a1a1aa] group-hover:text-[#c5c5cc] transition-colors">
               {stat.label}
             </p>
-            <p className="text-xs text-gray-500 mt-1">{stat.description}</p>
-            <ArrowRight className="absolute bottom-5 right-5 w-4 h-4 text-gray-600 group-hover:text-[var(--primary)] transition-all opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0" />
+            <p className="text-xs text-[#6b6b73] mt-1">{stat.description}</p>
+            <ArrowRight className="absolute bottom-5 right-5 w-4 h-4 text-[#6b6b73] group-hover:text-[var(--primary)] transition-all opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0" />
           </Link>
         ))}
       </div>
@@ -207,7 +207,7 @@ export default async function AdminDashboard() {
           <div className="flex items-center justify-between mb-6">
             <h2 className="font-medium text-white flex items-center gap-2">
               <div className="w-6 h-6 rounded-full bg-[var(--primary)] flex items-center justify-center">
-                <Zap className="w-3.5 h-3.5 text-gray-700" />
+                <Zap className="w-3.5 h-3.5 text-[#1a1a1a]" />
               </div>
               Quick Actions
             </h2>
@@ -220,13 +220,13 @@ export default async function AdminDashboard() {
                 className="flex flex-col gap-3 p-4 rounded-xl bg-[#0a0a0a] border border-[#1f1f1f] hover:border-[var(--primary)]/50 transition-all group"
               >
                 <div className="w-10 h-10 rounded-full bg-[var(--primary)] flex items-center justify-center">
-                  <action.icon className="w-5 h-5 text-gray-700" />
+                  <action.icon className="w-5 h-5 text-[#1a1a1a]" />
                 </div>
                 <div>
                   <p className="font-medium text-sm text-white group-hover:text-[var(--primary)] transition-colors">
                     {action.label}
                   </p>
-                  <p className="text-xs text-gray-500 mt-0.5">{action.description}</p>
+                  <p className="text-xs text-[#6b6b73] mt-0.5">{action.description}</p>
                 </div>
               </Link>
             ))}
@@ -234,32 +234,32 @@ export default async function AdminDashboard() {
 
           {/* Quick hotlinks */}
           <div className="mt-6 pt-6 border-t border-[#1f1f1f]">
-            <p className="text-xs text-gray-400 uppercase tracking-wider mb-3 font-medium">Shortcuts</p>
+            <p className="text-xs text-[#a1a1aa] uppercase tracking-wider mb-3 font-medium">Shortcuts</p>
             <div className="flex flex-wrap gap-2">
               <Link
                 href="/admin/products/new"
-                className="inline-flex items-center gap-1.5 px-3 py-2 text-xs bg-[#1a1a1a] text-white rounded-lg hover:bg-[var(--primary)] hover:text-gray-700 transition-colors border border-[#2a2a2a]"
+                className="inline-flex items-center gap-1.5 px-3 py-2 text-xs bg-[#1a1a1a] text-white rounded-lg hover:bg-[var(--primary)] hover:text-[#1a1a1a] transition-colors border border-[#2a2a2a]"
               >
                 <Plus className="w-3 h-3" />
                 New Product
               </Link>
               <Link
                 href="/admin/pages/new"
-                className="inline-flex items-center gap-1.5 px-3 py-2 text-xs bg-[#1a1a1a] text-white rounded-lg hover:bg-[var(--primary)] hover:text-gray-700 transition-colors border border-[#2a2a2a]"
+                className="inline-flex items-center gap-1.5 px-3 py-2 text-xs bg-[#1a1a1a] text-white rounded-lg hover:bg-[var(--primary)] hover:text-[#1a1a1a] transition-colors border border-[#2a2a2a]"
               >
                 <Plus className="w-3 h-3" />
                 New Page
               </Link>
               <Link
                 href="/admin/hero-slides"
-                className="inline-flex items-center gap-1.5 px-3 py-2 text-xs bg-[#1a1a1a] text-white rounded-lg hover:bg-[var(--primary)] hover:text-gray-700 transition-colors border border-[#2a2a2a]"
+                className="inline-flex items-center gap-1.5 px-3 py-2 text-xs bg-[#1a1a1a] text-white rounded-lg hover:bg-[var(--primary)] hover:text-[#1a1a1a] transition-colors border border-[#2a2a2a]"
               >
                 <Image className="w-3 h-3" />
                 Hero Slides
               </Link>
               <Link
                 href="/admin/testimonials"
-                className="inline-flex items-center gap-1.5 px-3 py-2 text-xs bg-[#1a1a1a] text-white rounded-lg hover:bg-[var(--primary)] hover:text-gray-700 transition-colors border border-[#2a2a2a]"
+                className="inline-flex items-center gap-1.5 px-3 py-2 text-xs bg-[#1a1a1a] text-white rounded-lg hover:bg-[var(--primary)] hover:text-[#1a1a1a] transition-colors border border-[#2a2a2a]"
               >
                 <Star className="w-3 h-3" />
                 Testimonials
@@ -276,7 +276,7 @@ export default async function AdminDashboard() {
           <div className="px-6 py-4 border-b border-[#1f1f1f] flex items-center justify-between">
             <h2 className="font-medium text-white flex items-center gap-2">
               <div className="w-6 h-6 rounded-full bg-[var(--primary)] flex items-center justify-center">
-                <MessageSquare className="w-3.5 h-3.5 text-gray-700" />
+                <MessageSquare className="w-3.5 h-3.5 text-[#1a1a1a]" />
               </div>
               Recent Messages
               {data.stats.unreadContacts > 0 && (
@@ -303,23 +303,23 @@ export default async function AdminDashboard() {
                         <span className="w-2 h-2 rounded-full bg-[var(--primary)]" />
                       )}
                     </p>
-                    <span className="text-xs text-gray-500">
+                    <span className="text-xs text-[#6b6b73]">
                       {new Date(contact.createdAt || '').toLocaleDateString()}
                     </span>
                   </div>
                   {contact.subject && (
-                    <p className="text-sm text-gray-400 mb-1">{contact.subject}</p>
+                    <p className="text-sm text-[#a1a1aa] mb-1">{contact.subject}</p>
                   )}
-                  <p className="text-xs text-gray-500 line-clamp-1">
+                  <p className="text-xs text-[#6b6b73] line-clamp-1">
                     {contact.message}
                   </p>
                 </div>
               ))
             ) : (
               <div className="px-6 py-12 text-center">
-                <Inbox className="w-10 h-10 mx-auto mb-3 text-gray-600" />
-                <p className="text-sm text-gray-400">No messages yet</p>
-                <p className="text-xs text-gray-500 mt-1">Messages from your contact form will appear here</p>
+                <Inbox className="w-10 h-10 mx-auto mb-3 text-[#6b6b73]" />
+                <p className="text-sm text-[#a1a1aa]">No messages yet</p>
+                <p className="text-xs text-[#6b6b73] mt-1">Messages from your contact form will appear here</p>
               </div>
             )}
           </div>
@@ -331,7 +331,7 @@ export default async function AdminDashboard() {
         <div className="flex items-center justify-between mb-6">
           <h2 className="font-medium text-white flex items-center gap-2">
             <div className="w-6 h-6 rounded-full bg-[var(--primary)] flex items-center justify-center">
-              <Layers className="w-3.5 h-3.5 text-gray-700" />
+              <Layers className="w-3.5 h-3.5 text-[#1a1a1a]" />
             </div>
             Widget Library
           </h2>
@@ -350,10 +350,10 @@ export default async function AdminDashboard() {
               className="flex flex-col items-center p-4 rounded-xl bg-[#0a0a0a] border border-[#1f1f1f] hover:border-[var(--primary)] transition-all group"
             >
               <div className="w-12 h-12 rounded-full bg-[var(--primary)] flex items-center justify-center mb-3">
-                <widget.icon className="w-6 h-6 text-gray-700" />
+                <widget.icon className="w-6 h-6 text-[#1a1a1a]" />
               </div>
               <p className="text-2xl font-semibold text-white">{widget.value}</p>
-              <p className="text-xs text-gray-500 mt-1">{widget.label}</p>
+              <p className="text-xs text-[#6b6b73] mt-1">{widget.label}</p>
             </Link>
           ))}
         </div>

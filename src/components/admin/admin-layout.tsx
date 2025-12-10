@@ -150,7 +150,7 @@ export function AdminLayout({ children, unreadMessages = 0 }: AdminLayoutProps) 
           <div className="flex items-center gap-2">
             {unreadMessages > 0 && (
               <Link href="/admin/inbox" className="relative p-2">
-                <Bell className="w-5 h-5 text-gray-400" />
+                <Bell className="w-5 h-5 text-[#a1a1aa]" />
                 <span className="absolute -top-0.5 -right-0.5 w-5 h-5 text-xs bg-[var(--primary)] text-[#0a0a0a] rounded-full flex items-center justify-center font-medium">
                   {unreadMessages}
                 </span>
@@ -158,7 +158,7 @@ export function AdminLayout({ children, unreadMessages = 0 }: AdminLayoutProps) 
             )}
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="p-2 rounded-lg hover:bg-[#1f1f1f] text-gray-400"
+              className="p-2 rounded-lg hover:bg-[#1f1f1f] text-[#a1a1aa]"
             >
               {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -182,7 +182,7 @@ export function AdminLayout({ children, unreadMessages = 0 }: AdminLayoutProps) 
               </div>
               <div>
                 <span className="font-medium block text-sm text-white">Archie&apos;s Remedies</span>
-                <span className="text-xs text-gray-500">Admin Panel</span>
+                <span className="text-xs text-[#6b6b73]">Admin Panel</span>
               </div>
             </Link>
           </div>
@@ -192,7 +192,7 @@ export function AdminLayout({ children, unreadMessages = 0 }: AdminLayoutProps) 
             <Link
               href="/"
               target="_blank"
-              className="flex items-center gap-2 px-3 py-2 text-sm text-gray-400 hover:text-white hover:bg-[#1a1a1a] rounded-lg transition-colors"
+              className="flex items-center gap-2 px-3 py-2 text-sm text-[#a1a1aa] hover:text-white hover:bg-[#1a1a1a] rounded-lg transition-colors"
             >
               <Eye className="w-4 h-4" />
               View Live Site
@@ -208,7 +208,7 @@ export function AdminLayout({ children, unreadMessages = 0 }: AdminLayoutProps) 
                   <div className="h-px bg-[#1f1f1f] mb-4" />
                 )}
                 {section.title && (
-                  <p className="px-3 mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500">
+                  <p className="px-3 mb-2 text-xs font-semibold uppercase tracking-wider text-[#6b6b73]">
                     {section.title}
                   </p>
                 )}
@@ -224,7 +224,7 @@ export function AdminLayout({ children, unreadMessages = 0 }: AdminLayoutProps) 
                           'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-150 group',
                           active
                             ? 'bg-[var(--primary)] text-[#0a0a0a] font-medium'
-                            : 'text-gray-400 hover:bg-[#1a1a1a] hover:text-white'
+                            : 'text-[#a1a1aa] hover:bg-[#1a1a1a] hover:text-white'
                         )}
                       >
                         <item.icon className={cn('w-4 h-4', active && 'text-[#0a0a0a]')} />
@@ -251,7 +251,7 @@ export function AdminLayout({ children, unreadMessages = 0 }: AdminLayoutProps) 
           <div className="p-3 border-t border-[#1f1f1f]">
             <button
               onClick={handleLogout}
-              className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm text-gray-400 hover:bg-[#1a1a1a] hover:text-white transition-colors"
+              className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm text-[#a1a1aa] hover:bg-[#1a1a1a] hover:text-white transition-colors"
             >
               <LogOut className="w-4 h-4" />
               Sign Out
@@ -281,14 +281,14 @@ export function AdminLayout({ children, unreadMessages = 0 }: AdminLayoutProps) 
                 {breadcrumbs.map((crumb, index) => (
                   <React.Fragment key={crumb.href}>
                     {index > 0 && (
-                      <ChevronRight className="w-4 h-4 text-gray-600" />
+                      <ChevronRight className="w-4 h-4 text-[#6b6b73]" />
                     )}
                     {index === breadcrumbs.length - 1 ? (
                       <span className="font-medium text-white">{crumb.label}</span>
                     ) : (
                       <Link
                         href={crumb.href}
-                        className="text-gray-500 hover:text-white transition-colors"
+                        className="text-[#a1a1aa] hover:text-white transition-colors"
                       >
                         {crumb.label}
                       </Link>
