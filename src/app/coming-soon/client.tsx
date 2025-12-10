@@ -231,8 +231,8 @@ export function ComingSoonClient({
             )}
           </div>
 
-          {/* Main content */}
-          <div className="min-h-[280px] md:min-h-[320px] flex flex-col justify-center">
+          {/* Main content - fixed height container with absolute positioning to prevent jump */}
+          <div className="relative h-[340px] md:h-[380px]">
             <AnimatePresence mode="wait">
               {status === 'success' ? (
                 <motion.div
@@ -241,7 +241,7 @@ export function ComingSoonClient({
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.3 }}
-                  className="text-center"
+                  className="absolute inset-0 flex flex-col justify-center text-center"
                 >
                   {/* Title with checkmark */}
                   <div className="flex items-center justify-center gap-3 mb-5">
@@ -299,6 +299,7 @@ export function ComingSoonClient({
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.3 }}
+                  className="absolute inset-0 flex flex-col justify-center"
                 >
                   <h1 className="text-3xl md:text-5xl font-normal tracking-tight mb-4 md:mb-6">
                     {title}
