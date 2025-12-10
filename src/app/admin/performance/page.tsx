@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useTransition } from 'react';
 import Link from 'next/link';
 import {
   Eye,
@@ -14,10 +14,11 @@ import {
   Mail,
   Smartphone,
   RefreshCw,
+  ChevronDown,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-type DateRange = '7d' | '14d' | '30d' | '90d';
+type DateRange = '7d' | '14d' | '30d' | '90d' | '6m' | '12m' | 'ytd' | 'all';
 
 interface AnalyticsData {
   visitors: { total: number; today: number; week: number };
@@ -31,23 +32,34 @@ interface AnalyticsData {
   dailyClicks: Array<{ date: string; count: number }>;
 }
 
-const DATE_RANGE_OPTIONS: { value: DateRange; label: string; days: number }[] = [
-  { value: '7d', label: '7 Days', days: 7 },
-  { value: '14d', label: '14 Days', days: 14 },
-  { value: '30d', label: '30 Days', days: 30 },
-  { value: '90d', label: '90 Days', days: 90 },
+interface DateRangeOption {
+  value: DateRange;
+  label: string;
+  shortLabel: string;
+  group: 'quick' | 'extended';
+}
+
+const DATE_RANGE_OPTIONS: DateRangeOption[] = [
+  { value: '7d', label: 'Last 7 Days', shortLabel: '7D', group: 'quick' },
+  { value: '14d', label: 'Last 14 Days', shortLabel: '14D', group: 'quick' },
+  { value: '30d', label: 'Last 30 Days', shortLabel: '30D', group: 'quick' },
+  { value: '90d', label: 'Last 90 Days', shortLabel: '90D', group: 'quick' },
+  { value: '6m', label: 'Last 6 Months', shortLabel: '6M', group: 'extended' },
+  { value: '12m', label: 'Last 12 Months', shortLabel: '12M', group: 'extended' },
+  { value: 'ytd', label: 'Year to Date', shortLabel: 'YTD', group: 'extended' },
+  { value: 'all', label: 'All Time', shortLabel: 'All', group: 'extended' },
 ];
 
 export default function PerformancePage() {
   const [dateRange, setDateRange] = useState<DateRange>('30d');
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
+  const [isPending, startTransition] = useTransition();
+  const [showDropdown, setShowDropdown] = useState(false);
 
-  const fetchData = async (range: DateRange, isRefresh = false) => {
-    if (isRefresh) setRefreshing(true);
-    else setLoading(true);
+  const selectedOption = DATE_RANGE_OPTIONS.find(o => o.value === dateRange);
 
+  const fetchData = async (range: DateRange) => {
     try {
       const res = await fetch(`/api/admin/analytics?range=${range}`);
       if (res.ok) {
@@ -57,14 +69,27 @@ export default function PerformancePage() {
     } catch (error) {
       console.error('Failed to fetch analytics:', error);
     }
-
     setLoading(false);
-    setRefreshing(false);
   };
 
   useEffect(() => {
     fetchData(dateRange);
   }, [dateRange]);
+
+  const handleRangeChange = (range: DateRange) => {
+    setShowDropdown(false);
+    if (range === dateRange) return;
+
+    startTransition(() => {
+      setDateRange(range);
+    });
+  };
+
+  const handleRefresh = () => {
+    startTransition(() => {
+      fetchData(dateRange);
+    });
+  };
 
   // Calculate chart dimensions
   const chartData = useMemo(() => {
@@ -88,6 +113,9 @@ export default function PerformancePage() {
     return ((data.clicks.total / data.visitors.total) * 100).toFixed(1);
   }, [data]);
 
+  // Determine if we should show monthly or daily grouping
+  const showMonthlyGrouping = ['6m', '12m', 'ytd', 'all'].includes(dateRange);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -107,37 +135,99 @@ export default function PerformancePage() {
           </p>
         </div>
         <button
-          onClick={() => fetchData(dateRange, true)}
-          disabled={refreshing}
+          onClick={handleRefresh}
+          disabled={isPending}
           className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--admin-input)] rounded-lg text-sm font-medium hover:bg-[var(--admin-hover)] transition-colors self-start sm:self-auto"
           style={{ color: '#9ca3af' }}
         >
-          <RefreshCw className={cn('w-4 h-4', refreshing && 'animate-spin')} />
+          <RefreshCw className={cn('w-4 h-4', isPending && 'animate-spin')} />
           Refresh
         </button>
       </div>
 
-      {/* Date Range Filters */}
-      <div className="flex gap-2 overflow-x-auto pb-1">
-        {DATE_RANGE_OPTIONS.map((option) => (
+      {/* Date Range Filters - Beautiful Segmented Control + Dropdown */}
+      <div className="flex items-center gap-3">
+        {/* Quick Filters - Pill Style */}
+        <div className="flex bg-[var(--admin-input)] rounded-xl p-1 gap-0.5">
+          {DATE_RANGE_OPTIONS.filter(o => o.group === 'quick').map((option) => (
+            <button
+              key={option.value}
+              onClick={() => handleRangeChange(option.value)}
+              disabled={isPending}
+              className={cn(
+                'px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200',
+                dateRange === option.value
+                  ? 'bg-[var(--primary)] text-[var(--admin-button-text)] shadow-sm'
+                  : 'text-[#9ca3af] hover:text-white hover:bg-[var(--admin-hover)]',
+                isPending && 'opacity-50 cursor-wait'
+              )}
+            >
+              <span className="hidden sm:inline">{option.label.replace('Last ', '')}</span>
+              <span className="sm:hidden">{option.shortLabel}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* Extended Filters - Dropdown */}
+        <div className="relative">
           <button
-            key={option.value}
-            onClick={() => setDateRange(option.value)}
+            onClick={() => setShowDropdown(!showDropdown)}
             className={cn(
-              'px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium shrink-0 transition-colors',
-              dateRange === option.value
-                ? 'bg-[var(--primary)] text-[var(--admin-button-text)]'
-                : 'bg-[var(--admin-input)] hover:bg-[var(--admin-hover)]'
+              'flex items-center gap-2 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all duration-200 border',
+              DATE_RANGE_OPTIONS.find(o => o.value === dateRange)?.group === 'extended'
+                ? 'bg-[var(--primary)] text-[var(--admin-button-text)] border-[var(--primary)]'
+                : 'bg-[var(--admin-input)] text-[#9ca3af] border-[var(--admin-border-light)] hover:border-[var(--primary)]'
             )}
-            style={dateRange !== option.value ? { color: '#9ca3af' } : undefined}
           >
-            {option.label}
+            {DATE_RANGE_OPTIONS.find(o => o.value === dateRange)?.group === 'extended'
+              ? selectedOption?.label
+              : 'More'}
+            <ChevronDown className={cn('w-4 h-4 transition-transform', showDropdown && 'rotate-180')} />
           </button>
-        ))}
+
+          {/* Dropdown Menu */}
+          {showDropdown && (
+            <>
+              <div
+                className="fixed inset-0 z-10"
+                onClick={() => setShowDropdown(false)}
+              />
+              <div className="absolute top-full right-0 mt-2 w-48 bg-[var(--admin-card)] border border-[var(--admin-border-light)] rounded-xl shadow-xl z-20 overflow-hidden">
+                <div className="p-1">
+                  {DATE_RANGE_OPTIONS.filter(o => o.group === 'extended').map((option) => (
+                    <button
+                      key={option.value}
+                      onClick={() => handleRangeChange(option.value)}
+                      className={cn(
+                        'w-full text-left px-3 py-2.5 rounded-lg text-sm transition-colors',
+                        dateRange === option.value
+                          ? 'bg-[var(--primary)] text-[var(--admin-button-text)]'
+                          : 'text-[#9ca3af] hover:text-white hover:bg-[var(--admin-hover)]'
+                      )}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Loading indicator */}
+        {isPending && (
+          <div className="flex items-center gap-2 text-xs text-[#71717a]">
+            <RefreshCw className="w-3 h-3 animate-spin" />
+            <span className="hidden sm:inline">Updating...</span>
+          </div>
+        )}
       </div>
 
       {/* Key Metrics */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <div className={cn(
+        'grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 transition-opacity duration-200',
+        isPending && 'opacity-60'
+      )}>
         {/* Unique Visitors */}
         <div className="bg-[var(--admin-card)] rounded-xl p-3 sm:p-5 border border-[var(--admin-border-light)]">
           <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-4">
@@ -146,7 +236,7 @@ export default function PerformancePage() {
             </div>
           </div>
           <p className="text-xl sm:text-3xl font-semibold mb-0.5 sm:mb-1" style={{ color: '#ffffff' }}>
-            {data?.visitors.total || 0}
+            {data?.visitors.total.toLocaleString() || 0}
           </p>
           <p className="text-xs sm:text-sm" style={{ color: '#9ca3af' }}>Visitors</p>
           <div className="flex items-center gap-1 sm:gap-2 mt-1.5 sm:mt-2 flex-wrap">
@@ -168,7 +258,7 @@ export default function PerformancePage() {
             </div>
           </div>
           <p className="text-xl sm:text-3xl font-semibold mb-0.5 sm:mb-1" style={{ color: '#ffffff' }}>
-            {data?.clicks.total || 0}
+            {data?.clicks.total.toLocaleString() || 0}
           </p>
           <p className="text-xs sm:text-sm" style={{ color: '#9ca3af' }}>Clicks</p>
           <div className="flex items-center gap-1 sm:gap-2 mt-1.5 sm:mt-2 flex-wrap">
@@ -210,7 +300,7 @@ export default function PerformancePage() {
             <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 group-hover:text-[var(--primary)] transition-colors" style={{ color: '#71717a' }} />
           </div>
           <p className="text-xl sm:text-3xl font-semibold mb-0.5 sm:mb-1" style={{ color: '#ffffff' }}>
-            {data?.contacts.period || 0}
+            {data?.contacts.period.toLocaleString() || 0}
           </p>
           <p className="text-xs sm:text-sm" style={{ color: '#9ca3af' }}>New Contacts</p>
           <div className="flex items-center gap-2 sm:gap-3 mt-1.5 sm:mt-2">
@@ -225,11 +315,16 @@ export default function PerformancePage() {
       </div>
 
       {/* Traffic Chart */}
-      <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-4 sm:p-6">
+      <div className={cn(
+        'bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-4 sm:p-6 transition-opacity duration-200',
+        isPending && 'opacity-60'
+      )}>
         <div className="flex items-center justify-between mb-4 sm:mb-6">
           <h2 className="font-medium flex items-center gap-2 text-sm sm:text-base" style={{ color: '#ffffff' }}>
             <Calendar className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: '#9ca3af' }} />
-            <span className="hidden sm:inline">Daily Traffic</span>
+            <span className="hidden sm:inline">
+              {showMonthlyGrouping ? 'Monthly Traffic' : 'Daily Traffic'}
+            </span>
             <span className="sm:hidden">Traffic</span>
           </h2>
           <div className="flex items-center gap-4 text-xs">
@@ -254,16 +349,22 @@ export default function PerformancePage() {
               const date = new Date(day.date);
               const isToday = index === chartData.visitors.length - 1;
 
+              // Determine label based on data density
+              const showLabel = chartData.visitors.length <= 31
+                || index === 0
+                || index === chartData.visitors.length - 1
+                || date.getDate() === 1;
+
               return (
                 <div
                   key={day.date}
-                  className="flex-1 min-w-[24px] sm:min-w-[32px] flex flex-col items-center gap-1 group relative"
+                  className="flex-1 min-w-[16px] sm:min-w-[24px] flex flex-col items-center gap-1 group relative"
                 >
                   {/* Tooltip */}
                   <div className="absolute -top-16 left-1/2 -translate-x-1/2 bg-[var(--admin-sidebar)] border border-[var(--admin-border)] rounded-lg p-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
-                    <p style={{ color: '#ffffff' }}>{date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</p>
-                    <p style={{ color: '#60a5fa' }}>{day.count} visitors</p>
-                    <p style={{ color: '#4ade80' }}>{clickDay?.count || 0} clicks</p>
+                    <p style={{ color: '#ffffff' }}>{date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: chartData.visitors.length > 90 ? 'numeric' : undefined })}</p>
+                    <p style={{ color: '#60a5fa' }}>{day.count.toLocaleString()} visitors</p>
+                    <p style={{ color: '#4ade80' }}>{(clickDay?.count || 0).toLocaleString()} clicks</p>
                   </div>
 
                   {/* Bars container */}
@@ -271,25 +372,30 @@ export default function PerformancePage() {
                     {/* Visitors bar */}
                     <div
                       className={cn(
-                        'w-[45%] rounded-t transition-all',
-                        isToday ? 'bg-blue-500' : 'bg-blue-500/60'
+                        'w-[45%] rounded-t transition-all duration-300',
+                        isToday ? 'bg-blue-500' : 'bg-blue-500/60 group-hover:bg-blue-500/80'
                       )}
                       style={{ height: `${Math.max(visitorHeight, 2)}%` }}
                     />
                     {/* Clicks bar */}
                     <div
                       className={cn(
-                        'w-[45%] rounded-t transition-all',
-                        isToday ? 'bg-green-500' : 'bg-green-500/60'
+                        'w-[45%] rounded-t transition-all duration-300',
+                        isToday ? 'bg-green-500' : 'bg-green-500/60 group-hover:bg-green-500/80'
                       )}
                       style={{ height: `${Math.max(clickHeight, clickDay?.count ? 2 : 0)}%` }}
                     />
                   </div>
 
-                  {/* Date label */}
-                  <span className="text-[10px] sm:text-xs absolute -bottom-5" style={{ color: '#71717a' }}>
-                    {date.getDate()}
-                  </span>
+                  {/* Date label - show selectively for dense data */}
+                  {showLabel && (
+                    <span className="text-[8px] sm:text-[10px] absolute -bottom-5 whitespace-nowrap" style={{ color: '#71717a' }}>
+                      {chartData.visitors.length > 60
+                        ? date.toLocaleDateString('en-US', { month: 'short' })
+                        : date.getDate()
+                      }
+                    </span>
+                  )}
                 </div>
               );
             })
@@ -302,7 +408,10 @@ export default function PerformancePage() {
       </div>
 
       {/* Two Column Layout */}
-      <div className="grid lg:grid-cols-2 gap-4 sm:gap-6">
+      <div className={cn(
+        'grid lg:grid-cols-2 gap-4 sm:gap-6 transition-opacity duration-200',
+        isPending && 'opacity-60'
+      )}>
         {/* Top Pages */}
         <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)]">
           <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-[var(--admin-border-light)] flex items-center justify-between">
@@ -327,7 +436,7 @@ export default function PerformancePage() {
                     </p>
                   </div>
                   <span className="text-xs sm:text-sm font-medium shrink-0" style={{ color: '#9ca3af' }}>
-                    {page.count} views
+                    {page.count.toLocaleString()} views
                   </span>
                 </div>
               ))
@@ -377,7 +486,7 @@ export default function PerformancePage() {
                       )}
                     </div>
                     <span className="text-xs sm:text-sm font-medium shrink-0" style={{ color: '#9ca3af' }}>
-                      {click.count} clicks
+                      {click.count.toLocaleString()} clicks
                     </span>
                   </div>
                 );

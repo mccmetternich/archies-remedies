@@ -8,11 +8,41 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const range = searchParams.get('range') || '30d';
 
-    // Calculate date range
-    const days = range === '7d' ? 7 : range === '14d' ? 14 : range === '90d' ? 90 : 30;
+    // Calculate date range based on filter
     const startDate = new Date();
-    startDate.setDate(startDate.getDate() - days);
-    const startDateStr = startDate.toISOString();
+    let startDateStr: string;
+
+    switch (range) {
+      case '7d':
+        startDate.setDate(startDate.getDate() - 7);
+        break;
+      case '14d':
+        startDate.setDate(startDate.getDate() - 14);
+        break;
+      case '30d':
+        startDate.setDate(startDate.getDate() - 30);
+        break;
+      case '90d':
+        startDate.setDate(startDate.getDate() - 90);
+        break;
+      case '6m':
+        startDate.setMonth(startDate.getMonth() - 6);
+        break;
+      case '12m':
+        startDate.setFullYear(startDate.getFullYear() - 1);
+        break;
+      case 'ytd':
+        startDate.setMonth(0, 1); // January 1st of current year
+        startDate.setHours(0, 0, 0, 0);
+        break;
+      case 'all':
+        startDate.setFullYear(2020, 0, 1); // Far enough back to get all data
+        break;
+      default:
+        startDate.setDate(startDate.getDate() - 30);
+    }
+
+    startDateStr = startDate.toISOString();
 
     // Today and week dates
     const today = new Date();
