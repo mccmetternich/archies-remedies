@@ -160,7 +160,7 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
         className={cn(
           'lg:fixed left-0 right-0 z-50 bg-white shadow-[0_4px_20px_rgba(0,0,0,0.1)]',
           showBumper ? 'lg:top-[44px]' : 'lg:top-0',
-          isScrolled ? 'py-3' : 'py-4'
+          isScrolled ? 'py-4' : 'py-5'
         )}
       >
         <nav className="container">
@@ -577,8 +577,8 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
       <div className={cn(
         'hidden lg:block',
         showBumper
-          ? (isScrolled ? 'h-[110px]' : 'h-[120px]')
-          : (isScrolled ? 'h-[70px]' : 'h-[80px]')
+          ? (isScrolled ? 'h-[120px]' : 'h-[135px]')
+          : (isScrolled ? 'h-[80px]' : 'h-[95px]')
       )} />
     </>
   );

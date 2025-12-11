@@ -192,12 +192,12 @@ export function Footer({
               </h4>
               <ul className="space-y-4">
                 <li>
-                  <Link href="/products/eye-drops" className="text-sm text-white/60 hover:text-white transition-colors leading-relaxed">
+                  <Link href="/products/eye-drops" className="text-sm text-white/60 hover:text-white transition-colors leading-relaxed border-b border-transparent hover:border-white pb-0.5">
                     Dry Eye Drops
                   </Link>
                 </li>
                 <li>
-                  <Link href="/products/eye-wipes" className="text-sm text-white/60 hover:text-white transition-colors leading-relaxed">
+                  <Link href="/products/eye-wipes" className="text-sm text-white/60 hover:text-white transition-colors leading-relaxed border-b border-transparent hover:border-white pb-0.5">
                     Lid & Lash Wipes
                   </Link>
                 </li>
@@ -207,7 +207,7 @@ export function Footer({
                       href={amazonStoreUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sm text-white/60 hover:text-white transition-colors leading-relaxed inline-flex items-center gap-1"
+                      className="text-sm text-white/60 hover:text-white transition-colors leading-relaxed inline-flex items-center gap-1 border-b border-transparent hover:border-white pb-0.5"
                     >
                       Shop on Amazon
                       <ArrowRight className="w-3 h-3" />
@@ -224,13 +224,18 @@ export function Footer({
               </h4>
               <ul className="space-y-4">
                 <li>
-                  <Link href="/our-story" className="text-sm text-white/60 hover:text-white transition-colors leading-relaxed">
+                  <Link href="/our-story" className="text-sm text-white/60 hover:text-white transition-colors leading-relaxed border-b border-transparent hover:border-white pb-0.5">
                     Our Story
                   </Link>
                 </li>
                 <li>
-                  <Link href="/faq" className="text-sm text-white/60 hover:text-white transition-colors leading-relaxed">
+                  <Link href="/faq" className="text-sm text-white/60 hover:text-white transition-colors leading-relaxed border-b border-transparent hover:border-white pb-0.5">
                     FAQ
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/blog" className="text-sm text-white/60 hover:text-white transition-colors leading-relaxed border-b border-transparent hover:border-white pb-0.5">
+                    AR Function Mag
                   </Link>
                 </li>
               </ul>
@@ -243,12 +248,12 @@ export function Footer({
               </h4>
               <ul className="space-y-4">
                 <li>
-                  <Link href="/contact" className="text-sm text-white/60 hover:text-white transition-colors leading-relaxed">
+                  <Link href="/contact" className="text-sm text-white/60 hover:text-white transition-colors leading-relaxed border-b border-transparent hover:border-white pb-0.5">
                     Contact Us
                   </Link>
                 </li>
                 <li>
-                  <Link href="/faq" className="text-sm text-white/60 hover:text-white transition-colors leading-relaxed">
+                  <Link href="/faq" className="text-sm text-white/60 hover:text-white transition-colors leading-relaxed border-b border-transparent hover:border-white pb-0.5">
                     FAQs
                   </Link>
                 </li>
@@ -391,6 +396,11 @@ export function Footer({
                     FAQ
                   </Link>
                 </li>
+                <li>
+                  <Link href="/blog" className="text-sm text-white/60">
+                    AR Function Mag
+                  </Link>
+                </li>
               </ul>
             </MobileAccordion>
 
@@ -472,11 +482,11 @@ export function Footer({
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             {/* Legal Links - Left */}
             <div className="flex items-center gap-4 text-[11px] uppercase tracking-wide text-white/40">
-              <Link href="/privacy" className="hover:text-white/60 transition-colors">
+              <Link href="/privacy" className="hover:text-white/60 transition-colors border-b border-transparent hover:border-white/60 pb-0.5">
                 Privacy Policy
               </Link>
               <span>•</span>
-              <Link href="/terms" className="hover:text-white/60 transition-colors">
+              <Link href="/terms" className="hover:text-white/60 transition-colors border-b border-transparent hover:border-white/60 pb-0.5">
                 Terms of Service
               </Link>
             </div>
