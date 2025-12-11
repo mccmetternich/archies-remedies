@@ -81,7 +81,7 @@ export function HeroCarousel({ slides, isPaused = false }: HeroCarouselProps) {
 
   return (
     <section
-      className="relative h-[80vh] min-h-[600px] max-h-[850px] overflow-hidden"
+      className="relative h-[90vh] min-h-[700px] max-h-[950px] overflow-hidden"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -124,10 +124,10 @@ export function HeroCarousel({ slides, isPaused = false }: HeroCarouselProps) {
       </AnimatePresence>
 
       {/* Content - Above the clickable overlay */}
-      <div className="container relative z-20 h-full flex items-end pointer-events-none">
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-end pb-20 lg:pb-28 pointer-events-auto w-full">
-          {/* Left - Text content */}
-          <div className="max-w-xl">
+      <div className="container relative z-20 h-full flex items-center pointer-events-none">
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 pointer-events-auto w-full">
+          {/* Left - Text content - vertically centered */}
+          <div className="max-w-xl self-center">
             <AnimatePresence mode="wait">
               <motion.div
                 key={`content-${currentIndex}`}
@@ -172,32 +172,30 @@ export function HeroCarousel({ slides, isPaused = false }: HeroCarouselProps) {
                   {slide.subtitle || 'Preservative-free eye drops crafted for sensitive eyes. Feel the difference of truly clean ingredients.'}
                 </motion.p>
 
-                {/* CTA - Simple buttons, no hover animations */}
+                {/* CTA - Buttons with hover states */}
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.4, duration: 0.6 }}
                   className="flex flex-wrap items-center gap-4"
                 >
-                  {/* Primary button - dark bg, white text */}
+                  {/* Primary button - dark bg, white text, hex blue on hover */}
                   {slide.buttonUrl && (
                     <Link
                       href={slide.buttonUrl}
-                      className="inline-flex items-center gap-3 px-8 py-4 rounded-full text-lg font-semibold shadow-lg"
-                      style={{ backgroundColor: '#1a1a1a', color: '#ffffff' }}
+                      className="group inline-flex items-center gap-3 px-8 py-4 rounded-full text-lg font-semibold shadow-lg transition-all duration-300 hover:shadow-xl bg-[#1a1a1a] hover:bg-[#bbdae9] [&]:text-white [&:hover]:text-[#1a1a1a]"
                     >
                       {slide.buttonText || 'Shop Now'}
-                      <ArrowRight className="w-5 h-5" style={{ color: '#ffffff' }} />
+                      <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
                     </Link>
                   )}
                   {/* Secondary button - white bg, dark text */}
                   <Link
                     href={slide.secondaryButtonUrl || '/about'}
-                    className="inline-flex items-center gap-3 px-6 py-4 rounded-full text-base font-semibold border-2"
-                    style={{ backgroundColor: '#ffffff', color: '#1a1a1a', borderColor: 'rgba(26,26,26,0.2)' }}
+                    className="group inline-flex items-center gap-3 px-6 py-4 rounded-full text-base font-semibold border-2 border-[#1a1a1a]/20 bg-white [&]:text-[#1a1a1a] transition-all duration-300 hover:bg-[#f5f5f5] hover:border-[#1a1a1a]/40"
                   >
                     {slide.secondaryButtonText || 'Learn More'}
-                    <ArrowRight className="w-4 h-4" style={{ color: '#1a1a1a' }} />
+                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                   </Link>
                 </motion.div>
               </motion.div>
