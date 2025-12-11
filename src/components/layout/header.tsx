@@ -42,11 +42,27 @@ interface GlobalNavSettings {
   tile1Subtitle?: string | null;
   tile1Badge?: string | null;
   tile1BadgeEmoji?: string | null;
+  tile1ImageUrl?: string | null;
+  tile1HoverImageUrl?: string | null;
   tile2ProductId?: string | null;
   tile2Title?: string | null;
   tile2Subtitle?: string | null;
   tile2Badge?: string | null;
   tile2BadgeEmoji?: string | null;
+  tile2ImageUrl?: string | null;
+  tile2HoverImageUrl?: string | null;
+  // Marketing tile (uses both new and legacy field names)
+  marketingTileTitle?: string | null;
+  marketingTileDescription?: string | null;
+  marketingTileBadge1?: string | null;
+  marketingTileBadge2?: string | null;
+  marketingTileBadge3?: string | null;
+  marketingTileCtaEnabled?: boolean | null;
+  marketingTileCtaText?: string | null;
+  marketingTileCtaUrl?: string | null;
+  marketingTileRotatingBadgeEnabled?: boolean | null;
+  marketingTileRotatingBadgeUrl?: string | null;
+  // Legacy aliases
   cleanFormulasTitle?: string | null;
   cleanFormulasDescription?: string | null;
   cleanFormulasCtaEnabled?: boolean | null;
@@ -154,13 +170,10 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
             "flex items-center relative lg:z-[70]",
             logoPosition === 'center' ? 'lg:justify-between' : 'justify-between'
           )}>
-            {/* Mobile Menu Button - Left side on mobile */}
+            {/* Mobile Menu Button - Always on right for mobile */}
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className={cn(
-                "lg:hidden p-2 -ml-2 rounded-full hover:bg-[var(--sand)] transition-colors",
-                logoPositionMobile === 'center' ? 'order-first' : 'order-last'
-              )}
+              className="lg:hidden p-2 -mr-2 rounded-full hover:bg-[var(--sand)] transition-colors order-last"
               aria-label="Toggle menu"
             >
               <Menu className="w-5 h-5" />
@@ -171,8 +184,8 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
               href="/"
               className={cn(
                 "flex items-center lg:relative lg:z-10",
-                // Mobile positioning
-                logoPositionMobile === 'center' ? 'flex-1 justify-center lg:flex-none lg:justify-start' : '',
+                // Mobile positioning - when centered, use flex-1 to take up space and center content
+                logoPositionMobile === 'center' ? 'flex-1 justify-center lg:flex-none lg:justify-start order-1' : 'order-first',
                 // Desktop positioning
                 logoPosition === 'center' ? 'lg:absolute lg:left-1/2 lg:-translate-x-1/2' : ''
               )}
@@ -193,9 +206,9 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
               )}
             </Link>
 
-            {/* Spacer for mobile when logo is centered */}
+            {/* Spacer for mobile when logo is centered - balances the hamburger on right */}
             {logoPositionMobile === 'center' && (
-              <div className="lg:hidden w-9" />
+              <div className="lg:hidden w-9 order-first" />
             )}
 
             {/* Desktop Navigation - Shop on left */}
@@ -246,7 +259,7 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                                 <div className="relative mb-4">
                                   <div className="aspect-square w-full rounded-xl overflow-hidden bg-[var(--cream)]">
                                     <Image
-                                      src={tile1Product.heroImageUrl || PRODUCT_IMAGES['eye-drops']}
+                                      src={globalNav?.tile1ImageUrl || tile1Product.heroImageUrl || PRODUCT_IMAGES['eye-drops']}
                                       alt={globalNav?.tile1Title || tile1Product.name}
                                       width={400}
                                       height={400}
@@ -260,13 +273,13 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                                   )}
                                 </div>
                                 <div className="flex items-center gap-2 mb-1.5">
+                                  <span className="text-sm text-[var(--foreground)] font-medium">2,900+</span>
                                   <div className="flex gap-0.5">
                                     {[1,2,3,4,5].map(i => (
                                       <Star key={i} className="w-3.5 h-3.5 fill-[var(--primary)] text-[var(--primary)]" />
                                     ))}
                                   </div>
-                                  <span className="text-sm text-[var(--foreground)] font-medium">4.9</span>
-                                  <span className="text-xs text-[var(--muted-foreground)]">(2,100+)</span>
+                                  <span className="text-xs text-[var(--muted-foreground)] font-semibold">Verified Reviews</span>
                                 </div>
                                 <h4 className="text-lg font-medium mb-1 group-hover/tile:text-[var(--muted-foreground)] transition-colors">
                                   {globalNav?.tile1Title || tile1Product.name}
@@ -277,16 +290,16 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                               </Link>
                             )}
 
-                            {/* Product Tile 2 */}
+                            {/* Product Tile 2 - same padding structure as Tile 1 for consistent sizing */}
                             {tile2Product && (
                               <Link
                                 href={`/products/${tile2Product.slug}`}
-                                className="group/tile block p-5 rounded-2xl bg-white hover:shadow-md hover:bg-[var(--cream)] transition-all duration-300"
+                                className="group/tile block p-5 pl-0 rounded-2xl bg-white hover:shadow-md hover:bg-[var(--cream)] transition-all duration-300"
                               >
                                 <div className="relative mb-4">
                                   <div className="aspect-square w-full rounded-xl overflow-hidden bg-[var(--cream)]">
                                     <Image
-                                      src={tile2Product.heroImageUrl || PRODUCT_IMAGES['eye-wipes']}
+                                      src={globalNav?.tile2ImageUrl || tile2Product.heroImageUrl || PRODUCT_IMAGES['eye-wipes']}
                                       alt={globalNav?.tile2Title || tile2Product.name}
                                       width={400}
                                       height={400}
@@ -300,13 +313,13 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                                   )}
                                 </div>
                                 <div className="flex items-center gap-2 mb-1.5">
+                                  <span className="text-sm text-[var(--foreground)] font-medium">2,900+</span>
                                   <div className="flex gap-0.5">
                                     {[1,2,3,4,5].map(i => (
                                       <Star key={i} className="w-3.5 h-3.5 fill-[var(--primary)] text-[var(--primary)]" />
                                     ))}
                                   </div>
-                                  <span className="text-sm text-[var(--foreground)] font-medium">4.9</span>
-                                  <span className="text-xs text-[var(--muted-foreground)]">(850+)</span>
+                                  <span className="text-xs text-[var(--muted-foreground)] font-semibold">Verified Reviews</span>
                                 </div>
                                 <h4 className="text-lg font-medium mb-1 group-hover/tile:text-[var(--muted-foreground)] transition-colors">
                                   {globalNav?.tile2Title || tile2Product.name}
@@ -319,13 +332,14 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                           </div>
                         </div>
 
-                        {/* Clean Formulas - Compact tile, moved up 60px from bottom */}
+                        {/* Marketing Tile (Clean Formulas) - Compact tile, moved up 60px from bottom */}
                         <div className="lg:col-span-4 relative mb-[60px]">
                           {/* Rotating Badge */}
-                          {globalNav?.cleanFormulasBadgeEnabled && globalNav?.cleanFormulasBadgeUrl && (
+                          {(globalNav?.marketingTileRotatingBadgeEnabled || globalNav?.cleanFormulasBadgeEnabled) &&
+                           (globalNav?.marketingTileRotatingBadgeUrl || globalNav?.cleanFormulasBadgeUrl) && (
                             <div className="absolute -top-4 -right-4 w-20 h-20 z-10">
                               <Image
-                                src={globalNav.cleanFormulasBadgeUrl}
+                                src={globalNav.marketingTileRotatingBadgeUrl || globalNav.cleanFormulasBadgeUrl || ''}
                                 alt=""
                                 width={80}
                                 height={80}
@@ -334,23 +348,25 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                             </div>
                           )}
                           <div className="p-6 pr-0 rounded-2xl rounded-r-none bg-[var(--primary-light)]">
-                            <p className="text-lg font-medium mb-2">{cleanFormulasTitle}</p>
+                            <p className="text-lg font-medium mb-2">{globalNav?.marketingTileTitle || cleanFormulasTitle}</p>
                             <p className="text-sm text-[var(--muted-foreground)] leading-relaxed mb-4">
-                              {cleanFormulasDescription}
+                              {globalNav?.marketingTileDescription || cleanFormulasDescription}
                             </p>
                             <div className="flex flex-wrap gap-1.5 mb-4">
-                              <span className="text-xs px-2.5 py-1 bg-white rounded-full">Preservative-Free</span>
-                              <span className="text-xs px-2.5 py-1 bg-white rounded-full">Paraben-Free</span>
-                              <span className="text-xs px-2.5 py-1 bg-white rounded-full">Sulfate-Free</span>
+                              <span className="text-xs px-2.5 py-1 bg-white rounded-full">{globalNav?.marketingTileBadge1 || 'Preservative-Free'}</span>
+                              <span className="text-xs px-2.5 py-1 bg-white rounded-full">{globalNav?.marketingTileBadge2 || 'Paraben-Free'}</span>
+                              <span className="text-xs px-2.5 py-1 bg-white rounded-full">{globalNav?.marketingTileBadge3 || 'Sulfate-Free'}</span>
                             </div>
 
-                            {/* CTA Button for Clean Formulas */}
-                            {globalNav?.cleanFormulasCtaEnabled && globalNav?.cleanFormulasCtaText && globalNav?.cleanFormulasCtaUrl && (
+                            {/* CTA Button for Marketing Tile */}
+                            {(globalNav?.marketingTileCtaEnabled || globalNav?.cleanFormulasCtaEnabled) &&
+                             (globalNav?.marketingTileCtaText || globalNav?.cleanFormulasCtaText) &&
+                             (globalNav?.marketingTileCtaUrl || globalNav?.cleanFormulasCtaUrl) && (
                               <Link
-                                href={globalNav.cleanFormulasCtaUrl}
+                                href={globalNav.marketingTileCtaUrl || globalNav.cleanFormulasCtaUrl || ''}
                                 className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--foreground)] text-white rounded-full text-sm font-medium hover:bg-black transition-colors mb-4"
                               >
-                                {globalNav.cleanFormulasCtaText}
+                                {globalNav.marketingTileCtaText || globalNav.cleanFormulasCtaText}
                                 <ArrowRight className="w-3 h-3" />
                               </Link>
                             )}
@@ -370,13 +386,16 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                                 ))}
                               </div>
                               <div className="flex items-center gap-1.5">
+                                <span className="text-xs text-[var(--foreground)] font-medium">
+                                  {socialStats?.totalReviews?.toLocaleString() || '2,900'}+
+                                </span>
                                 <div className="flex gap-0.5">
                                   {[1, 2, 3, 4, 5].map((i) => (
                                     <Star key={i} className="w-3 h-3 fill-[var(--primary)] text-[var(--primary)]" />
                                   ))}
                                 </div>
-                                <span className="text-xs text-[var(--foreground)] font-medium">
-                                  {socialStats?.totalReviews?.toLocaleString() || '2,900'}+
+                                <span className="text-[10px] text-[var(--foreground)] font-semibold uppercase tracking-wide">
+                                  Verified Reviews
                                 </span>
                               </div>
                             </div>

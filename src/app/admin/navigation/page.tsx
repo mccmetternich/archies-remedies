@@ -30,6 +30,7 @@ import {
   Video,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { MediaPickerButton } from '@/components/admin/media-picker';
 
 interface NavItem {
   id: string;
@@ -80,13 +81,25 @@ interface GlobalNavSettings {
   tile2BadgeEmoji: string | null;
   tile2ImageUrl: string | null;
   tile2HoverImageUrl: string | null;
-  cleanFormulasTitle: string;
-  cleanFormulasDescription: string;
-  cleanFormulasCtaEnabled: boolean;
-  cleanFormulasCtaText: string | null;
-  cleanFormulasCtaUrl: string | null;
-  cleanFormulasBadgeEnabled: boolean;
-  cleanFormulasBadgeUrl: string | null;
+  // Marketing tile (formerly Clean Formulas)
+  marketingTileTitle: string;
+  marketingTileDescription: string;
+  marketingTileBadge1: string;
+  marketingTileBadge2: string;
+  marketingTileBadge3: string;
+  marketingTileCtaEnabled: boolean;
+  marketingTileCtaText: string | null;
+  marketingTileCtaUrl: string | null;
+  marketingTileRotatingBadgeEnabled: boolean;
+  marketingTileRotatingBadgeUrl: string | null;
+  // Legacy aliases for backwards compatibility
+  cleanFormulasTitle?: string;
+  cleanFormulasDescription?: string;
+  cleanFormulasCtaEnabled?: boolean;
+  cleanFormulasCtaText?: string | null;
+  cleanFormulasCtaUrl?: string | null;
+  cleanFormulasBadgeEnabled?: boolean;
+  cleanFormulasBadgeUrl?: string | null;
 }
 
 interface ProductOption {
@@ -138,13 +151,16 @@ export default function NavigationPage() {
     tile2BadgeEmoji: null,
     tile2ImageUrl: null,
     tile2HoverImageUrl: null,
-    cleanFormulasTitle: 'Clean Formulas',
-    cleanFormulasDescription: 'No preservatives, phthalates, parabens, or sulfates.',
-    cleanFormulasCtaEnabled: false,
-    cleanFormulasCtaText: null,
-    cleanFormulasCtaUrl: null,
-    cleanFormulasBadgeEnabled: false,
-    cleanFormulasBadgeUrl: null,
+    marketingTileTitle: 'Clean Formulas',
+    marketingTileDescription: 'No preservatives, phthalates, parabens, or sulfates.',
+    marketingTileBadge1: 'Preservative-Free',
+    marketingTileBadge2: 'Paraben-Free',
+    marketingTileBadge3: 'Sulfate-Free',
+    marketingTileCtaEnabled: false,
+    marketingTileCtaText: null,
+    marketingTileCtaUrl: null,
+    marketingTileRotatingBadgeEnabled: false,
+    marketingTileRotatingBadgeUrl: null,
   });
   const [products, setProducts] = useState<ProductOption[]>([]);
   const [pagesList, setPagesList] = useState<PageOption[]>([]);
@@ -212,13 +228,16 @@ export default function NavigationPage() {
         tile2BadgeEmoji: data.globalNav.tile2BadgeEmoji || null,
         tile2ImageUrl: data.globalNav.tile2ImageUrl || null,
         tile2HoverImageUrl: data.globalNav.tile2HoverImageUrl || null,
-        cleanFormulasTitle: data.globalNav.cleanFormulasTitle || 'Clean Formulas',
-        cleanFormulasDescription: data.globalNav.cleanFormulasDescription || 'No preservatives, phthalates, parabens, or sulfates.',
-        cleanFormulasCtaEnabled: data.globalNav.cleanFormulasCtaEnabled ?? false,
-        cleanFormulasCtaText: data.globalNav.cleanFormulasCtaText || null,
-        cleanFormulasCtaUrl: data.globalNav.cleanFormulasCtaUrl || null,
-        cleanFormulasBadgeEnabled: data.globalNav.cleanFormulasBadgeEnabled ?? false,
-        cleanFormulasBadgeUrl: data.globalNav.cleanFormulasBadgeUrl || null,
+        marketingTileTitle: data.globalNav.marketingTileTitle || data.globalNav.cleanFormulasTitle || 'Clean Formulas',
+        marketingTileDescription: data.globalNav.marketingTileDescription || data.globalNav.cleanFormulasDescription || 'No preservatives, phthalates, parabens, or sulfates.',
+        marketingTileBadge1: data.globalNav.marketingTileBadge1 || 'Preservative-Free',
+        marketingTileBadge2: data.globalNav.marketingTileBadge2 || 'Paraben-Free',
+        marketingTileBadge3: data.globalNav.marketingTileBadge3 || 'Sulfate-Free',
+        marketingTileCtaEnabled: data.globalNav.marketingTileCtaEnabled ?? data.globalNav.cleanFormulasCtaEnabled ?? false,
+        marketingTileCtaText: data.globalNav.marketingTileCtaText || data.globalNav.cleanFormulasCtaText || null,
+        marketingTileCtaUrl: data.globalNav.marketingTileCtaUrl || data.globalNav.cleanFormulasCtaUrl || null,
+        marketingTileRotatingBadgeEnabled: data.globalNav.marketingTileRotatingBadgeEnabled ?? data.globalNav.cleanFormulasBadgeEnabled ?? false,
+        marketingTileRotatingBadgeUrl: data.globalNav.marketingTileRotatingBadgeUrl || data.globalNav.cleanFormulasBadgeUrl || null,
       } : globalNavSettings;
 
       setNavItems(nav);
@@ -732,37 +751,26 @@ export default function NavigationPage() {
                     </div>
                   </div>
 
-                  {/* Image Override */}
+                  {/* Primary Image Override */}
                   <div className="pt-4 border-t border-[var(--admin-border)]">
-                    <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
-                      <div className="flex items-center gap-2">
-                        <ImageIcon className="w-4 h-4" />
-                        Image Override <span className="text-[var(--admin-text-muted)]">(optional)</span>
-                      </div>
-                    </label>
-                    <input
-                      value={globalNavSettings.tile1ImageUrl || ''}
-                      onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, tile1ImageUrl: e.target.value || null })}
-                      placeholder="https://... (leave blank to use product image)"
-                      className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+                    <MediaPickerButton
+                      label="Primary Image Override"
+                      value={globalNavSettings.tile1ImageUrl}
+                      onChange={(url) => setGlobalNavSettings({ ...globalNavSettings, tile1ImageUrl: url || null })}
+                      helpText="Leave blank to use product image"
+                      folder="products"
                     />
                   </div>
 
                   {/* Hover Image */}
                   <div>
-                    <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
-                      <div className="flex items-center gap-2">
-                        <MousePointer className="w-4 h-4" />
-                        Hover Image <span className="text-[var(--admin-text-muted)]">(optional)</span>
-                      </div>
-                    </label>
-                    <input
-                      value={globalNavSettings.tile1HoverImageUrl || ''}
-                      onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, tile1HoverImageUrl: e.target.value || null })}
-                      placeholder="https://... (shown on hover)"
-                      className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+                    <MediaPickerButton
+                      label="Hover Image"
+                      value={globalNavSettings.tile1HoverImageUrl}
+                      onChange={(url) => setGlobalNavSettings({ ...globalNavSettings, tile1HoverImageUrl: url || null })}
+                      helpText="Shown when users hover over the tile"
+                      folder="products"
                     />
-                    <p className="text-xs text-[var(--admin-text-muted)] mt-1">This image will be shown when users hover over the tile</p>
                   </div>
                 </div>
 
@@ -902,37 +910,26 @@ export default function NavigationPage() {
                     </div>
                   </div>
 
-                  {/* Image Override */}
+                  {/* Primary Image Override */}
                   <div className="pt-4 border-t border-[var(--admin-border)]">
-                    <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
-                      <div className="flex items-center gap-2">
-                        <ImageIcon className="w-4 h-4" />
-                        Image Override <span className="text-[var(--admin-text-muted)]">(optional)</span>
-                      </div>
-                    </label>
-                    <input
-                      value={globalNavSettings.tile2ImageUrl || ''}
-                      onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, tile2ImageUrl: e.target.value || null })}
-                      placeholder="https://... (leave blank to use product image)"
-                      className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+                    <MediaPickerButton
+                      label="Primary Image Override"
+                      value={globalNavSettings.tile2ImageUrl}
+                      onChange={(url) => setGlobalNavSettings({ ...globalNavSettings, tile2ImageUrl: url || null })}
+                      helpText="Leave blank to use product image"
+                      folder="products"
                     />
                   </div>
 
                   {/* Hover Image */}
                   <div>
-                    <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
-                      <div className="flex items-center gap-2">
-                        <MousePointer className="w-4 h-4" />
-                        Hover Image <span className="text-[var(--admin-text-muted)]">(optional)</span>
-                      </div>
-                    </label>
-                    <input
-                      value={globalNavSettings.tile2HoverImageUrl || ''}
-                      onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, tile2HoverImageUrl: e.target.value || null })}
-                      placeholder="https://... (shown on hover)"
-                      className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+                    <MediaPickerButton
+                      label="Hover Image"
+                      value={globalNavSettings.tile2HoverImageUrl}
+                      onChange={(url) => setGlobalNavSettings({ ...globalNavSettings, tile2HoverImageUrl: url || null })}
+                      helpText="Shown when users hover over the tile"
+                      folder="products"
                     />
-                    <p className="text-xs text-[var(--admin-text-muted)] mt-1">This image will be shown when users hover over the tile</p>
                   </div>
                 </div>
 
@@ -987,10 +984,10 @@ export default function NavigationPage() {
             </div>
           </div>
 
-          {/* Clean Formulas Tile */}
+          {/* Additional Marketing Tile */}
           <div className="bg-[var(--admin-input)] rounded-xl border border-[var(--admin-border)]">
             <div className="p-6 border-b border-[var(--admin-border)]">
-              <h2 className="font-medium text-lg text-[var(--admin-text-primary)] mb-2">Clean Formulas Tile</h2>
+              <h2 className="font-medium text-lg text-[var(--admin-text-primary)] mb-2">Addtl Marketing Tile</h2>
               <p className="text-sm text-[var(--admin-text-secondary)]">
                 Information card shown on the right side of the dropdown
               </p>
@@ -1000,8 +997,8 @@ export default function NavigationPage() {
               <div>
                 <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Title</label>
                 <input
-                  value={globalNavSettings.cleanFormulasTitle}
-                  onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, cleanFormulasTitle: e.target.value })}
+                  value={globalNavSettings.marketingTileTitle}
+                  onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, marketingTileTitle: e.target.value })}
                   placeholder="Clean Formulas"
                   className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
                 />
@@ -1011,12 +1008,38 @@ export default function NavigationPage() {
               <div>
                 <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Description</label>
                 <textarea
-                  value={globalNavSettings.cleanFormulasDescription}
-                  onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, cleanFormulasDescription: e.target.value })}
+                  value={globalNavSettings.marketingTileDescription}
+                  onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, marketingTileDescription: e.target.value })}
                   placeholder="No preservatives, phthalates, parabens, or sulfates."
                   rows={3}
                   className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors resize-none"
                 />
+              </div>
+
+              {/* Editable Badges */}
+              <div className="pt-4 border-t border-[var(--admin-border)]">
+                <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-3">Badge Labels</label>
+                <p className="text-xs text-[var(--admin-text-muted)] mb-3">Customize the text badges displayed on this tile</p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <input
+                    value={globalNavSettings.marketingTileBadge1}
+                    onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, marketingTileBadge1: e.target.value })}
+                    placeholder="Preservative-Free"
+                    className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors text-sm"
+                  />
+                  <input
+                    value={globalNavSettings.marketingTileBadge2}
+                    onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, marketingTileBadge2: e.target.value })}
+                    placeholder="Paraben-Free"
+                    className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors text-sm"
+                  />
+                  <input
+                    value={globalNavSettings.marketingTileBadge3}
+                    onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, marketingTileBadge3: e.target.value })}
+                    placeholder="Sulfate-Free"
+                    className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors text-sm"
+                  />
+                </div>
               </div>
 
               {/* CTA Button Toggle */}
@@ -1027,28 +1050,28 @@ export default function NavigationPage() {
                     <p className="text-sm text-[var(--admin-text-muted)]">Add a call-to-action button to this tile</p>
                   </div>
                   <button
-                    onClick={() => setGlobalNavSettings({ ...globalNavSettings, cleanFormulasCtaEnabled: !globalNavSettings.cleanFormulasCtaEnabled })}
+                    onClick={() => setGlobalNavSettings({ ...globalNavSettings, marketingTileCtaEnabled: !globalNavSettings.marketingTileCtaEnabled })}
                     className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
                     style={{
-                      backgroundColor: globalNavSettings.cleanFormulasCtaEnabled ? '#22c55e' : '#374151'
+                      backgroundColor: globalNavSettings.marketingTileCtaEnabled ? '#22c55e' : '#374151'
                     }}
                   >
                     <span
                       className={cn(
                         "inline-block h-4 w-4 transform rounded-full bg-white transition-transform",
-                        globalNavSettings.cleanFormulasCtaEnabled ? "translate-x-6" : "translate-x-1"
+                        globalNavSettings.marketingTileCtaEnabled ? "translate-x-6" : "translate-x-1"
                       )}
                     />
                   </button>
                 </div>
 
-                {globalNavSettings.cleanFormulasCtaEnabled && (
+                {globalNavSettings.marketingTileCtaEnabled && (
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Button Text</label>
                       <input
-                        value={globalNavSettings.cleanFormulasCtaText || ''}
-                        onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, cleanFormulasCtaText: e.target.value || null })}
+                        value={globalNavSettings.marketingTileCtaText || ''}
+                        onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, marketingTileCtaText: e.target.value || null })}
                         placeholder="Learn More"
                         className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
                       />
@@ -1056,8 +1079,8 @@ export default function NavigationPage() {
                     <div>
                       <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Button URL</label>
                       <input
-                        value={globalNavSettings.cleanFormulasCtaUrl || ''}
-                        onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, cleanFormulasCtaUrl: e.target.value || null })}
+                        value={globalNavSettings.marketingTileCtaUrl || ''}
+                        onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, marketingTileCtaUrl: e.target.value || null })}
                         placeholder="/our-story"
                         className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
                       />
@@ -1074,32 +1097,29 @@ export default function NavigationPage() {
                     <p className="text-sm text-[var(--admin-text-muted)]">Add a rotating seal/badge that overlaps the tile</p>
                   </div>
                   <button
-                    onClick={() => setGlobalNavSettings({ ...globalNavSettings, cleanFormulasBadgeEnabled: !globalNavSettings.cleanFormulasBadgeEnabled })}
+                    onClick={() => setGlobalNavSettings({ ...globalNavSettings, marketingTileRotatingBadgeEnabled: !globalNavSettings.marketingTileRotatingBadgeEnabled })}
                     className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
                     style={{
-                      backgroundColor: globalNavSettings.cleanFormulasBadgeEnabled ? '#22c55e' : '#374151'
+                      backgroundColor: globalNavSettings.marketingTileRotatingBadgeEnabled ? '#22c55e' : '#374151'
                     }}
                   >
                     <span
                       className={cn(
                         "inline-block h-4 w-4 transform rounded-full bg-white transition-transform",
-                        globalNavSettings.cleanFormulasBadgeEnabled ? "translate-x-6" : "translate-x-1"
+                        globalNavSettings.marketingTileRotatingBadgeEnabled ? "translate-x-6" : "translate-x-1"
                       )}
                     />
                   </button>
                 </div>
 
-                {globalNavSettings.cleanFormulasBadgeEnabled && (
-                  <div>
-                    <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Badge Image URL</label>
-                    <input
-                      value={globalNavSettings.cleanFormulasBadgeUrl || ''}
-                      onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, cleanFormulasBadgeUrl: e.target.value || null })}
-                      placeholder="https://... (PNG with transparency)"
-                      className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
-                    />
-                    <p className="text-xs text-[var(--admin-text-muted)] mt-1">Upload a PNG with transparent background. It will spin slowly and overlap the top-right corner.</p>
-                  </div>
+                {globalNavSettings.marketingTileRotatingBadgeEnabled && (
+                  <MediaPickerButton
+                    label="Badge Image"
+                    value={globalNavSettings.marketingTileRotatingBadgeUrl}
+                    onChange={(url) => setGlobalNavSettings({ ...globalNavSettings, marketingTileRotatingBadgeUrl: url || null })}
+                    helpText="Upload a PNG with transparent background. It will spin slowly and overlap the top-right corner."
+                    folder="general"
+                  />
                 )}
               </div>
             </div>

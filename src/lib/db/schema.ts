@@ -103,21 +103,37 @@ export const siteSettings = sqliteTable('site_settings', {
   navDropdownTile1Subtitle: text('nav_dropdown_tile1_subtitle'), // Override description
   navDropdownTile1Badge: text('nav_dropdown_tile1_badge'), // e.g., "Bestseller"
   navDropdownTile1BadgeEmoji: text('nav_dropdown_tile1_badge_emoji'), // e.g., "🔥"
+  navDropdownTile1ImageUrl: text('nav_dropdown_tile1_image_url'), // Primary image override
+  navDropdownTile1HoverImageUrl: text('nav_dropdown_tile1_hover_image_url'), // Hover image override
 
   navDropdownTile2ProductId: text('nav_dropdown_tile2_product_id'), // Product ID for second tile
   navDropdownTile2Title: text('nav_dropdown_tile2_title'),
   navDropdownTile2Subtitle: text('nav_dropdown_tile2_subtitle'),
   navDropdownTile2Badge: text('nav_dropdown_tile2_badge'),
   navDropdownTile2BadgeEmoji: text('nav_dropdown_tile2_badge_emoji'),
+  navDropdownTile2ImageUrl: text('nav_dropdown_tile2_image_url'), // Primary image override
+  navDropdownTile2HoverImageUrl: text('nav_dropdown_tile2_hover_image_url'), // Hover image override
 
-  // Clean Formulas Info Tile
-  navCleanFormulasTitle: text('nav_clean_formulas_title').default('Clean Formulas'),
-  navCleanFormulasDescription: text('nav_clean_formulas_description').default('No preservatives, phthalates, parabens, or sulfates.'),
-  navCleanFormulasCtaEnabled: integer('nav_clean_formulas_cta_enabled', { mode: 'boolean' }).default(false),
+  // Additional Marketing Tile (formerly "Clean Formulas")
+  navMarketingTileTitle: text('nav_marketing_tile_title').default('Clean Formulas'),
+  navMarketingTileDescription: text('nav_marketing_tile_description').default('No preservatives, phthalates, parabens, or sulfates.'),
+  navMarketingTileBadge1: text('nav_marketing_tile_badge1').default('Preservative-Free'),
+  navMarketingTileBadge2: text('nav_marketing_tile_badge2').default('Paraben-Free'),
+  navMarketingTileBadge3: text('nav_marketing_tile_badge3').default('Sulfate-Free'),
+  navMarketingTileCtaEnabled: integer('nav_marketing_tile_cta_enabled', { mode: 'boolean' }).default(false),
+  navMarketingTileCtaText: text('nav_marketing_tile_cta_text'),
+  navMarketingTileCtaUrl: text('nav_marketing_tile_cta_url'),
+  navMarketingTileRotatingBadgeEnabled: integer('nav_marketing_tile_rotating_badge_enabled', { mode: 'boolean' }).default(false),
+  navMarketingTileRotatingBadgeUrl: text('nav_marketing_tile_rotating_badge_url'), // Rotating badge PNG
+
+  // Legacy aliases (keep for backward compatibility)
+  navCleanFormulasTitle: text('nav_clean_formulas_title'),
+  navCleanFormulasDescription: text('nav_clean_formulas_description'),
+  navCleanFormulasCtaEnabled: integer('nav_clean_formulas_cta_enabled', { mode: 'boolean' }),
   navCleanFormulasCtaText: text('nav_clean_formulas_cta_text'),
   navCleanFormulasCtaUrl: text('nav_clean_formulas_cta_url'),
-  navCleanFormulasBadgeEnabled: integer('nav_clean_formulas_badge_enabled', { mode: 'boolean' }).default(false),
-  navCleanFormulasBadgeUrl: text('nav_clean_formulas_badge_url'), // Rotating badge PNG
+  navCleanFormulasBadgeEnabled: integer('nav_clean_formulas_badge_enabled', { mode: 'boolean' }),
+  navCleanFormulasBadgeUrl: text('nav_clean_formulas_badge_url'),
 
   // Footer
   massiveFooterLogoUrl: text('massive_footer_logo_url'), // Full-width brand texture logo that spans viewport
