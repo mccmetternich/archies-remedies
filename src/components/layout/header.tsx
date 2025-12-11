@@ -223,12 +223,6 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                   }}
                 />
 
-                {/* Shadow mask - fixed at z-50 (same as header) to cover header shadow at join point */}
-                <div
-                  className="hidden lg:block fixed left-0 right-0 h-10 bg-white z-50 opacity-0 group-hover/shop:opacity-100 transition-opacity duration-300 pointer-events-none"
-                  style={{ top: showBumper ? '131px' : '87px' }}
-                />
-
                 {/* Mega Nav Dropdown - CSS transitions, z-40 to sit below nav bar (z-50) */}
                 <div
                   className="hidden lg:block fixed left-0 right-0 z-40 opacity-0 invisible translate-y-2 group-hover/shop:opacity-100 group-hover/shop:visible group-hover/shop:translate-y-0 transition-all duration-300 ease-out pointer-events-none group-hover/shop:pointer-events-auto"
@@ -236,8 +230,8 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                 >
 
                   <div className="relative z-50 w-full bg-white shadow-[0_20px_40px_rgba(0,0,0,0.15)]">
-                    {/* Shelf container with generous padding - pt-10 ensures tiles aren't cut off */}
-                    <div className="container pt-10 pb-12">
+                    {/* Shelf container with generous padding */}
+                    <div className="container py-8">
                       {/* Content grid - top aligned within the fixed shelf */}
                       <div className="grid lg:grid-cols-12 gap-8 items-start">
                         {/* Product tiles - 2 columns */}
