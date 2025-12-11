@@ -32,6 +32,7 @@ export async function GET() {
       title: pages.title,
       showInNav: pages.showInNav,
       navOrder: pages.navOrder,
+      navPosition: pages.navPosition,
     }).from(pages).where(eq(pages.isActive, true)).orderBy(pages.navOrder);
 
     const bumper = settings ? {
@@ -182,13 +183,14 @@ export async function PUT(request: Request) {
       }
     }
 
-    // Update page nav settings (showInNav, navOrder)
+    // Update page nav settings (showInNav, navOrder, navPosition)
     if (pageNavUpdates && Array.isArray(pageNavUpdates)) {
       for (const pageUpdate of pageNavUpdates) {
         if (pageUpdate.id) {
           await db.update(pages).set({
             showInNav: pageUpdate.showInNav ?? false,
             navOrder: pageUpdate.navOrder ?? 0,
+            navPosition: pageUpdate.navPosition ?? 'right',
             updatedAt: new Date().toISOString(),
           }).where(eq(pages.id, pageUpdate.id));
         }

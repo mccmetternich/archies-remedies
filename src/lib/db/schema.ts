@@ -347,6 +347,7 @@ export const pages = sqliteTable('pages', {
   isActive: integer('is_active', { mode: 'boolean' }).default(true),
   showInNav: integer('show_in_nav', { mode: 'boolean' }).default(false),
   navOrder: integer('nav_order').default(0),
+  navPosition: text('nav_position').default('right'), // 'left' | 'center' | 'right' - position in header nav
 
   createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
   updatedAt: text('updated_at').default(sql`CURRENT_TIMESTAMP`),

@@ -118,6 +118,16 @@ interface PageOption {
   title: string;
   showInNav: boolean | null;
   navOrder: number | null;
+  navPosition: string | null;
+}
+
+// Special "Shop" nav item that represents the dropdown
+interface ShopNavItem {
+  id: 'shop';
+  label: 'Shop';
+  type: 'dropdown';
+  navPosition: string;
+  navOrder: number;
 }
 
 export default function NavigationPage() {
@@ -275,6 +285,7 @@ export default function NavigationPage() {
             id: p.id,
             showInNav: p.showInNav,
             navOrder: p.navOrder,
+            navPosition: p.navPosition,
           })),
         }),
       });
@@ -1131,88 +1142,237 @@ export default function NavigationPage() {
           PAGE LINKS TAB
           ============================================ */}
       {activeTab === 'pages' && (
-        <div className="bg-[var(--admin-input)] rounded-xl border border-[var(--admin-border)]">
-          <div className="p-6 border-b border-[var(--admin-border)]">
-            <h2 className="font-medium text-lg text-[var(--admin-text-primary)] mb-2">Page Navigation Links</h2>
-            <p className="text-sm text-[var(--admin-text-secondary)]">
-              Choose which pages appear in the header navigation and their order. Drag to reorder.
-            </p>
+        <div className="space-y-6">
+          {/* Current Navigation */}
+          <div className="bg-[var(--admin-input)] rounded-xl border border-[var(--admin-border)]">
+            <div className="p-6 border-b border-[var(--admin-border)]">
+              <h2 className="font-medium text-lg text-[var(--admin-text-primary)] mb-2">Current Navigation</h2>
+              <p className="text-sm text-[var(--admin-text-secondary)]">
+                Manage pages in the header navigation. Use the position dropdown to place items on the left, center, or right.
+              </p>
+            </div>
+
+            <div className="p-6">
+              {/* Shop Dropdown - Special item */}
+              <div className="mb-6 pb-6 border-b border-[var(--admin-border)]">
+                <p className="text-xs font-semibold uppercase tracking-wider text-[var(--admin-text-muted)] mb-3">Shop Dropdown</p>
+                <div className="p-4 bg-[var(--admin-hover)] rounded-lg flex items-center gap-4">
+                  <div className="flex-1">
+                    <p className="font-medium text-[var(--admin-text-primary)]">Shop</p>
+                    <p className="text-sm text-[var(--admin-text-muted)]">Dropdown</p>
+                  </div>
+                  <span className="px-2 py-1 text-xs bg-[var(--primary)]/20 text-[var(--primary)] rounded-full">
+                    Left
+                  </span>
+                </div>
+              </div>
+
+              {/* Left Position */}
+              <div className="mb-6">
+                <p className="text-xs font-semibold uppercase tracking-wider text-[var(--admin-text-muted)] mb-3">Left Position</p>
+                <Reorder.Group
+                  axis="y"
+                  values={pagesList.filter(p => p.showInNav && p.navPosition === 'left').sort((a, b) => (a.navOrder || 0) - (b.navOrder || 0))}
+                  onReorder={(newOrder) => {
+                    const otherPages = pagesList.filter(p => !p.showInNav || p.navPosition !== 'left');
+                    setPagesList([
+                      ...otherPages,
+                      ...newOrder.map((item, index) => ({ ...item, navOrder: index })),
+                    ]);
+                  }}
+                  className="space-y-2"
+                >
+                  {pagesList.filter(p => p.showInNav && p.navPosition === 'left').sort((a, b) => (a.navOrder || 0) - (b.navOrder || 0)).map((page) => (
+                    <Reorder.Item
+                      key={page.id}
+                      value={page}
+                      className="p-4 bg-[var(--admin-hover)] rounded-lg flex items-center gap-4 cursor-grab active:cursor-grabbing"
+                    >
+                      <GripVertical className="w-4 h-4 text-[var(--admin-text-muted)]" />
+                      <div className="flex-1">
+                        <p className="font-medium text-[var(--admin-text-primary)]">{page.title}</p>
+                        <p className="text-sm text-[var(--admin-text-muted)]">/{page.slug}</p>
+                      </div>
+                      <select
+                        value={page.navPosition || 'right'}
+                        onChange={(e) => {
+                          setPagesList(pagesList.map(p =>
+                            p.id === page.id ? { ...p, navPosition: e.target.value } : p
+                          ));
+                        }}
+                        className="px-3 py-1.5 text-sm bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)] focus:outline-none focus:border-[var(--primary)]"
+                      >
+                        <option value="left">Left</option>
+                        <option value="center">Center</option>
+                        <option value="right">Right</option>
+                      </select>
+                      <button
+                        onClick={() => setPagesList(pagesList.map(p => p.id === page.id ? { ...p, showInNav: false } : p))}
+                        className="p-2 rounded-lg hover:bg-red-500/10 text-red-400 transition-colors"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </Reorder.Item>
+                  ))}
+                </Reorder.Group>
+                {pagesList.filter(p => p.showInNav && p.navPosition === 'left').length === 0 && (
+                  <p className="text-sm text-[var(--admin-text-muted)] py-4 text-center">No pages in left position</p>
+                )}
+              </div>
+
+              {/* Center Position */}
+              <div className="mb-6 pb-6 border-b border-[var(--admin-border)]">
+                <p className="text-xs font-semibold uppercase tracking-wider text-[var(--admin-text-muted)] mb-3">Center Position</p>
+                <Reorder.Group
+                  axis="y"
+                  values={pagesList.filter(p => p.showInNav && p.navPosition === 'center').sort((a, b) => (a.navOrder || 0) - (b.navOrder || 0))}
+                  onReorder={(newOrder) => {
+                    const otherPages = pagesList.filter(p => !p.showInNav || p.navPosition !== 'center');
+                    setPagesList([
+                      ...otherPages,
+                      ...newOrder.map((item, index) => ({ ...item, navOrder: index })),
+                    ]);
+                  }}
+                  className="space-y-2"
+                >
+                  {pagesList.filter(p => p.showInNav && p.navPosition === 'center').sort((a, b) => (a.navOrder || 0) - (b.navOrder || 0)).map((page) => (
+                    <Reorder.Item
+                      key={page.id}
+                      value={page}
+                      className="p-4 bg-[var(--admin-hover)] rounded-lg flex items-center gap-4 cursor-grab active:cursor-grabbing"
+                    >
+                      <GripVertical className="w-4 h-4 text-[var(--admin-text-muted)]" />
+                      <div className="flex-1">
+                        <p className="font-medium text-[var(--admin-text-primary)]">{page.title}</p>
+                        <p className="text-sm text-[var(--admin-text-muted)]">/{page.slug}</p>
+                      </div>
+                      <select
+                        value={page.navPosition || 'right'}
+                        onChange={(e) => {
+                          setPagesList(pagesList.map(p =>
+                            p.id === page.id ? { ...p, navPosition: e.target.value } : p
+                          ));
+                        }}
+                        className="px-3 py-1.5 text-sm bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)] focus:outline-none focus:border-[var(--primary)]"
+                      >
+                        <option value="left">Left</option>
+                        <option value="center">Center</option>
+                        <option value="right">Right</option>
+                      </select>
+                      <button
+                        onClick={() => setPagesList(pagesList.map(p => p.id === page.id ? { ...p, showInNav: false } : p))}
+                        className="p-2 rounded-lg hover:bg-red-500/10 text-red-400 transition-colors"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </Reorder.Item>
+                  ))}
+                </Reorder.Group>
+                {pagesList.filter(p => p.showInNav && p.navPosition === 'center').length === 0 && (
+                  <p className="text-sm text-[var(--admin-text-muted)] py-4 text-center">No pages in center position</p>
+                )}
+              </div>
+
+              {/* Right Position */}
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-[var(--admin-text-muted)] mb-3">Right Position</p>
+                <Reorder.Group
+                  axis="y"
+                  values={pagesList.filter(p => p.showInNav && (p.navPosition === 'right' || !p.navPosition)).sort((a, b) => (a.navOrder || 0) - (b.navOrder || 0))}
+                  onReorder={(newOrder) => {
+                    const otherPages = pagesList.filter(p => !p.showInNav || (p.navPosition !== 'right' && p.navPosition));
+                    setPagesList([
+                      ...otherPages,
+                      ...newOrder.map((item, index) => ({ ...item, navOrder: index })),
+                    ]);
+                  }}
+                  className="space-y-2"
+                >
+                  {pagesList.filter(p => p.showInNav && (p.navPosition === 'right' || !p.navPosition)).sort((a, b) => (a.navOrder || 0) - (b.navOrder || 0)).map((page) => (
+                    <Reorder.Item
+                      key={page.id}
+                      value={page}
+                      className="p-4 bg-[var(--admin-hover)] rounded-lg flex items-center gap-4 cursor-grab active:cursor-grabbing"
+                    >
+                      <GripVertical className="w-4 h-4 text-[var(--admin-text-muted)]" />
+                      <div className="flex-1">
+                        <p className="font-medium text-[var(--admin-text-primary)]">{page.title}</p>
+                        <p className="text-sm text-[var(--admin-text-muted)]">/{page.slug}</p>
+                      </div>
+                      <select
+                        value={page.navPosition || 'right'}
+                        onChange={(e) => {
+                          setPagesList(pagesList.map(p =>
+                            p.id === page.id ? { ...p, navPosition: e.target.value } : p
+                          ));
+                        }}
+                        className="px-3 py-1.5 text-sm bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)] focus:outline-none focus:border-[var(--primary)]"
+                      >
+                        <option value="left">Left</option>
+                        <option value="center">Center</option>
+                        <option value="right">Right</option>
+                      </select>
+                      <button
+                        onClick={() => setPagesList(pagesList.map(p => p.id === page.id ? { ...p, showInNav: false } : p))}
+                        className="p-2 rounded-lg hover:bg-red-500/10 text-red-400 transition-colors"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </Reorder.Item>
+                  ))}
+                </Reorder.Group>
+                {pagesList.filter(p => p.showInNav && (p.navPosition === 'right' || !p.navPosition)).length === 0 && (
+                  <p className="text-sm text-[var(--admin-text-muted)] py-4 text-center">No pages in right position</p>
+                )}
+              </div>
+            </div>
           </div>
 
-          <div className="p-6">
-            <Reorder.Group
-              axis="y"
-              values={pagesList.filter(p => p.showInNav)}
-              onReorder={(newOrder) => {
-                const hiddenPages = pagesList.filter(p => !p.showInNav);
-                setPagesList([
-                  ...newOrder.map((item, index) => ({ ...item, navOrder: index })),
-                  ...hiddenPages,
-                ]);
-              }}
-              className="space-y-2 mb-6"
-            >
-              {pagesList.filter(p => p.showInNav).map((page) => (
-                <Reorder.Item
-                  key={page.id}
-                  value={page}
-                  className="p-4 bg-[var(--admin-hover)] rounded-lg flex items-center gap-4 cursor-grab active:cursor-grabbing"
-                >
-                  <GripVertical className="w-4 h-4 text-[var(--admin-text-muted)]" />
-                  <div className="flex-1">
-                    <p className="font-medium text-[var(--admin-text-primary)]">{page.title}</p>
-                    <p className="text-sm text-[var(--admin-text-muted)]">/{page.slug}</p>
-                  </div>
-                  <span className="px-2 py-1 text-xs bg-green-500/20 text-green-400 rounded-full">
-                    In Nav
-                  </span>
-                  <button
-                    onClick={() => {
-                      setPagesList(pagesList.map(p =>
-                        p.id === page.id ? { ...p, showInNav: false } : p
-                      ));
-                    }}
-                    className="p-2 rounded-lg hover:bg-red-500/10 text-red-400 transition-colors"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                </Reorder.Item>
-              ))}
-            </Reorder.Group>
+          {/* Available Pages */}
+          <div className="bg-[var(--admin-input)] rounded-xl border border-[var(--admin-border)]">
+            <div className="p-6 border-b border-[var(--admin-border)]">
+              <h2 className="font-medium text-lg text-[var(--admin-text-primary)] mb-2">Available Pages</h2>
+              <p className="text-sm text-[var(--admin-text-secondary)]">
+                Pages that are not currently in the navigation. Toggle to add them.
+              </p>
+            </div>
 
-            {pagesList.filter(p => p.showInNav).length === 0 && (
-              <div className="py-8 text-center text-[var(--admin-text-muted)] mb-6">
-                No pages currently in navigation
-              </div>
-            )}
-
-            {/* Available pages to add */}
-            <div className="pt-4 border-t border-[var(--admin-border)]">
-              <p className="text-sm font-medium text-[var(--admin-text-secondary)] mb-3">Available Pages</p>
+            <div className="p-6">
               <div className="space-y-2">
                 {pagesList.filter(p => !p.showInNav).map((page) => (
-                  <div
+                  <motion.div
                     key={page.id}
+                    layout
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
                     className="p-4 bg-[var(--admin-hover)] rounded-lg flex items-center gap-4"
                   >
                     <div className="flex-1">
                       <p className="font-medium text-[var(--admin-text-primary)]">{page.title}</p>
                       <p className="text-sm text-[var(--admin-text-muted)]">/{page.slug}</p>
                     </div>
-                    <button
-                      onClick={() => {
-                        const maxOrder = Math.max(0, ...pagesList.filter(p => p.showInNav).map(p => p.navOrder || 0));
-                        setPagesList(pagesList.map(p =>
-                          p.id === page.id ? { ...p, showInNav: true, navOrder: maxOrder + 1 } : p
-                        ));
-                      }}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs bg-[var(--primary)] text-[var(--admin-button-text)] rounded-lg font-medium hover:bg-[var(--primary-dark)] transition-colors"
-                    >
-                      <Plus className="w-3.5 h-3.5" />
-                      Add to Nav
-                    </button>
-                  </div>
+                    {/* Toggle: Not In Nav / In Nav */}
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-red-400 font-medium">Not In Nav</span>
+                      <button
+                        onClick={() => {
+                          const maxOrder = Math.max(0, ...pagesList.filter(p => p.showInNav && (p.navPosition === 'right' || !p.navPosition)).map(p => p.navOrder || 0));
+                          setPagesList(pagesList.map(p =>
+                            p.id === page.id ? { ...p, showInNav: true, navOrder: maxOrder + 1, navPosition: 'right' } : p
+                          ));
+                        }}
+                        className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors bg-[#374151]"
+                      >
+                        <span className="inline-block h-4 w-4 transform rounded-full bg-white transition-transform translate-x-1" />
+                      </button>
+                      <span className="text-xs text-[var(--admin-text-muted)] font-medium">In Nav</span>
+                    </div>
+                  </motion.div>
                 ))}
+                {pagesList.filter(p => !p.showInNav).length === 0 && (
+                  <p className="text-sm text-[var(--admin-text-muted)] py-8 text-center">All pages are in the navigation</p>
+                )}
               </div>
             </div>
           </div>
