@@ -76,5 +76,10 @@ export function getFooterProps(settings: typeof siteSettings.$inferSelect | null
     tiktokUrl: settings?.tiktokUrl,
     amazonStoreUrl: settings?.amazonStoreUrl,
     massiveFooterLogoUrl: settings?.massiveFooterLogoUrl,
+    // Custom social icons
+    instagramIconUrl: settings?.instagramIconUrl,
+    facebookIconUrl: settings?.facebookIconUrl,
+    tiktokIconUrl: settings?.tiktokIconUrl,
+    amazonIconUrl: settings?.amazonIconUrl,
   };
 }

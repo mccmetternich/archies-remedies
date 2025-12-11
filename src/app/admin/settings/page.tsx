@@ -23,6 +23,11 @@ interface SiteSettings {
   facebookUrl: string | null;
   tiktokUrl: string | null;
   amazonStoreUrl: string | null;
+  // Social Icons (custom uploaded)
+  instagramIconUrl: string | null;
+  facebookIconUrl: string | null;
+  tiktokIconUrl: string | null;
+  amazonIconUrl: string | null;
   facebookPixelId: string | null;
   googleAnalyticsId: string | null;
   tiktokPixelId: string | null;
@@ -630,6 +635,44 @@ function SettingsPageContent() {
                     className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
                   />
                 </div>
+              </div>
+            </div>
+
+            <div className="h-px bg-[var(--admin-hover)]" />
+
+            {/* Social Icons */}
+            <div>
+              <h3 className="text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Social Icons</h3>
+              <p className="text-xs text-[var(--admin-text-muted)] mb-4">Upload custom icons to replace the defaults in the footer. Use white or light-colored icons on transparent backgrounds.</p>
+              <div className="grid md:grid-cols-4 gap-4">
+                <ImageUpload
+                  label="Instagram Icon"
+                  value={settings.instagramIconUrl}
+                  onChange={(url) => updateField('instagramIconUrl', url)}
+                  aspectRatio="1/1"
+                  helpText="24x24px recommended"
+                />
+                <ImageUpload
+                  label="Facebook Icon"
+                  value={settings.facebookIconUrl}
+                  onChange={(url) => updateField('facebookIconUrl', url)}
+                  aspectRatio="1/1"
+                  helpText="24x24px recommended"
+                />
+                <ImageUpload
+                  label="TikTok Icon"
+                  value={settings.tiktokIconUrl}
+                  onChange={(url) => updateField('tiktokIconUrl', url)}
+                  aspectRatio="1/1"
+                  helpText="24x24px recommended"
+                />
+                <ImageUpload
+                  label="Amazon Icon"
+                  value={settings.amazonIconUrl}
+                  onChange={(url) => updateField('amazonIconUrl', url)}
+                  aspectRatio="1/1"
+                  helpText="24x24px recommended"
+                />
               </div>
             </div>
           </motion.div>

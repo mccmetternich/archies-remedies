@@ -132,6 +132,10 @@ export default async function ContactPage() {
         tiktokUrl={data.settings?.tiktokUrl}
         amazonStoreUrl={data.settings?.amazonStoreUrl}
         massiveFooterLogoUrl={data.settings?.massiveFooterLogoUrl}
+        instagramIconUrl={data.settings?.instagramIconUrl}
+        facebookIconUrl={data.settings?.facebookIconUrl}
+        tiktokIconUrl={data.settings?.tiktokIconUrl}
+        amazonIconUrl={data.settings?.amazonIconUrl}
       />
     </>
   );

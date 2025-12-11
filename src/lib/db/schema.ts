@@ -41,6 +41,12 @@ export const siteSettings = sqliteTable('site_settings', {
   tiktokUrl: text('tiktok_url'),
   amazonStoreUrl: text('amazon_store_url'),
 
+  // Social Icons (custom uploaded icons - optional, falls back to defaults)
+  instagramIconUrl: text('instagram_icon_url'),
+  facebookIconUrl: text('facebook_icon_url'),
+  tiktokIconUrl: text('tiktok_icon_url'),
+  amazonIconUrl: text('amazon_icon_url'),
+
   // Tracking
   facebookPixelId: text('facebook_pixel_id'),
   googleAnalyticsId: text('google_analytics_id'),
