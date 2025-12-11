@@ -233,12 +233,11 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                 </Link>
               )}
 
-              {/* CTA Button - Explicit colors for guaranteed contrast */}
+              {/* CTA Button - Dark default, hex blue on hover */}
               {ctaEnabled && (
                 <Link
                   href={ctaUrl}
-                  className="group inline-flex items-center gap-3 px-8 py-4 rounded-full text-base font-semibold transition-all duration-300 shadow-lg hover:shadow-xl"
-                  style={{ backgroundColor: '#1a1a1a', color: '#ffffff' }}
+                  className="group inline-flex items-center gap-3 px-8 py-4 rounded-full text-base font-semibold transition-all duration-300 shadow-lg hover:shadow-xl bg-[#1a1a1a] text-white hover:bg-[#bbdae9] hover:text-[#1a1a1a]"
                 >
                   {ctaText}
                   <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
@@ -274,82 +273,82 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                 <div className="grid lg:grid-cols-12 gap-8 items-start">
                   {/* Product tiles - 2 columns */}
                   <div className="lg:col-span-8">
-                    <div className="grid md:grid-cols-2 gap-6">
-                      {/* Product Tile 1 */}
+                    <div className="grid md:grid-cols-2 gap-4">
+                      {/* Product Tile 1 - Compact */}
                       {tile1Product && (
                         <Link
                           href={`/products/${tile1Product.slug}`}
-                          className="group block p-5 rounded-2xl bg-[var(--cream)] hover:bg-[var(--sand)] transition-all duration-500"
+                          className="group block p-4 rounded-xl bg-[var(--cream)] hover:bg-[var(--sand)] transition-all duration-500"
                         >
-                          <div className="relative mb-4">
-                            <div className="aspect-square w-full rounded-xl overflow-hidden bg-white">
+                          <div className="relative mb-3">
+                            <div className="aspect-square w-full max-w-[200px] mx-auto rounded-lg overflow-hidden bg-white">
                               <Image
                                 src={tile1Product.heroImageUrl || PRODUCT_IMAGES['eye-drops']}
                                 alt={globalNav?.tile1Title || tile1Product.name}
-                                width={400}
-                                height={400}
+                                width={200}
+                                height={200}
                                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                               />
                             </div>
                             {(globalNav?.tile1Badge || globalNav?.tile1BadgeEmoji) && (
-                              <span className="absolute top-3 right-3 text-xs px-2.5 py-1 bg-[var(--foreground)] text-white rounded-full font-medium flex items-center gap-1">
+                              <span className="absolute top-2 right-2 text-[10px] px-2 py-0.5 bg-[var(--foreground)] text-white rounded-full font-medium flex items-center gap-1">
                                 {globalNav.tile1BadgeEmoji} {globalNav.tile1Badge}
                               </span>
                             )}
                           </div>
-                          <div className="flex items-center gap-2 mb-1.5">
+                          <div className="flex items-center gap-1.5 mb-1">
                             <div className="flex gap-0.5">
                               {[1,2,3,4,5].map(i => (
-                                <Star key={i} className="w-3.5 h-3.5 fill-[var(--primary)] text-[var(--primary)]" />
+                                <Star key={i} className="w-3 h-3 fill-[var(--primary)] text-[var(--primary)]" />
                               ))}
                             </div>
-                            <span className="text-sm text-[var(--foreground)] font-medium">4.9</span>
-                            <span className="text-xs text-[var(--muted-foreground)]">(2,100+)</span>
+                            <span className="text-xs text-[var(--foreground)] font-medium">4.9</span>
+                            <span className="text-[10px] text-[var(--muted-foreground)]">(2,100+)</span>
                           </div>
-                          <h4 className="text-lg font-medium mb-1 group-hover:text-[var(--muted-foreground)] transition-colors">
+                          <h4 className="text-base font-medium mb-0.5 group-hover:text-[var(--muted-foreground)] transition-colors">
                             {globalNav?.tile1Title || tile1Product.name}
                           </h4>
-                          <p className="text-sm text-[var(--muted-foreground)]">
+                          <p className="text-xs text-[var(--muted-foreground)]">
                             {globalNav?.tile1Subtitle || tile1Product.shortDescription || 'Instant, lasting relief'}
                           </p>
                         </Link>
                       )}
 
-                      {/* Product Tile 2 */}
+                      {/* Product Tile 2 - Compact */}
                       {tile2Product && (
                         <Link
                           href={`/products/${tile2Product.slug}`}
-                          className="group block p-5 rounded-2xl bg-[var(--cream)] hover:bg-[var(--sand)] transition-all duration-500"
+                          className="group block p-4 rounded-xl bg-[var(--cream)] hover:bg-[var(--sand)] transition-all duration-500"
                         >
-                          <div className="relative mb-4">
-                            <div className="aspect-square w-full rounded-xl overflow-hidden bg-white">
+                          <div className="relative mb-3">
+                            <div className="aspect-square w-full max-w-[200px] mx-auto rounded-lg overflow-hidden bg-white">
                               <Image
                                 src={tile2Product.heroImageUrl || PRODUCT_IMAGES['eye-wipes']}
                                 alt={globalNav?.tile2Title || tile2Product.name}
-                                width={400}
-                                height={400}
+                                width={200}
+                                height={200}
                                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                               />
                             </div>
                             {(globalNav?.tile2Badge || globalNav?.tile2BadgeEmoji) && (
-                              <span className="absolute top-3 right-3 text-xs px-2.5 py-1 bg-[var(--primary)] text-[var(--foreground)] rounded-full font-medium flex items-center gap-1">
+                              <span className="absolute top-2 right-2 text-[10px] px-2 py-0.5 bg-[var(--primary)] text-[var(--foreground)] rounded-full font-medium flex items-center gap-1">
                                 {globalNav.tile2BadgeEmoji} {globalNav.tile2Badge}
                               </span>
                             )}
                           </div>
-                          <div className="flex items-center gap-2 mb-1.5">
+                          <div className="flex items-center gap-1.5 mb-1">
                             <div className="flex gap-0.5">
                               {[1,2,3,4,5].map(i => (
-                                <Star key={i} className="w-3.5 h-3.5 fill-[var(--primary)] text-[var(--primary)]" />
+                                <Star key={i} className="w-3 h-3 fill-[var(--primary)] text-[var(--primary)]" />
                               ))}
                             </div>
-                            <span className="text-sm text-[var(--foreground)] font-medium">4.9</span>
-                            <span className="text-xs text-[var(--muted-foreground)]">(850+)</span>
+                            <span className="text-xs text-[var(--foreground)] font-medium">4.9</span>
+                            <span className="text-[10px] text-[var(--muted-foreground)]">(850+)</span>
                           </div>
-                          <h4 className="text-lg font-medium mb-1 group-hover:text-[var(--muted-foreground)] transition-colors">
+                          <h4 className="text-base font-medium mb-0.5 group-hover:text-[var(--muted-foreground)] transition-colors">
                             {globalNav?.tile2Title || tile2Product.name}
                           </h4>
-                          <p className="text-sm text-[var(--muted-foreground)]">
+                          <p className="text-xs text-[var(--muted-foreground)]">
                             {globalNav?.tile2Subtitle || tile2Product.shortDescription || 'Daily cleansing wipes'}
                           </p>
                         </Link>
