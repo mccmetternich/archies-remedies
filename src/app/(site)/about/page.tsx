@@ -1,5 +1,5 @@
 import { db } from '@/lib/db';
-import { pages, products, siteSettings, testimonials } from '@/lib/db/schema';
+import { pages, testimonials } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { Metadata } from 'next';
 import Link from 'next/link';
@@ -11,6 +11,7 @@ import { AboutStory } from '@/components/about/about-story';
 import { AboutValues } from '@/components/about/about-values';
 import { AboutTeam } from '@/components/about/about-team';
 import { TestimonialsSection } from '@/components/home/testimonials-section';
+import { getHeaderProps, getFooterProps } from '@/lib/get-header-props';
 
 export const revalidate = 60;
 
@@ -27,20 +28,7 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-async function getPageData() {
-  const [settings] = await db.select().from(siteSettings).limit(1);
-  const productList = await db
-    .select()
-    .from(products)
-    .where(eq(products.isActive, true))
-    .orderBy(products.sortOrder);
-
-  const [page] = await db
-    .select()
-    .from(pages)
-    .where(eq(pages.slug, 'about'))
-    .limit(1);
-
+async function getTestimonials() {
   const reviewsList = await db
     .select()
     .from(testimonials)
@@ -48,27 +36,21 @@ async function getPageData() {
     .orderBy(testimonials.sortOrder)
     .limit(6);
 
-  return { settings, products: productList, page, testimonials: reviewsList };
+  return reviewsList;
 }
 
 export default async function AboutPage() {
   // Check if this page is draft - redirects if needed
   await checkPageDraft('about');
 
-  const data = await getPageData();
+  const [headerProps, testimonialsList] = await Promise.all([
+    getHeaderProps(),
+    getTestimonials(),
+  ]);
 
   return (
     <>
-      <Header
-        logo={data.settings?.logoUrl}
-        products={data.products}
-        bumper={data.settings ? {
-          bumperEnabled: data.settings.bumperEnabled,
-          bumperText: data.settings.bumperText,
-          bumperLinkUrl: data.settings.bumperLinkUrl,
-          bumperLinkText: data.settings.bumperLinkText,
-        } : null}
-      />
+      <Header {...headerProps} />
 
       <main>
         <AboutHero />
@@ -77,9 +59,9 @@ export default async function AboutPage() {
         <AboutTeam />
 
         {/* Testimonials */}
-        {data.testimonials.length > 0 && (
+        {testimonialsList.length > 0 && (
           <TestimonialsSection
-            testimonials={data.testimonials}
+            testimonials={testimonialsList}
             title="What Our Customers Say"
             subtitle="Join thousands who have made the switch to clean eye care."
           />
@@ -114,14 +96,7 @@ export default async function AboutPage() {
         </section>
       </main>
 
-      <Footer
-        logo={data.settings?.logoUrl}
-        instagramUrl={data.settings?.instagramUrl}
-        facebookUrl={data.settings?.facebookUrl}
-        tiktokUrl={data.settings?.tiktokUrl}
-        amazonStoreUrl={data.settings?.amazonStoreUrl}
-        massiveFooterLogoUrl={data.settings?.massiveFooterLogoUrl}
-      />
+      <Footer {...getFooterProps(headerProps.settings)} />
     </>
   );
 }

@@ -1,10 +1,11 @@
 import { db } from '@/lib/db';
-import { pages, products, siteSettings } from '@/lib/db/schema';
+import { pages } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { Metadata } from 'next';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { checkPageDraft } from '@/lib/draft-mode';
+import { getHeaderProps, getFooterProps } from '@/lib/get-header-props';
 
 export const revalidate = 60;
 
@@ -21,41 +22,28 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-async function getPageData() {
-  const [settings] = await db.select().from(siteSettings).limit(1);
-  const productList = await db
-    .select()
-    .from(products)
-    .where(eq(products.isActive, true))
-    .orderBy(products.sortOrder);
-
+async function getPage() {
   const [page] = await db
     .select()
     .from(pages)
     .where(eq(pages.slug, 'terms'))
     .limit(1);
 
-  return { settings, products: productList, page };
+  return page;
 }
 
 export default async function TermsPage() {
   // Check if this page is draft - redirects if needed
   await checkPageDraft('terms');
 
-  const data = await getPageData();
+  const [headerProps, page] = await Promise.all([
+    getHeaderProps(),
+    getPage(),
+  ]);
 
   return (
     <>
-      <Header
-        logo={data.settings?.logoUrl}
-        products={data.products}
-        bumper={data.settings ? {
-          bumperEnabled: data.settings.bumperEnabled,
-          bumperText: data.settings.bumperText,
-          bumperLinkUrl: data.settings.bumperLinkUrl,
-          bumperLinkText: data.settings.bumperLinkText,
-        } : null}
-      />
+      <Header {...headerProps} />
 
       <main>
         {/* Hero */}
@@ -63,7 +51,7 @@ export default async function TermsPage() {
           <div className="container">
             <div className="max-w-3xl mx-auto text-center">
               <h1 className="text-4xl md:text-5xl font-light mb-4">
-                {data.page?.title || 'Terms of Service'}
+                {page?.title || 'Terms of Service'}
               </h1>
             </div>
           </div>
@@ -73,10 +61,10 @@ export default async function TermsPage() {
         <section className="section">
           <div className="container">
             <div className="max-w-3xl mx-auto">
-              {data.page?.content ? (
+              {page?.content ? (
                 <div
                   className="prose prose-lg"
-                  dangerouslySetInnerHTML={{ __html: data.page.content }}
+                  dangerouslySetInnerHTML={{ __html: page.content }}
                 />
               ) : (
                 <p className="text-[var(--muted-foreground)]">
@@ -88,14 +76,7 @@ export default async function TermsPage() {
         </section>
       </main>
 
-      <Footer
-        logo={data.settings?.logoUrl}
-        instagramUrl={data.settings?.instagramUrl}
-        facebookUrl={data.settings?.facebookUrl}
-        tiktokUrl={data.settings?.tiktokUrl}
-        amazonStoreUrl={data.settings?.amazonStoreUrl}
-        massiveFooterLogoUrl={data.settings?.massiveFooterLogoUrl}
-      />
+      <Footer {...getFooterProps(headerProps.settings)} />
     </>
   );
 }

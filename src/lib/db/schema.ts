@@ -79,6 +79,39 @@ export const siteSettings = sqliteTable('site_settings', {
   bumperText: text('bumper_text'),
   bumperLinkUrl: text('bumper_link_url'),
   bumperLinkText: text('bumper_link_text'),
+  bumperTheme: text('bumper_theme').default('light'), // 'light' (brand blue bg) or 'dark' (black bg, white text)
+
+  // Global Navigation Configuration
+  // Logo Position
+  navLogoPosition: text('nav_logo_position').default('left'), // 'left' | 'center'
+  navLogoPositionMobile: text('nav_logo_position_mobile').default('left'), // 'left' | 'center'
+
+  // CTA Button
+  navCtaEnabled: integer('nav_cta_enabled', { mode: 'boolean' }).default(true),
+  navCtaText: text('nav_cta_text').default('Shop Now'),
+  navCtaUrl: text('nav_cta_url').default('/products/eye-drops'),
+
+  // Dropdown Nav Hero Tiles
+  navDropdownTile1ProductId: text('nav_dropdown_tile1_product_id'), // Product ID for first tile
+  navDropdownTile1Title: text('nav_dropdown_tile1_title'), // Override product name
+  navDropdownTile1Subtitle: text('nav_dropdown_tile1_subtitle'), // Override description
+  navDropdownTile1Badge: text('nav_dropdown_tile1_badge'), // e.g., "Bestseller"
+  navDropdownTile1BadgeEmoji: text('nav_dropdown_tile1_badge_emoji'), // e.g., "🔥"
+
+  navDropdownTile2ProductId: text('nav_dropdown_tile2_product_id'), // Product ID for second tile
+  navDropdownTile2Title: text('nav_dropdown_tile2_title'),
+  navDropdownTile2Subtitle: text('nav_dropdown_tile2_subtitle'),
+  navDropdownTile2Badge: text('nav_dropdown_tile2_badge'),
+  navDropdownTile2BadgeEmoji: text('nav_dropdown_tile2_badge_emoji'),
+
+  // Clean Formulas Info Tile
+  navCleanFormulasTitle: text('nav_clean_formulas_title').default('Clean Formulas'),
+  navCleanFormulasDescription: text('nav_clean_formulas_description').default('No preservatives, phthalates, parabens, or sulfates.'),
+  navCleanFormulasCtaEnabled: integer('nav_clean_formulas_cta_enabled', { mode: 'boolean' }).default(false),
+  navCleanFormulasCtaText: text('nav_clean_formulas_cta_text'),
+  navCleanFormulasCtaUrl: text('nav_clean_formulas_cta_url'),
+  navCleanFormulasBadgeEnabled: integer('nav_clean_formulas_badge_enabled', { mode: 'boolean' }).default(false),
+  navCleanFormulasBadgeUrl: text('nav_clean_formulas_badge_url'), // Rotating badge PNG
 
   // Footer
   massiveFooterLogoUrl: text('massive_footer_logo_url'), // Full-width brand texture logo that spans viewport

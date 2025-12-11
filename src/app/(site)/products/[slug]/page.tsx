@@ -4,7 +4,6 @@ import {
   productVariants,
   productImages,
   productBenefits,
-  siteSettings,
   reviews,
   reviewKeywords,
   productCertifications,
@@ -24,6 +23,7 @@ import { MarqueeBar } from '@/components/widgets/marquee-bar';
 import { CertificationTrio } from '@/components/widgets/certification-trio';
 import { VideoTestimonialsGrid } from '@/components/widgets/video-testimonials-grid';
 import { InstagramFeed } from '@/components/home/instagram-feed';
+import { getHeaderProps, getFooterProps } from '@/lib/get-header-props';
 
 export const revalidate = 60;
 
@@ -89,14 +89,7 @@ async function getProduct(slug: string, includeInactive: boolean = false) {
   };
 }
 
-async function getSiteData() {
-  const [settings] = await db.select().from(siteSettings).limit(1);
-  const productList = await db
-    .select()
-    .from(products)
-    .where(eq(products.isActive, true))
-    .orderBy(products.sortOrder);
-
+async function getVideos() {
   const videos = await db
     .select()
     .from(videoTestimonials)
@@ -104,7 +97,7 @@ async function getSiteData() {
     .orderBy(videoTestimonials.sortOrder)
     .limit(4);
 
-  return { settings, products: productList, videos };
+  return videos;
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -136,9 +129,10 @@ export default async function ProductPage({ params }: PageProps) {
   // Check if user has preview access to show draft products
   const previewAccess = await hasPreviewAccess();
 
-  const [product, siteData] = await Promise.all([
+  const [product, headerProps, videos] = await Promise.all([
     getProduct(slug, previewAccess),
-    getSiteData(),
+    getHeaderProps(),
+    getVideos(),
   ]);
 
   if (!product) {
@@ -163,7 +157,7 @@ export default async function ProductPage({ params }: PageProps) {
   }));
 
   // Map video testimonials
-  const videoData = siteData.videos.map((v) => ({
+  const videoData = videos.map((v) => ({
     id: v.id,
     thumbnailUrl: v.thumbnailUrl,
     videoUrl: v.videoUrl,
@@ -173,20 +167,7 @@ export default async function ProductPage({ params }: PageProps) {
 
   return (
     <>
-      <Header
-        logo={siteData.settings?.logoUrl}
-        products={siteData.products}
-        bumper={
-          siteData.settings
-            ? {
-                bumperEnabled: siteData.settings.bumperEnabled,
-                bumperText: siteData.settings.bumperText,
-                bumperLinkUrl: siteData.settings.bumperLinkUrl,
-                bumperLinkText: siteData.settings.bumperLinkText,
-              }
-            : null
-        }
-      />
+      <Header {...headerProps} />
 
       <main className="pt-6 md:pt-8">
         {/* Product Hero Section - Split Screen Layout (Buy Box Left, Gallery Right) */}
@@ -261,18 +242,11 @@ export default async function ProductPage({ params }: PageProps) {
         {/* Instagram Feed */}
         <InstagramFeed
           posts={[]}
-          instagramUrl={siteData.settings?.instagramUrl}
+          instagramUrl={headerProps.settings?.instagramUrl}
         />
       </main>
 
-      <Footer
-        logo={siteData.settings?.logoUrl}
-        instagramUrl={siteData.settings?.instagramUrl}
-        facebookUrl={siteData.settings?.facebookUrl}
-        tiktokUrl={siteData.settings?.tiktokUrl}
-        amazonStoreUrl={siteData.settings?.amazonStoreUrl}
-        massiveFooterLogoUrl={siteData.settings?.massiveFooterLogoUrl}
-      />
+      <Footer {...getFooterProps(headerProps.settings)} />
     </>
   );
 }

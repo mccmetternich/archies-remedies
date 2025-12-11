@@ -1,5 +1,5 @@
 import { db } from '@/lib/db';
-import { heroSlides, products, testimonials, videoTestimonials, instagramPosts, siteSettings } from '@/lib/db/schema';
+import { heroSlides, products, testimonials, videoTestimonials, instagramPosts, siteSettings, pages } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
@@ -48,6 +48,19 @@ async function getPageData() {
     .where(eq(instagramPosts.isActive, true))
     .orderBy(instagramPosts.sortOrder);
 
+  // Get pages for nav
+  const navPages = await db
+    .select({
+      id: pages.id,
+      slug: pages.slug,
+      title: pages.title,
+      showInNav: pages.showInNav,
+      navOrder: pages.navOrder,
+    })
+    .from(pages)
+    .where(eq(pages.isActive, true))
+    .orderBy(pages.navOrder);
+
   return {
     settings,
     slides,
@@ -55,6 +68,7 @@ async function getPageData() {
     testimonials: testimonialList,
     videos: videoList,
     instagramPosts: instagramList,
+    navPages,
   };
 }
 
@@ -74,6 +88,7 @@ export default async function HomePage() {
           bumperText: data.settings.bumperText,
           bumperLinkUrl: data.settings.bumperLinkUrl,
           bumperLinkText: data.settings.bumperLinkText,
+          bumperTheme: (data.settings.bumperTheme as 'light' | 'dark') || 'light',
         } : null}
         socialStats={data.settings ? {
           totalReviews: data.settings.totalReviews,
@@ -81,6 +96,31 @@ export default async function HomePage() {
           instagramFollowers: data.settings.instagramFollowers,
           facebookFollowers: data.settings.facebookFollowers,
         } : null}
+        globalNav={data.settings ? {
+          logoPosition: data.settings.navLogoPosition,
+          logoPositionMobile: data.settings.navLogoPositionMobile,
+          ctaEnabled: data.settings.navCtaEnabled,
+          ctaText: data.settings.navCtaText,
+          ctaUrl: data.settings.navCtaUrl,
+          tile1ProductId: data.settings.navDropdownTile1ProductId,
+          tile1Title: data.settings.navDropdownTile1Title,
+          tile1Subtitle: data.settings.navDropdownTile1Subtitle,
+          tile1Badge: data.settings.navDropdownTile1Badge,
+          tile1BadgeEmoji: data.settings.navDropdownTile1BadgeEmoji,
+          tile2ProductId: data.settings.navDropdownTile2ProductId,
+          tile2Title: data.settings.navDropdownTile2Title,
+          tile2Subtitle: data.settings.navDropdownTile2Subtitle,
+          tile2Badge: data.settings.navDropdownTile2Badge,
+          tile2BadgeEmoji: data.settings.navDropdownTile2BadgeEmoji,
+          cleanFormulasTitle: data.settings.navCleanFormulasTitle,
+          cleanFormulasDescription: data.settings.navCleanFormulasDescription,
+          cleanFormulasCtaEnabled: data.settings.navCleanFormulasCtaEnabled,
+          cleanFormulasCtaText: data.settings.navCleanFormulasCtaText,
+          cleanFormulasCtaUrl: data.settings.navCleanFormulasCtaUrl,
+          cleanFormulasBadgeEnabled: data.settings.navCleanFormulasBadgeEnabled,
+          cleanFormulasBadgeUrl: data.settings.navCleanFormulasBadgeUrl,
+        } : null}
+        navPages={data.navPages}
       />
 
       <main>

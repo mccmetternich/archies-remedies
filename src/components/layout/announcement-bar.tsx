@@ -8,13 +8,16 @@ interface AnnouncementBarProps {
   text: string;
   linkUrl?: string | null;
   linkText?: string | null;
+  theme?: 'light' | 'dark';
 }
 
-export function AnnouncementBar({ text, linkUrl, linkText }: AnnouncementBarProps) {
+export function AnnouncementBar({ text, linkUrl, linkText, theme = 'light' }: AnnouncementBarProps) {
+  const isDark = theme === 'dark';
+
   return (
-    <div className="bg-[var(--primary)] py-3">
+    <div className={isDark ? "bg-black py-3" : "bg-[var(--primary)] py-3"}>
       <div className="container">
-        <div className="flex items-center justify-center gap-3 text-sm text-[var(--foreground)]">
+        <div className={`flex items-center justify-center gap-3 text-sm ${isDark ? 'text-white' : 'text-[var(--foreground)]'}`}>
           <span className="text-center font-medium">{text}</span>
           {linkUrl && linkText && (
             <Link

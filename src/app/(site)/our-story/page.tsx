@@ -1,6 +1,3 @@
-import { db } from '@/lib/db';
-import { products, siteSettings } from '@/lib/db/schema';
-import { eq } from 'drizzle-orm';
 import { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -8,28 +5,18 @@ import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { ArrowRight, Droplet, Eye, Shield, FlaskConical, Award, Heart } from 'lucide-react';
 import { checkPageDraft } from '@/lib/draft-mode';
+import { getHeaderProps, getFooterProps } from '@/lib/get-header-props';
 
 export const metadata: Metadata = {
   title: "Our Story | Archie's Remedies",
   description: "The new standard in eye care. Where safety meets sophistication. Discover how Archie's Remedies is reimagining preservative-free relief.",
 };
 
-async function getPageData() {
-  const [settings] = await db.select().from(siteSettings).limit(1);
-  const productList = await db
-    .select()
-    .from(products)
-    .where(eq(products.isActive, true))
-    .orderBy(products.sortOrder);
-
-  return { settings, products: productList };
-}
-
 export default async function OurStoryPage() {
   // Check if this page is draft - redirects if needed
   await checkPageDraft('our-story');
 
-  const data = await getPageData();
+  const headerProps = await getHeaderProps();
 
   const missionModules = [
     {
@@ -66,16 +53,7 @@ export default async function OurStoryPage() {
 
   return (
     <>
-      <Header
-        logo={data.settings?.logoUrl}
-        products={data.products}
-        bumper={data.settings ? {
-          bumperEnabled: data.settings.bumperEnabled,
-          bumperText: data.settings.bumperText,
-          bumperLinkUrl: data.settings.bumperLinkUrl,
-          bumperLinkText: data.settings.bumperLinkText,
-        } : null}
-      />
+      <Header {...headerProps} />
 
       <main>
         {/* ============================================
@@ -300,14 +278,7 @@ export default async function OurStoryPage() {
         </section>
       </main>
 
-      <Footer
-        logo={data.settings?.logoUrl}
-        instagramUrl={data.settings?.instagramUrl}
-        facebookUrl={data.settings?.facebookUrl}
-        tiktokUrl={data.settings?.tiktokUrl}
-        amazonStoreUrl={data.settings?.amazonStoreUrl}
-        massiveFooterLogoUrl={data.settings?.massiveFooterLogoUrl}
-      />
+      <Footer {...getFooterProps(headerProps.settings)} />
     </>
   );
 }

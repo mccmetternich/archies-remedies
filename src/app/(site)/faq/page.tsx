@@ -1,11 +1,12 @@
 import { db } from '@/lib/db';
-import { faqs, products, siteSettings } from '@/lib/db/schema';
+import { faqs } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { Metadata } from 'next';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { FAQAccordion } from '@/components/faq/faq-accordion';
 import { checkPageDraft } from '@/lib/draft-mode';
+import { getHeaderProps, getFooterProps } from '@/lib/get-header-props';
 
 export const metadata: Metadata = {
   title: "FAQ | Archie's Remedies",
@@ -14,51 +15,38 @@ export const metadata: Metadata = {
 
 export const revalidate = 60;
 
-async function getPageData() {
-  const [settings] = await db.select().from(siteSettings).limit(1);
-  const productList = await db
-    .select()
-    .from(products)
-    .where(eq(products.isActive, true))
-    .orderBy(products.sortOrder);
-
+async function getFAQs() {
   const faqList = await db
     .select()
     .from(faqs)
     .where(eq(faqs.isActive, true))
     .orderBy(faqs.sortOrder);
 
-  return { settings, products: productList, faqs: faqList };
+  return faqList;
 }
 
 export default async function FAQPage() {
   // Check if this page is draft - redirects if needed
   await checkPageDraft('faq');
 
-  const data = await getPageData();
+  const [headerProps, faqList] = await Promise.all([
+    getHeaderProps(),
+    getFAQs(),
+  ]);
 
   // Group FAQs by category
-  const categories = data.faqs.reduce((acc, faq) => {
+  const categories = faqList.reduce((acc, faq) => {
     const category = faq.category || 'General';
     if (!acc[category]) {
       acc[category] = [];
     }
     acc[category].push(faq);
     return acc;
-  }, {} as Record<string, typeof data.faqs>);
+  }, {} as Record<string, typeof faqList>);
 
   return (
     <>
-      <Header
-        logo={data.settings?.logoUrl}
-        products={data.products}
-        bumper={data.settings ? {
-          bumperEnabled: data.settings.bumperEnabled,
-          bumperText: data.settings.bumperText,
-          bumperLinkUrl: data.settings.bumperLinkUrl,
-          bumperLinkText: data.settings.bumperLinkText,
-        } : null}
-      />
+      <Header {...headerProps} />
 
       <main>
         {/* Hero */}
@@ -110,14 +98,7 @@ export default async function FAQPage() {
         </section>
       </main>
 
-      <Footer
-        logo={data.settings?.logoUrl}
-        instagramUrl={data.settings?.instagramUrl}
-        facebookUrl={data.settings?.facebookUrl}
-        tiktokUrl={data.settings?.tiktokUrl}
-        amazonStoreUrl={data.settings?.amazonStoreUrl}
-        massiveFooterLogoUrl={data.settings?.massiveFooterLogoUrl}
-      />
+      <Footer {...getFooterProps(headerProps.settings)} />
     </>
   );
 }
