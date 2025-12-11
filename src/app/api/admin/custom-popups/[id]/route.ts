@@ -2,12 +2,16 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { customPopups } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
+import { requireAuth } from '@/lib/api-auth';
 
 // GET /api/admin/custom-popups/[id] - Get a single popup
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const { id } = await params;
 
@@ -39,6 +43,9 @@ export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const { id } = await params;
     const body = await request.json();
@@ -121,6 +128,9 @@ export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const { id } = await params;
 
@@ -148,6 +158,9 @@ export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const { id } = await params;
     const body = await request.json();

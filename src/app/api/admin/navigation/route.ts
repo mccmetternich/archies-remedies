@@ -3,8 +3,12 @@ import { db } from '@/lib/db';
 import { navigationItems, footerLinks, siteSettings, products, pages } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { generateId } from '@/lib/utils';
+import { requireAuth } from '@/lib/api-auth';
 
 export async function GET() {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const navItems = await db.select().from(navigationItems).orderBy(navigationItems.sortOrder);
     const footer = await db.select().from(footerLinks).orderBy(footerLinks.sortOrder);
@@ -84,6 +88,9 @@ export async function GET() {
 }
 
 export async function PUT(request: Request) {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const { navigation, footer, bumper, globalNav, pageNavUpdates } = await request.json();
 

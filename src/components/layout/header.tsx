@@ -90,7 +90,6 @@ const SOCIAL_PROOF_AVATARS = [
 export function Header({ logo, products = [], bumper, socialStats, globalNav, navPages = [] }: HeaderProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [shopOpen, setShopOpen] = useState(false);
 
   const showBumper = bumper?.bumperEnabled && bumper?.bumperText;
 
@@ -115,23 +114,6 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Close mega nav when scrolling
-  useEffect(() => {
-    if (shopOpen) {
-      const handleScroll = () => setShopOpen(false);
-      window.addEventListener('scroll', handleScroll, { passive: true });
-      return () => window.removeEventListener('scroll', handleScroll);
-    }
-  }, [shopOpen]);
-
-  // Emit custom events when nav dropdown opens/closes to pause hero carousel
-  useEffect(() => {
-    if (shopOpen) {
-      window.dispatchEvent(new CustomEvent('nav-dropdown-open'));
-    } else {
-      window.dispatchEvent(new CustomEvent('nav-dropdown-close'));
-    }
-  }, [shopOpen]);
 
   // CTA settings
   const ctaEnabled = globalNav?.ctaEnabled ?? true;
@@ -184,26 +166,182 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
 
             {/* Desktop Navigation - Shop on left */}
             <div className="hidden lg:flex items-center gap-10 ml-12">
-              {/* Shop Dropdown */}
-              <div
-                className="relative"
-                onMouseEnter={() => setShopOpen(true)}
-                onMouseLeave={() => setShopOpen(false)}
-              >
+              {/* Shop Dropdown - CSS hover based (no React state) */}
+              <div className="relative group/shop">
                 <button
-                  className={cn(
-                    'flex items-center gap-2 text-base font-medium tracking-wide transition-colors py-3 text-[#1a1a1a]',
-                    shopOpen && 'text-[#737373]'
-                  )}
+                  className="flex items-center gap-2 text-base font-medium tracking-wide transition-colors py-3 text-[#1a1a1a] group-hover/shop:text-[#737373]"
                 >
                   Shop
                   <ChevronDown
-                    className={cn(
-                      'w-4 h-4 transition-transform duration-300',
-                      shopOpen && 'rotate-180'
-                    )}
+                    className="w-4 h-4 transition-transform duration-300 group-hover/shop:rotate-180"
                   />
                 </button>
+
+                {/* Mega Nav Dropdown - CSS transitions, no Framer Motion */}
+                <div
+                  className="absolute top-full left-1/2 -translate-x-1/2 w-screen max-w-[1200px] opacity-0 invisible translate-y-2 group-hover/shop:opacity-100 group-hover/shop:visible group-hover/shop:translate-y-0 transition-all duration-300 ease-out pointer-events-none group-hover/shop:pointer-events-auto"
+                  style={{ marginLeft: 'calc(-600px + 50%)' }}
+                >
+                  {/* Shadow mask - covers header shadow at join point */}
+                  <div className="absolute -top-2 left-0 right-0 h-4 bg-white z-40" />
+
+                  <div className="relative z-50 bg-white shadow-[0_20px_40px_rgba(0,0,0,0.15)] rounded-b-2xl">
+                    {/* Fixed height shelf container with generous bottom padding */}
+                    <div className="container min-h-[480px] py-10 pb-20">
+                      {/* Content grid - top aligned within the fixed shelf */}
+                      <div className="grid lg:grid-cols-12 gap-8 items-start">
+                        {/* Product tiles - 2 columns */}
+                        <div className="lg:col-span-8">
+                          <div className="grid md:grid-cols-2 gap-6 mb-8">
+                            {/* Product Tile 1 */}
+                            {tile1Product && (
+                              <Link
+                                href={`/products/${tile1Product.slug}`}
+                                className="group/tile block p-5 rounded-2xl bg-white shadow-sm hover:shadow-md hover:bg-[var(--cream)] transition-all duration-500"
+                              >
+                                <div className="relative mb-4">
+                                  <div className="aspect-square w-full rounded-xl overflow-hidden bg-[var(--cream)]">
+                                    <Image
+                                      src={tile1Product.heroImageUrl || PRODUCT_IMAGES['eye-drops']}
+                                      alt={globalNav?.tile1Title || tile1Product.name}
+                                      width={400}
+                                      height={400}
+                                      className="w-full h-full object-cover group-hover/tile:scale-105 transition-transform duration-700"
+                                    />
+                                  </div>
+                                  {(globalNav?.tile1Badge || globalNav?.tile1BadgeEmoji) && (
+                                    <span className="absolute top-3 right-3 text-xs px-2.5 py-1 bg-[var(--foreground)] text-white rounded-full font-medium flex items-center gap-1">
+                                      {globalNav.tile1BadgeEmoji} {globalNav.tile1Badge}
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="flex items-center gap-2 mb-1.5">
+                                  <div className="flex gap-0.5">
+                                    {[1,2,3,4,5].map(i => (
+                                      <Star key={i} className="w-3.5 h-3.5 fill-[var(--primary)] text-[var(--primary)]" />
+                                    ))}
+                                  </div>
+                                  <span className="text-sm text-[var(--foreground)] font-medium">4.9</span>
+                                  <span className="text-xs text-[var(--muted-foreground)]">(2,100+)</span>
+                                </div>
+                                <h4 className="text-lg font-medium mb-1 group-hover/tile:text-[var(--muted-foreground)] transition-colors">
+                                  {globalNav?.tile1Title || tile1Product.name}
+                                </h4>
+                                <p className="text-sm text-[var(--muted-foreground)]">
+                                  {globalNav?.tile1Subtitle || tile1Product.shortDescription || 'Instant, lasting relief'}
+                                </p>
+                              </Link>
+                            )}
+
+                            {/* Product Tile 2 */}
+                            {tile2Product && (
+                              <Link
+                                href={`/products/${tile2Product.slug}`}
+                                className="group/tile block p-5 rounded-2xl bg-white shadow-sm hover:shadow-md hover:bg-[var(--cream)] transition-all duration-500"
+                              >
+                                <div className="relative mb-4">
+                                  <div className="aspect-square w-full rounded-xl overflow-hidden bg-[var(--cream)]">
+                                    <Image
+                                      src={tile2Product.heroImageUrl || PRODUCT_IMAGES['eye-wipes']}
+                                      alt={globalNav?.tile2Title || tile2Product.name}
+                                      width={400}
+                                      height={400}
+                                      className="w-full h-full object-cover group-hover/tile:scale-105 transition-transform duration-700"
+                                    />
+                                  </div>
+                                  {(globalNav?.tile2Badge || globalNav?.tile2BadgeEmoji) && (
+                                    <span className="absolute top-3 right-3 text-xs px-2.5 py-1 bg-[var(--primary)] text-[var(--foreground)] rounded-full font-medium flex items-center gap-1">
+                                      {globalNav.tile2BadgeEmoji} {globalNav.tile2Badge}
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="flex items-center gap-2 mb-1.5">
+                                  <div className="flex gap-0.5">
+                                    {[1,2,3,4,5].map(i => (
+                                      <Star key={i} className="w-3.5 h-3.5 fill-[var(--primary)] text-[var(--primary)]" />
+                                    ))}
+                                  </div>
+                                  <span className="text-sm text-[var(--foreground)] font-medium">4.9</span>
+                                  <span className="text-xs text-[var(--muted-foreground)]">(850+)</span>
+                                </div>
+                                <h4 className="text-lg font-medium mb-1 group-hover/tile:text-[var(--muted-foreground)] transition-colors">
+                                  {globalNav?.tile2Title || tile2Product.name}
+                                </h4>
+                                <p className="text-sm text-[var(--muted-foreground)]">
+                                  {globalNav?.tile2Subtitle || tile2Product.shortDescription || 'Daily cleansing wipes'}
+                                </p>
+                              </Link>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Clean Formulas - Compact tile */}
+                        <div className="lg:col-span-4 relative">
+                          {/* Rotating Badge */}
+                          {globalNav?.cleanFormulasBadgeEnabled && globalNav?.cleanFormulasBadgeUrl && (
+                            <div className="absolute -top-4 -right-4 w-20 h-20 z-10">
+                              <Image
+                                src={globalNav.cleanFormulasBadgeUrl}
+                                alt=""
+                                width={80}
+                                height={80}
+                                className="w-full h-full object-contain animate-spin-slow"
+                              />
+                            </div>
+                          )}
+                          <div className="p-6 rounded-2xl bg-[var(--primary-light)]">
+                            <p className="text-lg font-medium mb-2">{cleanFormulasTitle}</p>
+                            <p className="text-sm text-[var(--muted-foreground)] leading-relaxed mb-4">
+                              {cleanFormulasDescription}
+                            </p>
+                            <div className="flex flex-wrap gap-1.5 mb-4">
+                              <span className="text-xs px-2.5 py-1 bg-white rounded-full">Preservative-Free</span>
+                              <span className="text-xs px-2.5 py-1 bg-white rounded-full">Paraben-Free</span>
+                              <span className="text-xs px-2.5 py-1 bg-white rounded-full">Sulfate-Free</span>
+                            </div>
+
+                            {/* CTA Button for Clean Formulas */}
+                            {globalNav?.cleanFormulasCtaEnabled && globalNav?.cleanFormulasCtaText && globalNav?.cleanFormulasCtaUrl && (
+                              <Link
+                                href={globalNav.cleanFormulasCtaUrl}
+                                className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--foreground)] text-white rounded-full text-sm font-medium hover:bg-black transition-colors mb-4"
+                              >
+                                {globalNav.cleanFormulasCtaText}
+                                <ArrowRight className="w-3 h-3" />
+                              </Link>
+                            )}
+
+                            {/* Social Validation */}
+                            <div className="flex items-center gap-3 pt-4 border-t border-[var(--foreground)]/10">
+                              <div className="flex -space-x-2">
+                                {SOCIAL_PROOF_AVATARS.slice(0, 3).map((avatar, idx) => (
+                                  <Image
+                                    key={idx}
+                                    src={avatar}
+                                    alt=""
+                                    width={28}
+                                    height={28}
+                                    className="w-7 h-7 rounded-full border-2 border-white shadow-sm object-cover"
+                                  />
+                                ))}
+                              </div>
+                              <div className="flex items-center gap-1.5">
+                                <div className="flex gap-0.5">
+                                  {[1, 2, 3, 4, 5].map((i) => (
+                                    <Star key={i} className="w-3 h-3 fill-[var(--primary)] text-[var(--primary)]" />
+                                  ))}
+                                </div>
+                                <span className="text-xs text-[var(--foreground)] font-medium">
+                                  {socialStats?.totalReviews?.toLocaleString() || '2,900'}+
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -236,7 +374,7 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
               {ctaEnabled && (
                 <Link
                   href={ctaUrl}
-                  className="group inline-flex items-center gap-3 px-8 py-4 rounded-full text-base font-semibold shadow-lg transition-all duration-300 hover:shadow-xl bg-[#1a1a1a] hover:bg-[#bbdae9] [&]:text-white [&:hover]:text-[#1a1a1a]"
+                  className="group inline-flex items-center gap-3 px-8 py-4 rounded-full text-base font-semibold shadow-lg transition-all duration-300 hover:shadow-xl bg-[#1a1a1a] hover:bg-[#bbdae9] text-white hover:text-[#1a1a1a]"
                 >
                   {ctaText}
                   <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
@@ -255,175 +393,6 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
           </div>
         </nav>
 
-        {/* Mega Nav Dropdown - Chunky and Beautiful */}
-        <AnimatePresence>
-          {shopOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-              className="absolute top-full left-0 right-0 bg-white shadow-[0_20px_40px_rgba(0,0,0,0.15)]"
-              onMouseEnter={() => setShopOpen(true)}
-              onMouseLeave={() => setShopOpen(false)}
-            >
-              {/* Fixed height shelf container - independent of content */}
-              <div className="container min-h-[480px] py-10">
-                {/* Content grid - top aligned within the fixed shelf */}
-                <div className="grid lg:grid-cols-12 gap-8 items-start">
-                  {/* Product tiles - 2 columns */}
-                  <div className="lg:col-span-8">
-                    <div className="grid md:grid-cols-2 gap-6">
-                      {/* Product Tile 1 */}
-                      {tile1Product && (
-                        <Link
-                          href={`/products/${tile1Product.slug}`}
-                          className="group block p-5 rounded-2xl bg-[var(--cream)] hover:bg-[var(--sand)] transition-all duration-500"
-                        >
-                          <div className="relative mb-4">
-                            <div className="aspect-square w-full rounded-xl overflow-hidden bg-white">
-                              <Image
-                                src={tile1Product.heroImageUrl || PRODUCT_IMAGES['eye-drops']}
-                                alt={globalNav?.tile1Title || tile1Product.name}
-                                width={400}
-                                height={400}
-                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                              />
-                            </div>
-                            {(globalNav?.tile1Badge || globalNav?.tile1BadgeEmoji) && (
-                              <span className="absolute top-3 right-3 text-xs px-2.5 py-1 bg-[var(--foreground)] text-white rounded-full font-medium flex items-center gap-1">
-                                {globalNav.tile1BadgeEmoji} {globalNav.tile1Badge}
-                              </span>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-2 mb-1.5">
-                            <div className="flex gap-0.5">
-                              {[1,2,3,4,5].map(i => (
-                                <Star key={i} className="w-3.5 h-3.5 fill-[var(--primary)] text-[var(--primary)]" />
-                              ))}
-                            </div>
-                            <span className="text-sm text-[var(--foreground)] font-medium">4.9</span>
-                            <span className="text-xs text-[var(--muted-foreground)]">(2,100+)</span>
-                          </div>
-                          <h4 className="text-lg font-medium mb-1 group-hover:text-[var(--muted-foreground)] transition-colors">
-                            {globalNav?.tile1Title || tile1Product.name}
-                          </h4>
-                          <p className="text-sm text-[var(--muted-foreground)]">
-                            {globalNav?.tile1Subtitle || tile1Product.shortDescription || 'Instant, lasting relief'}
-                          </p>
-                        </Link>
-                      )}
-
-                      {/* Product Tile 2 */}
-                      {tile2Product && (
-                        <Link
-                          href={`/products/${tile2Product.slug}`}
-                          className="group block p-5 rounded-2xl bg-[var(--cream)] hover:bg-[var(--sand)] transition-all duration-500"
-                        >
-                          <div className="relative mb-4">
-                            <div className="aspect-square w-full rounded-xl overflow-hidden bg-white">
-                              <Image
-                                src={tile2Product.heroImageUrl || PRODUCT_IMAGES['eye-wipes']}
-                                alt={globalNav?.tile2Title || tile2Product.name}
-                                width={400}
-                                height={400}
-                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                              />
-                            </div>
-                            {(globalNav?.tile2Badge || globalNav?.tile2BadgeEmoji) && (
-                              <span className="absolute top-3 right-3 text-xs px-2.5 py-1 bg-[var(--primary)] text-[var(--foreground)] rounded-full font-medium flex items-center gap-1">
-                                {globalNav.tile2BadgeEmoji} {globalNav.tile2Badge}
-                              </span>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-2 mb-1.5">
-                            <div className="flex gap-0.5">
-                              {[1,2,3,4,5].map(i => (
-                                <Star key={i} className="w-3.5 h-3.5 fill-[var(--primary)] text-[var(--primary)]" />
-                              ))}
-                            </div>
-                            <span className="text-sm text-[var(--foreground)] font-medium">4.9</span>
-                            <span className="text-xs text-[var(--muted-foreground)]">(850+)</span>
-                          </div>
-                          <h4 className="text-lg font-medium mb-1 group-hover:text-[var(--muted-foreground)] transition-colors">
-                            {globalNav?.tile2Title || tile2Product.name}
-                          </h4>
-                          <p className="text-sm text-[var(--muted-foreground)]">
-                            {globalNav?.tile2Subtitle || tile2Product.shortDescription || 'Daily cleansing wipes'}
-                          </p>
-                        </Link>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Clean Formulas - Compact tile */}
-                  <div className="lg:col-span-4 relative">
-                    {/* Rotating Badge */}
-                    {globalNav?.cleanFormulasBadgeEnabled && globalNav?.cleanFormulasBadgeUrl && (
-                      <div className="absolute -top-4 -right-4 w-20 h-20 z-10">
-                        <Image
-                          src={globalNav.cleanFormulasBadgeUrl}
-                          alt=""
-                          width={80}
-                          height={80}
-                          className="w-full h-full object-contain animate-spin-slow"
-                        />
-                      </div>
-                    )}
-                    <div className="p-6 rounded-2xl bg-[var(--primary-light)]">
-                      <p className="text-lg font-medium mb-2">{cleanFormulasTitle}</p>
-                      <p className="text-sm text-[var(--muted-foreground)] leading-relaxed mb-4">
-                        {cleanFormulasDescription}
-                      </p>
-                      <div className="flex flex-wrap gap-1.5 mb-4">
-                        <span className="text-xs px-2.5 py-1 bg-white rounded-full">Preservative-Free</span>
-                        <span className="text-xs px-2.5 py-1 bg-white rounded-full">Paraben-Free</span>
-                        <span className="text-xs px-2.5 py-1 bg-white rounded-full">Sulfate-Free</span>
-                      </div>
-
-                      {/* CTA Button for Clean Formulas */}
-                      {globalNav?.cleanFormulasCtaEnabled && globalNav?.cleanFormulasCtaText && globalNav?.cleanFormulasCtaUrl && (
-                        <Link
-                          href={globalNav.cleanFormulasCtaUrl}
-                          className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--foreground)] text-white rounded-full text-sm font-medium hover:bg-black transition-colors mb-4"
-                        >
-                          {globalNav.cleanFormulasCtaText}
-                          <ArrowRight className="w-3 h-3" />
-                        </Link>
-                      )}
-
-                      {/* Social Validation */}
-                      <div className="flex items-center gap-3 pt-4 border-t border-[var(--foreground)]/10">
-                        <div className="flex -space-x-2">
-                          {SOCIAL_PROOF_AVATARS.slice(0, 3).map((avatar, idx) => (
-                            <Image
-                              key={idx}
-                              src={avatar}
-                              alt=""
-                              width={28}
-                              height={28}
-                              className="w-7 h-7 rounded-full border-2 border-white shadow-sm object-cover"
-                            />
-                          ))}
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <div className="flex gap-0.5">
-                            {[1, 2, 3, 4, 5].map((i) => (
-                              <Star key={i} className="w-3 h-3 fill-[var(--primary)] text-[var(--primary)]" />
-                            ))}
-                          </div>
-                          <span className="text-xs text-[var(--foreground)] font-medium">
-                            {socialStats?.totalReviews?.toLocaleString() || '2,900'}+
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </header>
 
       {/* Mobile Menu */}

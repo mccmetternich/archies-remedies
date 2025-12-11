@@ -2,8 +2,24 @@ import { NextResponse } from 'next/server';
 import { db, contactSubmissions } from '@/lib/db';
 import { generateId } from '@/lib/utils';
 import { contactFormSchema, validateRequest } from '@/lib/validations';
+import { rateLimit, getClientIP, RATE_LIMITS } from '@/lib/rate-limit';
 
 export async function POST(request: Request) {
+  // Rate limiting
+  const clientIP = getClientIP(request);
+  const rateLimitResult = rateLimit(
+    `contact:${clientIP}`,
+    RATE_LIMITS.CONTACT.limit,
+    RATE_LIMITS.CONTACT.windowMs
+  );
+
+  if (!rateLimitResult.success) {
+    return NextResponse.json(
+      { error: 'Too many requests. Please try again later.' },
+      { status: 429 }
+    );
+  }
+
   try {
     const body = await request.json();
 

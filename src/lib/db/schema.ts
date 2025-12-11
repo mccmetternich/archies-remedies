@@ -641,6 +641,15 @@ export const contactActivity = sqliteTable('contact_activity', {
   createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
 });
 
+// Preview Tokens (for URL-based draft site preview)
+export const previewTokens = sqliteTable('preview_tokens', {
+  id: text('id').primaryKey(),
+  token: text('token').notNull().unique(),
+  createdById: text('created_by_id').references(() => adminUsers.id),
+  expiresAt: text('expires_at').notNull(),
+  createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
+});
+
 // ============================================
 // DATABASE INDEXES FOR PERFORMANCE
 // ============================================
@@ -692,3 +701,6 @@ export const testimonialsActiveIdx = index('idx_testimonials_active').on(testimo
 // Reviews - for product-specific queries
 export const reviewsProductIdIdx = index('idx_reviews_product_id').on(reviews.productId);
 export const reviewsActiveIdx = index('idx_reviews_active').on(reviews.isActive);
+
+// Preview tokens - for token lookups
+export const previewTokensTokenIdx = index('idx_preview_tokens_token').on(previewTokens.token);

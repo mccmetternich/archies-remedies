@@ -12,25 +12,10 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Handle preview mode URL parameter
-  // When ?preview=true is present, set a SESSION-based preview cookie (no maxAge = session cookie)
-  // This means preview access is lost when the browser is closed
-  const hasPreviewParam = searchParams.get('preview') === 'true';
-  const hasPreviewToken = request.cookies.get('preview_token');
-
-  if (hasPreviewParam && !pathname.startsWith('/admin') && !pathname.startsWith('/api')) {
-    // Set preview cookie as a session cookie (deleted when browser closes)
-    // Don't redirect - keep the ?preview=true in URL so internal navigation works
-    const response = NextResponse.next();
-    response.cookies.set('preview_token', 'admin-preview', {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/',
-      // No maxAge = session cookie, deleted when browser closes
-    });
-    return response;
-  }
+  // Create response with custom header containing the full URL
+  // This allows server components to access URL params (including ?token=xxx)
+  const response = NextResponse.next();
+  response.headers.set('x-url', request.url);
 
   // Protect admin routes (except login and auth API)
   if (pathname.startsWith('/admin') && pathname !== '/admin/login') {
@@ -43,7 +28,6 @@ export function middleware(request: NextRequest) {
 
     // Note: Full session validation happens in API routes via requireAuth()
     // Middleware only checks cookie existence for page routes
-    // This is a security trade-off for performance (no DB call in middleware)
   }
 
   // Protect admin API routes (except auth endpoints)
@@ -72,7 +56,7 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  return NextResponse.next();
+  return response;
 }
 
 export const config = {

@@ -1,36 +1,86 @@
-import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { headers } from 'next/headers';
 import { db } from '@/lib/db';
-import { siteSettings, pages, products } from '@/lib/db/schema';
-import { eq } from 'drizzle-orm';
+import { siteSettings, pages, products, previewTokens } from '@/lib/db/schema';
+import { eq, and, gt } from 'drizzle-orm';
+
+/**
+ * URL-based preview token system
+ *
+ * Instead of cookies, preview access is granted via URL token: ?token=xxx
+ * This prevents the issue of permanent site access after admin login.
+ * All internal links must preserve the token parameter.
+ */
+
+/**
+ * Extract preview token from the current request URL
+ */
+export async function getPreviewTokenFromRequest(): Promise<string | null> {
+  const headersList = await headers();
+  const referer = headersList.get('referer');
+  const xUrl = headersList.get('x-url'); // Custom header set by middleware
+
+  // Try to get URL from headers (middleware should set this)
+  const url = xUrl || referer;
+  if (!url) return null;
+
+  try {
+    const urlObj = new URL(url);
+    return urlObj.searchParams.get('token');
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Validate a preview token against the database
+ * Returns true if token is valid and not expired
+ */
+export async function validatePreviewToken(token: string): Promise<boolean> {
+  if (!token) return false;
+
+  const now = new Date().toISOString();
+
+  const [validToken] = await db
+    .select()
+    .from(previewTokens)
+    .where(
+      and(
+        eq(previewTokens.token, token),
+        gt(previewTokens.expiresAt, now)
+      )
+    )
+    .limit(1);
+
+  return !!validToken;
+}
 
 /**
  * Check if the site is in draft mode and redirect to coming-soon if needed.
- * This should be called at the top of server components that need draft protection.
  *
  * Access is granted if:
  * 1. Site is NOT in draft mode (siteInDraftMode = false)
- * 2. User has a valid preview_token cookie (from clicking "View Draft" in admin)
+ * 2. URL contains a valid, non-expired preview token (?token=xxx)
  *
- * Note: Admin session alone does NOT grant access - admins must use the preview link
+ * Note: Admin session alone does NOT grant access - admins must use the preview link with token
+ *
+ * @param token - Optional preview token from URL (if already extracted)
  */
-export async function checkDraftMode(): Promise<{ isInDraftMode: boolean; hasPreviewAccess: boolean }> {
+export async function checkDraftMode(token?: string | null): Promise<{ isInDraftMode: boolean; hasPreviewAccess: boolean }> {
   // Get site settings from database
   const [settings] = await db.select().from(siteSettings).limit(1);
 
   const isInDraftMode = settings?.siteInDraftMode ?? false;
 
-  // Check for preview token
-  const cookieStore = await cookies();
-  const previewToken = cookieStore.get('preview_token');
-  const hasPreviewAccess = !!previewToken?.value;
-
   // If not in draft mode, allow access
   if (!isInDraftMode) {
-    return { isInDraftMode: false, hasPreviewAccess };
+    return { isInDraftMode: false, hasPreviewAccess: false };
   }
 
-  // If user has preview token, allow access
+  // Check for valid preview token
+  const previewToken = token ?? await getPreviewTokenFromRequest();
+  const hasPreviewAccess = previewToken ? await validatePreviewToken(previewToken) : false;
+
   if (hasPreviewAccess) {
     return { isInDraftMode: true, hasPreviewAccess: true };
   }
@@ -41,19 +91,17 @@ export async function checkDraftMode(): Promise<{ isInDraftMode: boolean; hasPre
 
 /**
  * Check if a specific page is in draft mode (isActive = false).
- * If the page is draft:
- * - With preview token → allow access
- * - Without preview token → redirect to homepage (or coming-soon if homepage is also draft)
  *
- * This should be called AFTER checkDraftMode() in the layout has passed.
+ * @param slug - Page slug to check
+ * @param token - Optional preview token from URL
  */
-export async function checkPageDraft(slug: string): Promise<{ isDraft: boolean }> {
-  // Check for preview token first
-  const cookieStore = await cookies();
-  const previewToken = cookieStore.get('preview_token');
+export async function checkPageDraft(slug: string, token?: string | null): Promise<{ isDraft: boolean }> {
+  // Check for valid preview token
+  const previewToken = token ?? await getPreviewTokenFromRequest();
+  const hasAccess = previewToken ? await validatePreviewToken(previewToken) : false;
 
-  if (previewToken?.value) {
-    // With preview token, allow access to any page
+  if (hasAccess) {
+    // With valid token, allow access to any page
     return { isDraft: false };
   }
 
@@ -85,14 +133,16 @@ export async function checkPageDraft(slug: string): Promise<{ isDraft: boolean }
 
 /**
  * Check if a specific product is in draft mode (isActive = false).
- * Similar logic to checkPageDraft.
+ *
+ * @param productSlug - Product slug to check
+ * @param token - Optional preview token from URL
  */
-export async function checkProductDraft(productSlug: string): Promise<{ isDraft: boolean }> {
-  // Check for preview token first
-  const cookieStore = await cookies();
-  const previewToken = cookieStore.get('preview_token');
+export async function checkProductDraft(productSlug: string, token?: string | null): Promise<{ isDraft: boolean }> {
+  // Check for valid preview token
+  const previewToken = token ?? await getPreviewTokenFromRequest();
+  const hasAccess = previewToken ? await validatePreviewToken(previewToken) : false;
 
-  if (previewToken?.value) {
+  if (hasAccess) {
     return { isDraft: false };
   }
 
@@ -119,8 +169,10 @@ export async function checkProductDraft(productSlug: string): Promise<{ isDraft:
 /**
  * Get draft mode status without redirecting.
  * Useful for UI components that need to know draft status.
+ *
+ * @param token - Optional preview token from URL
  */
-export async function getDraftModeStatus(): Promise<{
+export async function getDraftModeStatus(token?: string | null): Promise<{
   isInDraftMode: boolean;
   hasAccess: boolean;
 }> {
@@ -131,20 +183,30 @@ export async function getDraftModeStatus(): Promise<{
     return { isInDraftMode: false, hasAccess: true };
   }
 
-  const cookieStore = await cookies();
-  const previewToken = cookieStore.get('preview_token');
-
-  // Only preview token grants access, not admin session
-  const hasAccess = !!previewToken?.value;
+  const previewToken = token ?? await getPreviewTokenFromRequest();
+  const hasAccess = previewToken ? await validatePreviewToken(previewToken) : false;
 
   return { isInDraftMode, hasAccess };
 }
 
 /**
- * Check if user has preview access (has valid preview_token cookie).
+ * Check if user has preview access via URL token.
+ *
+ * @param token - Optional preview token (if already extracted from URL)
  */
-export async function hasPreviewAccess(): Promise<boolean> {
-  const cookieStore = await cookies();
-  const previewToken = cookieStore.get('preview_token');
-  return !!previewToken?.value;
+export async function hasPreviewAccess(token?: string | null): Promise<boolean> {
+  const previewToken = token ?? await getPreviewTokenFromRequest();
+  if (!previewToken) return false;
+  return validatePreviewToken(previewToken);
+}
+
+/**
+ * Helper to build URLs that preserve the preview token
+ * Use this for internal navigation links when in preview mode
+ */
+export function buildPreviewUrl(path: string, token: string | null): string {
+  if (!token) return path;
+
+  const separator = path.includes('?') ? '&' : '?';
+  return `${path}${separator}token=${token}`;
 }

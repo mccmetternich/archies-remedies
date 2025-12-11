@@ -3,9 +3,13 @@ import { db } from '@/lib/db';
 import { customPopups } from '@/lib/db/schema';
 import { desc, eq, sql } from 'drizzle-orm';
 import { generateId } from '@/lib/utils';
+import { requireAuth } from '@/lib/api-auth';
 
 // GET /api/admin/custom-popups - List all custom popups
 export async function GET() {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const popups = await db
       .select()
@@ -21,6 +25,9 @@ export async function GET() {
 
 // POST /api/admin/custom-popups - Create a new custom popup
 export async function POST(request: Request) {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const body = await request.json();
     const {

@@ -3,12 +3,16 @@ import { db } from '@/lib/db';
 import { blogPosts, blogTags, blogPostTags } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { nanoid } from 'nanoid';
+import { requireAuth } from '@/lib/api-auth';
 
 // GET /api/admin/blog/posts/[id] - Get a single post
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const { id } = await params;
     const [post] = await db.select().from(blogPosts).where(eq(blogPosts.id, id));
@@ -41,6 +45,9 @@ export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const { id } = await params;
     const body = await request.json();
@@ -116,6 +123,9 @@ export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const { id } = await params;
 

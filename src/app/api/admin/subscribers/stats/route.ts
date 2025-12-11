@@ -2,8 +2,12 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { contacts } from '@/lib/db/schema';
 import { eq, and, gte, isNotNull, ne, sql } from 'drizzle-orm';
+import { requireAuth } from '@/lib/api-auth';
 
 export async function GET(request: Request) {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const { searchParams } = new URL(request.url);
     const dateFrom = searchParams.get('dateFrom');

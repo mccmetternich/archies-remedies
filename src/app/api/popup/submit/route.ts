@@ -5,9 +5,25 @@ import { contacts, contactActivity, customPopups } from '@/lib/db/schema';
 import { eq, sql } from 'drizzle-orm';
 import { generateId } from '@/lib/utils';
 import { popupSubmitSchema, validateRequest } from '@/lib/validations';
+import { rateLimit, getClientIP, RATE_LIMITS } from '@/lib/rate-limit';
 
 // POST /api/popup/submit - Handle popup form submissions
 export async function POST(request: Request) {
+  // Rate limiting
+  const clientIP = getClientIP(request);
+  const rateLimitResult = rateLimit(
+    `popup:${clientIP}`,
+    RATE_LIMITS.POPUP.limit,
+    RATE_LIMITS.POPUP.windowMs
+  );
+
+  if (!rateLimitResult.success) {
+    return NextResponse.json(
+      { error: 'Too many requests. Please try again later.' },
+      { status: 429 }
+    );
+  }
+
   try {
     const body = await request.json();
 

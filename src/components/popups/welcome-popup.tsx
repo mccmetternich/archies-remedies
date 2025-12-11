@@ -220,12 +220,24 @@ export function WelcomePopup({
               {/* Content */}
               <div className="p-8">
                 {status === 'success' ? (
-                  <div className="text-center py-4">
-                    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-[var(--primary-light)] flex items-center justify-center">
-                      <span className="text-2xl">✓</span>
+                  <div className="py-4">
+                    <div className="flex items-center justify-center gap-3 mb-5">
+                      <div className="w-11 h-11 bg-[#bbdae9] rounded-full flex items-center justify-center flex-shrink-0">
+                        <svg
+                          className="w-5 h-5 text-[#1a1a1a]"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="3"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                      <h3 className="text-2xl font-normal tracking-tight">Welcome!</h3>
                     </div>
-                    <h3 className="text-2xl font-normal mb-2 tracking-tight">Welcome!</h3>
-                    <p className="text-[var(--muted-foreground)]">
+                    <p className="text-[var(--muted-foreground)] text-center">
                       {ctaType === 'email' && 'Check your email for your discount code.'}
                       {ctaType === 'sms' && 'Check your phone for your discount code.'}
                       {ctaType === 'download' && 'Your download should start automatically.'}

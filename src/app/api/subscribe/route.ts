@@ -4,10 +4,26 @@ import { db } from '@/lib/db';
 import { contacts, contactActivity } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { generateId } from '@/lib/utils';
+import { rateLimit, getClientIP, RATE_LIMITS } from '@/lib/rate-limit';
 
 // POST /api/subscribe - Public email subscription endpoint
 // Writes to the unified contacts table
 export async function POST(request: Request) {
+  // Rate limiting
+  const clientIP = getClientIP(request);
+  const rateLimitResult = rateLimit(
+    `subscribe:${clientIP}`,
+    RATE_LIMITS.SUBSCRIBE.limit,
+    RATE_LIMITS.SUBSCRIBE.windowMs
+  );
+
+  if (!rateLimitResult.success) {
+    return NextResponse.json(
+      { error: 'Too many requests. Please try again later.' },
+      { status: 429 }
+    );
+  }
+
   try {
     const { email, source } = await request.json();
 

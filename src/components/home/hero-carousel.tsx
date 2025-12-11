@@ -65,19 +65,6 @@ export function HeroCarousel({ slides, isPaused = false }: HeroCarouselProps) {
 
   const slide = slides[currentIndex];
 
-  // Listen for custom event from header when nav dropdown opens/closes
-  useEffect(() => {
-    const handleNavOpen = () => setIsHovered(true);
-    const handleNavClose = () => setIsHovered(false);
-
-    window.addEventListener('nav-dropdown-open', handleNavOpen);
-    window.addEventListener('nav-dropdown-close', handleNavClose);
-
-    return () => {
-      window.removeEventListener('nav-dropdown-open', handleNavOpen);
-      window.removeEventListener('nav-dropdown-close', handleNavClose);
-    };
-  }, []);
 
   return (
     <section
@@ -183,7 +170,7 @@ export function HeroCarousel({ slides, isPaused = false }: HeroCarouselProps) {
                   {slide.buttonUrl && (
                     <Link
                       href={slide.buttonUrl}
-                      className="group inline-flex items-center gap-3 px-8 py-4 rounded-full text-lg font-semibold shadow-lg transition-all duration-300 hover:shadow-xl bg-[#1a1a1a] hover:bg-[#bbdae9] [&]:text-white [&:hover]:text-[#1a1a1a]"
+                      className="group inline-flex items-center gap-3 px-8 py-4 rounded-full text-lg font-semibold shadow-lg transition-all duration-300 hover:shadow-xl bg-[#1a1a1a] hover:bg-[#bbdae9] text-white hover:text-[#1a1a1a]"
                     >
                       {slide.buttonText || 'Shop Now'}
                       <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />

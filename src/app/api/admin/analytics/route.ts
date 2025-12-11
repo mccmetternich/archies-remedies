@@ -2,8 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { pageViews, clickTracking, contacts } from '@/lib/db/schema';
 import { sql, gte, and, isNotNull, count, desc, countDistinct } from 'drizzle-orm';
+import { requireAuth } from '@/lib/api-auth';
 
 export async function GET(request: NextRequest) {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const { searchParams } = new URL(request.url);
     const range = searchParams.get('range') || '30d';

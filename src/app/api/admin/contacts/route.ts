@@ -3,8 +3,12 @@ import { db } from '@/lib/db';
 import { contactSubmissions } from '@/lib/db/schema';
 import { desc, eq } from 'drizzle-orm';
 import { generateId } from '@/lib/utils';
+import { requireAuth } from '@/lib/api-auth';
 
 export async function GET() {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const data = await db
       .select()
@@ -18,6 +22,9 @@ export async function GET() {
 }
 
 export async function PUT(request: Request) {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const { id, status } = await request.json();
 

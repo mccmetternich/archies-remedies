@@ -3,9 +3,13 @@ import { db } from '@/lib/db';
 import { blogPosts, blogTags, blogPostTags } from '@/lib/db/schema';
 import { desc, eq, inArray } from 'drizzle-orm';
 import { nanoid } from 'nanoid';
+import { requireAuth } from '@/lib/api-auth';
 
 // GET /api/admin/blog/posts - List all posts
 export async function GET() {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const posts = await db.select().from(blogPosts).orderBy(desc(blogPosts.createdAt));
 
@@ -55,6 +59,9 @@ export async function GET() {
 
 // POST /api/admin/blog/posts - Create a new post
 export async function POST(request: Request) {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const body = await request.json();
     const id = nanoid();

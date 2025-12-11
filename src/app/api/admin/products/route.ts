@@ -2,8 +2,12 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { products, productVariants, productBenefits } from '@/lib/db/schema';
 import { generateId } from '@/lib/utils';
+import { requireAuth } from '@/lib/api-auth';
 
 export async function GET() {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const data = await db.select().from(products).orderBy(products.sortOrder);
     return NextResponse.json(data);
@@ -14,6 +18,9 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const { product, variants, benefits } = await request.json();
 

@@ -2,9 +2,13 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { heroSlides, testimonials, videoTestimonials, faqs, instagramPosts, products } from '@/lib/db/schema';
 import { eq, desc } from 'drizzle-orm';
+import { requireAuth } from '@/lib/api-auth';
 
 // GET /api/admin/pages/[id]/homepage-widgets - Get widgets for homepage from dedicated tables
 export async function GET() {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const [
       heroSlidesData,

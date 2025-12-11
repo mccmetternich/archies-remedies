@@ -2,8 +2,12 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { siteSettings } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
+import { requireAuth } from '@/lib/api-auth';
 
 export async function GET() {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const [settings] = await db.select().from(siteSettings).limit(1);
 
@@ -32,6 +36,9 @@ export async function GET() {
 }
 
 export async function PUT(request: Request) {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const data = await request.json();
 

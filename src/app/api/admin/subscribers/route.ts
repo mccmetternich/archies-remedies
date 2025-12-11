@@ -3,9 +3,13 @@ import { db } from '@/lib/db';
 import { contacts, contactActivity } from '@/lib/db/schema';
 import { desc, eq, and, or, gte, sql, isNotNull, ne } from 'drizzle-orm';
 import { generateId } from '@/lib/utils';
+import { requireAuth } from '@/lib/api-auth';
 
 // GET /api/admin/subscribers - List all contacts with filtering
 export async function GET(request: Request) {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const { searchParams } = new URL(request.url);
     const type = searchParams.get('type'); // 'email' | 'sms' | 'all'
@@ -81,6 +85,9 @@ export async function GET(request: Request) {
 
 // POST /api/admin/subscribers - Create a new contact
 export async function POST(request: Request) {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const body = await request.json();
     const {

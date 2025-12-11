@@ -3,8 +3,12 @@ import { db } from '@/lib/db';
 import { pages } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { generateId } from '@/lib/utils';
+import { requireAuth } from '@/lib/api-auth';
 
 export async function GET() {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const data = await db.select().from(pages).orderBy(pages.title);
     return NextResponse.json(data);
@@ -15,6 +19,9 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const body = await request.json();
     const id = generateId();

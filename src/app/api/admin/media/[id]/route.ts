@@ -2,12 +2,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { mediaFiles } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
+import { requireAuth } from '@/lib/api-auth';
 
 interface Props {
   params: Promise<{ id: string }>;
 }
 
 export async function GET(request: NextRequest, { params }: Props) {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const { id } = await params;
 
@@ -34,6 +38,9 @@ export async function GET(request: NextRequest, { params }: Props) {
 }
 
 export async function PATCH(request: NextRequest, { params }: Props) {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const { id } = await params;
     const body = await request.json();
@@ -64,6 +71,9 @@ export async function PATCH(request: NextRequest, { params }: Props) {
 }
 
 export async function DELETE(request: NextRequest, { params }: Props) {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const { id } = await params;
 

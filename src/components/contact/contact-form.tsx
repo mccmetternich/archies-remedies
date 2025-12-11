@@ -1,10 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Send, CheckCircle2 } from 'lucide-react';
+import { Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { SuccessState } from '@/components/ui/success-state';
 
 export function ContactForm() {
   const [formData, setFormData] = useState({
@@ -43,25 +43,14 @@ export function ContactForm() {
 
   if (status === 'success') {
     return (
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="bg-green-50 rounded-2xl p-8 text-center"
-      >
-        <div className="w-16 h-16 rounded-full bg-green-500 flex items-center justify-center mx-auto mb-4">
-          <CheckCircle2 className="w-8 h-8 text-white" />
-        </div>
-        <h3 className="text-xl font-medium mb-2">Message Sent!</h3>
-        <p className="text-[var(--muted-foreground)]">
-          Thank you for reaching out. We&apos;ll get back to you as soon as possible.
-        </p>
-        <button
-          onClick={() => setStatus('idle')}
-          className="mt-6 text-sm text-[var(--foreground)] underline underline-offset-4 hover:text-[var(--primary-dark)]"
-        >
-          Send another message
-        </button>
-      </motion.div>
+      <div className="py-8">
+        <SuccessState
+          title="Message Sent!"
+          message="Thank you for reaching out. We'll get back to you as soon as possible."
+          onReset={() => setStatus('idle')}
+          resetText="Send another message"
+        />
+      </div>
     );
   }
 

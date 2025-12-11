@@ -3,11 +3,15 @@ import { db } from '@/lib/db';
 import { products, productVariants, productBenefits } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { generateId } from '@/lib/utils';
+import { requireAuth } from '@/lib/api-auth';
 
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   const { id } = await params;
 
   try {
@@ -40,6 +44,9 @@ export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   const { id } = await params;
 
   try {
@@ -107,6 +114,9 @@ export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   const { id } = await params;
 
   try {
@@ -131,6 +141,9 @@ export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   const { id } = await params;
 
   try {

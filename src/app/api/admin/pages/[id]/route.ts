@@ -2,11 +2,15 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { pages } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
+import { requireAuth } from '@/lib/api-auth';
 
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const { id } = await params;
     const [page] = await db.select().from(pages).where(eq(pages.id, id));
@@ -26,6 +30,9 @@ export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const { id } = await params;
     const body = await request.json();
@@ -61,6 +68,9 @@ export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const { id } = await params;
     const body = await request.json();
@@ -84,6 +94,9 @@ export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const { id } = await params;
     await db.delete(pages).where(eq(pages.id, id));

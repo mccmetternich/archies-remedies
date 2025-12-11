@@ -2,9 +2,13 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { blogTags } from '@/lib/db/schema';
 import { nanoid } from 'nanoid';
+import { requireAuth } from '@/lib/api-auth';
 
 // GET /api/admin/blog/tags - List all tags
 export async function GET() {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const tags = await db.select().from(blogTags);
     return NextResponse.json(tags);
@@ -16,6 +20,9 @@ export async function GET() {
 
 // POST /api/admin/blog/tags - Create a new tag
 export async function POST(request: Request) {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const body = await request.json();
     const id = nanoid();
