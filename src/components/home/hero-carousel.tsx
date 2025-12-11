@@ -172,32 +172,32 @@ export function HeroCarousel({ slides, isPaused = false }: HeroCarouselProps) {
                   {slide.subtitle || 'Preservative-free eye drops crafted for sensitive eyes. Feel the difference of truly clean ingredients.'}
                 </motion.p>
 
-                {/* CTA - Slick hover animations */}
+                {/* CTA - Simple buttons, no hover animations */}
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.4, duration: 0.6 }}
                   className="flex flex-wrap items-center gap-4"
                 >
-                  {/* Primary button - expands and changes to hex blue on hover */}
+                  {/* Primary button - dark bg, white text */}
                   {slide.buttonUrl && (
                     <Link
                       href={slide.buttonUrl}
-                      className="group inline-flex items-center gap-3 px-8 py-4 rounded-full text-lg font-semibold shadow-lg transition-all duration-500 ease-out bg-[#1a1a1a] text-white hover:bg-[#bbdae9] hover:text-[#1a1a1a] hover:px-12 hover:shadow-xl"
+                      className="inline-flex items-center gap-3 px-8 py-4 rounded-full text-lg font-semibold shadow-lg"
+                      style={{ backgroundColor: '#1a1a1a', color: '#ffffff' }}
                     >
                       {slide.buttonText || 'Shop Now'}
-                      <ArrowRight className="w-5 h-5 transition-transform duration-500 group-hover:translate-x-2" />
+                      <ArrowRight className="w-5 h-5" style={{ color: '#ffffff' }} />
                     </Link>
                   )}
-                  {/* Secondary button - text slides out, just arrow remains on hover */}
+                  {/* Secondary button - white bg, dark text */}
                   <Link
                     href={slide.secondaryButtonUrl || '/about'}
-                    className="group inline-flex items-center gap-3 px-6 py-4 rounded-full text-base font-semibold border-2 border-[#1a1a1a]/20 bg-white text-[#1a1a1a] transition-all duration-500 ease-out hover:bg-[#f5f5f5] hover:border-[#1a1a1a]/40 hover:gap-0 hover:pl-4 hover:pr-4 overflow-hidden"
+                    className="inline-flex items-center gap-3 px-6 py-4 rounded-full text-base font-semibold border-2"
+                    style={{ backgroundColor: '#ffffff', color: '#1a1a1a', borderColor: 'rgba(26,26,26,0.2)' }}
                   >
-                    <span className="transition-all duration-500 group-hover:opacity-0 group-hover:w-0 group-hover:-ml-2 whitespace-nowrap">
-                      {slide.secondaryButtonText || 'Learn More'}
-                    </span>
-                    <ArrowRight className="w-5 h-5 transition-all duration-500 group-hover:scale-125" />
+                    {slide.secondaryButtonText || 'Learn More'}
+                    <ArrowRight className="w-4 h-4" style={{ color: '#1a1a1a' }} />
                   </Link>
                 </motion.div>
               </motion.div>

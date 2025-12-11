@@ -233,14 +233,15 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                 </Link>
               )}
 
-              {/* CTA Button - Dark default, hex blue on hover */}
+              {/* CTA Button - Dark bg, white text, no hover animation */}
               {ctaEnabled && (
                 <Link
                   href={ctaUrl}
-                  className="group inline-flex items-center gap-3 px-8 py-4 rounded-full text-base font-semibold transition-all duration-300 shadow-lg hover:shadow-xl bg-[#1a1a1a] text-white hover:bg-[#bbdae9] hover:text-[#1a1a1a]"
+                  className="inline-flex items-center gap-3 px-8 py-4 rounded-full text-base font-semibold shadow-lg"
+                  style={{ backgroundColor: '#1a1a1a', color: '#ffffff' }}
                 >
                   {ctaText}
-                  <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+                  <ArrowRight className="w-5 h-5" style={{ color: '#ffffff' }} />
                 </Link>
               )}
             </div>
