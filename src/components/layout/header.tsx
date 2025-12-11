@@ -144,21 +144,21 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
 
       <header
         className={cn(
-          'lg:fixed left-0 right-0 z-50 bg-white shadow-[0_8px_30px_rgba(0,0,0,0.12)] py-5',
+          'lg:fixed left-0 right-0 lg:z-50 bg-white shadow-[0_8px_30px_rgba(0,0,0,0.12)] py-5',
           showBumper ? 'lg:top-[44px]' : 'lg:top-0'
         )}
       >
         <nav className="container">
-          {/* Nav row - z-[70] ensures nav items float above the dropdown (z-50) */}
+          {/* Nav row - lg:z-[70] ensures nav items float above the dropdown (z-50) on desktop only */}
           <div className={cn(
-            "flex items-center relative z-[70]",
+            "flex items-center relative lg:z-[70]",
             logoPosition === 'center' ? 'lg:justify-between' : 'justify-between'
           )}>
             {/* Mobile Menu Button - Left side on mobile */}
             <button
               onClick={() => setIsOpen(!isOpen)}
               className={cn(
-                "lg:hidden p-2 -ml-2 rounded-full hover:bg-[var(--sand)] transition-colors relative z-10",
+                "lg:hidden p-2 -ml-2 rounded-full hover:bg-[var(--sand)] transition-colors",
                 logoPositionMobile === 'center' ? 'order-first' : 'order-last'
               )}
               aria-label="Toggle menu"
@@ -170,7 +170,7 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
             <Link
               href="/"
               className={cn(
-                "flex items-center relative z-10",
+                "flex items-center lg:relative lg:z-10",
                 // Mobile positioning
                 logoPositionMobile === 'center' ? 'flex-1 justify-center lg:flex-none lg:justify-start' : '',
                 // Desktop positioning
