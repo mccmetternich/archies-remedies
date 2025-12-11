@@ -257,14 +257,39 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                                 className="group/tile block p-5 pl-0 rounded-2xl bg-white hover:shadow-md hover:bg-[var(--cream)] transition-all duration-300"
                               >
                                 <div className="relative mb-4">
-                                  <div className="aspect-square w-full rounded-xl overflow-hidden bg-[var(--cream)]">
+                                  <div className="aspect-square w-full rounded-xl overflow-hidden bg-[var(--cream)] relative">
+                                    {/* Primary Image - visible by default, hidden on hover if there's a hover media */}
                                     <Image
                                       src={globalNav?.tile1ImageUrl || tile1Product.heroImageUrl || PRODUCT_IMAGES['eye-drops']}
                                       alt={globalNav?.tile1Title || tile1Product.name}
                                       width={400}
                                       height={400}
-                                      className="w-full h-full object-cover group-hover/tile:scale-105 transition-transform duration-300"
+                                      className={cn(
+                                        "w-full h-full object-cover transition-opacity duration-300",
+                                        globalNav?.tile1HoverImageUrl ? "group-hover/tile:opacity-0" : "group-hover/tile:scale-105"
+                                      )}
                                     />
+                                    {/* Hover Media - video or image, shown on hover */}
+                                    {globalNav?.tile1HoverImageUrl && (
+                                      globalNav.tile1HoverImageUrl.match(/\.(mp4|webm|mov)$/i) ? (
+                                        <video
+                                          src={globalNav.tile1HoverImageUrl}
+                                          autoPlay
+                                          loop
+                                          muted
+                                          playsInline
+                                          className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover/tile:opacity-100 transition-opacity duration-300"
+                                        />
+                                      ) : (
+                                        <Image
+                                          src={globalNav.tile1HoverImageUrl}
+                                          alt=""
+                                          width={400}
+                                          height={400}
+                                          className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover/tile:opacity-100 transition-opacity duration-300"
+                                        />
+                                      )
+                                    )}
                                   </div>
                                   {(globalNav?.tile1Badge || globalNav?.tile1BadgeEmoji) && (
                                     <span className="absolute top-3 right-3 text-xs px-2.5 py-1 bg-[var(--foreground)] text-white rounded-full font-medium flex items-center gap-1">
@@ -297,14 +322,39 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                                 className="group/tile block p-5 pl-0 rounded-2xl bg-white hover:shadow-md hover:bg-[var(--cream)] transition-all duration-300"
                               >
                                 <div className="relative mb-4">
-                                  <div className="aspect-square w-full rounded-xl overflow-hidden bg-[var(--cream)]">
+                                  <div className="aspect-square w-full rounded-xl overflow-hidden bg-[var(--cream)] relative">
+                                    {/* Primary Image - visible by default, hidden on hover if there's a hover media */}
                                     <Image
                                       src={globalNav?.tile2ImageUrl || tile2Product.heroImageUrl || PRODUCT_IMAGES['eye-wipes']}
                                       alt={globalNav?.tile2Title || tile2Product.name}
                                       width={400}
                                       height={400}
-                                      className="w-full h-full object-cover group-hover/tile:scale-105 transition-transform duration-300"
+                                      className={cn(
+                                        "w-full h-full object-cover transition-opacity duration-300",
+                                        globalNav?.tile2HoverImageUrl ? "group-hover/tile:opacity-0" : "group-hover/tile:scale-105"
+                                      )}
                                     />
+                                    {/* Hover Media - video or image, shown on hover */}
+                                    {globalNav?.tile2HoverImageUrl && (
+                                      globalNav.tile2HoverImageUrl.match(/\.(mp4|webm|mov)$/i) ? (
+                                        <video
+                                          src={globalNav.tile2HoverImageUrl}
+                                          autoPlay
+                                          loop
+                                          muted
+                                          playsInline
+                                          className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover/tile:opacity-100 transition-opacity duration-300"
+                                        />
+                                      ) : (
+                                        <Image
+                                          src={globalNav.tile2HoverImageUrl}
+                                          alt=""
+                                          width={400}
+                                          height={400}
+                                          className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover/tile:opacity-100 transition-opacity duration-300"
+                                        />
+                                      )
+                                    )}
                                   </div>
                                   {(globalNav?.tile2Badge || globalNav?.tile2BadgeEmoji) && (
                                     <span className="absolute top-3 right-3 text-xs px-2.5 py-1 bg-[var(--primary)] text-[var(--foreground)] rounded-full font-medium flex items-center gap-1">
