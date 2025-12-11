@@ -470,11 +470,13 @@ a {
 }
 
 /* Container - Generous Spacing */
-/* Using explicit padding-left/right to allow Tailwind vertical padding utilities to work */
+/* Using explicit padding and margin properties to allow Tailwind utilities to work */
+/* Shorthand like 'margin: 0 auto' or 'padding: 0 1.5rem' sets ALL values, overriding Tailwind */
 .container {
   width: 100%;
   max-width: 1440px;
-  margin: 0 auto;
+  margin-left: auto;
+  margin-right: auto;
   padding-left: 1.5rem;
   padding-right: 1.5rem;
 }
