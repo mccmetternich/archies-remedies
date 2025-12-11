@@ -319,8 +319,8 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                           </div>
                         </div>
 
-                        {/* Clean Formulas - Compact tile */}
-                        <div className="lg:col-span-4 relative">
+                        {/* Clean Formulas - Compact tile, moved up 60px from bottom */}
+                        <div className="lg:col-span-4 relative mb-[60px]">
                           {/* Rotating Badge */}
                           {globalNav?.cleanFormulasBadgeEnabled && globalNav?.cleanFormulasBadgeUrl && (
                             <div className="absolute -top-4 -right-4 w-20 h-20 z-10">
