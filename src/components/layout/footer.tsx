@@ -453,8 +453,8 @@ export function Footer({
               alt=""
               width={2400}
               height={500}
-              className="w-[120vw] max-w-none object-contain opacity-15 brightness-0 invert"
-              style={{ marginLeft: '-10vw', marginRight: '-10vw' }}
+              className="w-[108vw] max-w-none object-contain opacity-15 brightness-0 invert"
+              style={{ marginLeft: '-4vw', marginRight: '-4vw' }}
               priority={false}
             />
           </div>
