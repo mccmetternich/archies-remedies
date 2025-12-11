@@ -236,8 +236,8 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                 >
 
                   <div className="relative z-50 w-full bg-white shadow-[0_20px_40px_rgba(0,0,0,0.15)]">
-                    {/* Shelf container with generous padding */}
-                    <div className="container py-8 pb-12">
+                    {/* Shelf container with generous padding - pt-10 ensures tiles aren't cut off */}
+                    <div className="container pt-10 pb-12">
                       {/* Content grid - top aligned within the fixed shelf */}
                       <div className="grid lg:grid-cols-12 gap-8 items-start">
                         {/* Product tiles - 2 columns */}
@@ -437,126 +437,148 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
 
       </header>
 
-      {/* Mobile Menu */}
+      {/* Mobile Menu - Full screen overlay to cover header */}
       <AnimatePresence>
         {isOpen && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm lg:hidden"
-              onClick={() => setIsOpen(false)}
-            />
-            <motion.div
-              initial={{ x: '100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '100%' }}
-              transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-              className="fixed right-0 top-0 bottom-0 z-50 w-full max-w-sm bg-white shadow-2xl lg:hidden"
-            >
-              <div className="flex flex-col h-full">
-                {/* Close button - top right */}
-                <div className="flex justify-end p-4">
-                  <button
-                    onClick={() => setIsOpen(false)}
-                    className="p-2 rounded-full hover:bg-[var(--sand)] transition-colors"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
-                </div>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            className="fixed inset-0 z-[60] bg-white lg:hidden"
+          >
+            <div className="flex flex-col h-full">
+              {/* Close button - top right */}
+              <div className="flex justify-end p-4">
+                <button
+                  onClick={() => setIsOpen(false)}
+                  className="p-2 rounded-full hover:bg-[var(--sand)] transition-colors"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
 
-                <div className="flex-1 overflow-auto px-6 pb-6">
-                  <nav className="space-y-8">
-                    {/* Products */}
-                    <div>
-                      <h3 className="text-xs font-semibold tracking-[0.2em] uppercase text-[var(--muted-foreground)] mb-4">
-                        Shop
-                      </h3>
-                      <div className="space-y-3">
-                        {tile1Product && (
-                          <Link
-                            href={`/products/${tile1Product.slug}`}
-                            onClick={() => setIsOpen(false)}
-                            className="flex items-center gap-4 p-4 rounded-xl bg-[var(--cream)] hover:bg-[var(--sand)] transition-colors"
-                          >
-                            <div className="w-14 h-14 rounded-lg bg-white overflow-hidden">
-                              <Image
-                                src={tile1Product.heroImageUrl || PRODUCT_IMAGES['eye-drops']}
-                                alt={tile1Product.name}
-                                width={56}
-                                height={56}
-                                className="w-full h-full object-cover"
-                              />
-                            </div>
-                            <div className="flex-1">
-                              <p className="font-medium">{globalNav?.tile1Title || tile1Product.name}</p>
-                              <p className="text-xs text-[var(--muted-foreground)]">{globalNav?.tile1Subtitle || 'Preservative-free relief'}</p>
-                            </div>
-                            <ArrowRight className="w-4 h-4 text-[var(--muted-foreground)]" />
-                          </Link>
-                        )}
-                        {tile2Product && (
-                          <Link
-                            href={`/products/${tile2Product.slug}`}
-                            onClick={() => setIsOpen(false)}
-                            className="flex items-center gap-4 p-4 rounded-xl bg-[var(--cream)] hover:bg-[var(--sand)] transition-colors"
-                          >
-                            <div className="w-14 h-14 rounded-lg bg-white overflow-hidden">
-                              <Image
-                                src={tile2Product.heroImageUrl || PRODUCT_IMAGES['eye-wipes']}
-                                alt={tile2Product.name}
-                                width={56}
-                                height={56}
-                                className="w-full h-full object-cover"
-                              />
-                            </div>
-                            <div className="flex-1">
-                              <p className="font-medium">{globalNav?.tile2Title || tile2Product.name}</p>
-                              <p className="text-xs text-[var(--muted-foreground)]">{globalNav?.tile2Subtitle || 'Gentle daily cleansing'}</p>
-                            </div>
-                            <ArrowRight className="w-4 h-4 text-[var(--muted-foreground)]" />
-                          </Link>
-                        )}
-                      </div>
+              <div className="flex-1 overflow-auto px-6 pb-6">
+                <nav className="space-y-6">
+                  {/* Products */}
+                  <div>
+                    <h3 className="text-xs font-semibold tracking-[0.2em] uppercase text-[var(--muted-foreground)] mb-4">
+                      Shop
+                    </h3>
+                    <div className="space-y-3">
+                      {tile1Product && (
+                        <Link
+                          href={`/products/${tile1Product.slug}`}
+                          onClick={() => setIsOpen(false)}
+                          className="flex items-center gap-4 p-4 rounded-xl bg-[var(--cream)] hover:bg-[var(--sand)] transition-colors"
+                        >
+                          <div className="w-14 h-14 rounded-lg bg-white overflow-hidden">
+                            <Image
+                              src={tile1Product.heroImageUrl || PRODUCT_IMAGES['eye-drops']}
+                              alt={tile1Product.name}
+                              width={56}
+                              height={56}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          <div className="flex-1">
+                            <p className="font-medium">{globalNav?.tile1Title || tile1Product.name}</p>
+                            <p className="text-xs text-[var(--muted-foreground)]">{globalNav?.tile1Subtitle || 'Preservative-free relief'}</p>
+                          </div>
+                          <ArrowRight className="w-4 h-4 text-[var(--muted-foreground)]" />
+                        </Link>
+                      )}
+                      {tile2Product && (
+                        <Link
+                          href={`/products/${tile2Product.slug}`}
+                          onClick={() => setIsOpen(false)}
+                          className="flex items-center gap-4 p-4 rounded-xl bg-[var(--cream)] hover:bg-[var(--sand)] transition-colors"
+                        >
+                          <div className="w-14 h-14 rounded-lg bg-white overflow-hidden">
+                            <Image
+                              src={tile2Product.heroImageUrl || PRODUCT_IMAGES['eye-wipes']}
+                              alt={tile2Product.name}
+                              width={56}
+                              height={56}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          <div className="flex-1">
+                            <p className="font-medium">{globalNav?.tile2Title || tile2Product.name}</p>
+                            <p className="text-xs text-[var(--muted-foreground)]">{globalNav?.tile2Subtitle || 'Gentle daily cleansing'}</p>
+                          </div>
+                          <ArrowRight className="w-4 h-4 text-[var(--muted-foreground)]" />
+                        </Link>
+                      )}
                     </div>
+                  </div>
 
-                    {/* Page Links - same as desktop nav */}
-                    {activeNavPages.length > 0 && (
-                      <div className="space-y-1">
-                        {activeNavPages.map((page) => (
-                          <Link
-                            key={page.id}
-                            href={`/${page.slug}`}
-                            onClick={() => setIsOpen(false)}
-                            className="flex items-center justify-between py-4 border-b border-[var(--border-light)] hover:text-[var(--muted-foreground)] transition-colors"
-                          >
-                            <span className="text-lg">{page.title}</span>
-                            <ArrowRight className="w-4 h-4" />
-                          </Link>
+                  {/* Page Links - same as desktop nav */}
+                  {activeNavPages.length > 0 && (
+                    <div className="space-y-1">
+                      {activeNavPages.map((page) => (
+                        <Link
+                          key={page.id}
+                          href={`/${page.slug}`}
+                          onClick={() => setIsOpen(false)}
+                          className="flex items-center justify-between py-4 border-b border-[var(--border-light)] hover:text-[var(--muted-foreground)] transition-colors"
+                        >
+                          <span className="text-lg">{page.title}</span>
+                          <ArrowRight className="w-4 h-4" />
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Mobile Clean Formulas Module - Compact */}
+                  <div className="p-4 rounded-xl bg-[var(--primary-light)]">
+                    <div className="flex items-start gap-3">
+                      <div className="flex-1">
+                        <p className="font-medium text-sm mb-1">{cleanFormulasTitle}</p>
+                        <p className="text-xs text-[var(--muted-foreground)] leading-relaxed">
+                          {cleanFormulasDescription}
+                        </p>
+                      </div>
+                      <div className="flex gap-0.5 flex-shrink-0">
+                        {[1, 2, 3, 4, 5].map((i) => (
+                          <Star key={i} className="w-3 h-3 fill-[var(--primary)] text-[var(--primary)]" />
                         ))}
                       </div>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5 mt-3">
+                      <span className="text-[10px] px-2 py-0.5 bg-white rounded-full">Preservative-Free</span>
+                      <span className="text-[10px] px-2 py-0.5 bg-white rounded-full">Paraben-Free</span>
+                      <span className="text-[10px] px-2 py-0.5 bg-white rounded-full">Sulfate-Free</span>
+                    </div>
+                    {globalNav?.cleanFormulasCtaEnabled && globalNav?.cleanFormulasCtaText && globalNav?.cleanFormulasCtaUrl && (
+                      <Link
+                        href={globalNav.cleanFormulasCtaUrl}
+                        onClick={() => setIsOpen(false)}
+                        className="inline-flex items-center gap-1.5 mt-3 text-xs font-medium text-[var(--foreground)] hover:text-[var(--muted-foreground)] transition-colors"
+                      >
+                        {globalNav.cleanFormulasCtaText}
+                        <ArrowRight className="w-3 h-3" />
+                      </Link>
                     )}
-                  </nav>
-                </div>
-
-                {/* Bottom CTA */}
-                {ctaEnabled && (
-                  <div className="p-6 border-t border-[var(--border-light)] bg-[var(--cream)]">
-                    <Link
-                      href={ctaUrl}
-                      onClick={() => setIsOpen(false)}
-                      className="cta-button-primary w-full justify-center"
-                    >
-                      {ctaText}
-                      <ArrowRight className="w-4 h-4" />
-                    </Link>
                   </div>
-                )}
+                </nav>
               </div>
-            </motion.div>
-          </>
+
+              {/* Bottom CTA */}
+              {ctaEnabled && (
+                <div className="p-6 border-t border-[var(--border-light)] bg-[var(--cream)]">
+                  <Link
+                    href={ctaUrl}
+                    onClick={() => setIsOpen(false)}
+                    className="cta-button-primary w-full justify-center"
+                  >
+                    {ctaText}
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
+                </div>
+              )}
+            </div>
+          </motion.div>
         )}
       </AnimatePresence>
 
