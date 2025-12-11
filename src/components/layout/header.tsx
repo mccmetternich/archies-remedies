@@ -158,9 +158,8 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
 
       <header
         className={cn(
-          'lg:fixed left-0 right-0 z-50 bg-white shadow-[0_4px_20px_rgba(0,0,0,0.1)]',
-          showBumper ? 'lg:top-[44px]' : 'lg:top-0',
-          isScrolled ? 'py-4' : 'py-5'
+          'lg:fixed left-0 right-0 z-50 bg-white shadow-[0_4px_20px_rgba(0,0,0,0.1)] py-5',
+          showBumper ? 'lg:top-[44px]' : 'lg:top-0'
         )}
       >
         <nav className="container">
@@ -577,9 +576,7 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
       {/* Spacer for fixed header + bumper - only on desktop */}
       <div className={cn(
         'hidden lg:block',
-        showBumper
-          ? (isScrolled ? 'h-[120px]' : 'h-[135px]')
-          : (isScrolled ? 'h-[80px]' : 'h-[95px]')
+        showBumper ? 'h-[135px]' : 'h-[95px]'
       )} />
     </>
   );
