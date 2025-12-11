@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { db, contactSubmissions } from '@/lib/db';
+import { db, contactSubmissions, contacts } from '@/lib/db';
+import { eq } from 'drizzle-orm';
 import { generateId } from '@/lib/utils';
 import { contactFormSchema, validateRequest } from '@/lib/validations';
 import { rateLimit, getClientIP, RATE_LIMITS } from '@/lib/rate-limit';
@@ -38,17 +39,45 @@ export async function POST(request: Request) {
     const resolvedFirstName = firstName || name?.split(' ')[0] || '';
     const resolvedLastName = lastName || name?.split(' ').slice(1).join(' ') || '';
     const fullName = name || `${resolvedFirstName} ${resolvedLastName}`.trim();
+    const normalizedEmail = email.toLowerCase();
 
-    // Insert contact submission
+    // Find or create contact
+    let contactId: string | null = null;
+
+    // Check if contact with this email already exists
+    const existingContact = await db
+      .select({ id: contacts.id })
+      .from(contacts)
+      .where(eq(contacts.email, normalizedEmail))
+      .limit(1);
+
+    if (existingContact.length > 0) {
+      // Use existing contact
+      contactId = existingContact[0].id;
+    } else {
+      // Create new contact
+      contactId = generateId();
+      await db.insert(contacts).values({
+        id: contactId,
+        email: normalizedEmail,
+        firstName: resolvedFirstName || null,
+        lastName: resolvedLastName || null,
+        source: 'contact_form',
+        emailStatus: 'active',
+      });
+    }
+
+    // Insert contact submission with link to contact
     await db.insert(contactSubmissions).values({
       id: generateId(),
       firstName: resolvedFirstName,
       lastName: resolvedLastName || null,
       name: fullName,
-      email: email.toLowerCase(),
+      email: normalizedEmail,
       subject: subject || null,
       message,
       isRead: false,
+      contactId,
     });
 
     return NextResponse.json(

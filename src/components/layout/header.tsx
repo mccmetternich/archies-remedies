@@ -179,25 +179,24 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
 
                 {/* Mega Nav Dropdown - CSS transitions, no Framer Motion */}
                 <div
-                  className="absolute top-full left-1/2 -translate-x-1/2 w-screen max-w-[1200px] opacity-0 invisible translate-y-2 group-hover/shop:opacity-100 group-hover/shop:visible group-hover/shop:translate-y-0 transition-all duration-300 ease-out pointer-events-none group-hover/shop:pointer-events-auto"
-                  style={{ marginLeft: 'calc(-600px + 50%)' }}
+                  className="fixed top-[139px] left-0 right-0 flex justify-center opacity-0 invisible translate-y-2 group-hover/shop:opacity-100 group-hover/shop:visible group-hover/shop:translate-y-0 transition-all duration-300 ease-out pointer-events-none group-hover/shop:pointer-events-auto"
                 >
                   {/* Shadow mask - covers header shadow at join point */}
-                  <div className="absolute -top-2 left-0 right-0 h-4 bg-white z-40" />
+                  <div className="absolute -top-6 left-0 right-0 h-10 bg-white z-[60]" />
 
-                  <div className="relative z-50 bg-white shadow-[0_20px_40px_rgba(0,0,0,0.15)] rounded-b-2xl">
-                    {/* Fixed height shelf container with generous bottom padding */}
-                    <div className="container min-h-[480px] py-10 pb-20">
+                  <div className="relative z-50 w-full max-w-[1200px] bg-white shadow-[0_20px_40px_rgba(0,0,0,0.15)] rounded-b-2xl">
+                    {/* Shelf container with generous bottom padding */}
+                    <div className="px-8 py-10 pb-16">
                       {/* Content grid - top aligned within the fixed shelf */}
                       <div className="grid lg:grid-cols-12 gap-8 items-start">
                         {/* Product tiles - 2 columns */}
                         <div className="lg:col-span-8">
-                          <div className="grid md:grid-cols-2 gap-6 mb-8">
+                          <div className="grid md:grid-cols-2 gap-6 mb-12">
                             {/* Product Tile 1 */}
                             {tile1Product && (
                               <Link
                                 href={`/products/${tile1Product.slug}`}
-                                className="group/tile block p-5 rounded-2xl bg-white shadow-sm hover:shadow-md hover:bg-[var(--cream)] transition-all duration-500"
+                                className="group/tile block p-5 rounded-2xl bg-white hover:shadow-md hover:bg-[var(--cream)] transition-all duration-300"
                               >
                                 <div className="relative mb-4">
                                   <div className="aspect-square w-full rounded-xl overflow-hidden bg-[var(--cream)]">
@@ -206,7 +205,7 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                                       alt={globalNav?.tile1Title || tile1Product.name}
                                       width={400}
                                       height={400}
-                                      className="w-full h-full object-cover group-hover/tile:scale-105 transition-transform duration-700"
+                                      className="w-full h-full object-cover group-hover/tile:scale-105 transition-transform duration-300"
                                     />
                                   </div>
                                   {(globalNav?.tile1Badge || globalNav?.tile1BadgeEmoji) && (
@@ -237,7 +236,7 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                             {tile2Product && (
                               <Link
                                 href={`/products/${tile2Product.slug}`}
-                                className="group/tile block p-5 rounded-2xl bg-white shadow-sm hover:shadow-md hover:bg-[var(--cream)] transition-all duration-500"
+                                className="group/tile block p-5 rounded-2xl bg-white hover:shadow-md hover:bg-[var(--cream)] transition-all duration-300"
                               >
                                 <div className="relative mb-4">
                                   <div className="aspect-square w-full rounded-xl overflow-hidden bg-[var(--cream)]">
@@ -246,7 +245,7 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                                       alt={globalNav?.tile2Title || tile2Product.name}
                                       width={400}
                                       height={400}
-                                      className="w-full h-full object-cover group-hover/tile:scale-105 transition-transform duration-700"
+                                      className="w-full h-full object-cover group-hover/tile:scale-105 transition-transform duration-300"
                                     />
                                   </div>
                                   {(globalNav?.tile2Badge || globalNav?.tile2BadgeEmoji) && (
@@ -370,11 +369,11 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                 </Link>
               )}
 
-              {/* CTA Button - Dark bg, white text, hex blue on hover */}
+              {/* CTA Button - Uses definitive CSS class to avoid Tailwind v4 color issues */}
               {ctaEnabled && (
                 <Link
                   href={ctaUrl}
-                  className="group inline-flex items-center gap-3 px-8 py-4 rounded-full text-base font-semibold shadow-lg transition-all duration-300 hover:shadow-xl bg-[#1a1a1a] hover:bg-[#bbdae9] text-white hover:text-[#1a1a1a]"
+                  className="cta-button-primary group"
                 >
                   {ctaText}
                   <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />

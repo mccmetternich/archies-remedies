@@ -166,11 +166,11 @@ export function HeroCarousel({ slides, isPaused = false }: HeroCarouselProps) {
                   transition={{ delay: 0.4, duration: 0.6 }}
                   className="flex flex-wrap items-center gap-4"
                 >
-                  {/* Primary button - dark bg, white text, hex blue on hover */}
+                  {/* Primary button - Uses definitive CSS class to avoid Tailwind v4 color issues */}
                   {slide.buttonUrl && (
                     <Link
                       href={slide.buttonUrl}
-                      className="group inline-flex items-center gap-3 px-8 py-4 rounded-full text-lg font-semibold shadow-lg transition-all duration-300 hover:shadow-xl bg-[#1a1a1a] hover:bg-[#bbdae9] text-white hover:text-[#1a1a1a]"
+                      className="cta-button-primary cta-button-primary-lg group"
                     >
                       {slide.buttonText || 'Shop Now'}
                       <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />

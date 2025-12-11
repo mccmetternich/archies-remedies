@@ -350,6 +350,8 @@ export const contactSubmissions = sqliteTable('contact_submissions', {
   message: text('message').notNull(),
   status: text('status').default('new'), // new, pending, resolved
   isRead: integer('is_read', { mode: 'boolean' }).default(false),
+  // Link to unified contacts table for viewing contact history
+  contactId: text('contact_id'),
 
   createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
 });
