@@ -303,7 +303,7 @@ function AdminLayoutInner({ children, unreadMessages = 0 }: AdminLayoutProps) {
                         />
                         <span className="flex-1">{item.label}</span>
                         {item.badge !== undefined && item.badge > 0 && (
-                          <span className="min-w-[20px] h-5 px-1.5 text-xs font-medium rounded-full bg-[#3b82f6] text-white flex items-center justify-center">
+                          <span className="min-w-[20px] h-5 px-1.5 text-xs font-medium rounded-full bg-[#bbdae9] text-[#1a1a1a] flex items-center justify-center">
                             {item.badge}
                           </span>
                         )}

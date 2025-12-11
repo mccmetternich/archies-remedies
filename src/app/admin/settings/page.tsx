@@ -1059,7 +1059,7 @@ function ComingSoonTab({
         <div className="p-6 bg-[var(--admin-bg)] rounded-xl border border-[var(--admin-border)]">
           <h3 className="font-medium text-[var(--admin-text-primary)] mb-4">Preview Access</h3>
           <p className="text-sm text-[var(--admin-text-secondary)] mb-4">
-            Preview the full site while in Coming Soon mode. Access lasts until you close your browser. To see what visitors see, open a new incognito/private window.
+            Preview the full site while in Coming Soon mode. Preview links are shareable and expire after 24 hours. To see what visitors see, open a new incognito/private window.
           </p>
           <div className="flex gap-3">
             <button

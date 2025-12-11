@@ -1,20 +1,63 @@
-import { db } from '@/lib/db';
-import { products } from '@/lib/db/schema';
+'use client';
+
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Package, Plus, Eye, EyeOff, ExternalLink, DollarSign } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Package, Plus, Eye, EyeOff, ExternalLink, DollarSign, Loader2 } from 'lucide-react';
 
-export const dynamic = 'force-dynamic';
-
-async function getProducts() {
-  return db.select().from(products).orderBy(products.sortOrder);
+interface Product {
+  id: string;
+  slug: string;
+  name: string;
+  price: number | null;
+  heroImageUrl: string | null;
+  isActive: boolean;
+  sortOrder: number;
 }
 
-export default async function ProductsPage() {
-  const productList = await getProducts();
+export default function ProductsPage() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const activeCount = productList.filter((p) => p.isActive).length;
-  const draftCount = productList.filter((p) => !p.isActive).length;
+  useEffect(() => {
+    fetch('/api/admin/products')
+      .then(res => res.json())
+      .then(data => {
+        setProducts(data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error('Failed to fetch products:', err);
+        setLoading(false);
+      });
+  }, []);
+
+  const activeCount = products.filter((p) => p.isActive).length;
+  const draftCount = products.filter((p) => !p.isActive).length;
+
+  const handlePreview = async (product: Product) => {
+    const baseUrl = `/products/${product.slug}`;
+    if (!product.isActive) {
+      try {
+        const res = await fetch('/api/admin/preview', { method: 'POST' });
+        const data = await res.json();
+        if (res.ok && data.token) {
+          window.open(`${baseUrl}?token=${data.token}`, '_blank');
+          return;
+        }
+      } catch (error) {
+        console.error('Failed to generate preview token:', error);
+      }
+    }
+    window.open(baseUrl, '_blank');
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="w-8 h-8 animate-spin text-[var(--primary)]" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -44,7 +87,7 @@ export default async function ProductsPage() {
               <Package className="w-4 h-4 sm:w-5 sm:h-5 text-[var(--admin-text-secondary)]" />
             </div>
             <div className="min-w-0">
-              <p className="text-lg sm:text-2xl font-semibold text-[var(--admin-text-primary)]">{productList.length}</p>
+              <p className="text-lg sm:text-2xl font-semibold text-[var(--admin-text-primary)]">{products.length}</p>
               <p className="text-xs sm:text-sm text-[var(--admin-text-muted)]">Total</p>
             </div>
           </div>
@@ -73,12 +116,12 @@ export default async function ProductsPage() {
         </div>
         <div className="bg-[var(--admin-input)] rounded-xl border border-[var(--admin-border)] p-3 sm:p-5">
           <div className="flex items-center gap-2 sm:gap-3">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-blue-500/10 flex items-center justify-center shrink-0">
-              <DollarSign className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400" />
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-[var(--primary)]/10 flex items-center justify-center shrink-0">
+              <DollarSign className="w-4 h-4 sm:w-5 sm:h-5 text-[var(--primary)]" />
             </div>
             <div className="min-w-0">
               <p className="text-lg sm:text-2xl font-semibold text-[var(--admin-text-primary)]">
-                {productList.filter((p) => p.price).length}
+                {products.filter((p) => p.price).length}
               </p>
               <p className="text-xs sm:text-sm text-[var(--admin-text-muted)]">Priced</p>
             </div>
@@ -93,14 +136,14 @@ export default async function ProductsPage() {
             <Package className="w-4 h-4 sm:w-5 sm:h-5 text-[var(--primary)]" />
             <span className="font-medium text-[var(--admin-text-primary)] text-sm sm:text-base">All Products</span>
             <span className="px-2 py-0.5 text-xs bg-[var(--admin-input)] text-[var(--admin-text-secondary)] rounded-full">
-              {productList.length}
+              {products.length}
             </span>
           </div>
         </div>
 
-        {productList.length > 0 ? (
+        {products.length > 0 ? (
           <div className="divide-y divide-[var(--admin-border)]">
-            {productList.map((product) => (
+            {products.map((product) => (
               <Link
                 key={product.id}
                 href={`/admin/products/${product.id}`}
@@ -158,15 +201,16 @@ export default async function ProductsPage() {
                   </span>
 
                   {/* Preview */}
-                  <a
-                    href={`/products/${product.slug}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={(e) => e.stopPropagation()}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      handlePreview(product);
+                    }}
                     className="p-2 rounded-lg text-[var(--admin-text-muted)] hover:text-[var(--admin-text-secondary)] hover:bg-[var(--admin-input)] transition-colors"
                   >
                     <ExternalLink className="w-4 h-4" />
-                  </a>
+                  </button>
                 </div>
               </Link>
             ))}
