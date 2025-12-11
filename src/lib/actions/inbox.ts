@@ -34,3 +34,27 @@ export async function markMessageAsRead(messageId: string) {
     return { success: false, error: 'Failed to mark message as read' };
   }
 }
+
+/**
+ * Server action to mark a message as unread and refresh the inbox count.
+ */
+export async function markMessageAsUnread(messageId: string) {
+  try {
+    const { db } = await import('@/lib/db');
+    const { contactSubmissions } = await import('@/lib/db/schema');
+    const { eq } = await import('drizzle-orm');
+
+    await db
+      .update(contactSubmissions)
+      .set({ isRead: false })
+      .where(eq(contactSubmissions.id, messageId));
+
+    // Revalidate the admin layout to update sidebar count
+    revalidatePath('/admin', 'layout');
+
+    return { success: true };
+  } catch (error) {
+    console.error('Failed to mark message as unread:', error);
+    return { success: false, error: 'Failed to mark message as unread' };
+  }
+}

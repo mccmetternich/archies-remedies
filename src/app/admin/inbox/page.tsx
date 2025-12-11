@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, Suspense, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { markMessageAsRead as markMessageAsReadAction } from '@/lib/actions/inbox';
+import { markMessageAsRead as markMessageAsReadAction, markMessageAsUnread as markMessageAsUnreadAction } from '@/lib/actions/inbox';
 import {
   Inbox,
   Mail,
@@ -97,6 +97,29 @@ function InboxContent() {
       }
     } catch (error) {
       console.error('Failed to mark as read:', error);
+    }
+  };
+
+  const markAsUnread = async (id: string) => {
+    try {
+      const result = await markMessageAsUnreadAction(id);
+
+      if (result.success) {
+        setMessages(prev => prev.map(m =>
+          m.id === id ? { ...m, isRead: false } : m
+        ));
+        if (selectedMessage?.id === id) {
+          setSelectedMessage(prev => prev ? { ...prev, isRead: false } : null);
+        }
+        // Remove from viewed set so it shows as truly unread
+        setViewedNewMessageIds(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(id);
+          return newSet;
+        });
+      }
+    } catch (error) {
+      console.error('Failed to mark as unread:', error);
     }
   };
 
@@ -370,7 +393,7 @@ function InboxContent() {
                     {selectedMessage.contactId && (
                       <Link
                         href={`/admin/contacts/${selectedMessage.contactId}`}
-                        className="inline-flex items-center gap-2 px-3 py-2 text-sm bg-[var(--admin-bg)] text-[var(--admin-text-secondary)] rounded-lg hover:bg-[var(--admin-border)] transition-colors"
+                        className="inline-flex items-center gap-2 px-3 py-2 text-sm border border-[var(--admin-border)] text-[var(--admin-text-primary)] rounded-lg hover:bg-[var(--admin-hover)] transition-colors"
                       >
                         <User className="w-4 h-4" />
                         View Contact
@@ -383,9 +406,19 @@ function InboxContent() {
                       <Reply className="w-4 h-4" />
                       Reply
                     </a>
+                    {selectedMessage.isRead && (
+                      <button
+                        onClick={() => markAsUnread(selectedMessage.id)}
+                        className="p-2 text-[var(--admin-text-muted)] hover:text-[var(--primary)] hover:bg-[var(--primary)]/10 rounded-lg transition-colors"
+                        title="Mark as unread"
+                      >
+                        <Mail className="w-4 h-4" />
+                      </button>
+                    )}
                     <button
                       onClick={() => deleteMessage(selectedMessage.id)}
                       className="p-2 text-[var(--admin-text-muted)] hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
+                      title="Delete message"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -444,6 +477,14 @@ function InboxContent() {
                 >
                   <Reply className="w-5 h-5" />
                 </a>
+                {selectedMessage.isRead && (
+                  <button
+                    onClick={() => markAsUnread(selectedMessage.id)}
+                    className="p-2 text-[var(--admin-text-muted)]"
+                  >
+                    <Mail className="w-5 h-5" />
+                  </button>
+                )}
                 <button
                   onClick={() => deleteMessage(selectedMessage.id)}
                   className="p-2 text-red-400"
