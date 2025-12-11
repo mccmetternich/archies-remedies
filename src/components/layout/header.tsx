@@ -179,14 +179,14 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
 
                 {/* Mega Nav Dropdown - CSS transitions, no Framer Motion */}
                 <div
-                  className="fixed top-[139px] left-0 right-0 flex justify-center opacity-0 invisible translate-y-2 group-hover/shop:opacity-100 group-hover/shop:visible group-hover/shop:translate-y-0 transition-all duration-300 ease-out pointer-events-none group-hover/shop:pointer-events-auto"
+                  className="fixed top-[139px] left-0 right-0 opacity-0 invisible translate-y-2 group-hover/shop:opacity-100 group-hover/shop:visible group-hover/shop:translate-y-0 transition-all duration-300 ease-out pointer-events-none group-hover/shop:pointer-events-auto"
                 >
                   {/* Shadow mask - covers header shadow at join point */}
                   <div className="absolute -top-6 left-0 right-0 h-10 bg-white z-[60]" />
 
-                  <div className="relative z-50 w-full max-w-[1200px] bg-white shadow-[0_20px_40px_rgba(0,0,0,0.15)] rounded-b-2xl">
+                  <div className="relative z-50 w-full bg-white shadow-[0_20px_40px_rgba(0,0,0,0.15)]">
                     {/* Shelf container with generous bottom padding */}
-                    <div className="px-8 py-10 pb-16">
+                    <div className="container py-10 pb-16">
                       {/* Content grid - top aligned within the fixed shelf */}
                       <div className="grid lg:grid-cols-12 gap-8 items-start">
                         {/* Product tiles - 2 columns */}
