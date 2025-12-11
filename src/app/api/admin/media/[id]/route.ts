@@ -3,6 +3,7 @@ import { db } from '@/lib/db';
 import { mediaFiles } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { requireAuth } from '@/lib/api-auth';
+import { deleteFromCloudinary } from '@/lib/cloudinary';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -76,6 +77,22 @@ export async function DELETE(request: NextRequest, { params }: Props) {
 
   try {
     const { id } = await params;
+
+    // Get the file first to check for Cloudinary public_id
+    const [file] = await db
+      .select()
+      .from(mediaFiles)
+      .where(eq(mediaFiles.id, id));
+
+    if (file?.cloudinaryPublicId) {
+      // Delete from Cloudinary
+      try {
+        await deleteFromCloudinary(file.cloudinaryPublicId);
+      } catch (cloudinaryError) {
+        console.error('Failed to delete from Cloudinary:', cloudinaryError);
+        // Continue with database deletion even if Cloudinary fails
+      }
+    }
 
     await db.delete(mediaFiles).where(eq(mediaFiles.id, id));
 

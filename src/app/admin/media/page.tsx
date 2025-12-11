@@ -206,24 +206,19 @@ export default function MediaLibraryPage() {
       setUploadProgress(prev => [...prev, `Uploading ${file.name}...`]);
 
       try {
-        const reader = new FileReader();
-        const dataUrl = await new Promise<string>((resolve, reject) => {
-          reader.onload = () => resolve(reader.result as string);
-          reader.onerror = reject;
-          reader.readAsDataURL(file);
+        // Upload to Cloudinary via our API
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('folder', selectedFolder === 'all' ? 'general' : selectedFolder);
+
+        const response = await fetch('/api/admin/upload', {
+          method: 'POST',
+          body: formData,
         });
 
-        await fetch('/api/admin/media', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            url: dataUrl,
-            filename: file.name,
-            mimeType: file.type,
-            fileSize: file.size,
-            folder: selectedFolder === 'all' ? 'general' : selectedFolder,
-          }),
-        });
+        if (!response.ok) {
+          throw new Error('Upload failed');
+        }
 
         setUploadProgress(prev =>
           prev.map(p => p === `Uploading ${file.name}...` ? `✓ ${file.name}` : p)

@@ -62,33 +62,25 @@ export function MediaPickerButton({
 
     setUploading(true);
     try {
-      const reader = new FileReader();
-      reader.onload = async () => {
-        const dataUrl = reader.result as string;
-        onChange(dataUrl);
+      // Upload to Cloudinary via our API
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('folder', folder || 'general');
 
-        // Also add to media library so it shows up in "Browse Library"
-        try {
-          await fetch('/api/admin/media', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              url: dataUrl,
-              filename: file.name,
-              mimeType: file.type,
-              fileSize: file.size,
-              folder: folder || 'general',
-            }),
-          });
-        } catch (err) {
-          console.error('Failed to add to media library:', err);
-        }
+      const response = await fetch('/api/admin/upload', {
+        method: 'POST',
+        body: formData,
+      });
 
-        setUploading(false);
-      };
-      reader.readAsDataURL(file);
+      if (!response.ok) {
+        throw new Error('Upload failed');
+      }
+
+      const data = await response.json();
+      onChange(data.file.url);
     } catch (error) {
       console.error('Upload failed:', error);
+    } finally {
       setUploading(false);
     }
   };

@@ -593,6 +593,7 @@ export const mediaFiles = sqliteTable('media_files', {
   altText: text('alt_text'), // Alt text for accessibility
   folder: text('folder').default('general'), // Folder/category: general, products, blog, etc.
   tags: text('tags'), // JSON array of tags for searching
+  cloudinaryPublicId: text('cloudinary_public_id'), // Cloudinary public_id for deletion
 
   createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
   updatedAt: text('updated_at').default(sql`CURRENT_TIMESTAMP`),
