@@ -26,6 +26,8 @@ import {
   Monitor,
   Upload,
   Package,
+  Star,
+  Video,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -69,11 +71,15 @@ interface GlobalNavSettings {
   tile1Subtitle: string | null;
   tile1Badge: string | null;
   tile1BadgeEmoji: string | null;
+  tile1ImageUrl: string | null;
+  tile1HoverImageUrl: string | null;
   tile2ProductId: string | null;
   tile2Title: string | null;
   tile2Subtitle: string | null;
   tile2Badge: string | null;
   tile2BadgeEmoji: string | null;
+  tile2ImageUrl: string | null;
+  tile2HoverImageUrl: string | null;
   cleanFormulasTitle: string;
   cleanFormulasDescription: string;
   cleanFormulasCtaEnabled: boolean;
@@ -123,11 +129,15 @@ export default function NavigationPage() {
     tile1Subtitle: null,
     tile1Badge: null,
     tile1BadgeEmoji: null,
+    tile1ImageUrl: null,
+    tile1HoverImageUrl: null,
     tile2ProductId: null,
     tile2Title: null,
     tile2Subtitle: null,
     tile2Badge: null,
     tile2BadgeEmoji: null,
+    tile2ImageUrl: null,
+    tile2HoverImageUrl: null,
     cleanFormulasTitle: 'Clean Formulas',
     cleanFormulasDescription: 'No preservatives, phthalates, parabens, or sulfates.',
     cleanFormulasCtaEnabled: false,
@@ -193,11 +203,15 @@ export default function NavigationPage() {
         tile1Subtitle: data.globalNav.tile1Subtitle || null,
         tile1Badge: data.globalNav.tile1Badge || null,
         tile1BadgeEmoji: data.globalNav.tile1BadgeEmoji || null,
+        tile1ImageUrl: data.globalNav.tile1ImageUrl || null,
+        tile1HoverImageUrl: data.globalNav.tile1HoverImageUrl || null,
         tile2ProductId: data.globalNav.tile2ProductId || null,
         tile2Title: data.globalNav.tile2Title || null,
         tile2Subtitle: data.globalNav.tile2Subtitle || null,
         tile2Badge: data.globalNav.tile2Badge || null,
         tile2BadgeEmoji: data.globalNav.tile2BadgeEmoji || null,
+        tile2ImageUrl: data.globalNav.tile2ImageUrl || null,
+        tile2HoverImageUrl: data.globalNav.tile2HoverImageUrl || null,
         cleanFormulasTitle: data.globalNav.cleanFormulasTitle || 'Clean Formulas',
         cleanFormulasDescription: data.globalNav.cleanFormulasDescription || 'No preservatives, phthalates, parabens, or sulfates.',
         cleanFormulasCtaEnabled: data.globalNav.cleanFormulasCtaEnabled ?? false,
@@ -629,11 +643,11 @@ export default function NavigationPage() {
       )}
 
       {/* ============================================
-          SHOP DROPDOWN SETTINGS
+          SHOP DROPDOWN SETTINGS - Side by Side Layout
           ============================================ */}
       {activeTab === 'dropdown' && (
         <div className="space-y-6">
-          {/* Product Tile 1 */}
+          {/* Product Tile 1 - Side by Side */}
           <div className="bg-[var(--admin-input)] rounded-xl border border-[var(--admin-border)]">
             <div className="p-6 border-b border-[var(--admin-border)]">
               <h2 className="font-medium text-lg text-[var(--admin-text-primary)] mb-2">Product Tile 1 (Left)</h2>
@@ -641,118 +655,165 @@ export default function NavigationPage() {
                 First product shown in the dropdown menu
               </p>
             </div>
-            <div className="p-6 space-y-4">
-              {/* Product Selector */}
-              <div>
-                <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Select Product</label>
-                <select
-                  value={globalNavSettings.tile1ProductId || ''}
-                  onChange={(e) => {
-                    const product = products.find(p => p.id === e.target.value);
-                    setGlobalNavSettings({
-                      ...globalNavSettings,
-                      tile1ProductId: e.target.value || null,
-                      tile1Title: product?.name || null,
-                      tile1Subtitle: product?.shortDescription || null,
-                      tile1Badge: product?.badge || null,
-                      tile1BadgeEmoji: product?.badgeEmoji || null,
-                    });
-                  }}
-                  className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] focus:outline-none focus:border-[var(--primary)] transition-colors"
-                >
-                  <option value="">Select a product...</option>
-                  {products.map(p => (
-                    <option key={p.id} value={p.id}>{p.name}</option>
-                  ))}
-                </select>
-              </div>
+            <div className="p-6">
+              <div className="grid lg:grid-cols-2 gap-8">
+                {/* Left side - Form fields */}
+                <div className="space-y-4">
+                  {/* Product Selector */}
+                  <div>
+                    <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Select Product</label>
+                    <select
+                      value={globalNavSettings.tile1ProductId || ''}
+                      onChange={(e) => {
+                        const product = products.find(p => p.id === e.target.value);
+                        setGlobalNavSettings({
+                          ...globalNavSettings,
+                          tile1ProductId: e.target.value || null,
+                          tile1Title: product?.name || null,
+                          tile1Subtitle: product?.shortDescription || null,
+                          tile1Badge: product?.badge || null,
+                          tile1BadgeEmoji: product?.badgeEmoji || null,
+                        });
+                      }}
+                      className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+                    >
+                      <option value="">Select a product...</option>
+                      {products.map(p => (
+                        <option key={p.id} value={p.id}>{p.name}</option>
+                      ))}
+                    </select>
+                  </div>
 
-              {/* Override Title */}
-              <div>
-                <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
-                  Title Override <span className="text-[var(--admin-text-muted)]">(optional)</span>
-                </label>
-                <input
-                  value={globalNavSettings.tile1Title || ''}
-                  onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, tile1Title: e.target.value || null })}
-                  placeholder={getProductById(globalNavSettings.tile1ProductId)?.name || 'Product name'}
-                  className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
-                />
-              </div>
+                  {/* Override Title */}
+                  <div>
+                    <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
+                      Title Override <span className="text-[var(--admin-text-muted)]">(optional)</span>
+                    </label>
+                    <input
+                      value={globalNavSettings.tile1Title || ''}
+                      onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, tile1Title: e.target.value || null })}
+                      placeholder={getProductById(globalNavSettings.tile1ProductId)?.name || 'Product name'}
+                      className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+                    />
+                  </div>
 
-              {/* Override Subtitle */}
-              <div>
-                <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
-                  Subtitle Override <span className="text-[var(--admin-text-muted)]">(optional)</span>
-                </label>
-                <input
-                  value={globalNavSettings.tile1Subtitle || ''}
-                  onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, tile1Subtitle: e.target.value || null })}
-                  placeholder={getProductById(globalNavSettings.tile1ProductId)?.shortDescription || 'Product description'}
-                  className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
-                />
-              </div>
+                  {/* Override Subtitle */}
+                  <div>
+                    <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
+                      Subtitle Override <span className="text-[var(--admin-text-muted)]">(optional)</span>
+                    </label>
+                    <input
+                      value={globalNavSettings.tile1Subtitle || ''}
+                      onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, tile1Subtitle: e.target.value || null })}
+                      placeholder={getProductById(globalNavSettings.tile1ProductId)?.shortDescription || 'Product description'}
+                      className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+                    />
+                  </div>
 
-              {/* Badge */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Badge Text</label>
-                  <input
-                    value={globalNavSettings.tile1Badge || ''}
-                    onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, tile1Badge: e.target.value || null })}
-                    placeholder="Bestseller"
-                    className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Badge Emoji</label>
-                  <input
-                    value={globalNavSettings.tile1BadgeEmoji || ''}
-                    onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, tile1BadgeEmoji: e.target.value || null })}
-                    placeholder=""
-                    className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
-                  />
-                </div>
-              </div>
-
-              {/* Preview */}
-              {globalNavSettings.tile1ProductId && (
-                <div>
-                  <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Preview</label>
-                  <div className="p-4 rounded-xl bg-[var(--admin-hover)]">
-                    <div className="flex items-center gap-4">
-                      {getProductById(globalNavSettings.tile1ProductId)?.heroImageUrl && (
-                        <div className="w-16 h-16 rounded-lg overflow-hidden bg-white flex-shrink-0">
-                          <Image
-                            src={getProductById(globalNavSettings.tile1ProductId)!.heroImageUrl!}
-                            alt=""
-                            width={64}
-                            height={64}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                      )}
-                      <div>
-                        {(globalNavSettings.tile1Badge || globalNavSettings.tile1BadgeEmoji) && (
-                          <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 bg-[var(--admin-text-primary)] text-white rounded-full mb-1">
-                            {globalNavSettings.tile1BadgeEmoji} {globalNavSettings.tile1Badge}
-                          </span>
-                        )}
-                        <p className="font-medium text-[var(--admin-text-primary)]">
-                          {globalNavSettings.tile1Title || getProductById(globalNavSettings.tile1ProductId)?.name}
-                        </p>
-                        <p className="text-sm text-[var(--admin-text-muted)]">
-                          {globalNavSettings.tile1Subtitle || getProductById(globalNavSettings.tile1ProductId)?.shortDescription}
-                        </p>
-                      </div>
+                  {/* Badge */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Badge Text</label>
+                      <input
+                        value={globalNavSettings.tile1Badge || ''}
+                        onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, tile1Badge: e.target.value || null })}
+                        placeholder="Bestseller"
+                        className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Badge Emoji</label>
+                      <input
+                        value={globalNavSettings.tile1BadgeEmoji || ''}
+                        onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, tile1BadgeEmoji: e.target.value || null })}
+                        placeholder=""
+                        className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+                      />
                     </div>
                   </div>
+
+                  {/* Image Override */}
+                  <div className="pt-4 border-t border-[var(--admin-border)]">
+                    <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
+                      <div className="flex items-center gap-2">
+                        <ImageIcon className="w-4 h-4" />
+                        Image Override <span className="text-[var(--admin-text-muted)]">(optional)</span>
+                      </div>
+                    </label>
+                    <input
+                      value={globalNavSettings.tile1ImageUrl || ''}
+                      onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, tile1ImageUrl: e.target.value || null })}
+                      placeholder="https://... (leave blank to use product image)"
+                      className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+                    />
+                  </div>
+
+                  {/* Hover Image */}
+                  <div>
+                    <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
+                      <div className="flex items-center gap-2">
+                        <MousePointer className="w-4 h-4" />
+                        Hover Image <span className="text-[var(--admin-text-muted)]">(optional)</span>
+                      </div>
+                    </label>
+                    <input
+                      value={globalNavSettings.tile1HoverImageUrl || ''}
+                      onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, tile1HoverImageUrl: e.target.value || null })}
+                      placeholder="https://... (shown on hover)"
+                      className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+                    />
+                    <p className="text-xs text-[var(--admin-text-muted)] mt-1">This image will be shown when users hover over the tile</p>
+                  </div>
                 </div>
-              )}
+
+                {/* Right side - Live Preview */}
+                <div className="lg:sticky lg:top-6">
+                  <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-3">Live Preview</label>
+                  <div className="p-5 rounded-2xl bg-white border border-[var(--admin-border)] hover:shadow-md transition-all duration-300 group">
+                    <div className="relative mb-4">
+                      <div className="aspect-square w-full rounded-xl overflow-hidden bg-[#f5f5f0]">
+                        {(globalNavSettings.tile1ImageUrl || getProductById(globalNavSettings.tile1ProductId)?.heroImageUrl) ? (
+                          <Image
+                            src={globalNavSettings.tile1ImageUrl || getProductById(globalNavSettings.tile1ProductId)?.heroImageUrl || ''}
+                            alt=""
+                            width={300}
+                            height={300}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <ImageIcon className="w-12 h-12 text-[var(--admin-text-muted)]" />
+                          </div>
+                        )}
+                      </div>
+                      {(globalNavSettings.tile1Badge || globalNavSettings.tile1BadgeEmoji) && (
+                        <span className="absolute top-3 right-3 text-xs px-2.5 py-1 bg-[#1a1a1a] text-white rounded-full font-medium flex items-center gap-1">
+                          {globalNavSettings.tile1BadgeEmoji} {globalNavSettings.tile1Badge}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <div className="flex gap-0.5">
+                        {[1,2,3,4,5].map(i => (
+                          <Star key={i} className="w-3.5 h-3.5 fill-[#7CB4B8] text-[#7CB4B8]" />
+                        ))}
+                      </div>
+                      <span className="text-sm text-[#1a1a1a] font-medium">4.9</span>
+                      <span className="text-xs text-[#737373]">(2,100+)</span>
+                    </div>
+                    <h4 className="text-lg font-medium mb-1 text-[#1a1a1a] group-hover:text-[#737373] transition-colors">
+                      {globalNavSettings.tile1Title || getProductById(globalNavSettings.tile1ProductId)?.name || 'Product Name'}
+                    </h4>
+                    <p className="text-sm text-[#737373]">
+                      {globalNavSettings.tile1Subtitle || getProductById(globalNavSettings.tile1ProductId)?.shortDescription || 'Product description'}
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Product Tile 2 */}
+          {/* Product Tile 2 - Side by Side */}
           <div className="bg-[var(--admin-input)] rounded-xl border border-[var(--admin-border)]">
             <div className="p-6 border-b border-[var(--admin-border)]">
               <h2 className="font-medium text-lg text-[var(--admin-text-primary)] mb-2">Product Tile 2 (Right)</h2>
@@ -760,114 +821,161 @@ export default function NavigationPage() {
                 Second product shown in the dropdown menu
               </p>
             </div>
-            <div className="p-6 space-y-4">
-              {/* Product Selector */}
-              <div>
-                <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Select Product</label>
-                <select
-                  value={globalNavSettings.tile2ProductId || ''}
-                  onChange={(e) => {
-                    const product = products.find(p => p.id === e.target.value);
-                    setGlobalNavSettings({
-                      ...globalNavSettings,
-                      tile2ProductId: e.target.value || null,
-                      tile2Title: product?.name || null,
-                      tile2Subtitle: product?.shortDescription || null,
-                      tile2Badge: product?.badge || null,
-                      tile2BadgeEmoji: product?.badgeEmoji || null,
-                    });
-                  }}
-                  className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] focus:outline-none focus:border-[var(--primary)] transition-colors"
-                >
-                  <option value="">Select a product...</option>
-                  {products.map(p => (
-                    <option key={p.id} value={p.id}>{p.name}</option>
-                  ))}
-                </select>
-              </div>
+            <div className="p-6">
+              <div className="grid lg:grid-cols-2 gap-8">
+                {/* Left side - Form fields */}
+                <div className="space-y-4">
+                  {/* Product Selector */}
+                  <div>
+                    <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Select Product</label>
+                    <select
+                      value={globalNavSettings.tile2ProductId || ''}
+                      onChange={(e) => {
+                        const product = products.find(p => p.id === e.target.value);
+                        setGlobalNavSettings({
+                          ...globalNavSettings,
+                          tile2ProductId: e.target.value || null,
+                          tile2Title: product?.name || null,
+                          tile2Subtitle: product?.shortDescription || null,
+                          tile2Badge: product?.badge || null,
+                          tile2BadgeEmoji: product?.badgeEmoji || null,
+                        });
+                      }}
+                      className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+                    >
+                      <option value="">Select a product...</option>
+                      {products.map(p => (
+                        <option key={p.id} value={p.id}>{p.name}</option>
+                      ))}
+                    </select>
+                  </div>
 
-              {/* Override Title */}
-              <div>
-                <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
-                  Title Override <span className="text-[var(--admin-text-muted)]">(optional)</span>
-                </label>
-                <input
-                  value={globalNavSettings.tile2Title || ''}
-                  onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, tile2Title: e.target.value || null })}
-                  placeholder={getProductById(globalNavSettings.tile2ProductId)?.name || 'Product name'}
-                  className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
-                />
-              </div>
+                  {/* Override Title */}
+                  <div>
+                    <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
+                      Title Override <span className="text-[var(--admin-text-muted)]">(optional)</span>
+                    </label>
+                    <input
+                      value={globalNavSettings.tile2Title || ''}
+                      onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, tile2Title: e.target.value || null })}
+                      placeholder={getProductById(globalNavSettings.tile2ProductId)?.name || 'Product name'}
+                      className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+                    />
+                  </div>
 
-              {/* Override Subtitle */}
-              <div>
-                <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
-                  Subtitle Override <span className="text-[var(--admin-text-muted)]">(optional)</span>
-                </label>
-                <input
-                  value={globalNavSettings.tile2Subtitle || ''}
-                  onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, tile2Subtitle: e.target.value || null })}
-                  placeholder={getProductById(globalNavSettings.tile2ProductId)?.shortDescription || 'Product description'}
-                  className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
-                />
-              </div>
+                  {/* Override Subtitle */}
+                  <div>
+                    <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
+                      Subtitle Override <span className="text-[var(--admin-text-muted)]">(optional)</span>
+                    </label>
+                    <input
+                      value={globalNavSettings.tile2Subtitle || ''}
+                      onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, tile2Subtitle: e.target.value || null })}
+                      placeholder={getProductById(globalNavSettings.tile2ProductId)?.shortDescription || 'Product description'}
+                      className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+                    />
+                  </div>
 
-              {/* Badge */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Badge Text</label>
-                  <input
-                    value={globalNavSettings.tile2Badge || ''}
-                    onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, tile2Badge: e.target.value || null })}
-                    placeholder="New"
-                    className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Badge Emoji</label>
-                  <input
-                    value={globalNavSettings.tile2BadgeEmoji || ''}
-                    onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, tile2BadgeEmoji: e.target.value || null })}
-                    placeholder=""
-                    className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
-                  />
-                </div>
-              </div>
-
-              {/* Preview */}
-              {globalNavSettings.tile2ProductId && (
-                <div>
-                  <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Preview</label>
-                  <div className="p-4 rounded-xl bg-[var(--admin-hover)]">
-                    <div className="flex items-center gap-4">
-                      {getProductById(globalNavSettings.tile2ProductId)?.heroImageUrl && (
-                        <div className="w-16 h-16 rounded-lg overflow-hidden bg-white flex-shrink-0">
-                          <Image
-                            src={getProductById(globalNavSettings.tile2ProductId)!.heroImageUrl!}
-                            alt=""
-                            width={64}
-                            height={64}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                      )}
-                      <div>
-                        {(globalNavSettings.tile2Badge || globalNavSettings.tile2BadgeEmoji) && (
-                          <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 bg-[var(--primary)] text-[var(--admin-button-text)] rounded-full mb-1">
-                            {globalNavSettings.tile2BadgeEmoji} {globalNavSettings.tile2Badge}
-                          </span>
-                        )}
-                        <p className="font-medium text-[var(--admin-text-primary)]">
-                          {globalNavSettings.tile2Title || getProductById(globalNavSettings.tile2ProductId)?.name}
-                        </p>
-                        <p className="text-sm text-[var(--admin-text-muted)]">
-                          {globalNavSettings.tile2Subtitle || getProductById(globalNavSettings.tile2ProductId)?.shortDescription}
-                        </p>
-                      </div>
+                  {/* Badge */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Badge Text</label>
+                      <input
+                        value={globalNavSettings.tile2Badge || ''}
+                        onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, tile2Badge: e.target.value || null })}
+                        placeholder="New"
+                        className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Badge Emoji</label>
+                      <input
+                        value={globalNavSettings.tile2BadgeEmoji || ''}
+                        onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, tile2BadgeEmoji: e.target.value || null })}
+                        placeholder=""
+                        className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+                      />
                     </div>
                   </div>
+
+                  {/* Image Override */}
+                  <div className="pt-4 border-t border-[var(--admin-border)]">
+                    <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
+                      <div className="flex items-center gap-2">
+                        <ImageIcon className="w-4 h-4" />
+                        Image Override <span className="text-[var(--admin-text-muted)]">(optional)</span>
+                      </div>
+                    </label>
+                    <input
+                      value={globalNavSettings.tile2ImageUrl || ''}
+                      onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, tile2ImageUrl: e.target.value || null })}
+                      placeholder="https://... (leave blank to use product image)"
+                      className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+                    />
+                  </div>
+
+                  {/* Hover Image */}
+                  <div>
+                    <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
+                      <div className="flex items-center gap-2">
+                        <MousePointer className="w-4 h-4" />
+                        Hover Image <span className="text-[var(--admin-text-muted)]">(optional)</span>
+                      </div>
+                    </label>
+                    <input
+                      value={globalNavSettings.tile2HoverImageUrl || ''}
+                      onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, tile2HoverImageUrl: e.target.value || null })}
+                      placeholder="https://... (shown on hover)"
+                      className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+                    />
+                    <p className="text-xs text-[var(--admin-text-muted)] mt-1">This image will be shown when users hover over the tile</p>
+                  </div>
                 </div>
-              )}
+
+                {/* Right side - Live Preview */}
+                <div className="lg:sticky lg:top-6">
+                  <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-3">Live Preview</label>
+                  <div className="p-5 rounded-2xl bg-white border border-[var(--admin-border)] hover:shadow-md transition-all duration-300 group">
+                    <div className="relative mb-4">
+                      <div className="aspect-square w-full rounded-xl overflow-hidden bg-[#f5f5f0]">
+                        {(globalNavSettings.tile2ImageUrl || getProductById(globalNavSettings.tile2ProductId)?.heroImageUrl) ? (
+                          <Image
+                            src={globalNavSettings.tile2ImageUrl || getProductById(globalNavSettings.tile2ProductId)?.heroImageUrl || ''}
+                            alt=""
+                            width={300}
+                            height={300}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <ImageIcon className="w-12 h-12 text-[var(--admin-text-muted)]" />
+                          </div>
+                        )}
+                      </div>
+                      {(globalNavSettings.tile2Badge || globalNavSettings.tile2BadgeEmoji) && (
+                        <span className="absolute top-3 right-3 text-xs px-2.5 py-1 bg-[#7CB4B8] text-[#1a1a1a] rounded-full font-medium flex items-center gap-1">
+                          {globalNavSettings.tile2BadgeEmoji} {globalNavSettings.tile2Badge}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <div className="flex gap-0.5">
+                        {[1,2,3,4,5].map(i => (
+                          <Star key={i} className="w-3.5 h-3.5 fill-[#7CB4B8] text-[#7CB4B8]" />
+                        ))}
+                      </div>
+                      <span className="text-sm text-[#1a1a1a] font-medium">4.9</span>
+                      <span className="text-xs text-[#737373]">(850+)</span>
+                    </div>
+                    <h4 className="text-lg font-medium mb-1 text-[#1a1a1a] group-hover:text-[#737373] transition-colors">
+                      {globalNavSettings.tile2Title || getProductById(globalNavSettings.tile2ProductId)?.name || 'Product Name'}
+                    </h4>
+                    <p className="text-sm text-[#737373]">
+                      {globalNavSettings.tile2Subtitle || getProductById(globalNavSettings.tile2ProductId)?.shortDescription || 'Product description'}
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
