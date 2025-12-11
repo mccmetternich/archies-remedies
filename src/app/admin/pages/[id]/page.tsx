@@ -547,16 +547,23 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
             <div className="bg-[var(--admin-input)] rounded-xl border border-[var(--admin-border)] p-6 space-y-4">
               <h3 className="font-medium text-[var(--admin-text-primary)]">Navigation Settings</h3>
 
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={page.showInNav}
-                  onChange={(e) => setPage({ ...page, showInNav: e.target.checked })}
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-[var(--admin-hover)] peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[var(--primary)] rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--primary)] relative"></div>
+              <div className="flex items-center justify-between">
                 <span className="text-sm text-[var(--admin-text-secondary)]">Show in navigation</span>
-              </label>
+                <button
+                  onClick={() => setPage({ ...page, showInNav: !page.showInNav })}
+                  className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
+                  style={{
+                    backgroundColor: page.showInNav ? '#22c55e' : '#374151'
+                  }}
+                >
+                  <span
+                    className={cn(
+                      "inline-block h-4 w-4 transform rounded-full bg-white transition-transform",
+                      page.showInNav ? "translate-x-6" : "translate-x-1"
+                    )}
+                  />
+                </button>
+              </div>
 
               {page.showInNav && (
                 <div>

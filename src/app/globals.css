@@ -326,6 +326,23 @@ a {
   transition: all var(--transition-fast);
 }
 
+/* Global cursor-pointer for all buttons */
+button,
+[role="button"],
+input[type="submit"],
+input[type="button"],
+.btn {
+  cursor: pointer;
+}
+
+button:disabled,
+[role="button"]:disabled,
+input[type="submit"]:disabled,
+input[type="button"]:disabled,
+.btn:disabled {
+  cursor: not-allowed;
+}
+
 /* Premium Buttons - Refined */
 .btn {
   display: inline-flex;
