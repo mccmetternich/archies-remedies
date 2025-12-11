@@ -339,22 +339,22 @@ export default function PagesListPage() {
           onClick={async (e) => {
             e.preventDefault();
             e.stopPropagation();
+            const baseUrl = page.slug === 'home' ? '/' : `/${page.slug}`;
             // Generate preview token if page is not effectively live
             if (!effectivelyLive) {
               try {
-                const res = await fetch('/api/admin/preview-token', { method: 'POST' });
-                if (res.ok) {
-                  // Token is set as cookie, now open the page
-                  const url = page.slug === 'home' ? '/' : `/${page.slug}`;
-                  window.open(url, '_blank');
+                const res = await fetch('/api/admin/preview', { method: 'POST' });
+                const data = await res.json();
+                if (res.ok && data.token) {
+                  // Open with token in URL
+                  window.open(`${baseUrl}?token=${data.token}`, '_blank');
+                  return;
                 }
               } catch (error) {
                 console.error('Failed to generate preview token:', error);
               }
-            } else {
-              const url = page.slug === 'home' ? '/' : `/${page.slug}`;
-              window.open(url, '_blank');
             }
+            window.open(baseUrl, '_blank');
           }}
           className={cn(
             "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors",
@@ -449,19 +449,21 @@ export default function PagesListPage() {
           onClick={async (e) => {
             e.preventDefault();
             e.stopPropagation();
+            const baseUrl = `/products/${product.slug}`;
             // Generate preview token if product is not effectively live
             if (!effectivelyLive) {
               try {
-                const res = await fetch('/api/admin/preview-token', { method: 'POST' });
-                if (res.ok) {
-                  window.open(`/products/${product.slug}`, '_blank');
+                const res = await fetch('/api/admin/preview', { method: 'POST' });
+                const data = await res.json();
+                if (res.ok && data.token) {
+                  window.open(`${baseUrl}?token=${data.token}`, '_blank');
+                  return;
                 }
               } catch (error) {
                 console.error('Failed to generate preview token:', error);
               }
-            } else {
-              window.open(`/products/${product.slug}`, '_blank');
             }
+            window.open(baseUrl, '_blank');
           }}
           className={cn(
             "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors",

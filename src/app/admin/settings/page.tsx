@@ -320,10 +320,23 @@ function SettingsPageContent() {
 
           {/* View Draft/Live Button - First */}
           {settings && (
-            <a
-              href={settings.siteInDraftMode ? '/?preview=true' : '/'}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              onClick={async () => {
+                if (settings.siteInDraftMode) {
+                  // Generate token and open with token
+                  try {
+                    const res = await fetch('/api/admin/preview', { method: 'POST' });
+                    const data = await res.json();
+                    if (data.token) {
+                      window.open(`/?token=${data.token}`, '_blank');
+                      return;
+                    }
+                  } catch (error) {
+                    console.error('Failed to generate preview token:', error);
+                  }
+                }
+                window.open('/', '_blank');
+              }}
               className={cn(
                 'inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors',
                 settings.siteInDraftMode
@@ -333,7 +346,7 @@ function SettingsPageContent() {
             >
               <ExternalLink className="w-4 h-4" />
               {settings.siteInDraftMode ? 'View Draft' : 'View Live Site'}
-            </a>
+            </button>
           )}
 
           {/* Draft/Live Toggle - Second */}
@@ -909,13 +922,21 @@ function ComingSoonTab({
 }) {
   const [previewLoading, setPreviewLoading] = useState(false);
   const [hasPreviewToken, setHasPreviewToken] = useState(false);
+  const [currentToken, setCurrentToken] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    // Check if we have a preview token
+    // Check if we have active preview tokens
     fetch('/api/admin/preview')
       .then(res => res.json())
-      .then(data => setHasPreviewToken(data.hasPreviewToken))
+      .then(data => {
+        setHasPreviewToken(data.activeTokenCount > 0);
+        if (data.tokens?.[0]?.previewUrl) {
+          // Extract token from the first active token's previewUrl
+          const match = data.tokens[0].previewUrl.match(/token=([^&]+)/);
+          if (match) setCurrentToken(match[1]);
+        }
+      })
       .catch(() => {});
   }, []);
 
@@ -923,10 +944,12 @@ function ComingSoonTab({
     setPreviewLoading(true);
     try {
       const res = await fetch('/api/admin/preview', { method: 'POST' });
-      if (res.ok) {
+      const data = await res.json();
+      if (res.ok && data.token) {
         setHasPreviewToken(true);
-        // Open the site in a new tab
-        window.open('/', '_blank');
+        setCurrentToken(data.token);
+        // Open the site with token in URL
+        window.open(`/?token=${data.token}`, '_blank');
       }
     } catch (error) {
       console.error('Failed to generate preview:', error);
@@ -939,13 +962,30 @@ function ComingSoonTab({
     try {
       await fetch('/api/admin/preview', { method: 'DELETE' });
       setHasPreviewToken(false);
+      setCurrentToken(null);
     } catch (error) {
       console.error('Failed to revoke preview:', error);
     }
   };
 
-  const handleCopyPreviewLink = () => {
-    const url = `${window.location.origin}/?preview=true`;
+  const handleCopyPreviewLink = async () => {
+    let token = currentToken;
+    // Generate a new token if we don't have one
+    if (!token) {
+      try {
+        const res = await fetch('/api/admin/preview', { method: 'POST' });
+        const data = await res.json();
+        if (data.token) {
+          token = data.token;
+          setCurrentToken(token);
+          setHasPreviewToken(true);
+        }
+      } catch (error) {
+        console.error('Failed to generate token for copy:', error);
+        return;
+      }
+    }
+    const url = `${window.location.origin}/?token=${token}`;
     navigator.clipboard.writeText(url);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);

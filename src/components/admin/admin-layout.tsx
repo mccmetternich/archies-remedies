@@ -90,8 +90,18 @@ function AdminLayoutInner({ children, unreadMessages = 0 }: AdminLayoutProps) {
 
   const handleViewSite = async () => {
     if (isInDraftMode) {
-      // Generate preview token on demand when clicking View Draft
-      await generatePreviewToken();
+      // Generate preview token and open URL with token
+      try {
+        const res = await fetch('/api/admin/preview', { method: 'POST' });
+        const data = await res.json();
+        if (data.token) {
+          setPreviewToken(data.token);
+          window.open(`/?token=${data.token}`, '_blank');
+          return;
+        }
+      } catch (error) {
+        console.error('Failed to generate preview token:', error);
+      }
     }
     window.open('/', '_blank');
   };
