@@ -178,6 +178,15 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                   />
                 </button>
 
+                {/* Hover bridge - extends hover zone from button to dropdown */}
+                <div
+                  className="absolute top-full left-1/2 -translate-x-1/2 w-64"
+                  style={{
+                    height: showBumper ? '95px' : '51px',
+                    background: 'linear-gradient(transparent, transparent)' // Creates hit-testable area
+                  }}
+                />
+
                 {/* Shadow mask - fixed at z-50 (same as header) to cover header shadow at join point */}
                 <div
                   className="fixed left-0 right-0 h-10 bg-white z-50 opacity-0 group-hover/shop:opacity-100 transition-opacity duration-300 pointer-events-none"
