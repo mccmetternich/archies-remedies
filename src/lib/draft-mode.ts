@@ -1,35 +1,58 @@
 import { redirect } from 'next/navigation';
-import { headers } from 'next/headers';
+import { headers, cookies } from 'next/headers';
 import { db } from '@/lib/db';
 import { siteSettings, pages, products, previewTokens } from '@/lib/db/schema';
 import { eq, and, gt } from 'drizzle-orm';
 
 /**
- * URL-based preview token system
+ * Hybrid preview token system (URL + Cookie)
  *
- * Instead of cookies, preview access is granted via URL token: ?token=xxx
- * This prevents the issue of permanent site access after admin login.
- * All internal links must preserve the token parameter.
+ * Preview access is granted via:
+ * 1. URL token: ?token=xxx (shareable preview links)
+ * 2. Session cookie: preview_session (set by middleware when URL token is present)
+ *
+ * Flow:
+ * 1. Admin generates preview link with ?token=xxx
+ * 2. User visits link, middleware sets preview_session cookie
+ * 3. Subsequent navigation works without token in URL (cookie provides access)
+ * 4. Cookie expires when browser closes (session cookie)
+ *
+ * This allows shareable preview links while enabling seamless navigation.
  */
 
 /**
- * Extract preview token from the current request URL
+ * Extract preview token from URL or session cookie
+ * Checks in order: URL token → session cookie
  */
 export async function getPreviewTokenFromRequest(): Promise<string | null> {
+  // First, try to get token from URL (via x-url header set by middleware)
   const headersList = await headers();
+  const xUrl = headersList.get('x-url');
   const referer = headersList.get('referer');
-  const xUrl = headersList.get('x-url'); // Custom header set by middleware
 
-  // Try to get URL from headers (middleware should set this)
   const url = xUrl || referer;
-  if (!url) return null;
-
-  try {
-    const urlObj = new URL(url);
-    return urlObj.searchParams.get('token');
-  } catch {
-    return null;
+  if (url) {
+    try {
+      const urlObj = new URL(url);
+      const urlToken = urlObj.searchParams.get('token');
+      if (urlToken) return urlToken;
+    } catch {
+      // Invalid URL, continue to check cookie
+    }
   }
+
+  // Fall back to session cookie (set by middleware when URL token was present)
+  try {
+    const cookieStore = await cookies();
+    const sessionCookie = cookieStore.get('preview_session');
+    if (sessionCookie?.value) {
+      return sessionCookie.value;
+    }
+  } catch {
+    // Cookies not available (e.g., during static generation)
+  }
+
+  return null;
 }
 
 /**

@@ -140,12 +140,13 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
 
       <header
         className={cn(
-          'lg:fixed left-0 right-0 z-50 bg-white shadow-[0_4px_20px_rgba(0,0,0,0.1)] py-5',
+          'lg:fixed left-0 right-0 z-50 bg-white shadow-[0_8px_30px_rgba(0,0,0,0.12)] py-5',
           showBumper ? 'lg:top-[44px]' : 'lg:top-0'
         )}
       >
         <nav className="container">
-          <div className="flex items-center justify-between">
+          {/* Nav row - z-[70] ensures nav items float above the dropdown (z-50) */}
+          <div className="flex items-center justify-between relative z-[70]">
             {/* Logo */}
             <Link href="/" className="flex items-center relative z-10">
               {logo ? (
@@ -177,12 +178,17 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                   />
                 </button>
 
-                {/* Mega Nav Dropdown - CSS transitions, no Framer Motion */}
+                {/* Shadow mask - fixed at z-50 (same as header) to cover header shadow at join point */}
                 <div
-                  className="fixed top-[139px] left-0 right-0 opacity-0 invisible translate-y-2 group-hover/shop:opacity-100 group-hover/shop:visible group-hover/shop:translate-y-0 transition-all duration-300 ease-out pointer-events-none group-hover/shop:pointer-events-auto"
+                  className="fixed left-0 right-0 h-10 bg-white z-50 opacity-0 group-hover/shop:opacity-100 transition-opacity duration-300 pointer-events-none"
+                  style={{ top: showBumper ? '131px' : '87px' }}
+                />
+
+                {/* Mega Nav Dropdown - CSS transitions, z-40 to sit below nav bar (z-50) */}
+                <div
+                  className="fixed left-0 right-0 z-40 opacity-0 invisible translate-y-2 group-hover/shop:opacity-100 group-hover/shop:visible group-hover/shop:translate-y-0 transition-all duration-300 ease-out pointer-events-none group-hover/shop:pointer-events-auto"
+                  style={{ top: showBumper ? '139px' : '95px' }}
                 >
-                  {/* Shadow mask - covers header shadow at join point */}
-                  <div className="absolute -top-6 left-0 right-0 h-10 bg-white z-[60]" />
 
                   <div className="relative z-50 w-full bg-white shadow-[0_20px_40px_rgba(0,0,0,0.15)]">
                     {/* Shelf container with generous bottom padding */}

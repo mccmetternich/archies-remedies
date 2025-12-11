@@ -17,6 +17,20 @@ export function middleware(request: NextRequest) {
   const response = NextResponse.next();
   response.headers.set('x-url', request.url);
 
+  // Preview token → cookie conversion for seamless navigation
+  // When URL has ?token=xxx, set a session cookie so subsequent navigation
+  // works without needing the token in every URL
+  const token = searchParams.get('token');
+  if (token && !pathname.startsWith('/admin') && !pathname.startsWith('/api')) {
+    response.cookies.set('preview_session', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      // No maxAge = session cookie (expires when browser closes)
+    });
+  }
+
   // Protect admin routes (except login and auth API)
   if (pathname.startsWith('/admin') && pathname !== '/admin/login') {
     const sessionCookie = request.cookies.get('admin_session');
