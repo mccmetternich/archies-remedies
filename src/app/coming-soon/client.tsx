@@ -189,7 +189,7 @@ export function ComingSoonClient({
         }
       `}</style>
 
-      <div className="min-h-screen bg-gradient-to-br from-[#f5f0eb] via-white to-[#bbdae9]/20 flex items-center justify-center px-5 py-6 md:py-8 overflow-x-hidden">
+      <div className="min-h-screen bg-gradient-to-br from-[#f5f0eb] via-white to-[#bbdae9]/20 flex items-start md:items-center justify-center px-5 pt-[15vh] md:pt-0 md:py-8 overflow-x-hidden">
         {/* Background decorative elements - contained within viewport */}
         <div className="fixed inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-1/4 -left-24 w-64 h-64 md:w-96 md:h-96 bg-[#bbdae9]/20 rounded-full blur-3xl" />
@@ -232,7 +232,7 @@ export function ComingSoonClient({
           </div>
 
           {/* Main content - fixed height container with absolute positioning to prevent jump */}
-          <div className="relative h-[320px] md:h-[380px]">
+          <div className="relative h-[340px] md:h-[380px]">
             <AnimatePresence mode="wait">
               {status === 'success' ? (
                 <motion.div
@@ -241,7 +241,7 @@ export function ComingSoonClient({
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
                   transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                  className="absolute inset-0 flex flex-col justify-center text-center"
+                  className="absolute inset-0 flex flex-col justify-start pt-4 md:justify-center md:pt-0 text-center"
                 >
                   {/* Title with checkmark */}
                   <div className="flex items-center justify-center gap-3 mb-5">
@@ -299,7 +299,7 @@ export function ComingSoonClient({
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
                   transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                  className="absolute inset-0 flex flex-col justify-center"
+                  className="absolute inset-0 flex flex-col justify-start pt-4 md:justify-center md:pt-0"
                 >
                   <h1 className="text-3xl md:text-5xl lg:text-6xl font-normal tracking-tight mb-4 md:mb-6">
                     {title}
