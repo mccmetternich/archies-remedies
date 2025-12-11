@@ -563,9 +563,9 @@ export default function NavigationPage() {
               <div className="flex items-center gap-3">
                 <span className={cn(
                   "text-sm font-medium transition-colors",
-                  globalNavSettings.ctaEnabled ? "text-green-400" : "text-[var(--admin-text-muted)]"
+                  !globalNavSettings.ctaEnabled ? "text-red-400" : "text-[var(--admin-text-muted)]"
                 )}>
-                  Enabled
+                  Disabled
                 </span>
                 <button
                   onClick={() => setGlobalNavSettings({ ...globalNavSettings, ctaEnabled: !globalNavSettings.ctaEnabled })}
@@ -577,15 +577,15 @@ export default function NavigationPage() {
                   <span
                     className={cn(
                       "inline-block h-6 w-6 transform rounded-full bg-white transition-transform shadow-lg",
-                      globalNavSettings.ctaEnabled ? "translate-x-1" : "translate-x-9"
+                      globalNavSettings.ctaEnabled ? "translate-x-9" : "translate-x-1"
                     )}
                   />
                 </button>
                 <span className={cn(
                   "text-sm font-medium transition-colors",
-                  !globalNavSettings.ctaEnabled ? "text-red-400" : "text-[var(--admin-text-muted)]"
+                  globalNavSettings.ctaEnabled ? "text-green-400" : "text-[var(--admin-text-muted)]"
                 )}>
-                  Disabled
+                  Enabled
                 </span>
               </div>
 
@@ -1096,13 +1096,13 @@ export default function NavigationPage() {
           </div>
 
           <div className="p-6 space-y-6">
-            {/* Enable Toggle - Green (left/enabled) / Red (right/disabled) */}
+            {/* Enable Toggle - Disabled (left) / Enabled (right) */}
             <div className="flex items-center gap-3">
               <span className={cn(
                 "text-sm font-medium transition-colors",
-                bumperSettings.bumperEnabled ? "text-green-400" : "text-[var(--admin-text-muted)]"
+                !bumperSettings.bumperEnabled ? "text-red-400" : "text-[var(--admin-text-muted)]"
               )}>
-                Enabled
+                Disabled
               </span>
               <button
                 onClick={() => setBumperSettings({ ...bumperSettings, bumperEnabled: !bumperSettings.bumperEnabled })}
@@ -1114,15 +1114,15 @@ export default function NavigationPage() {
                 <span
                   className={cn(
                     "inline-block h-6 w-6 transform rounded-full bg-white transition-transform shadow-lg",
-                    bumperSettings.bumperEnabled ? "translate-x-1" : "translate-x-9"
+                    bumperSettings.bumperEnabled ? "translate-x-9" : "translate-x-1"
                   )}
                 />
               </button>
               <span className={cn(
                 "text-sm font-medium transition-colors",
-                !bumperSettings.bumperEnabled ? "text-red-400" : "text-[var(--admin-text-muted)]"
+                bumperSettings.bumperEnabled ? "text-green-400" : "text-[var(--admin-text-muted)]"
               )}>
-                Disabled
+                Enabled
               </span>
             </div>
 
