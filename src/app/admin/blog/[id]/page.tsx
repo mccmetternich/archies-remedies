@@ -22,6 +22,7 @@ import {
   Trash2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { MediaPickerButton } from '@/components/admin/media-picker';
 
 interface BlogPost {
   id: string;
@@ -402,33 +403,13 @@ export default function BlogPostEditorPage({ params }: { params: Promise<{ id: s
           <div className="space-y-6">
             {/* Featured Image */}
             <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6">
-              <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-3">Featured Image</label>
-              {post.featuredImageUrl ? (
-                <div className="relative rounded-lg overflow-hidden mb-3">
-                  <img
-                    src={post.featuredImageUrl}
-                    alt="Featured"
-                    className="w-full h-40 object-cover"
-                  />
-                  <button
-                    onClick={() => setPost((prev) => ({ ...prev, featuredImageUrl: null }))}
-                    className="absolute top-2 right-2 p-1.5 bg-black/50 rounded-lg text-[var(--admin-text-primary)] hover:bg-black/70 transition-colors"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-              ) : (
-                <div className="w-full h-40 rounded-lg bg-[var(--admin-input)] border-2 border-dashed border-[var(--admin-border-light)] flex flex-col items-center justify-center mb-3">
-                  <ImageIcon className="w-8 h-8 text-[var(--admin-text-muted)] mb-2" />
-                  <p className="text-sm text-[var(--admin-text-muted)]">No image</p>
-                </div>
-              )}
-              <input
-                type="url"
-                value={post.featuredImageUrl || ''}
-                onChange={(e) => setPost((prev) => ({ ...prev, featuredImageUrl: e.target.value }))}
-                placeholder="Image URL..."
-                className="w-full px-4 py-2.5 bg-[var(--admin-input)] border border-[var(--admin-border-light)] rounded-lg text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors text-sm"
+              <MediaPickerButton
+                label="Featured Image"
+                value={post.featuredImageUrl}
+                onChange={(url) => setPost((prev) => ({ ...prev, featuredImageUrl: url || null }))}
+                helpText="Main image displayed in blog listings and at top of post"
+                folder="blog"
+                aspectRatio="16/9"
               />
             </div>
 

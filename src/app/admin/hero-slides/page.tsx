@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { MediaPickerButton } from '@/components/admin/media-picker';
 
 interface HeroSlide {
   id: string;
@@ -375,12 +376,13 @@ export default function HeroSlidesPage() {
               {/* Image */}
               <div className="border-t border-[var(--border-light)] pt-4 mt-4">
                 <h3 className="text-sm font-semibold text-[var(--muted-foreground)] uppercase tracking-wide mb-4">Background Image</h3>
-                <Input
-                  value={editForm.imageUrl || ''}
-                  onChange={(e) =>
-                    setEditForm({ ...editForm, imageUrl: e.target.value })
-                  }
-                  placeholder="https://..."
+                <MediaPickerButton
+                  label="Background Image"
+                  value={editForm.imageUrl || null}
+                  onChange={(url) => setEditForm({ ...editForm, imageUrl: url || '' })}
+                  helpText="Hero slide background image"
+                  folder="hero"
+                  acceptVideo={true}
                 />
               </div>
 
@@ -399,27 +401,25 @@ export default function HeroSlidesPage() {
                     className="flex w-full rounded-lg border-[1.5px] border-[var(--border)] bg-[var(--background)] px-4 py-3 text-base transition-all duration-150 placeholder:text-[var(--muted-foreground)] focus:outline-none focus:border-[var(--primary-dark)] focus:ring-[3px] focus:ring-[var(--primary-light)] resize-none"
                   />
                 </div>
-                <div className="grid md:grid-cols-2 gap-4 mt-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Author Name</label>
-                    <Input
-                      value={editForm.testimonialAuthor || ''}
-                      onChange={(e) =>
-                        setEditForm({ ...editForm, testimonialAuthor: e.target.value })
-                      }
-                      placeholder="Sarah M., Verified Buyer"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Avatar Image URL</label>
-                    <Input
-                      value={editForm.testimonialAvatarUrl || ''}
-                      onChange={(e) =>
-                        setEditForm({ ...editForm, testimonialAvatarUrl: e.target.value })
-                      }
-                      placeholder="https://images.unsplash.com/..."
-                    />
-                  </div>
+                <div className="mt-4">
+                  <label className="block text-sm font-medium mb-1">Author Name</label>
+                  <Input
+                    value={editForm.testimonialAuthor || ''}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, testimonialAuthor: e.target.value })
+                    }
+                    placeholder="Sarah M., Verified Buyer"
+                  />
+                </div>
+                <div className="mt-4">
+                  <MediaPickerButton
+                    label="Avatar Image"
+                    value={editForm.testimonialAvatarUrl || null}
+                    onChange={(url) => setEditForm({ ...editForm, testimonialAvatarUrl: url || '' })}
+                    helpText="Testimonial author avatar"
+                    folder="avatars"
+                    aspectRatio="1/1"
+                  />
                 </div>
               </div>
             </div>

@@ -45,6 +45,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
+import { MediaPickerButton } from '@/components/admin/media-picker';
 
 interface PageWidget {
   id: string;
@@ -530,16 +531,14 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Hero Image URL</label>
-                <input
-                  type="text"
-                  value={page.heroImageUrl || ''}
-                  onChange={(e) => setPage({ ...page, heroImageUrl: e.target.value })}
-                  placeholder="https://..."
-                  className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
-                />
-              </div>
+              <MediaPickerButton
+                label="Hero Background Image"
+                value={page.heroImageUrl}
+                onChange={(url) => setPage({ ...page, heroImageUrl: url || null })}
+                helpText="Background image for page hero section"
+                folder="pages"
+                acceptVideo={true}
+              />
             </div>
           </div>
 
@@ -834,39 +833,32 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
                                   {(widget.type === 'image' ||
                                     widget.type === 'hero' ||
                                     widget.type === 'image_text') && (
-                                    <div>
-                                      <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
-                                        Image URL
-                                      </label>
-                                      <input
-                                        value={(widget.config as Record<string, string>)?.imageUrl || ''}
-                                        onChange={(e) =>
-                                          handleUpdateWidget(widget.id, {
-                                            config: { ...widget.config, imageUrl: e.target.value },
-                                          })
-                                        }
-                                        placeholder="https://..."
-                                        className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
-                                      />
-                                    </div>
+                                    <MediaPickerButton
+                                      label="Widget Image"
+                                      value={(widget.config as Record<string, string>)?.imageUrl || null}
+                                      onChange={(url) =>
+                                        handleUpdateWidget(widget.id, {
+                                          config: { ...widget.config, imageUrl: url || '' },
+                                        })
+                                      }
+                                      helpText="Image for this widget"
+                                      folder="widgets"
+                                    />
                                   )}
 
                                   {widget.type === 'video' && (
-                                    <div>
-                                      <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
-                                        Video URL
-                                      </label>
-                                      <input
-                                        value={(widget.config as Record<string, string>)?.videoUrl || ''}
-                                        onChange={(e) =>
-                                          handleUpdateWidget(widget.id, {
-                                            config: { ...widget.config, videoUrl: e.target.value },
-                                          })
-                                        }
-                                        placeholder="https://vimeo.com/..."
-                                        className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
-                                      />
-                                    </div>
+                                    <MediaPickerButton
+                                      label="Video"
+                                      value={(widget.config as Record<string, string>)?.videoUrl || null}
+                                      onChange={(url) =>
+                                        handleUpdateWidget(widget.id, {
+                                          config: { ...widget.config, videoUrl: url || '' },
+                                        })
+                                      }
+                                      helpText="Upload MP4/WebM or paste a Vimeo/YouTube URL"
+                                      folder="widgets"
+                                      acceptVideo={true}
+                                    />
                                   )}
 
                                   {(widget.type === 'cta' || widget.type === 'newsletter') && (

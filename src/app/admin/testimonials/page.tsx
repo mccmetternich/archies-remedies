@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { MediaPickerButton } from '@/components/admin/media-picker';
 
 interface Testimonial {
   id: string;
@@ -311,14 +312,14 @@ export default function TestimonialsPage() {
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium mb-1">Avatar URL</label>
-                <Input
-                  value={editForm.avatarUrl || ''}
-                  onChange={(e) => setEditForm({ ...editForm, avatarUrl: e.target.value })}
-                  placeholder="https://..."
-                />
-              </div>
+              <MediaPickerButton
+                label="Avatar"
+                value={editForm.avatarUrl || null}
+                onChange={(url) => setEditForm({ ...editForm, avatarUrl: url || '' })}
+                helpText="Customer avatar photo"
+                folder="avatars"
+                aspectRatio="1/1"
+              />
             </div>
 
             <div className="p-6 border-t border-[var(--border)] flex justify-end gap-3">

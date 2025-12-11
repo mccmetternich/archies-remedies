@@ -17,6 +17,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { RichTextEditor } from '@/components/admin/rich-text-editor';
+import { MediaPickerButton } from '@/components/admin/media-picker';
 import { cn } from '@/lib/utils';
 
 interface ProductVariant {
@@ -359,14 +360,13 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Hero Image URL</label>
-              <Input
-                value={product.heroImageUrl || ''}
-                onChange={(e) => setProduct({ ...product, heroImageUrl: e.target.value })}
-                placeholder="https://..."
-              />
-            </div>
+            <MediaPickerButton
+              label="Hero Image"
+              value={product.heroImageUrl}
+              onChange={(url) => setProduct({ ...product, heroImageUrl: url || null })}
+              helpText="Main product image displayed on product page"
+              folder="products"
+            />
           </motion.div>
         )}
 

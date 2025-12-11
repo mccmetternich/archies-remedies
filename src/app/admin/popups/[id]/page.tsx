@@ -25,6 +25,7 @@ import {
   Calendar,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { MediaPickerButton } from '@/components/admin/media-picker';
 
 interface CustomPopup {
   id: string;
@@ -538,19 +539,14 @@ export default function PopupEditorPage({ params }: { params: Promise<{ id: stri
                   Video (Optional)
                 </h3>
 
-                <div>
-                  <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Video URL</label>
-                  <input
-                    type="url"
-                    value={formData.videoUrl || ''}
-                    onChange={(e) => handleInputChange('videoUrl', e.target.value)}
-                    placeholder="YouTube or Vimeo URL..."
-                    className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border-light)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)]"
-                  />
-                  <p className="text-xs text-[var(--admin-text-muted)] mt-2">
-                    Paste a YouTube or Vimeo URL
-                  </p>
-                </div>
+                <MediaPickerButton
+                  label="Video"
+                  value={formData.videoUrl || null}
+                  onChange={(url) => handleInputChange('videoUrl', url || null)}
+                  helpText="Upload MP4/WebM or paste a YouTube/Vimeo URL"
+                  folder="popups"
+                  acceptVideo={true}
+                />
               </div>
 
               <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6 space-y-5">
@@ -559,16 +555,13 @@ export default function PopupEditorPage({ params }: { params: Promise<{ id: stri
                   Image (Optional)
                 </h3>
 
-                <div>
-                  <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Image URL</label>
-                  <input
-                    type="url"
-                    value={formData.imageUrl || ''}
-                    onChange={(e) => handleInputChange('imageUrl', e.target.value)}
-                    placeholder="https://..."
-                    className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border-light)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)]"
-                  />
-                </div>
+                <MediaPickerButton
+                  label="Popup Image"
+                  value={formData.imageUrl || null}
+                  onChange={(url) => handleInputChange('imageUrl', url || null)}
+                  helpText="Background or featured image for the popup"
+                  folder="popups"
+                />
               </div>
             </div>
           )}
@@ -623,18 +616,13 @@ export default function PopupEditorPage({ params }: { params: Promise<{ id: stri
 
                   {formData.ctaType === 'download' && (
                     <>
-                      <div>
-                        <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
-                          Download File URL
-                        </label>
-                        <input
-                          type="url"
-                          value={formData.downloadFileUrl || ''}
-                          onChange={(e) => handleInputChange('downloadFileUrl', e.target.value)}
-                          placeholder="https://..."
-                          className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border-light)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)]"
-                        />
-                      </div>
+                      <MediaPickerButton
+                        label="Download File"
+                        value={formData.downloadFileUrl || null}
+                        onChange={(url) => handleInputChange('downloadFileUrl', url || null)}
+                        helpText="File users will download (PDF, image, etc.)"
+                        folder="downloads"
+                      />
                       <div>
                         <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
                           File Name (Display)
