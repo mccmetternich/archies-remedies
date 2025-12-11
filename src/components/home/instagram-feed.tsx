@@ -44,8 +44,8 @@ export function InstagramFeed({ posts, instagramUrl }: InstagramFeedProps) {
 
   return (
     <section className="py-16 md:py-20 bg-[var(--cream)] overflow-hidden">
-      {/* Header with proper spacing */}
-      <div className="container mb-16">
+      {/* Header with proper spacing - mb-[20px] for 20px gap to thumbnails */}
+      <div className="container mb-[20px]">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-8">
           <div>
             <span className="inline-flex items-center gap-3 text-xs font-semibold tracking-[0.2em] uppercase text-[var(--muted-foreground)] mb-6">
@@ -64,7 +64,7 @@ export function InstagramFeed({ posts, instagramUrl }: InstagramFeedProps) {
               href={instagramUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-3 px-8 py-4 bg-[var(--foreground)] text-white rounded-full font-medium text-sm hover:bg-[var(--primary)] hover:text-[var(--foreground)] transition-colors"
+              className="cta-button-primary"
             >
               <Instagram className="w-5 h-5" />
               Follow Us
@@ -127,8 +127,8 @@ export function InstagramFeed({ posts, instagramUrl }: InstagramFeedProps) {
         <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-[var(--cream)] to-transparent pointer-events-none z-10" />
       </div>
 
-      {/* Stats Bar - proper spacing from carousel */}
-      <div className="container mt-16">
+      {/* Stats Bar - 30px spacing from carousel */}
+      <div className="container mt-[30px]">
         <div className="flex flex-wrap justify-center gap-10 md:gap-16">
           <div className="text-center">
             <p className="text-3xl font-normal tracking-tight">15K+</p>
