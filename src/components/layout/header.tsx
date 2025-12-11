@@ -232,11 +232,11 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                   <div className="relative z-50 w-full bg-white shadow-[0_20px_40px_rgba(0,0,0,0.15)]">
                     {/* Shelf container with generous padding */}
                     <div className="container py-8">
-                      {/* Content grid - top aligned within the fixed shelf */}
-                      <div className="grid lg:grid-cols-12 gap-8 items-start">
+                      {/* Content grid - bottom aligned so Clean Formulas aligns with product tiles */}
+                      <div className="grid lg:grid-cols-12 gap-8 items-end">
                         {/* Product tiles - 2 columns */}
                         <div className="lg:col-span-8">
-                          <div className="grid md:grid-cols-2 gap-6 mb-12">
+                          <div className="grid md:grid-cols-2 gap-6">
                             {/* Product Tile 1 */}
                             {tile1Product && (
                               <Link
