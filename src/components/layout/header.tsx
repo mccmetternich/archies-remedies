@@ -144,7 +144,7 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
 
   return (
     <>
-      {/* Announcement Bumper Bar */}
+      {/* Announcement Bumper Bar - flush with header, no gap */}
       {showBumper && (
         <div className="lg:fixed lg:top-0 lg:left-0 lg:right-0 z-[51]">
           <AnnouncementBar
@@ -158,11 +158,9 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
 
       <header
         className={cn(
-          'lg:fixed left-0 right-0 z-50 transition-all duration-500 bg-white',
-          showBumper ? 'lg:top-[52px]' : 'lg:top-0',
-          isScrolled
-            ? 'shadow-[0_2px_20px_rgba(0,0,0,0.08)] py-4'
-            : 'shadow-[0_1px_3px_rgba(0,0,0,0.05)] py-5'
+          'lg:fixed left-0 right-0 z-50 bg-white shadow-[0_4px_20px_rgba(0,0,0,0.1)]',
+          showBumper ? 'lg:top-[44px]' : 'lg:top-0',
+          isScrolled ? 'py-3' : 'py-4'
         )}
       >
         <nav className="container">
@@ -195,8 +193,8 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
               >
                 <button
                   className={cn(
-                    'flex items-center gap-2 text-base font-medium tracking-wide transition-colors py-3 text-[#1a1a1a] border-b-2 border-dashed',
-                    shopOpen ? 'text-[#737373] border-[#737373]' : 'border-transparent hover:text-[#737373] hover:border-[#737373]'
+                    'flex items-center gap-2 text-base font-medium tracking-wide transition-colors py-3 text-[#1a1a1a]',
+                    shopOpen && 'text-[#737373]'
                   )}
                 >
                   Shop
@@ -219,7 +217,7 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                 <Link
                   key={page.id}
                   href={`/${page.slug}`}
-                  className="text-base font-medium tracking-wide text-[#1a1a1a] hover:text-[#737373] transition-colors py-3 border-b-2 border-dashed border-transparent hover:border-[#737373]"
+                  className="text-base font-medium tracking-wide text-[#1a1a1a] hover:text-[#737373] transition-colors py-3"
                 >
                   {page.title}
                 </Link>
@@ -229,17 +227,18 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
               {activeNavPages.length === 0 && (
                 <Link
                   href="/our-story"
-                  className="text-base font-medium tracking-wide text-[#1a1a1a] hover:text-[#737373] transition-colors py-3 border-b-2 border-dashed border-transparent hover:border-[#737373]"
+                  className="text-base font-medium tracking-wide text-[#1a1a1a] hover:text-[#737373] transition-colors py-3"
                 >
                   Our Story
                 </Link>
               )}
 
-              {/* CTA Button - Dark background with white text, blue hover with dark text */}
+              {/* CTA Button - Explicit colors for guaranteed contrast */}
               {ctaEnabled && (
                 <Link
                   href={ctaUrl}
-                  className="group inline-flex items-center gap-3 px-10 py-5 bg-black text-white rounded-full text-lg font-semibold hover:bg-[var(--primary)] hover:text-black transition-all duration-300 shadow-lg hover:shadow-xl"
+                  className="group inline-flex items-center gap-3 px-8 py-4 rounded-full text-base font-semibold transition-all duration-300 shadow-lg hover:shadow-xl"
+                  style={{ backgroundColor: '#1a1a1a', color: '#ffffff' }}
                 >
                   {ctaText}
                   <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
@@ -266,11 +265,11 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-              className="absolute top-full left-0 right-0 bg-white shadow-2xl"
+              className="absolute top-full left-0 right-0 bg-white shadow-[0_20px_40px_rgba(0,0,0,0.15)]"
               onMouseEnter={() => setShopOpen(true)}
               onMouseLeave={() => setShopOpen(false)}
             >
-              <div className="container py-12 pb-32">
+              <div className="container py-10 pb-48">
                 {/* All items top-aligned in a row */}
                 <div className="grid lg:grid-cols-12 gap-8 items-start">
                   {/* Product tiles - 2 columns */}
@@ -577,10 +576,10 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
 
       {/* Spacer for fixed header + bumper - only on desktop */}
       <div className={cn(
-        'hidden lg:block transition-all duration-500',
+        'hidden lg:block',
         showBumper
-          ? (isScrolled ? 'h-[140px]' : 'h-[160px]')
-          : (isScrolled ? 'h-[90px]' : 'h-[110px]')
+          ? (isScrolled ? 'h-[110px]' : 'h-[120px]')
+          : (isScrolled ? 'h-[70px]' : 'h-[80px]')
       )} />
     </>
   );

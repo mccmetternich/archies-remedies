@@ -81,7 +81,7 @@ export function HeroCarousel({ slides, isPaused = false }: HeroCarouselProps) {
 
   return (
     <section
-      className="relative min-h-screen overflow-hidden"
+      className="relative h-[70vh] min-h-[500px] max-h-[700px] overflow-hidden"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -124,8 +124,8 @@ export function HeroCarousel({ slides, isPaused = false }: HeroCarouselProps) {
       </AnimatePresence>
 
       {/* Content - Above the clickable overlay */}
-      <div className="container relative z-20 min-h-screen flex items-center pointer-events-none">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center py-32 lg:py-40 pointer-events-auto">
+      <div className="container relative z-20 h-full flex items-center pointer-events-none">
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-end py-16 lg:py-20 pointer-events-auto w-full">
           {/* Left - Text content */}
           <div className="max-w-xl">
             <AnimatePresence mode="wait">
@@ -172,71 +172,73 @@ export function HeroCarousel({ slides, isPaused = false }: HeroCarouselProps) {
                   {slide.subtitle || 'Preservative-free eye drops crafted for sensitive eyes. Feel the difference of truly clean ingredients.'}
                 </motion.p>
 
-                {/* CTA - Both buttons bigger with guaranteed contrast */}
+                {/* CTA - Explicit inline styles for guaranteed contrast */}
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.4, duration: 0.6 }}
-                  className="flex flex-wrap items-center gap-5"
+                  className="flex flex-wrap items-center gap-4"
                 >
                   {slide.buttonUrl && (
                     <Link
                       href={slide.buttonUrl}
-                      className="group inline-flex items-center gap-4 px-12 py-6 bg-[#1a1a1a] text-white rounded-full text-xl font-semibold hover:bg-[#bbdae9] hover:text-[#1a1a1a] transition-all duration-300 hover:gap-5 shadow-lg hover:shadow-xl"
+                      className="group inline-flex items-center gap-3 px-8 py-4 rounded-full text-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl"
+                      style={{ backgroundColor: '#1a1a1a', color: '#ffffff' }}
                     >
                       {slide.buttonText || 'Shop Now'}
-                      <ArrowRight className="w-6 h-6 transition-transform group-hover:translate-x-1" />
+                      <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
                     </Link>
                   )}
                   <Link
                     href={slide.secondaryButtonUrl || '/about'}
-                    className="group inline-flex items-center gap-3 px-10 py-6 text-lg font-semibold text-[#1a1a1a] bg-white hover:bg-[#f5f5f5] transition-colors border-2 border-[#1a1a1a]/20 hover:border-[#1a1a1a]/40 rounded-full"
+                    className="group inline-flex items-center gap-3 px-6 py-4 rounded-full text-base font-semibold transition-colors border-2"
+                    style={{ backgroundColor: '#ffffff', color: '#1a1a1a', borderColor: 'rgba(26,26,26,0.2)' }}
                   >
-                    {slide.secondaryButtonText || 'Or Learn More'}
-                    <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+                    {slide.secondaryButtonText || 'Learn More'}
+                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                   </Link>
                 </motion.div>
               </motion.div>
             </AnimatePresence>
           </div>
 
-          {/* Right - Featured testimonial card - Synced with content animation */}
+          {/* Right - Featured testimonial card - Smaller and positioned lower */}
           <AnimatePresence mode="wait">
             {slide.testimonialText && (
               <motion.div
                 key={`testimonial-${currentIndex}`}
-                initial={{ opacity: 0, x: 60 }}
+                initial={{ opacity: 0, x: 40 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -40 }}
+                exit={{ opacity: 0, x: -30 }}
                 transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                className="hidden lg:block"
+                className="hidden lg:block self-end mb-8"
               >
-                <div className="relative">
+                <div className="relative max-w-sm">
                   {/* Decorative element */}
-                  <div className="absolute -top-6 -left-6 w-24 h-24 bg-[var(--primary)] rounded-full opacity-40 blur-3xl" />
+                  <div className="absolute -top-4 -left-4 w-16 h-16 bg-[var(--primary)] rounded-full opacity-30 blur-2xl" />
 
-                  <div className="relative bg-white p-10 rounded-3xl shadow-xl border border-[var(--border-light)]">
-                    <div className="flex gap-1 mb-6">
+                  <div className="relative bg-white p-6 rounded-2xl shadow-lg border border-[var(--border-light)]">
+                    <div className="flex gap-0.5 mb-3">
                       {[1, 2, 3, 4, 5].map((i) => (
-                        <Star key={i} className="w-5 h-5 fill-[var(--foreground)] text-[var(--foreground)]" />
+                        <Star key={i} className="w-4 h-4 fill-[var(--foreground)] text-[var(--foreground)]" />
                       ))}
                     </div>
-                    <blockquote className="text-xl leading-relaxed mb-8 text-[var(--foreground)]">
+                    <blockquote className="text-base leading-relaxed mb-4 text-[var(--foreground)]">
                       &ldquo;{slide.testimonialText}&rdquo;
                     </blockquote>
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-full overflow-hidden bg-[var(--sand)]">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full overflow-hidden bg-[var(--sand)]">
                         <Image
                           src={slide.testimonialAvatarUrl || DEFAULT_AVATAR}
                           alt={slide.testimonialAuthor || 'Customer'}
-                          width={48}
-                          height={48}
+                          width={40}
+                          height={40}
                           className="w-full h-full object-cover"
                         />
                       </div>
                       <div>
-                        <p className="font-medium">{slide.testimonialAuthor || 'Verified Buyer'}</p>
-                        <p className="text-sm text-[var(--muted-foreground)]">Verified Purchase</p>
+                        <p className="font-medium text-sm">{slide.testimonialAuthor || 'Verified Buyer'}</p>
+                        <p className="text-xs text-[var(--muted-foreground)]">Verified Purchase</p>
                       </div>
                     </div>
                   </div>
