@@ -131,7 +131,7 @@ interface ShopNavItem {
 }
 
 export default function NavigationPage() {
-  const [activeTab, setActiveTab] = useState<'header' | 'dropdown' | 'pages' | 'footer' | 'bumper'>('header');
+  const [activeTab, setActiveTab] = useState<'header' | 'dropdown' | 'pages' | 'bumper'>('header');
   const [navItems, setNavItems] = useState<NavItem[]>([]);
   const [footerLinks, setFooterLinks] = useState<FooterLink[]>([]);
   const [bumperSettings, setBumperSettings] = useState<BumperSettings>({
@@ -483,18 +483,6 @@ export default function NavigationPage() {
         >
           <FileText className="w-4 h-4" />
           Page Links
-        </button>
-        <button
-          onClick={() => setActiveTab('footer')}
-          className={cn(
-            'flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm transition-all whitespace-nowrap',
-            activeTab === 'footer'
-              ? 'bg-[var(--primary)] text-[var(--admin-button-text)]'
-              : 'text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)] hover:bg-[var(--admin-input)]'
-          )}
-        >
-          <LinkIcon className="w-4 h-4" />
-          Footer
         </button>
         <button
           onClick={() => setActiveTab('bumper')}
@@ -1520,84 +1508,6 @@ export default function NavigationPage() {
         </div>
       )}
 
-      {/* ============================================
-          FOOTER LINKS
-          ============================================ */}
-      {activeTab === 'footer' && (
-        <div className="bg-[var(--admin-input)] rounded-xl border border-[var(--admin-border)]">
-          <div className="p-4 border-b border-[var(--admin-border)] flex items-center justify-between">
-            <h2 className="font-medium text-[var(--admin-text-primary)]">Footer Links</h2>
-            <button
-              onClick={handleAddFooter}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs bg-[var(--primary)] text-[var(--admin-button-text)] rounded-lg font-medium hover:bg-[var(--primary-dark)] transition-colors"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              Add Link
-            </button>
-          </div>
-
-          <Reorder.Group
-            axis="y"
-            values={footerLinks}
-            onReorder={handleReorderFooter}
-            className="divide-y divide-[var(--admin-border)]"
-          >
-            {footerLinks.map((item) => (
-              <Reorder.Item
-                key={item.id}
-                value={item}
-                className="p-4 flex items-center gap-4 hover:bg-[var(--admin-input)] transition-colors cursor-grab active:cursor-grabbing"
-              >
-                <GripVertical className="w-4 h-4 text-[var(--admin-text-muted)]" />
-
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-medium text-[var(--admin-text-primary)]">{item.label || 'Untitled'}</h3>
-                    <span className="px-2 py-0.5 text-xs bg-blue-500/20 text-blue-400 rounded-full">
-                      {item.column}
-                    </span>
-                    {!item.isActive && (
-                      <span className="px-2 py-0.5 text-xs bg-gray-700 text-[var(--admin-text-secondary)] rounded-full">
-                        Hidden
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-sm text-[var(--admin-text-muted)]">{item.url}</p>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => handleEditFooter(item)}
-                    className="p-2 rounded-lg hover:bg-[var(--admin-hover)] transition-colors"
-                  >
-                    <Edit className="w-4 h-4 text-[var(--admin-text-secondary)]" />
-                  </button>
-                  <button
-                    onClick={() => handleDeleteFooter(item.id)}
-                    className="p-2 rounded-lg hover:bg-red-500/10 text-red-400 transition-colors"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              </Reorder.Item>
-            ))}
-          </Reorder.Group>
-
-          {footerLinks.length === 0 && (
-            <div className="py-12 text-center">
-              <LinkIcon className="w-12 h-12 mx-auto mb-4 text-[var(--admin-text-muted)]" />
-              <h3 className="font-medium text-[var(--admin-text-primary)] mb-2">No footer links</h3>
-              <button
-                onClick={handleAddFooter}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--admin-input)] text-[var(--admin-text-secondary)] rounded-lg text-sm hover:bg-[var(--admin-hover)] transition-colors"
-              >
-                <Plus className="w-4 h-4" />
-                Add Link
-              </button>
-            </div>
-          )}
-        </div>
-      )}
 
       {/* Edit Modal */}
       {editingId && (

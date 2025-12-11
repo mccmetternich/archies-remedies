@@ -138,6 +138,37 @@ export const siteSettings = sqliteTable('site_settings', {
   // Footer
   massiveFooterLogoUrl: text('massive_footer_logo_url'), // Full-width brand texture logo that spans viewport
 
+  // Footer - Email Signup Section
+  footerEmailSignupEnabled: integer('footer_email_signup_enabled', { mode: 'boolean' }).default(true),
+  footerEmailSignupTitle: text('footer_email_signup_title').default("Join the Archie's Community"),
+  footerEmailSignupSubtitle: text('footer_email_signup_subtitle').default('Expert eye care tips, new product drops, and wellness inspiration. No spam, ever.'),
+  footerEmailSignupPlaceholder: text('footer_email_signup_placeholder').default('Enter your email'),
+  footerEmailSignupButtonText: text('footer_email_signup_button_text').default('Sign Up'),
+  footerEmailSignupSuccessMessage: text('footer_email_signup_success_message').default("You're on the list."),
+
+  // Footer - Column Titles
+  footerColumn1Title: text('footer_column1_title').default('Shop'),
+  footerColumn2Title: text('footer_column2_title').default('Learn'),
+  footerColumn3Title: text('footer_column3_title').default('Support'),
+  footerColumn4Title: text('footer_column4_title').default('Certifications'),
+
+  // Footer - Certifications (3 items with icon and label)
+  footerCert1Icon: text('footer_cert1_icon').default('droplet'), // icon name or custom image URL
+  footerCert1IconUrl: text('footer_cert1_icon_url'), // optional custom icon image
+  footerCert1Label: text('footer_cert1_label').default('Preservative Free'),
+  footerCert2Icon: text('footer_cert2_icon').default('flag'),
+  footerCert2IconUrl: text('footer_cert2_icon_url'),
+  footerCert2Label: text('footer_cert2_label').default('Made in USA'),
+  footerCert3Icon: text('footer_cert3_icon').default('rabbit'),
+  footerCert3IconUrl: text('footer_cert3_icon_url'),
+  footerCert3Label: text('footer_cert3_label').default('Cruelty Free'),
+
+  // Footer - Legal Links
+  footerPrivacyUrl: text('footer_privacy_url').default('/privacy'),
+  footerPrivacyLabel: text('footer_privacy_label').default('Privacy Policy'),
+  footerTermsUrl: text('footer_terms_url').default('/terms'),
+  footerTermsLabel: text('footer_terms_label').default('Terms of Service'),
+
   // Social Stats (for consistent social proof across the site)
   totalReviews: integer('total_reviews').default(2900),
   totalCustomers: integer('total_customers').default(10000),
