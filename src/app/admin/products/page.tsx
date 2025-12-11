@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Package, Plus, Eye, EyeOff, ExternalLink, DollarSign, Loader2, Trash2, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { StatusBadge } from '@/components/admin/status-badge';
+import { MobileActionBar } from '@/components/admin/mobile-action-bar';
 
 interface Product {
   id: string;
@@ -77,6 +79,10 @@ export default function ProductsPage() {
     isOpen: false,
     product: null,
   });
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
+
+  // Get the selected product for mobile action bar
+  const selectedProduct = selectedProductId ? products.find(p => p.id === selectedProductId) : null;
 
   useEffect(() => {
     Promise.all([fetchProducts(), fetchSiteSettings()]);
@@ -296,10 +302,21 @@ export default function ProductsPage() {
               const effectivelyLive = isEffectivelyLive(product.isActive);
 
               return (
-                <Link
+                <div
                   key={product.id}
-                  href={`/admin/products/${product.id}`}
-                  className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 hover:bg-[var(--primary)]/5 transition-colors group cursor-pointer"
+                  className={cn(
+                    "flex items-center gap-3 sm:gap-4 p-3 sm:p-4 hover:bg-[var(--primary)]/5 transition-colors group cursor-pointer",
+                    selectedProductId === product.id && "bg-[var(--primary)]/10 sm:bg-transparent"
+                  )}
+                  onClick={(e) => {
+                    // On mobile, first tap selects; on desktop, navigate
+                    if (window.innerWidth < 640) {
+                      e.preventDefault();
+                      setSelectedProductId(selectedProductId === product.id ? null : product.id);
+                    } else {
+                      window.location.href = `/admin/products/${product.id}`;
+                    }
+                  }}
                 >
                   {/* Image */}
                   <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-[var(--admin-input)] flex items-center justify-center shrink-0 overflow-hidden group-hover:bg-[var(--primary)]/10 transition-colors">
@@ -320,11 +337,10 @@ export default function ProductsPage() {
                       <h3 className="font-medium text-[var(--admin-text-primary)] group-hover:text-[var(--primary)] transition-colors truncate text-sm sm:text-base">
                         {product.name}
                       </h3>
-                      {/* Mobile status indicator */}
-                      <span className={cn(
-                        "sm:hidden w-2 h-2 rounded-full shrink-0",
-                        effectivelyLive ? 'bg-green-400' : 'bg-orange-400'
-                      )} />
+                      {/* Mobile status badge - tappable */}
+                      <div className="sm:hidden" onClick={(e) => e.stopPropagation()}>
+                        <StatusBadge isLive={effectivelyLive} size="sm" />
+                      </div>
                     </div>
                     <p className="text-xs sm:text-sm text-[var(--admin-text-muted)] truncate">
                       {product.price ? `$${product.price.toFixed(2)}` : 'No price'}
@@ -404,7 +420,7 @@ export default function ProductsPage() {
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
-                </Link>
+                </div>
               );
             })}
           </div>
@@ -433,6 +449,49 @@ export default function ProductsPage() {
         onClose={() => setDeleteModal({ isOpen: false, product: null })}
         onDelete={() => deleteModal.product && handleDelete(deleteModal.product)}
         onUnpublish={() => deleteModal.product && handleUnpublish(deleteModal.product)}
+      />
+
+      {/* Mobile Action Bar */}
+      <MobileActionBar
+        isOpen={!!selectedProduct}
+        onClose={() => setSelectedProductId(null)}
+        title={selectedProduct?.name}
+        actions={selectedProduct ? [
+          {
+            label: 'Edit Product',
+            icon: <Package className="w-5 h-5" />,
+            onClick: () => {
+              window.location.href = `/admin/products/${selectedProduct.id}`;
+            },
+            variant: 'primary',
+          },
+          {
+            label: isEffectivelyLive(selectedProduct.isActive) ? 'Set to Draft' : 'Set to Live',
+            icon: isEffectivelyLive(selectedProduct.isActive) ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />,
+            onClick: () => {
+              toggleProductStatus(selectedProduct);
+              setSelectedProductId(null);
+            },
+            disabled: siteInDraftMode,
+          },
+          {
+            label: isEffectivelyLive(selectedProduct.isActive) ? 'View Live' : 'View Draft',
+            icon: <ExternalLink className="w-5 h-5" />,
+            onClick: () => {
+              handlePreview(selectedProduct);
+              setSelectedProductId(null);
+            },
+          },
+          {
+            label: 'Delete',
+            icon: <Trash2 className="w-5 h-5" />,
+            onClick: () => {
+              setDeleteModal({ isOpen: true, product: selectedProduct });
+              setSelectedProductId(null);
+            },
+            variant: 'danger',
+          },
+        ] : []}
       />
     </div>
   );

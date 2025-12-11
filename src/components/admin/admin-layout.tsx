@@ -179,6 +179,17 @@ function AdminLayoutInner({ children, unreadMessages = 0 }: AdminLayoutProps) {
 
   const breadcrumbs = getBreadcrumbs();
 
+  // Get current section name for mobile header
+  const getCurrentSectionName = () => {
+    if (pathname === '/admin') return 'Dashboard';
+    const parts = pathname.split('/').filter(Boolean);
+    if (parts.length >= 2) {
+      let name = parts[1].charAt(0).toUpperCase() + parts[1].slice(1);
+      return name.replace(/-/g, ' ');
+    }
+    return 'Admin';
+  };
+
   const handleLogout = async () => {
     try {
       await fetch('/api/admin/auth/logout', { method: 'POST' });
@@ -194,11 +205,13 @@ function AdminLayoutInner({ children, unreadMessages = 0 }: AdminLayoutProps) {
       {/* Mobile Header */}
       <header className="sticky top-0 z-40 md:hidden bg-[var(--admin-sidebar)] border-b border-[var(--admin-border)]">
         <div className="flex items-center justify-between px-4 h-16">
-          <Link href="/admin" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-[var(--primary)] flex items-center justify-center text-sm font-bold text-[var(--admin-button-text)]">
+          <Link href="/admin" className="flex items-center gap-2 min-w-0">
+            <div className="w-8 h-8 rounded-lg bg-[var(--primary)] flex items-center justify-center text-sm font-bold text-[var(--admin-button-text)] shrink-0">
               A
             </div>
-            <span className="font-medium" style={{ color: NAV_COLORS.textPrimary }}>Admin</span>
+            <span className="font-medium truncate max-w-[140px]" style={{ color: NAV_COLORS.textPrimary }}>
+              {getCurrentSectionName()}
+            </span>
           </Link>
           <div className="flex items-center gap-2">
             {/* Mobile Draft Toggle */}

@@ -768,7 +768,11 @@ export default function NavigationPage() {
 
                 {/* Right side - Live Preview */}
                 <div className="lg:sticky lg:top-6">
-                  <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-3">Live Preview</label>
+                  {/* Mobile separator */}
+                  <div className="lg:hidden border-t border-[var(--admin-border)] pt-6 mt-2 mb-4">
+                    <h4 className="text-xs font-semibold uppercase tracking-wider text-[var(--admin-text-muted)]">Preview</h4>
+                  </div>
+                  <label className="hidden lg:block text-sm font-medium text-[var(--admin-text-secondary)] mb-3">Live Preview</label>
                   <div className="p-5 rounded-2xl bg-white border border-[var(--admin-border)] hover:shadow-md transition-all duration-300 group">
                     <div className="relative mb-4">
                       <div className="aspect-square w-full rounded-xl overflow-hidden bg-[#f5f5f0]">
@@ -934,7 +938,11 @@ export default function NavigationPage() {
 
                 {/* Right side - Live Preview */}
                 <div className="lg:sticky lg:top-6">
-                  <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-3">Live Preview</label>
+                  {/* Mobile separator */}
+                  <div className="lg:hidden border-t border-[var(--admin-border)] pt-6 mt-2 mb-4">
+                    <h4 className="text-xs font-semibold uppercase tracking-wider text-[var(--admin-text-muted)]">Preview</h4>
+                  </div>
+                  <label className="hidden lg:block text-sm font-medium text-[var(--admin-text-secondary)] mb-3">Live Preview</label>
                   <div className="p-5 rounded-2xl bg-white border border-[var(--admin-border)] hover:shadow-md transition-all duration-300 group">
                     <div className="relative mb-4">
                       <div className="aspect-square w-full rounded-xl overflow-hidden bg-[#f5f5f0]">

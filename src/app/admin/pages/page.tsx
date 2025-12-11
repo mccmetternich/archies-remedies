@@ -20,6 +20,8 @@ import {
   Home,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { StatusBadge } from '@/components/admin/status-badge';
+import { MobileActionBar } from '@/components/admin/mobile-action-bar';
 
 interface Page {
   id: string;
@@ -109,6 +111,11 @@ export default function PagesListPage() {
     footer: true,
     other: true,
   });
+  const [selectedItem, setSelectedItem] = useState<{ type: 'page' | 'product'; id: string } | null>(null);
+
+  // Get selected page or product
+  const selectedPage = selectedItem?.type === 'page' ? pages.find(p => p.id === selectedItem.id) : null;
+  const selectedProduct = selectedItem?.type === 'product' ? products.find(p => p.id === selectedItem.id) : null;
 
   useEffect(() => {
     Promise.all([fetchPages(), fetchProducts(), fetchSiteSettings()]);
@@ -218,6 +225,42 @@ export default function PagesListPage() {
     setExpandedSections((prev) => ({ ...prev, [section]: !prev[section] }));
   };
 
+  const handlePreviewPage = async (page: Page) => {
+    const baseUrl = page.slug === 'home' ? '/' : `/${page.slug}`;
+    const effectivelyLive = isEffectivelyLive(page.isActive);
+    if (!effectivelyLive) {
+      try {
+        const res = await fetch('/api/admin/preview', { method: 'POST' });
+        const data = await res.json();
+        if (res.ok && data.token) {
+          window.open(`${baseUrl}?token=${data.token}`, '_blank');
+          return;
+        }
+      } catch (error) {
+        console.error('Failed to generate preview token:', error);
+      }
+    }
+    window.open(baseUrl, '_blank');
+  };
+
+  const handlePreviewProduct = async (product: Product) => {
+    const baseUrl = `/products/${product.slug}`;
+    const effectivelyLive = isEffectivelyLive(product.isActive);
+    if (!effectivelyLive) {
+      try {
+        const res = await fetch('/api/admin/preview', { method: 'POST' });
+        const data = await res.json();
+        if (res.ok && data.token) {
+          window.open(`${baseUrl}?token=${data.token}`, '_blank');
+          return;
+        }
+      } catch (error) {
+        console.error('Failed to generate preview token:', error);
+      }
+    }
+    window.open(baseUrl, '_blank');
+  };
+
   // Categorize pages
   // Homepage gets its own special treatment - always first in main nav
   const homePage = pages.find((p) => p.slug === 'home');
@@ -258,11 +301,23 @@ export default function PagesListPage() {
 
   const PageRow = ({ page, onToggle, onDelete }: { page: Page; onToggle: () => void; onDelete: () => void }) => {
     const effectivelyLive = isEffectivelyLive(page.isActive);
+    const isSelected = selectedItem?.type === 'page' && selectedItem.id === page.id;
 
     return (
-    <Link
-      href={`/admin/pages/${page.id}`}
-      className="flex items-center justify-between p-4 hover:bg-[var(--primary)]/5 transition-colors group cursor-pointer"
+    <div
+      className={cn(
+        "flex items-center justify-between p-4 hover:bg-[var(--primary)]/5 transition-colors group cursor-pointer",
+        isSelected && "bg-[var(--primary)]/10 sm:bg-transparent"
+      )}
+      onClick={(e) => {
+        // On mobile, first tap selects; on desktop, navigate
+        if (window.innerWidth < 640) {
+          e.preventDefault();
+          setSelectedItem(isSelected ? null : { type: 'page', id: page.id });
+        } else {
+          window.location.href = `/admin/pages/${page.id}`;
+        }
+      }}
     >
       <div className="flex items-center gap-4 flex-1 min-w-0">
         <div className={cn(
@@ -281,20 +336,24 @@ export default function PagesListPage() {
         </div>
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <h3 className="font-medium text-[var(--admin-text-primary)] group-hover:text-[var(--primary)] transition-colors truncate">
+            <h3 className="font-medium text-[var(--admin-text-primary)] group-hover:text-[var(--primary)] transition-colors truncate text-sm sm:text-base">
               {getDisplayTitle(page)}
             </h3>
             {page.slug === 'home' && (
-              <span className="px-2 py-0.5 text-xs bg-[var(--primary)]/20 text-[var(--primary)] rounded-full">
+              <span className="hidden sm:inline px-2 py-0.5 text-xs bg-[var(--primary)]/20 text-[var(--primary)] rounded-full">
                 Main
               </span>
             )}
+            {/* Mobile status badge */}
+            <div className="sm:hidden">
+              <StatusBadge isLive={effectivelyLive} size="sm" />
+            </div>
           </div>
-          <p className="text-sm text-[var(--admin-text-muted)] truncate">{page.slug === 'home' ? '/' : `/${page.slug}`}</p>
+          <p className="text-xs sm:text-sm text-[var(--admin-text-muted)] truncate">{page.slug === 'home' ? '/' : `/${page.slug}`}</p>
         </div>
       </div>
 
-      <div className="flex items-center gap-4" onClick={(e) => e.preventDefault()}>
+      <div className="hidden sm:flex items-center gap-4" onClick={(e) => e.preventDefault()}>
         {/* Draft/Live Toggle Switch */}
         <div className="flex items-center gap-2">
           <span className={cn(
@@ -380,31 +439,49 @@ export default function PagesListPage() {
           <Trash2 className="w-4 h-4" />
         </button>
       </div>
-    </Link>
+    </div>
   );
   };
 
   const ProductRow = ({ product, onToggle, onDelete }: { product: Product; onToggle: () => void; onDelete: () => void }) => {
     const effectivelyLive = isEffectivelyLive(product.isActive);
+    const isSelected = selectedItem?.type === 'product' && selectedItem.id === product.id;
 
     return (
-    <Link
-      href={`/admin/products/${product.id}`}
-      className="flex items-center justify-between p-4 hover:bg-[var(--primary)]/5 transition-colors group cursor-pointer"
+    <div
+      className={cn(
+        "flex items-center justify-between p-4 hover:bg-[var(--primary)]/5 transition-colors group cursor-pointer",
+        isSelected && "bg-[var(--primary)]/10 sm:bg-transparent"
+      )}
+      onClick={(e) => {
+        // On mobile, first tap selects; on desktop, navigate
+        if (window.innerWidth < 640) {
+          e.preventDefault();
+          setSelectedItem(isSelected ? null : { type: 'product', id: product.id });
+        } else {
+          window.location.href = `/admin/products/${product.id}`;
+        }
+      }}
     >
       <div className="flex items-center gap-4 flex-1 min-w-0">
         <div className="w-10 h-10 rounded-lg bg-[var(--admin-input)] flex items-center justify-center shrink-0 group-hover:bg-[var(--primary)]/10 transition-colors">
           <Package className="w-5 h-5 text-[var(--admin-text-secondary)] group-hover:text-[var(--primary)]" />
         </div>
         <div className="min-w-0">
-          <h3 className="font-medium text-[var(--admin-text-primary)] group-hover:text-[var(--primary)] transition-colors truncate">
-            {product.name}
-          </h3>
-          <p className="text-sm text-[var(--admin-text-muted)] truncate">/products/{product.slug}</p>
+          <div className="flex items-center gap-2">
+            <h3 className="font-medium text-[var(--admin-text-primary)] group-hover:text-[var(--primary)] transition-colors truncate text-sm sm:text-base">
+              {product.name}
+            </h3>
+            {/* Mobile status badge */}
+            <div className="sm:hidden">
+              <StatusBadge isLive={effectivelyLive} size="sm" />
+            </div>
+          </div>
+          <p className="text-xs sm:text-sm text-[var(--admin-text-muted)] truncate">/products/{product.slug}</p>
         </div>
       </div>
 
-      <div className="flex items-center gap-4" onClick={(e) => e.preventDefault()}>
+      <div className="hidden sm:flex items-center gap-4" onClick={(e) => e.preventDefault()}>
         {/* Draft/Live Toggle Switch */}
         <div className="flex items-center gap-2">
           <span className={cn(
@@ -489,7 +566,7 @@ export default function PagesListPage() {
           <Trash2 className="w-4 h-4" />
         </button>
       </div>
-    </Link>
+    </div>
   );
   };
 
@@ -755,6 +832,92 @@ export default function PagesListPage() {
         onClose={() => setDeleteModal({ isOpen: false, page: null })}
         onDelete={() => deleteModal.page && handleDelete(deleteModal.page)}
         onUnpublish={() => deleteModal.page && handleUnpublish(deleteModal.page)}
+      />
+
+      {/* Mobile Action Bar - Pages */}
+      <MobileActionBar
+        isOpen={!!selectedPage}
+        onClose={() => setSelectedItem(null)}
+        title={selectedPage ? getDisplayTitle(selectedPage) : undefined}
+        actions={selectedPage ? [
+          {
+            label: 'Edit Page',
+            icon: <Edit className="w-5 h-5" />,
+            onClick: () => {
+              window.location.href = `/admin/pages/${selectedPage.id}`;
+            },
+            variant: 'primary',
+          },
+          {
+            label: isEffectivelyLive(selectedPage.isActive) ? 'Set to Draft' : 'Set to Live',
+            icon: isEffectivelyLive(selectedPage.isActive) ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />,
+            onClick: () => {
+              togglePageStatus(selectedPage);
+              setSelectedItem(null);
+            },
+            disabled: siteInDraftMode,
+          },
+          {
+            label: isEffectivelyLive(selectedPage.isActive) ? 'View Live' : 'View Draft',
+            icon: <ExternalLink className="w-5 h-5" />,
+            onClick: () => {
+              handlePreviewPage(selectedPage);
+              setSelectedItem(null);
+            },
+          },
+          {
+            label: 'Delete',
+            icon: <Trash2 className="w-5 h-5" />,
+            onClick: () => {
+              setDeleteModal({ isOpen: true, page: selectedPage });
+              setSelectedItem(null);
+            },
+            variant: 'danger',
+          },
+        ] : []}
+      />
+
+      {/* Mobile Action Bar - Products */}
+      <MobileActionBar
+        isOpen={!!selectedProduct}
+        onClose={() => setSelectedItem(null)}
+        title={selectedProduct?.name}
+        actions={selectedProduct ? [
+          {
+            label: 'Edit Product',
+            icon: <Package className="w-5 h-5" />,
+            onClick: () => {
+              window.location.href = `/admin/products/${selectedProduct.id}`;
+            },
+            variant: 'primary',
+          },
+          {
+            label: isEffectivelyLive(selectedProduct.isActive) ? 'Set to Draft' : 'Set to Live',
+            icon: isEffectivelyLive(selectedProduct.isActive) ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />,
+            onClick: () => {
+              toggleProductStatus(selectedProduct);
+              setSelectedItem(null);
+            },
+            disabled: siteInDraftMode,
+          },
+          {
+            label: isEffectivelyLive(selectedProduct.isActive) ? 'View Live' : 'View Draft',
+            icon: <ExternalLink className="w-5 h-5" />,
+            onClick: () => {
+              handlePreviewProduct(selectedProduct);
+              setSelectedItem(null);
+            },
+          },
+          {
+            label: 'Delete',
+            icon: <Trash2 className="w-5 h-5" />,
+            onClick: () => {
+              handleDeleteProduct(selectedProduct);
+              setSelectedItem(null);
+            },
+            variant: 'danger',
+          },
+        ] : []}
       />
     </div>
   );

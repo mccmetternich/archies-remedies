@@ -108,11 +108,11 @@ function ImageUpload({ label, value, onChange, placeholder, aspectRatio = '1/1',
       <label className="block text-sm font-medium text-[var(--admin-text-secondary)]">{label}</label>
       {helpText && <p className="text-xs text-[var(--admin-text-muted)]">{helpText}</p>}
 
-      <div className="flex gap-4">
+      <div className="flex flex-col sm:flex-row gap-4">
         {/* Preview */}
         <div
           className={cn(
-            'relative w-24 h-24 rounded-xl bg-[var(--admin-input)] border-2 border-dashed border-[var(--admin-border)] flex items-center justify-center overflow-hidden group',
+            'relative w-full sm:w-24 h-24 rounded-xl bg-[var(--admin-input)] border-2 border-dashed border-[var(--admin-border)] flex items-center justify-center overflow-hidden group shrink-0',
             value && 'border-solid border-[var(--admin-border)]'
           )}
           style={{ aspectRatio }}
