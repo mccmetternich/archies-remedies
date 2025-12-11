@@ -217,7 +217,7 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
               logoPosition === 'center' ? '' : 'ml-12'
             )}>
               {/* Shop Dropdown - CSS hover based (no React state) */}
-              <div className="relative group/shop">
+              <div className="relative group/shop inline-flex">
                 <button
                   className="flex items-center gap-2 text-base font-medium tracking-wide transition-colors py-3 text-[#1a1a1a] group-hover/shop:text-[#737373]"
                 >
@@ -227,12 +227,12 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                   />
                 </button>
 
-                {/* Hover bridge - extends hover zone from button to dropdown */}
+                {/* Hover bridge - narrow zone below button that connects to dropdown */}
                 <div
-                  className="absolute top-full left-1/2 -translate-x-1/2 w-64"
+                  className="absolute top-full left-0 right-0"
                   style={{
                     height: showBumper ? '95px' : '51px',
-                    background: 'linear-gradient(transparent, transparent)' // Creates hit-testable area
+                    background: 'transparent'
                   }}
                 />
 
