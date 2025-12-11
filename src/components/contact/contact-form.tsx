@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Send } from 'lucide-react';
+import Link from 'next/link';
+import { Send, Home, ShoppingBag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { SuccessState } from '@/components/ui/success-state';
@@ -47,9 +48,23 @@ export function ContactForm() {
         <SuccessState
           title="Message Sent!"
           message="Thank you for reaching out. We'll get back to you as soon as possible."
-          onReset={() => setStatus('idle')}
-          resetText="Send another message"
         />
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 px-6 py-3 text-sm font-medium text-[var(--foreground)] border border-[var(--border)] rounded-lg hover:bg-[var(--muted)] transition-colors"
+          >
+            <Home className="w-4 h-4" />
+            Back to Home
+          </Link>
+          <Link
+            href="/#products"
+            className="inline-flex items-center gap-2 px-6 py-3 text-sm font-medium bg-[var(--foreground)] text-[var(--background)] rounded-lg hover:bg-[var(--primary-dark)] transition-colors"
+          >
+            <ShoppingBag className="w-4 h-4" />
+            Continue Shopping
+          </Link>
+        </div>
       </div>
     );
   }
