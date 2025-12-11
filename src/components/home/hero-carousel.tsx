@@ -176,10 +176,10 @@ export function HeroCarousel({ slides, isPaused = false }: HeroCarouselProps) {
                       <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
                     </Link>
                   )}
-                  {/* Secondary button - white bg, dark text */}
+                  {/* Secondary button - white bg, dark text - hidden on mobile */}
                   <Link
                     href={slide.secondaryButtonUrl || '/about'}
-                    className="group inline-flex items-center gap-3 px-6 py-4 rounded-full text-base font-semibold border-2 border-[#1a1a1a]/20 bg-white [&]:text-[#1a1a1a] transition-all duration-300 hover:bg-[#f5f5f5] hover:border-[#1a1a1a]/40"
+                    className="hidden md:inline-flex group items-center gap-3 px-6 py-4 rounded-full text-base font-semibold border-2 border-[#1a1a1a]/20 bg-white [&]:text-[#1a1a1a] transition-all duration-300 hover:bg-[#f5f5f5] hover:border-[#1a1a1a]/40"
                   >
                     {slide.secondaryButtonText || 'Learn More'}
                     <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />

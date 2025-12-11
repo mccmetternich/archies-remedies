@@ -120,6 +120,10 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
   const ctaText = globalNav?.ctaText || 'Shop Now';
   const ctaUrl = globalNav?.ctaUrl || '/products/eye-drops';
 
+  // Logo position settings
+  const logoPosition = globalNav?.logoPosition || 'left';
+  const logoPositionMobile = globalNav?.logoPositionMobile || 'left';
+
   // Clean formulas settings
   const cleanFormulasTitle = globalNav?.cleanFormulasTitle || 'Clean Formulas';
   const cleanFormulasDescription = globalNav?.cleanFormulasDescription || 'No preservatives, phthalates, parabens, or sulfates.';
@@ -146,9 +150,33 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
       >
         <nav className="container">
           {/* Nav row - z-[70] ensures nav items float above the dropdown (z-50) */}
-          <div className="flex items-center justify-between relative z-[70]">
+          <div className={cn(
+            "flex items-center relative z-[70]",
+            logoPosition === 'center' ? 'lg:justify-between' : 'justify-between'
+          )}>
+            {/* Mobile Menu Button - Left side on mobile */}
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className={cn(
+                "lg:hidden p-2 -ml-2 rounded-full hover:bg-[var(--sand)] transition-colors relative z-10",
+                logoPositionMobile === 'center' ? 'order-first' : 'order-last'
+              )}
+              aria-label="Toggle menu"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+
             {/* Logo */}
-            <Link href="/" className="flex items-center relative z-10">
+            <Link
+              href="/"
+              className={cn(
+                "flex items-center relative z-10",
+                // Mobile positioning
+                logoPositionMobile === 'center' ? 'flex-1 justify-center lg:flex-none lg:justify-start' : '',
+                // Desktop positioning
+                logoPosition === 'center' ? 'lg:absolute lg:left-1/2 lg:-translate-x-1/2' : ''
+              )}
+            >
               {logo ? (
                 <Image
                   src={logo}
@@ -165,8 +193,16 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
               )}
             </Link>
 
+            {/* Spacer for mobile when logo is centered */}
+            {logoPositionMobile === 'center' && (
+              <div className="lg:hidden w-9" />
+            )}
+
             {/* Desktop Navigation - Shop on left */}
-            <div className="hidden lg:flex items-center gap-10 ml-12">
+            <div className={cn(
+              "hidden lg:flex items-center gap-10",
+              logoPosition === 'center' ? '' : 'ml-12'
+            )}>
               {/* Shop Dropdown - CSS hover based (no React state) */}
               <div className="relative group/shop">
                 <button
@@ -189,19 +225,19 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
 
                 {/* Shadow mask - fixed at z-50 (same as header) to cover header shadow at join point */}
                 <div
-                  className="fixed left-0 right-0 h-10 bg-white z-50 opacity-0 group-hover/shop:opacity-100 transition-opacity duration-300 pointer-events-none"
+                  className="hidden lg:block fixed left-0 right-0 h-10 bg-white z-50 opacity-0 group-hover/shop:opacity-100 transition-opacity duration-300 pointer-events-none"
                   style={{ top: showBumper ? '131px' : '87px' }}
                 />
 
                 {/* Mega Nav Dropdown - CSS transitions, z-40 to sit below nav bar (z-50) */}
                 <div
-                  className="fixed left-0 right-0 z-40 opacity-0 invisible translate-y-2 group-hover/shop:opacity-100 group-hover/shop:visible group-hover/shop:translate-y-0 transition-all duration-300 ease-out pointer-events-none group-hover/shop:pointer-events-auto"
-                  style={{ top: showBumper ? '139px' : '95px' }}
+                  className="hidden lg:block fixed left-0 right-0 z-40 opacity-0 invisible translate-y-2 group-hover/shop:opacity-100 group-hover/shop:visible group-hover/shop:translate-y-0 transition-all duration-300 ease-out pointer-events-none group-hover/shop:pointer-events-auto"
+                  style={{ top: showBumper ? '131px' : '87px' }}
                 >
 
                   <div className="relative z-50 w-full bg-white shadow-[0_20px_40px_rgba(0,0,0,0.15)]">
-                    {/* Shelf container with generous bottom padding */}
-                    <div className="container py-10 pb-16">
+                    {/* Shelf container with generous padding */}
+                    <div className="container py-8 pb-12">
                       {/* Content grid - top aligned within the fixed shelf */}
                       <div className="grid lg:grid-cols-12 gap-8 items-start">
                         {/* Product tiles - 2 columns */}
@@ -396,14 +432,6 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
               )}
             </div>
 
-            {/* Mobile Menu Button */}
-            <button
-              onClick={() => setIsOpen(!isOpen)}
-              className="lg:hidden p-2 -mr-2 rounded-full hover:bg-[var(--sand)] transition-colors relative z-10"
-              aria-label="Toggle menu"
-            >
-              {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </button>
           </div>
         </nav>
 
@@ -429,17 +457,17 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
               className="fixed right-0 top-0 bottom-0 z-50 w-full max-w-sm bg-white shadow-2xl lg:hidden"
             >
               <div className="flex flex-col h-full">
-                <div className="flex items-center justify-between p-6 border-b border-[var(--border-light)]">
-                  <span className="text-sm font-semibold tracking-[0.1em] uppercase text-[var(--muted-foreground)]">Menu</span>
+                {/* Close button - top right */}
+                <div className="flex justify-end p-4">
                   <button
                     onClick={() => setIsOpen(false)}
-                    className="p-2 -mr-2 rounded-full hover:bg-[var(--sand)] transition-colors"
+                    className="p-2 rounded-full hover:bg-[var(--sand)] transition-colors"
                   >
                     <X className="w-5 h-5" />
                   </button>
                 </div>
 
-                <div className="flex-1 overflow-auto p-6">
+                <div className="flex-1 overflow-auto px-6 pb-6">
                   <nav className="space-y-8">
                     {/* Products */}
                     <div>
@@ -494,46 +522,22 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                       </div>
                     </div>
 
-                    {/* Links */}
-                    <div className="space-y-1">
-                      {activeNavPages.map((page) => (
-                        <Link
-                          key={page.id}
-                          href={`/${page.slug}`}
-                          onClick={() => setIsOpen(false)}
-                          className="flex items-center justify-between py-4 border-b border-[var(--border-light)] hover:text-[var(--muted-foreground)] transition-colors"
-                        >
-                          <span className="text-lg">{page.title}</span>
-                          <ArrowRight className="w-4 h-4" />
-                        </Link>
-                      ))}
-                      {activeNavPages.length === 0 && (
-                        <Link
-                          href="/our-story"
-                          onClick={() => setIsOpen(false)}
-                          className="flex items-center justify-between py-4 border-b border-[var(--border-light)] hover:text-[var(--muted-foreground)] transition-colors"
-                        >
-                          <span className="text-lg">Our Story</span>
-                          <ArrowRight className="w-4 h-4" />
-                        </Link>
-                      )}
-                      <Link
-                        href="/faq"
-                        onClick={() => setIsOpen(false)}
-                        className="flex items-center justify-between py-4 border-b border-[var(--border-light)] hover:text-[var(--muted-foreground)] transition-colors"
-                      >
-                        <span className="text-lg">FAQ</span>
-                        <ArrowRight className="w-4 h-4" />
-                      </Link>
-                      <Link
-                        href="/contact"
-                        onClick={() => setIsOpen(false)}
-                        className="flex items-center justify-between py-4 border-b border-[var(--border-light)] hover:text-[var(--muted-foreground)] transition-colors"
-                      >
-                        <span className="text-lg">Contact</span>
-                        <ArrowRight className="w-4 h-4" />
-                      </Link>
-                    </div>
+                    {/* Page Links - same as desktop nav */}
+                    {activeNavPages.length > 0 && (
+                      <div className="space-y-1">
+                        {activeNavPages.map((page) => (
+                          <Link
+                            key={page.id}
+                            href={`/${page.slug}`}
+                            onClick={() => setIsOpen(false)}
+                            className="flex items-center justify-between py-4 border-b border-[var(--border-light)] hover:text-[var(--muted-foreground)] transition-colors"
+                          >
+                            <span className="text-lg">{page.title}</span>
+                            <ArrowRight className="w-4 h-4" />
+                          </Link>
+                        ))}
+                      </div>
+                    )}
                   </nav>
                 </div>
 
@@ -543,7 +547,7 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                     <Link
                       href={ctaUrl}
                       onClick={() => setIsOpen(false)}
-                      className="flex items-center justify-center gap-2 w-full py-4 bg-[var(--foreground)] text-white rounded-full font-medium hover:bg-black transition-colors"
+                      className="cta-button-primary w-full justify-center"
                     >
                       {ctaText}
                       <ArrowRight className="w-4 h-4" />
