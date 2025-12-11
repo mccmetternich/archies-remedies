@@ -20,6 +20,10 @@ import {
   X,
   AlertTriangle,
   UserMinus,
+  MessageSquare,
+  CheckCircle,
+  Clock,
+  Circle,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -34,6 +38,17 @@ interface ContactActivity {
   productName?: string | null;
   productSlug?: string | null;
   popupName?: string | null;
+}
+
+interface ContactMessage {
+  id: string;
+  name: string;
+  email: string;
+  subject: string | null;
+  message: string;
+  status: string | null;
+  isRead: boolean | null;
+  createdAt: string;
 }
 
 interface Contact {
@@ -56,9 +71,10 @@ interface Contact {
   createdAt: string;
   updatedAt: string;
   activities?: ContactActivity[];
+  messages?: ContactMessage[];
 }
 
-type TabType = 'info' | 'activity';
+type TabType = 'info' | 'activity' | 'messages';
 
 export default function ContactDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
@@ -292,10 +308,26 @@ export default function ContactDetailPage({ params }: { params: Promise<{ id: st
             </span>
           )}
         </button>
+        <button
+          onClick={() => setActiveTab('messages')}
+          className={cn(
+            'px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors',
+            activeTab === 'messages'
+              ? 'text-[var(--primary)] border-[var(--primary)]'
+              : 'text-[var(--admin-text-secondary)] border-transparent hover:text-[var(--admin-text-primary)]'
+          )}
+        >
+          Messages
+          {contact.messages && contact.messages.length > 0 && (
+            <span className="ml-2 px-2 py-0.5 text-xs bg-[var(--admin-input)] rounded-full">
+              {contact.messages.length}
+            </span>
+          )}
+        </button>
       </div>
 
       {/* Tab Content */}
-      {activeTab === 'info' ? (
+      {activeTab === 'info' && (
         <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Name */}
@@ -471,7 +503,9 @@ export default function ContactDetailPage({ params }: { params: Promise<{ id: st
             </div>
           </div>
         </div>
-      ) : (
+      )}
+
+      {activeTab === 'activity' && (
         <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] overflow-hidden">
           {contact.activities && contact.activities.length > 0 ? (
             <div className="divide-y divide-[var(--admin-border-light)]">
@@ -517,6 +551,77 @@ export default function ContactDetailPage({ params }: { params: Promise<{ id: st
               <h3 className="font-medium text-[var(--admin-text-primary)] mb-2">No activity yet</h3>
               <p className="text-sm text-[var(--admin-text-muted)]">
                 Activity will be recorded when this contact interacts with your site
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {activeTab === 'messages' && (
+        <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] overflow-hidden">
+          {contact.messages && contact.messages.length > 0 ? (
+            <div className="divide-y divide-[var(--admin-border-light)]">
+              {contact.messages.map((msg) => (
+                <div key={msg.id} className="px-6 py-4">
+                  <div className="flex items-start gap-4">
+                    <div className="w-8 h-8 rounded-lg bg-[var(--admin-input)] flex items-center justify-center text-[var(--admin-text-muted)]">
+                      <MessageSquare className="w-4 h-4" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        {msg.subject && (
+                          <p className="font-medium text-[var(--admin-text-primary)] truncate">
+                            {msg.subject}
+                          </p>
+                        )}
+                        <div className="flex items-center gap-1">
+                          {msg.status === 'resolved' ? (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded-full bg-green-500/10 text-green-400">
+                              <CheckCircle className="w-3 h-3" />
+                              Resolved
+                            </span>
+                          ) : msg.status === 'pending' ? (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded-full bg-yellow-500/10 text-yellow-400">
+                              <Clock className="w-3 h-3" />
+                              Pending
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded-full bg-blue-500/10 text-blue-400">
+                              <Circle className="w-3 h-3" />
+                              New
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <p className="text-sm text-[var(--admin-text-secondary)] line-clamp-2 mb-2">
+                        {msg.message}
+                      </p>
+                      <p className="text-xs text-[var(--admin-text-muted)]">
+                        {new Date(msg.createdAt).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric',
+                          hour: 'numeric',
+                          minute: '2-digit',
+                        })}
+                      </p>
+                    </div>
+                    <Link
+                      href={`/admin/messages/${msg.id}`}
+                      className="px-3 py-1.5 text-xs font-medium text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)] hover:bg-[var(--admin-input)] rounded-lg transition-colors"
+                    >
+                      View
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="py-16 text-center">
+              <MessageSquare className="w-12 h-12 mx-auto mb-4 text-[var(--admin-text-muted)]" />
+              <h3 className="font-medium text-[var(--admin-text-primary)] mb-2">No messages yet</h3>
+              <p className="text-sm text-[var(--admin-text-muted)]">
+                Messages from this contact will appear here when they reach out via the contact form
               </p>
             </div>
           )}

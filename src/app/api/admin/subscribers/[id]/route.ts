@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { contacts, contactActivity, products, customPopups } from '@/lib/db/schema';
+import { contacts, contactActivity, contactSubmissions, products, customPopups } from '@/lib/db/schema';
 import { eq, desc } from 'drizzle-orm';
 import { requireAuth } from '@/lib/api-auth';
 
@@ -45,9 +45,26 @@ export async function GET(
       .where(eq(contactActivity.contactId, id))
       .orderBy(desc(contactActivity.createdAt));
 
+    // Get messages from contact submissions linked to this contact
+    const messages = await db
+      .select({
+        id: contactSubmissions.id,
+        name: contactSubmissions.name,
+        email: contactSubmissions.email,
+        subject: contactSubmissions.subject,
+        message: contactSubmissions.message,
+        status: contactSubmissions.status,
+        isRead: contactSubmissions.isRead,
+        createdAt: contactSubmissions.createdAt,
+      })
+      .from(contactSubmissions)
+      .where(eq(contactSubmissions.contactId, id))
+      .orderBy(desc(contactSubmissions.createdAt));
+
     return NextResponse.json({
       ...contact,
       activities,
+      messages,
     });
   } catch (error) {
     console.error('Failed to fetch contact:', error);
