@@ -17,6 +17,10 @@ import {
   MessageSquare,
   RefreshCw,
   UserCheck,
+  Trash2,
+  UserMinus,
+  AlertCircle,
+  Check,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -50,6 +54,7 @@ interface Stats {
 
 type DateRange = '7d' | '14d' | '30d' | '90d' | '6m' | '12m' | 'ytd' | 'all';
 type StatusFilter = 'active' | 'inactive';
+type ColumnType = 'email' | 'sms';
 
 interface DateRangeOption {
   value: DateRange;
@@ -69,6 +74,91 @@ const DATE_RANGE_OPTIONS: DateRangeOption[] = [
   { value: 'all', label: 'All Time', shortLabel: 'All', group: 'extended' },
 ];
 
+// Delete/Unsubscribe Modal
+interface ActionModalProps {
+  isOpen: boolean;
+  columnType: ColumnType;
+  isUnsubscribedTab: boolean;
+  selectedCount: number;
+  onClose: () => void;
+  onUnsubscribe: () => void;
+  onDelete: () => void;
+}
+
+function ActionModal({ isOpen, columnType, isUnsubscribedTab, selectedCount, onClose, onUnsubscribe, onDelete }: ActionModalProps) {
+  if (!isOpen) return null;
+
+  const channelLabel = columnType === 'email' ? 'email' : 'SMS';
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative bg-[var(--admin-card)] rounded-2xl border border-[var(--admin-border)] p-6 max-w-md w-full shadow-xl">
+        <div className="flex items-start gap-4">
+          <div className="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center shrink-0">
+            <AlertCircle className="w-6 h-6 text-red-400" />
+          </div>
+          <div className="flex-1">
+            <h3 className="text-lg font-medium text-[var(--admin-text-primary)] mb-2">
+              {selectedCount === 1 ? 'Remove contact?' : `Remove ${selectedCount} contacts?`}
+            </h3>
+            <p className="text-sm text-[var(--admin-text-secondary)] mb-6">
+              {isUnsubscribedTab
+                ? `These contacts are already unsubscribed from ${channelLabel}. What would you like to do?`
+                : `What would you like to do with the selected ${channelLabel} contact${selectedCount > 1 ? 's' : ''}?`
+              }
+            </p>
+
+            <div className="flex flex-col gap-3">
+              {isUnsubscribedTab ? (
+                <>
+                  <button
+                    onClick={onClose}
+                    className="w-full py-2.5 px-4 bg-[var(--admin-input)] text-[var(--admin-text-secondary)] rounded-lg text-sm font-medium hover:bg-[var(--admin-hover)] transition-colors flex items-center justify-center gap-2"
+                  >
+                    <UserMinus className="w-4 h-4" />
+                    Keep Unsubscribed
+                  </button>
+                  <button
+                    onClick={onDelete}
+                    className="w-full py-2.5 px-4 bg-red-500/10 text-red-400 rounded-lg text-sm font-medium hover:bg-red-500/20 transition-colors flex items-center justify-center gap-2"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    Delete Permanently
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={onUnsubscribe}
+                    className="w-full py-2.5 px-4 bg-[var(--admin-input)] text-[var(--admin-text-secondary)] rounded-lg text-sm font-medium hover:bg-[var(--admin-hover)] transition-colors flex items-center justify-center gap-2"
+                  >
+                    <UserMinus className="w-4 h-4" />
+                    Unsubscribe
+                  </button>
+                  <button
+                    onClick={onDelete}
+                    className="w-full py-2.5 px-4 bg-red-500/10 text-red-400 rounded-lg text-sm font-medium hover:bg-red-500/20 transition-colors flex items-center justify-center gap-2"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    Delete Permanently
+                  </button>
+                </>
+              )}
+              <button
+                onClick={onClose}
+                className="w-full py-2.5 px-4 text-[var(--admin-text-muted)] rounded-lg text-sm font-medium hover:text-[var(--admin-text-secondary)] transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function ContactsPage() {
   const router = useRouter();
   const [contacts, setContacts] = useState<Contact[]>([]);
@@ -82,6 +172,18 @@ export default function ContactsPage() {
   const [smsTab, setSmsTab] = useState<StatusFilter>('active');
   const [emailPage, setEmailPage] = useState(1);
   const [smsPage, setSmsPage] = useState(1);
+
+  // Multi-select state
+  const [selectedEmailIds, setSelectedEmailIds] = useState<Set<string>>(new Set());
+  const [selectedSmsIds, setSelectedSmsIds] = useState<Set<string>>(new Set());
+
+  // Modal state
+  const [actionModal, setActionModal] = useState<{
+    isOpen: boolean;
+    columnType: ColumnType;
+    isUnsubscribedTab: boolean;
+    contactIds: string[];
+  }>({ isOpen: false, columnType: 'email', isUnsubscribedTab: false, contactIds: [] });
 
   const selectedOption = DATE_RANGE_OPTIONS.find(o => o.value === dateRange);
 
@@ -168,6 +270,17 @@ export default function ContactsPage() {
     });
   };
 
+  // Clear selections when tab changes
+  useEffect(() => {
+    setSelectedEmailIds(new Set());
+    setEmailPage(1);
+  }, [emailTab, search]);
+
+  useEffect(() => {
+    setSelectedSmsIds(new Set());
+    setSmsPage(1);
+  }, [smsTab, search]);
+
   // Get counts for tabs
   const emailCounts = useMemo(() => {
     const active = contacts.filter(c => c.email && c.emailStatus === 'active').length;
@@ -229,15 +342,6 @@ export default function ContactsPage() {
 
   const smsTotalPages = Math.ceil(allSmsContacts.length / ITEMS_PER_PAGE);
 
-  // Reset page when tab or search changes
-  useEffect(() => {
-    setEmailPage(1);
-  }, [emailTab, search]);
-
-  useEffect(() => {
-    setSmsPage(1);
-  }, [smsTab, search]);
-
   const handleExport = (type?: 'email' | 'sms') => {
     const params = new URLSearchParams();
     if (type) params.set('type', type);
@@ -262,6 +366,116 @@ export default function ContactsPage() {
       return `${contact.firstName || ''} ${contact.lastName || ''}`.trim();
     }
     return null;
+  };
+
+  // Selection handlers
+  const toggleEmailSelection = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedEmailIds(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
+  };
+
+  const toggleSmsSelection = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedSmsIds(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
+  };
+
+  // Action handlers
+  const openBulkActionModal = (columnType: ColumnType) => {
+    const ids = columnType === 'email' ? Array.from(selectedEmailIds) : Array.from(selectedSmsIds);
+    const isUnsubscribed = columnType === 'email' ? emailTab === 'inactive' : smsTab === 'inactive';
+    setActionModal({
+      isOpen: true,
+      columnType,
+      isUnsubscribedTab: isUnsubscribed,
+      contactIds: ids,
+    });
+  };
+
+  const openSingleActionModal = (columnType: ColumnType, contactId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const isUnsubscribed = columnType === 'email' ? emailTab === 'inactive' : smsTab === 'inactive';
+    setActionModal({
+      isOpen: true,
+      columnType,
+      isUnsubscribedTab: isUnsubscribed,
+      contactIds: [contactId],
+    });
+  };
+
+  const handleUnsubscribe = async () => {
+    const { contactIds, columnType } = actionModal;
+    const statusField = columnType === 'email' ? 'emailStatus' : 'smsStatus';
+
+    try {
+      await Promise.all(
+        contactIds.map(id =>
+          fetch(`/api/admin/subscribers/${id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ [statusField]: 'inactive' }),
+          })
+        )
+      );
+
+      // Update local state
+      setContacts(prev =>
+        prev.map(c =>
+          contactIds.includes(c.id)
+            ? { ...c, [statusField]: 'inactive' }
+            : c
+        )
+      );
+
+      // Clear selections
+      if (columnType === 'email') {
+        setSelectedEmailIds(new Set());
+      } else {
+        setSelectedSmsIds(new Set());
+      }
+    } catch (error) {
+      console.error('Failed to unsubscribe:', error);
+    }
+
+    setActionModal({ ...actionModal, isOpen: false });
+  };
+
+  const handleDelete = async () => {
+    const { contactIds } = actionModal;
+
+    try {
+      await Promise.all(
+        contactIds.map(id =>
+          fetch(`/api/admin/subscribers/${id}`, { method: 'DELETE' })
+        )
+      );
+
+      // Update local state
+      setContacts(prev => prev.filter(c => !contactIds.includes(c.id)));
+
+      // Clear selections
+      setSelectedEmailIds(new Set());
+      setSelectedSmsIds(new Set());
+    } catch (error) {
+      console.error('Failed to delete:', error);
+    }
+
+    setActionModal({ ...actionModal, isOpen: false });
   };
 
   if (loading) {
@@ -310,7 +524,7 @@ export default function ContactsPage() {
         'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 transition-opacity duration-200',
         isPending && 'opacity-60'
       )}>
-        {/* Total Active (unique people with at least one active channel) */}
+        {/* Total Active */}
         <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-3 sm:p-5">
           <div className="flex items-center gap-2 sm:gap-3">
             <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-green-500/10 flex items-center justify-center shrink-0">
@@ -318,7 +532,6 @@ export default function ContactsPage() {
             </div>
             <div className="min-w-0">
               <p className="text-lg sm:text-2xl font-semibold text-[var(--admin-text-primary)]">
-                {/* Unique active contacts - count people with either active email OR active SMS */}
                 {contacts.filter(c =>
                   (c.email && c.emailStatus === 'active') ||
                   (c.phone && c.smsStatus === 'active')
@@ -390,9 +603,8 @@ export default function ContactsPage() {
         </div>
       </div>
 
-      {/* Date Range Filters - Beautiful Segmented Control + Dropdown */}
+      {/* Date Range Filters */}
       <div className="flex flex-wrap items-center gap-3">
-        {/* Quick Filters - Pill Style */}
         <div className="flex bg-[var(--admin-input)] rounded-xl p-1 gap-0.5">
           {DATE_RANGE_OPTIONS.filter(o => o.group === 'quick').map((option) => (
             <button
@@ -430,13 +642,9 @@ export default function ContactsPage() {
             <ChevronDown className={cn('w-4 h-4 transition-transform', showDropdown && 'rotate-180')} />
           </button>
 
-          {/* Dropdown Menu */}
           {showDropdown && (
             <>
-              <div
-                className="fixed inset-0 z-10"
-                onClick={() => setShowDropdown(false)}
-              />
+              <div className="fixed inset-0 z-10" onClick={() => setShowDropdown(false)} />
               <div className="absolute top-full right-0 mt-2 w-48 bg-[var(--admin-card)] border border-[var(--admin-border-light)] rounded-xl shadow-xl z-20 overflow-hidden">
                 <div className="p-1">
                   {DATE_RANGE_OPTIONS.filter(o => o.group === 'extended').map((option) => (
@@ -459,7 +667,6 @@ export default function ContactsPage() {
           )}
         </div>
 
-        {/* Loading indicator */}
         {isPending && (
           <div className="flex items-center gap-2 text-xs text-[var(--admin-text-muted)]">
             <RefreshCw className="w-3 h-3 animate-spin" />
@@ -480,7 +687,6 @@ export default function ContactsPage() {
           />
         </div>
 
-        {/* Clear Search */}
         {search && (
           <button
             onClick={() => setSearch('')}
@@ -505,29 +711,42 @@ export default function ContactsPage() {
                 <Mail className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400 shrink-0" />
                 <h2 className="font-medium text-[var(--admin-text-primary)] text-sm sm:text-base truncate">Email</h2>
               </div>
-              <div className="flex shrink-0">
-                <button
-                  onClick={() => setEmailTab('active')}
-                  className={cn(
-                    'px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium rounded-l-lg transition-colors',
-                    emailTab === 'active'
-                      ? 'bg-[var(--primary)] text-[var(--admin-button-text)]'
-                      : 'bg-[var(--admin-input)] text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)]'
-                  )}
-                >
-                  Active ({emailCounts.active})
-                </button>
-                <button
-                  onClick={() => setEmailTab('inactive')}
-                  className={cn(
-                    'px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium rounded-r-lg transition-colors',
-                    emailTab === 'inactive'
-                      ? 'bg-[var(--primary)] text-[var(--admin-button-text)]'
-                      : 'bg-[var(--admin-input)] text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)]'
-                  )}
-                >
-                  Unsubscribed ({emailCounts.inactive})
-                </button>
+              <div className="flex items-center gap-2 shrink-0">
+                {/* Bulk delete button */}
+                {selectedEmailIds.size > 0 && (
+                  <button
+                    onClick={() => openBulkActionModal('email')}
+                    className="flex items-center gap-1.5 px-2 py-1 text-xs font-medium text-red-400 bg-red-500/10 rounded-lg hover:bg-red-500/20 transition-colors"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    ({selectedEmailIds.size})
+                  </button>
+                )}
+                {/* Tabs */}
+                <div className="flex">
+                  <button
+                    onClick={() => setEmailTab('active')}
+                    className={cn(
+                      'px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium rounded-l-lg transition-colors',
+                      emailTab === 'active'
+                        ? 'bg-[var(--primary)] text-[var(--admin-button-text)]'
+                        : 'bg-[var(--admin-input)] text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)]'
+                    )}
+                  >
+                    Active ({emailCounts.active})
+                  </button>
+                  <button
+                    onClick={() => setEmailTab('inactive')}
+                    className={cn(
+                      'px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium rounded-r-lg transition-colors',
+                      emailTab === 'inactive'
+                        ? 'bg-[var(--primary)] text-[var(--admin-button-text)]'
+                        : 'bg-[var(--admin-input)] text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)]'
+                    )}
+                  >
+                    Unsubscribed ({emailCounts.inactive})
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -536,12 +755,26 @@ export default function ContactsPage() {
             {emailContacts.length > 0 ? (
               <div className="divide-y divide-[var(--admin-border-light)]">
                 {emailContacts.map((contact) => (
-                  <button
+                  <div
                     key={contact.id}
+                    className="group w-full px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between hover:bg-[var(--admin-hover)] transition-colors text-left gap-3 cursor-pointer"
                     onClick={() => handleContactClick(contact.id)}
-                    className="w-full px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between hover:bg-[var(--admin-hover)] transition-colors text-left gap-3"
                   >
-                    <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                    {/* Checkbox */}
+                    <button
+                      onClick={(e) => toggleEmailSelection(contact.id, e)}
+                      className={cn(
+                        'w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 transition-colors',
+                        selectedEmailIds.has(contact.id)
+                          ? 'bg-[var(--primary)] border-[var(--primary)] text-white'
+                          : 'border-[var(--admin-border)] hover:border-[var(--primary)]'
+                      )}
+                    >
+                      {selectedEmailIds.has(contact.id) && <Check className="w-3 h-3" />}
+                    </button>
+
+                    {/* Contact info */}
+                    <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
                       <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[var(--primary)]/10 flex items-center justify-center text-xs sm:text-sm font-medium text-[var(--primary)] shrink-0">
                         {(contact.email || '?').charAt(0).toUpperCase()}
                       </div>
@@ -554,10 +787,20 @@ export default function ContactsPage() {
                         )}
                       </div>
                     </div>
-                    <span className="text-xs text-[var(--admin-text-muted)] shrink-0 hidden sm:block">
-                      {formatDate(contact.createdAt)}
-                    </span>
-                  </button>
+
+                    {/* Date & Actions */}
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className="text-xs text-[var(--admin-text-muted)] hidden sm:block">
+                        {formatDate(contact.createdAt)}
+                      </span>
+                      <button
+                        onClick={(e) => openSingleActionModal('email', contact.id, e)}
+                        className="p-1.5 rounded-lg text-[var(--admin-text-muted)] opacity-0 group-hover:opacity-100 hover:text-red-400 hover:bg-red-500/10 transition-all"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
                 ))}
               </div>
             ) : (
@@ -607,29 +850,42 @@ export default function ContactsPage() {
                 <Phone className="w-4 h-4 sm:w-5 sm:h-5 text-green-400 shrink-0" />
                 <h2 className="font-medium text-[var(--admin-text-primary)] text-sm sm:text-base truncate">SMS</h2>
               </div>
-              <div className="flex shrink-0">
-                <button
-                  onClick={() => setSmsTab('active')}
-                  className={cn(
-                    'px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium rounded-l-lg transition-colors',
-                    smsTab === 'active'
-                      ? 'bg-[var(--primary)] text-[var(--admin-button-text)]'
-                      : 'bg-[var(--admin-input)] text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)]'
-                  )}
-                >
-                  Active ({smsCounts.active})
-                </button>
-                <button
-                  onClick={() => setSmsTab('inactive')}
-                  className={cn(
-                    'px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium rounded-r-lg transition-colors',
-                    smsTab === 'inactive'
-                      ? 'bg-[var(--primary)] text-[var(--admin-button-text)]'
-                      : 'bg-[var(--admin-input)] text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)]'
-                  )}
-                >
-                  Unsubscribed ({smsCounts.inactive})
-                </button>
+              <div className="flex items-center gap-2 shrink-0">
+                {/* Bulk delete button */}
+                {selectedSmsIds.size > 0 && (
+                  <button
+                    onClick={() => openBulkActionModal('sms')}
+                    className="flex items-center gap-1.5 px-2 py-1 text-xs font-medium text-red-400 bg-red-500/10 rounded-lg hover:bg-red-500/20 transition-colors"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    ({selectedSmsIds.size})
+                  </button>
+                )}
+                {/* Tabs */}
+                <div className="flex">
+                  <button
+                    onClick={() => setSmsTab('active')}
+                    className={cn(
+                      'px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium rounded-l-lg transition-colors',
+                      smsTab === 'active'
+                        ? 'bg-[var(--primary)] text-[var(--admin-button-text)]'
+                        : 'bg-[var(--admin-input)] text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)]'
+                    )}
+                  >
+                    Active ({smsCounts.active})
+                  </button>
+                  <button
+                    onClick={() => setSmsTab('inactive')}
+                    className={cn(
+                      'px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium rounded-r-lg transition-colors',
+                      smsTab === 'inactive'
+                        ? 'bg-[var(--primary)] text-[var(--admin-button-text)]'
+                        : 'bg-[var(--admin-input)] text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)]'
+                    )}
+                  >
+                    Unsubscribed ({smsCounts.inactive})
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -638,12 +894,26 @@ export default function ContactsPage() {
             {smsContacts.length > 0 ? (
               <div className="divide-y divide-[var(--admin-border-light)]">
                 {smsContacts.map((contact) => (
-                  <button
+                  <div
                     key={contact.id}
+                    className="group w-full px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between hover:bg-[var(--admin-hover)] transition-colors text-left gap-3 cursor-pointer"
                     onClick={() => handleContactClick(contact.id)}
-                    className="w-full px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between hover:bg-[var(--admin-hover)] transition-colors text-left gap-3"
                   >
-                    <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                    {/* Checkbox */}
+                    <button
+                      onClick={(e) => toggleSmsSelection(contact.id, e)}
+                      className={cn(
+                        'w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 transition-colors',
+                        selectedSmsIds.has(contact.id)
+                          ? 'bg-[var(--primary)] border-[var(--primary)] text-white'
+                          : 'border-[var(--admin-border)] hover:border-[var(--primary)]'
+                      )}
+                    >
+                      {selectedSmsIds.has(contact.id) && <Check className="w-3 h-3" />}
+                    </button>
+
+                    {/* Contact info */}
+                    <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
                       <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-green-500/10 flex items-center justify-center text-xs sm:text-sm font-medium text-green-400 shrink-0">
                         <Phone className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                       </div>
@@ -656,10 +926,20 @@ export default function ContactsPage() {
                         )}
                       </div>
                     </div>
-                    <span className="text-xs text-[var(--admin-text-muted)] shrink-0 hidden sm:block">
-                      {formatDate(contact.createdAt)}
-                    </span>
-                  </button>
+
+                    {/* Date & Actions */}
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className="text-xs text-[var(--admin-text-muted)] hidden sm:block">
+                        {formatDate(contact.createdAt)}
+                      </span>
+                      <button
+                        onClick={(e) => openSingleActionModal('sms', contact.id, e)}
+                        className="p-1.5 rounded-lg text-[var(--admin-text-muted)] opacity-0 group-hover:opacity-100 hover:text-red-400 hover:bg-red-500/10 transition-all"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
                 ))}
               </div>
             ) : (
@@ -701,6 +981,17 @@ export default function ContactsPage() {
           )}
         </div>
       </div>
+
+      {/* Action Modal */}
+      <ActionModal
+        isOpen={actionModal.isOpen}
+        columnType={actionModal.columnType}
+        isUnsubscribedTab={actionModal.isUnsubscribedTab}
+        selectedCount={actionModal.contactIds.length}
+        onClose={() => setActionModal({ ...actionModal, isOpen: false })}
+        onUnsubscribe={handleUnsubscribe}
+        onDelete={handleDelete}
+      />
     </div>
   );
 }
