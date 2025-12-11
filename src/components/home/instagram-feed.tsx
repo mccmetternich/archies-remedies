@@ -44,32 +44,19 @@ export function InstagramFeed({ posts, instagramUrl }: InstagramFeedProps) {
 
   return (
     <section className="py-16 md:py-20 bg-[var(--cream)] overflow-hidden">
-      {/* Header with proper spacing - mb-[20px] for 20px gap to thumbnails */}
-      <div className="container mb-[20px]">
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-8">
-          <div>
-            <span className="inline-flex items-center gap-3 text-xs font-semibold tracking-[0.2em] uppercase text-[var(--muted-foreground)] mb-6">
-              <span className="w-12 h-px bg-[var(--foreground)]" />
-              @archiesremedies
-            </span>
-            <h2 className="mb-4">
-              Follow Along
-            </h2>
-            <p className="text-lg text-[var(--muted-foreground)] max-w-md">
-              Join our community for eye care tips, product updates, and wellness inspiration.
-            </p>
-          </div>
-          {instagramUrl && (
-            <a
-              href={instagramUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="cta-button-primary"
-            >
-              <Instagram className="w-5 h-5" />
-              Follow Us
-            </a>
-          )}
+      {/* Header with proper spacing - mb-[50px] for 50px gap to thumbnails */}
+      <div className="container mb-[50px]">
+        <div>
+          <span className="inline-flex items-center gap-3 text-xs font-semibold tracking-[0.2em] uppercase text-[var(--muted-foreground)] mb-6">
+            <span className="w-12 h-px bg-[var(--foreground)]" />
+            @archiesremedies
+          </span>
+          <h2 className="mb-4">
+            Follow Along
+          </h2>
+          <p className="text-lg text-[var(--muted-foreground)] max-w-md">
+            Join our community for eye care tips, product updates, and wellness inspiration.
+          </p>
         </div>
       </div>
 
@@ -143,6 +130,21 @@ export function InstagramFeed({ posts, instagramUrl }: InstagramFeedProps) {
             <p className="text-sm text-[var(--muted-foreground)] mt-1">Likes</p>
           </div>
         </div>
+
+        {/* Follow Us Button - centered below stats */}
+        {instagramUrl && (
+          <div className="flex justify-center mt-10">
+            <a
+              href={instagramUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="cta-button-primary"
+            >
+              <Instagram className="w-5 h-5" />
+              Follow Us
+            </a>
+          </div>
+        )}
       </div>
     </section>
   );
