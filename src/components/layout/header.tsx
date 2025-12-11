@@ -237,11 +237,11 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                         {/* Product tiles - 2 columns */}
                         <div className="lg:col-span-8">
                           <div className="grid md:grid-cols-2 gap-6">
-                            {/* Product Tile 1 */}
+                            {/* Product Tile 1 - pl-0 to align with container edge */}
                             {tile1Product && (
                               <Link
                                 href={`/products/${tile1Product.slug}`}
-                                className="group/tile block p-5 rounded-2xl bg-white hover:shadow-md hover:bg-[var(--cream)] transition-all duration-300"
+                                className="group/tile block p-5 pl-0 rounded-2xl bg-white hover:shadow-md hover:bg-[var(--cream)] transition-all duration-300"
                               >
                                 <div className="relative mb-4">
                                   <div className="aspect-square w-full rounded-xl overflow-hidden bg-[var(--cream)]">
@@ -333,7 +333,7 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                               />
                             </div>
                           )}
-                          <div className="p-6 rounded-2xl bg-[var(--primary-light)]">
+                          <div className="p-6 pr-0 rounded-2xl rounded-r-none bg-[var(--primary-light)]">
                             <p className="text-lg font-medium mb-2">{cleanFormulasTitle}</p>
                             <p className="text-sm text-[var(--muted-foreground)] leading-relaxed mb-4">
                               {cleanFormulasDescription}
