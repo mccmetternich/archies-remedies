@@ -31,6 +31,7 @@ interface MediaPickerButtonProps {
   helpText?: string;
   aspectRatio?: string;
   folder?: string;
+  acceptVideo?: boolean; // Allow video files (mp4, webm)
 }
 
 export function MediaPickerButton({
@@ -41,12 +42,19 @@ export function MediaPickerButton({
   helpText,
   aspectRatio = '1/1',
   folder,
+  acceptVideo = false,
 }: MediaPickerButtonProps) {
   const [showModal, setShowModal] = useState(false);
   const [showUrlInput, setShowUrlInput] = useState(false);
   const [urlInputValue, setUrlInputValue] = useState('');
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Determine file accept types
+  const acceptTypes = acceptVideo ? 'image/*,video/mp4,video/webm' : 'image/*';
+
+  // Check if value is a video
+  const isVideo = value && (value.includes('video/') || value.endsWith('.mp4') || value.endsWith('.webm'));
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -55,8 +63,27 @@ export function MediaPickerButton({
     setUploading(true);
     try {
       const reader = new FileReader();
-      reader.onload = () => {
-        onChange(reader.result as string);
+      reader.onload = async () => {
+        const dataUrl = reader.result as string;
+        onChange(dataUrl);
+
+        // Also add to media library so it shows up in "Browse Library"
+        try {
+          await fetch('/api/admin/media', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              url: dataUrl,
+              filename: file.name,
+              mimeType: file.type,
+              fileSize: file.size,
+              folder: folder || 'general',
+            }),
+          });
+        } catch (err) {
+          console.error('Failed to add to media library:', err);
+        }
+
         setUploading(false);
       };
       reader.readAsDataURL(file);
@@ -90,12 +117,21 @@ export function MediaPickerButton({
         >
           {value ? (
             <>
-              <Image
-                src={value}
-                alt={label}
-                fill
-                className="object-contain p-2"
-              />
+              {isVideo ? (
+                <video
+                  src={value}
+                  className="w-full h-full object-contain p-2"
+                  muted
+                  playsInline
+                />
+              ) : (
+                <Image
+                  src={value}
+                  alt={label}
+                  fill
+                  className="object-contain p-2"
+                />
+              )}
               <button
                 onClick={() => onChange('')}
                 className="absolute top-1 right-1 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
@@ -113,7 +149,7 @@ export function MediaPickerButton({
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/*"
+            accept={acceptTypes}
             onChange={handleFileUpload}
             className="hidden"
           />

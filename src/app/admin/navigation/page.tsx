@@ -764,11 +764,12 @@ export default function NavigationPage() {
                   {/* Hover Image */}
                   <div>
                     <MediaPickerButton
-                      label="Hover Image"
+                      label="Hover Image/Video"
                       value={globalNavSettings.tile1HoverImageUrl}
                       onChange={(url) => setGlobalNavSettings({ ...globalNavSettings, tile1HoverImageUrl: url || null })}
-                      helpText="Shown when users hover over the tile"
+                      helpText="Shown when users hover over the tile. Supports images and MP4/WebM videos."
                       folder="products"
+                      acceptVideo={true}
                     />
                   </div>
                 </div>
@@ -923,11 +924,12 @@ export default function NavigationPage() {
                   {/* Hover Image */}
                   <div>
                     <MediaPickerButton
-                      label="Hover Image"
+                      label="Hover Image/Video"
                       value={globalNavSettings.tile2HoverImageUrl}
                       onChange={(url) => setGlobalNavSettings({ ...globalNavSettings, tile2HoverImageUrl: url || null })}
-                      helpText="Shown when users hover over the tile"
+                      helpText="Shown when users hover over the tile. Supports images and MP4/WebM videos."
                       folder="products"
+                      acceptVideo={true}
                     />
                   </div>
                 </div>
