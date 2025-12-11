@@ -152,19 +152,19 @@ export function Footer({
               )}
 
               {/* Social Icons */}
-              <div className="flex gap-4">
+              <div className="flex items-center gap-4">
                 {instagramUrl && (
                   <a
                     href={instagramUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-white/60 hover:text-white transition-colors"
+                    className="w-[18px] h-[18px] flex items-center justify-center text-white/60 hover:text-white transition-colors"
                     aria-label="Instagram"
                   >
                     {instagramIconUrl ? (
-                      <Image src={instagramIconUrl} alt="Instagram" width={18} height={18} className="w-[18px] h-[18px] object-contain" />
+                      <Image src={instagramIconUrl} alt="Instagram" width={18} height={18} className="w-full h-full object-contain" />
                     ) : (
-                      <Instagram className="w-[18px] h-[18px]" />
+                      <Instagram className="w-full h-full" />
                     )}
                   </a>
                 )}
@@ -173,13 +173,13 @@ export function Footer({
                     href={tiktokUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-white/60 hover:text-white transition-colors"
+                    className="w-[18px] h-[18px] flex items-center justify-center text-white/60 hover:text-white transition-colors"
                     aria-label="TikTok"
                   >
                     {tiktokIconUrl ? (
-                      <Image src={tiktokIconUrl} alt="TikTok" width={18} height={18} className="w-[18px] h-[18px] object-contain" />
+                      <Image src={tiktokIconUrl} alt="TikTok" width={18} height={18} className="w-full h-full object-contain" />
                     ) : (
-                      <svg className="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="currentColor">
+                      <svg className="w-full h-full" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z" />
                       </svg>
                     )}
@@ -190,13 +190,13 @@ export function Footer({
                     href={facebookUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-white/60 hover:text-white transition-colors"
+                    className="w-[18px] h-[18px] flex items-center justify-center text-white/60 hover:text-white transition-colors"
                     aria-label="Facebook"
                   >
                     {facebookIconUrl ? (
-                      <Image src={facebookIconUrl} alt="Facebook" width={18} height={18} className="w-[18px] h-[18px] object-contain" />
+                      <Image src={facebookIconUrl} alt="Facebook" width={18} height={18} className="w-full h-full object-contain" />
                     ) : (
-                      <Facebook className="w-[18px] h-[18px]" />
+                      <Facebook className="w-full h-full" />
                     )}
                   </a>
                 )}
@@ -205,13 +205,13 @@ export function Footer({
                     href={amazonStoreUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-white/60 hover:text-white transition-colors"
+                    className="w-[18px] h-[18px] flex items-center justify-center text-white/60 hover:text-white transition-colors"
                     aria-label="Amazon Store"
                   >
                     {amazonIconUrl ? (
-                      <Image src={amazonIconUrl} alt="Amazon" width={18} height={18} className="w-[18px] h-[18px] object-contain" />
+                      <Image src={amazonIconUrl} alt="Amazon" width={18} height={18} className="w-full h-full object-contain" />
                     ) : (
-                      <svg className="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="currentColor">
+                      <svg className="w-full h-full" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M.045 18.02c.072-.116.187-.124.348-.022 3.636 2.11 7.594 3.166 11.87 3.166 2.852 0 5.668-.533 8.447-1.595l.315-.14c.138-.06.234-.1.293-.13.226-.088.39-.046.493.124.108.178.054.39-.156.637-.213.245-.537.51-.965.79-1.478.963-3.063 1.706-4.752 2.225-1.69.52-3.333.78-4.93.78-2.14 0-4.191-.358-6.15-1.073-1.96-.714-3.593-1.64-4.902-2.777-.11-.095-.138-.192-.09-.29l.18-.304zm6.032-5.815c0-1.103.254-2.047.762-2.828.508-.782 1.204-1.38 2.086-1.796-.27-.903-.405-1.737-.405-2.503 0-.906.136-1.68.405-2.322.27-.64.685-1.2 1.243-1.676.558-.477 1.257-.842 2.095-1.094.838-.253 1.816-.38 2.934-.38 1.417 0 2.654.188 3.71.565v1.93c-.895-.425-1.973-.64-3.233-.64-1.48 0-2.6.31-3.358.933-.76.622-1.14 1.56-1.14 2.814 0 .618.084 1.27.25 1.955 1.63-.25 3.036-.376 4.22-.376 1.417 0 2.625.226 3.625.678v2.093c-.82-.426-1.973-.64-3.46-.64-1.406 0-2.84.156-4.3.47.15.994.368 1.85.654 2.573.286.722.63 1.298 1.032 1.726.4.43.868.736 1.398.92.53.184 1.128.276 1.792.276.78 0 1.614-.166 2.503-.498v1.95c-.756.332-1.725.498-2.906.498-1.218 0-2.27-.177-3.155-.53-.886-.355-1.622-.856-2.208-1.504-.587-.65-1.028-1.423-1.32-2.322-.294-.9-.44-1.902-.44-3.007z"/>
                       </svg>
                     )}
@@ -351,19 +351,19 @@ export function Footer({
               )}
 
               {/* Social Icons */}
-              <div className="flex gap-5">
+              <div className="flex items-center gap-5">
                 {instagramUrl && (
                   <a
                     href={instagramUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-white/60 hover:text-white transition-colors"
+                    className="w-5 h-5 flex items-center justify-center text-white/60 hover:text-white transition-colors"
                     aria-label="Instagram"
                   >
                     {instagramIconUrl ? (
-                      <Image src={instagramIconUrl} alt="Instagram" width={20} height={20} className="w-5 h-5 object-contain" />
+                      <Image src={instagramIconUrl} alt="Instagram" width={20} height={20} className="w-full h-full object-contain" />
                     ) : (
-                      <Instagram className="w-5 h-5" />
+                      <Instagram className="w-full h-full" />
                     )}
                   </a>
                 )}
@@ -372,13 +372,13 @@ export function Footer({
                     href={tiktokUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-white/60 hover:text-white transition-colors"
+                    className="w-5 h-5 flex items-center justify-center text-white/60 hover:text-white transition-colors"
                     aria-label="TikTok"
                   >
                     {tiktokIconUrl ? (
-                      <Image src={tiktokIconUrl} alt="TikTok" width={20} height={20} className="w-5 h-5 object-contain" />
+                      <Image src={tiktokIconUrl} alt="TikTok" width={20} height={20} className="w-full h-full object-contain" />
                     ) : (
-                      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                      <svg className="w-full h-full" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z" />
                       </svg>
                     )}
@@ -389,13 +389,13 @@ export function Footer({
                     href={facebookUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-white/60 hover:text-white transition-colors"
+                    className="w-5 h-5 flex items-center justify-center text-white/60 hover:text-white transition-colors"
                     aria-label="Facebook"
                   >
                     {facebookIconUrl ? (
-                      <Image src={facebookIconUrl} alt="Facebook" width={20} height={20} className="w-5 h-5 object-contain" />
+                      <Image src={facebookIconUrl} alt="Facebook" width={20} height={20} className="w-full h-full object-contain" />
                     ) : (
-                      <Facebook className="w-5 h-5" />
+                      <Facebook className="w-full h-full" />
                     )}
                   </a>
                 )}
@@ -404,13 +404,13 @@ export function Footer({
                     href={amazonStoreUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-white/60 hover:text-white transition-colors"
+                    className="w-5 h-5 flex items-center justify-center text-white/60 hover:text-white transition-colors"
                     aria-label="Amazon Store"
                   >
                     {amazonIconUrl ? (
-                      <Image src={amazonIconUrl} alt="Amazon" width={20} height={20} className="w-5 h-5 object-contain" />
+                      <Image src={amazonIconUrl} alt="Amazon" width={20} height={20} className="w-full h-full object-contain" />
                     ) : (
-                      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                      <svg className="w-full h-full" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M.045 18.02c.072-.116.187-.124.348-.022 3.636 2.11 7.594 3.166 11.87 3.166 2.852 0 5.668-.533 8.447-1.595l.315-.14c.138-.06.234-.1.293-.13.226-.088.39-.046.493.124.108.178.054.39-.156.637-.213.245-.537.51-.965.79-1.478.963-3.063 1.706-4.752 2.225-1.69.52-3.333.78-4.93.78-2.14 0-4.191-.358-6.15-1.073-1.96-.714-3.593-1.64-4.902-2.777-.11-.095-.138-.192-.09-.29l.18-.304zm6.032-5.815c0-1.103.254-2.047.762-2.828.508-.782 1.204-1.38 2.086-1.796-.27-.903-.405-1.737-.405-2.503 0-.906.136-1.68.405-2.322.27-.64.685-1.2 1.243-1.676.558-.477 1.257-.842 2.095-1.094.838-.253 1.816-.38 2.934-.38 1.417 0 2.654.188 3.71.565v1.93c-.895-.425-1.973-.64-3.233-.64-1.48 0-2.6.31-3.358.933-.76.622-1.14 1.56-1.14 2.814 0 .618.084 1.27.25 1.955 1.63-.25 3.036-.376 4.22-.376 1.417 0 2.625.226 3.625.678v2.093c-.82-.426-1.973-.64-3.46-.64-1.406 0-2.84.156-4.3.47.15.994.368 1.85.654 2.573.286.722.63 1.298 1.032 1.726.4.43.868.736 1.398.92.53.184 1.128.276 1.792.276.78 0 1.614-.166 2.503-.498v1.95c-.756.332-1.725.498-2.906.498-1.218 0-2.27-.177-3.155-.53-.886-.355-1.622-.856-2.208-1.504-.587-.65-1.028-1.423-1.32-2.322-.294-.9-.44-1.902-.44-3.007z"/>
                       </svg>
                     )}
