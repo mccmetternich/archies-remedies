@@ -113,7 +113,7 @@ export function ContactForm() {
           placeholder="How can we help you?"
           required
           rows={6}
-          className="flex w-full rounded-lg border-[1.5px] border-[var(--border)] bg-[var(--background)] px-4 py-3 text-base transition-all duration-150 ease-out placeholder:text-[var(--muted-foreground)] hover:border-[var(--muted-foreground)] focus:outline-none focus:border-[var(--primary-dark)] focus:ring-[3px] focus:ring-[var(--primary-light)] resize-none"
+          className="flex w-full rounded-lg border-[1.5px] border-[var(--border)] bg-[var(--background)] px-4 py-3 text-base transition-all duration-150 ease-out placeholder:text-[var(--muted-foreground)] hover:border-[var(--muted-foreground)] focus:outline-none resize-none"
         />
       </div>
 
