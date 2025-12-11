@@ -24,6 +24,7 @@ import {
   PenSquare,
   MousePointerClick,
   Users,
+  ImageIcon,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { AdminThemeProvider, useAdminTheme } from '@/contexts/AdminThemeContext';
@@ -151,8 +152,9 @@ function AdminLayoutInner({ children, unreadMessages = 0 }: AdminLayoutProps) {
       ],
     },
     {
-      title: 'Widgets',
+      title: 'Assets',
       items: [
+        { href: '/admin/media', label: 'Media Library', icon: ImageIcon },
         { href: '/admin/widgets', label: 'Widget Library', icon: Layers },
       ],
     },
