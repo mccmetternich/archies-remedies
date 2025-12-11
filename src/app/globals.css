@@ -470,22 +470,26 @@ a {
 }
 
 /* Container - Generous Spacing */
+/* Using explicit padding-left/right to allow Tailwind vertical padding utilities to work */
 .container {
   width: 100%;
   max-width: 1440px;
   margin: 0 auto;
-  padding: 0 1.5rem;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
 }
 
 @media (min-width: 768px) {
   .container {
-    padding: 0 3rem;
+    padding-left: 3rem;
+    padding-right: 3rem;
   }
 }
 
 @media (min-width: 1024px) {
   .container {
-    padding: 0 5rem;
+    padding-left: 5rem;
+    padding-right: 5rem;
   }
 }
 
