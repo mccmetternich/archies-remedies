@@ -547,7 +547,10 @@ export default function PopupEditorPage({ params }: { params: Promise<{ id: stri
                 <MediaPickerButton
                   label="Video"
                   value={formData.videoUrl || null}
-                  onChange={(url) => handleInputChange('videoUrl', url || null)}
+                  onChange={(url) => {
+                    console.log('[PopupPage] Video onChange called with:', url);
+                    handleInputChange('videoUrl', url || null);
+                  }}
                   helpText="Upload MP4/WebM or paste a YouTube/Vimeo URL"
                   folder="popups"
                   acceptVideo={true}
@@ -563,7 +566,10 @@ export default function PopupEditorPage({ params }: { params: Promise<{ id: stri
                 <MediaPickerButton
                   label="Popup Image"
                   value={formData.imageUrl || null}
-                  onChange={(url) => handleInputChange('imageUrl', url || null)}
+                  onChange={(url) => {
+                    console.log('[PopupPage] Image onChange called with:', url);
+                    handleInputChange('imageUrl', url || null);
+                  }}
                   helpText="Background or featured image for the popup"
                   folder="popups"
                 />
