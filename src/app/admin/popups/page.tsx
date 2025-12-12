@@ -955,20 +955,20 @@ export default function PopupsPage() {
                           <div className="space-y-3">
                             {/* Form fields based on CTA type */}
                             {currentCtaType === 'both' ? (
-                              <div className={cn(
-                                'space-y-3',
-                                previewDevice === 'desktop' && 'md:space-y-0 md:flex md:gap-3'
-                              )}>
+                              /* Dropdown-style input (Coming Soon page style) */
+                              <div className="relative">
+                                <div className="absolute left-3 top-1/2 -translate-y-1/2 z-10">
+                                  <div className="flex items-center gap-1 px-2 py-2 text-gray-500">
+                                    <Phone className="w-5 h-5" />
+                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                  </div>
+                                </div>
                                 <input
                                   type="tel"
-                                  placeholder="Phone number"
-                                  className="w-full px-5 py-4 text-base bg-[#f5f5f0] border-0 rounded-full focus:outline-none focus:ring-2 focus:ring-[#bbdae9] placeholder:text-gray-400"
-                                  readOnly
-                                />
-                                <input
-                                  type="email"
-                                  placeholder="Email address"
-                                  className="w-full px-5 py-4 text-base bg-[#f5f5f0] border-0 rounded-full focus:outline-none focus:ring-2 focus:ring-[#bbdae9] placeholder:text-gray-400"
+                                  placeholder="Enter Phone #"
+                                  className="w-full pl-14 pr-5 py-4 text-base bg-[#f5f5f0] border-0 rounded-full focus:outline-none focus:ring-2 focus:ring-[#bbdae9] placeholder:text-gray-400"
                                   readOnly
                                 />
                               </div>
