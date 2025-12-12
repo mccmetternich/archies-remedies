@@ -440,11 +440,11 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                         </div>
 
                         {/* Marketing Tile (Clean Formulas) - Centered vertically in the dropdown */}
-                        <div className="lg:col-span-4 relative">
-                          {/* Rotating Badge */}
+                        <div className="lg:col-span-4 relative overflow-visible">
+                          {/* Rotating Badge - positioned inside the tile area to avoid clipping */}
                           {globalNav?.marketingTileRotatingBadgeEnabled &&
                            globalNav?.marketingTileRotatingBadgeUrl && (
-                            <div className="absolute -top-4 -right-4 w-20 h-20 z-10">
+                            <div className="absolute -top-6 right-4 w-20 h-20 z-20">
                               <Image
                                 src={globalNav.marketingTileRotatingBadgeUrl}
                                 alt=""
@@ -454,7 +454,7 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                               />
                             </div>
                           )}
-                          <div className="p-6 pr-0 rounded-2xl rounded-r-none bg-[var(--primary-light)]">
+                          <div className="p-6 pr-6 rounded-2xl bg-[var(--primary-light)] relative">
                             <p className="text-lg font-medium mb-2">{globalNav?.marketingTileTitle || cleanFormulasTitle}</p>
                             <p className="text-sm text-[var(--muted-foreground)] leading-relaxed mb-4">
                               {globalNav?.marketingTileDescription || cleanFormulasDescription}
@@ -467,10 +467,9 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
 
                             {/* CTA Button for Marketing Tile */}
                             {globalNav?.marketingTileCtaEnabled &&
-                             globalNav?.marketingTileCtaText &&
-                             globalNav?.marketingTileCtaUrl && (
+                             globalNav?.marketingTileCtaText && (
                               <Link
-                                href={globalNav.marketingTileCtaUrl}
+                                href={globalNav.marketingTileCtaUrl || '/about'}
                                 className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--foreground)] text-white rounded-full text-sm font-medium hover:bg-black transition-colors mb-4"
                               >
                                 {globalNav.marketingTileCtaText}
