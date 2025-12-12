@@ -974,7 +974,7 @@ export default function PopupsPage() {
                                   <input
                                     type="tel"
                                     placeholder="Enter Phone #"
-                                    className="w-full pl-14 pr-5 py-4 text-base bg-[#f5f5f0] border-0 rounded-full placeholder:text-gray-400"
+                                    className="w-full pl-20 pr-5 py-4 text-base bg-[#f5f5f0] border-0 rounded-full placeholder:text-gray-400"
                                     readOnly
                                   />
                                 </div>
@@ -1091,7 +1091,7 @@ export default function PopupsPage() {
                                   <input
                                     type="tel"
                                     placeholder="Enter Phone #"
-                                    className="w-full pl-14 pr-5 py-4 text-base bg-[#f5f5f0] border-0 rounded-full placeholder:text-gray-400"
+                                    className="w-full pl-20 pr-5 py-4 text-base bg-[#f5f5f0] border-0 rounded-full placeholder:text-gray-400"
                                     readOnly
                                   />
                                 </div>
