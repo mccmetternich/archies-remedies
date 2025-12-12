@@ -59,6 +59,10 @@ export function MediaPickerButton({
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Use ref to always have access to the latest onChange callback
+  const onChangeRef = useRef(onChange);
+  onChangeRef.current = onChange;
+
   // Determine file accept types
   const acceptTypes = acceptVideo ? 'image/*,video/mp4,video/webm' : 'image/*';
 
@@ -313,9 +317,10 @@ export function MediaPickerButton({
           onClose={() => setShowModal(false)}
           onSelect={(url) => {
             console.log('[MediaPicker] Selected from library:', url);
-            console.log('[MediaPicker] Calling onChange with url...');
-            onChange(url);
-            console.log('[MediaPicker] onChange called, closing modal');
+            console.log('[MediaPicker] Calling onChangeRef.current with url...');
+            console.log('[MediaPicker] onChangeRef.current is:', typeof onChangeRef.current);
+            onChangeRef.current(url);
+            console.log('[MediaPicker] onChangeRef.current called, closing modal');
             setShowModal(false);
           }}
         />
