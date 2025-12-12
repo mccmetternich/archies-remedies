@@ -574,37 +574,37 @@ export function ExitPopup({
                         )}
                         {/* Mobile testimonial - only show if mobile enabled */}
                         {testimonialEnabledMobile && (
-                          <div className="md:hidden absolute bottom-3 left-3 right-3">
-                            <div className="bg-white/98 backdrop-blur-md rounded-xl px-3 py-2.5 shadow-lg ring-1 ring-black/[0.03]">
-                              <div className="flex items-center gap-2.5">
+                          <div className="md:hidden absolute bottom-1.5 left-2 right-2">
+                            <div className="bg-white/98 backdrop-blur-md rounded-lg px-2.5 py-2 shadow-lg ring-1 ring-black/[0.03]">
+                              <div className="flex items-center gap-2">
                                 {testimonialAvatarUrl ? (
                                   <Image
                                     src={testimonialAvatarUrl}
                                     alt={testimonialAuthor || 'Reviewer'}
-                                    width={40}
-                                    height={40}
-                                    className="rounded-full object-cover flex-shrink-0 ring-2 ring-white shadow-sm"
+                                    width={32}
+                                    height={32}
+                                    className="rounded-full object-cover flex-shrink-0 ring-1 ring-white shadow-sm w-8 h-8"
                                   />
                                 ) : (
-                                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#bbdae9]/40 to-[#bbdae9]/20 flex items-center justify-center flex-shrink-0 ring-2 ring-white shadow-sm">
-                                    <span className="text-sm font-semibold text-[#1a1a1a]">
+                                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#bbdae9]/40 to-[#bbdae9]/20 flex items-center justify-center flex-shrink-0 ring-1 ring-white shadow-sm">
+                                    <span className="text-xs font-semibold text-[#1a1a1a]">
                                       {(testimonialAuthor || 'A')[0]}
                                     </span>
                                   </div>
                                 )}
                                 <div className="flex-1 min-w-0">
                                   {/* Author name + stars on same row */}
-                                  <div className="flex items-center gap-1.5 mb-0.5">
+                                  <div className="flex items-center gap-1 mb-0.5">
                                     {testimonialAuthor && (
-                                      <span className="text-xs font-semibold text-[#1a1a1a]">{testimonialAuthor}</span>
+                                      <span className="text-[10px] font-semibold text-[#1a1a1a]">{testimonialAuthor}</span>
                                     )}
                                     <div className="flex items-center gap-0.5">
                                       {[...Array(testimonialStars)].map((_, i) => (
-                                        <Star key={i} className="w-2.5 h-2.5 fill-[#bbdae9] text-[#bbdae9]" />
+                                        <Star key={i} className="w-2 h-2 fill-[#bbdae9] text-[#bbdae9]" />
                                       ))}
                                     </div>
                                   </div>
-                                  <p className="text-[11px] text-gray-600 leading-snug line-clamp-2 italic">
+                                  <p className="text-[10px] text-gray-600 leading-snug line-clamp-2 italic">
                                     {testimonialQuote}
                                   </p>
                                 </div>
@@ -692,7 +692,7 @@ export function ExitPopup({
                     <h3 className="text-2xl md:text-3xl font-normal mb-3 tracking-tight text-center text-[#1a1a1a]">
                       {title}
                     </h3>
-                    <p className="text-gray-600 mb-6 text-center text-base leading-relaxed">
+                    <p className="text-gray-600 mb-4 text-center text-base leading-relaxed">
                       {subtitle}
                     </p>
 

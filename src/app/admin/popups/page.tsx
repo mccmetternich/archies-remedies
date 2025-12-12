@@ -1580,7 +1580,7 @@ export default function PopupsPage() {
                           <h3 className="text-2xl font-normal mb-3 tracking-tight text-center">
                             {currentTitle || (isWelcome ? 'Join Our Community' : 'Wait! Before You Go...')}
                           </h3>
-                          <p className="text-gray-600 mb-6 text-center leading-relaxed text-sm">
+                          <p className="text-gray-600 mb-4 text-center leading-relaxed text-sm">
                             {currentSubtitle || 'Get 10% off your first order plus exclusive access.'}
                           </p>
 
@@ -1758,7 +1758,7 @@ export default function PopupsPage() {
                           <h3 className="text-3xl font-normal mb-3 tracking-tight text-center">
                             {currentTitle || (isWelcome ? 'Join Our Community' : 'Wait! Before You Go...')}
                           </h3>
-                          <p className="text-gray-600 mb-6 text-center leading-relaxed">
+                          <p className="text-gray-600 mb-4 text-center leading-relaxed">
                             {currentSubtitle || 'Get 10% off your first order plus exclusive access.'}
                           </p>
 

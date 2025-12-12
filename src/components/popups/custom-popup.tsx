@@ -387,7 +387,7 @@ export function CustomPopup({ popup, enabled = true }: CustomPopupProps) {
                       </h3>
                     )}
                     {popup.body && (
-                      <p className="text-gray-600 mb-6 text-center text-base leading-relaxed">
+                      <p className="text-gray-600 mb-4 text-center text-base leading-relaxed">
                         {popup.body}
                       </p>
                     )}
