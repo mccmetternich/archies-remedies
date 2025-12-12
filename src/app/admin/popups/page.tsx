@@ -1249,7 +1249,7 @@ export default function PopupsPage() {
                       {hasVideo && currentVideoUrl ? (
                         <video
                           src={currentVideoUrl}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover object-center"
                           autoPlay
                           loop
                           muted
@@ -1260,7 +1260,7 @@ export default function PopupsPage() {
                           src={currentImageUrl}
                           alt=""
                           fill
-                          className="object-cover"
+                          className="object-cover object-center"
                         />
                       ) : (
                         <div className="absolute inset-0 flex items-center justify-center">
@@ -1424,7 +1424,7 @@ export default function PopupsPage() {
                       {hasVideo && currentVideoUrl ? (
                         <video
                           src={currentVideoUrl}
-                          className="absolute inset-0 w-full h-full object-cover"
+                          className="absolute inset-0 w-full h-full object-cover object-center"
                           autoPlay
                           loop
                           muted
@@ -1435,7 +1435,7 @@ export default function PopupsPage() {
                           src={currentImageUrl}
                           alt=""
                           fill
-                          className="object-cover"
+                          className="object-cover object-center"
                         />
                       ) : (
                         <div className="absolute inset-0 flex items-center justify-center">
