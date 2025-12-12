@@ -48,8 +48,8 @@ export function MediaPickerButton({
   folder,
   acceptVideo = false,
 }: MediaPickerButtonProps) {
-  // Debug: log when value prop changes
-  console.log('[MediaPickerButton] Rendering with value:', value ? value.substring(0, 50) + '...' : value);
+  // Debug: log when rendering with label to identify which instance
+  console.log('[MediaPickerButton] Rendering:', label, 'value:', value ? value.substring(0, 50) + '...' : value);
 
   const [showModal, setShowModal] = useState(false);
   const [showUrlInput, setShowUrlInput] = useState(false);
@@ -316,11 +316,16 @@ export function MediaPickerButton({
           isOpen={showModal}
           onClose={() => setShowModal(false)}
           onSelect={(url) => {
-            console.log('[MediaPicker] Selected from library:', url);
-            console.log('[MediaPicker] Calling onChangeRef.current with url...');
+            console.log('[MediaPicker] Selected from library for:', label, 'url:', url);
+            console.log('[MediaPicker] Calling onChangeRef.current...');
             console.log('[MediaPicker] onChangeRef.current is:', typeof onChangeRef.current);
-            onChangeRef.current(url);
-            console.log('[MediaPicker] onChangeRef.current called, closing modal');
+            try {
+              onChangeRef.current(url);
+              console.log('[MediaPicker] onChangeRef.current completed successfully');
+            } catch (err) {
+              console.error('[MediaPicker] onChangeRef.current threw error:', err);
+            }
+            console.log('[MediaPicker] Closing modal');
             setShowModal(false);
           }}
         />

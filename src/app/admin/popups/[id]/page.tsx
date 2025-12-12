@@ -630,7 +630,10 @@ export default function PopupEditorPage({ params }: { params: Promise<{ id: stri
                       <MediaPickerButton
                         label="Download File"
                         value={formData.downloadFileUrl || null}
-                        onChange={(url) => handleInputChange('downloadFileUrl', url || null)}
+                        onChange={(url) => {
+                          console.log('[PopupPage] Download onChange called with:', url);
+                          handleInputChange('downloadFileUrl', url || null);
+                        }}
                         helpText="File users will download (PDF, image, etc.)"
                         folder="downloads"
                       />
