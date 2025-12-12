@@ -199,6 +199,8 @@ export default function NavigationPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [draggingPageId, setDraggingPageId] = useState<string | null>(null);
+  const [dragOverSection, setDragOverSection] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<NavItem | FooterLink>>({});
   const [editType, setEditType] = useState<'nav' | 'footer'>('nav');
 
@@ -417,6 +419,41 @@ export default function NavigationPage() {
 
   const handleReorderPages = (newOrder: PageOption[]) => {
     setPagesList(newOrder.map((item, index) => ({ ...item, navOrder: index })));
+  };
+
+  // Drag handlers for available pages
+  const handleDragStart = (e: React.DragEvent, pageId: string) => {
+    e.dataTransfer.setData('pageId', pageId);
+    e.dataTransfer.effectAllowed = 'move';
+    setDraggingPageId(pageId);
+  };
+
+  const handleDragEnd = () => {
+    setDraggingPageId(null);
+    setDragOverSection(null);
+  };
+
+  const handleDragOver = (e: React.DragEvent, section: string) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDragOverSection(section);
+  };
+
+  const handleDragLeave = () => {
+    setDragOverSection(null);
+  };
+
+  const handleDrop = (e: React.DragEvent, targetPosition: 'left' | 'center' | 'right') => {
+    e.preventDefault();
+    const pageId = e.dataTransfer.getData('pageId');
+    if (!pageId) return;
+
+    const maxOrder = Math.max(0, ...pagesList.filter(p => p.showInNav && p.navPosition === targetPosition).map(p => p.navOrder || 0));
+    setPagesList(pagesList.map(p =>
+      p.id === pageId ? { ...p, showInNav: true, navOrder: maxOrder + 1, navPosition: targetPosition, navShowOnDesktop: true, navShowOnMobile: true } : p
+    ));
+    setDraggingPageId(null);
+    setDragOverSection(null);
   };
 
   const [saved, setSaved] = useState(false);
@@ -1500,8 +1537,26 @@ export default function NavigationPage() {
               </div>
 
               {/* Global Navigation - Left Side */}
-              <div className="mb-6">
+              <div
+                className={cn(
+                  "mb-6 rounded-xl transition-all",
+                  dragOverSection === 'left' && "ring-2 ring-[var(--primary)] ring-offset-2 ring-offset-[var(--admin-input)] bg-[var(--primary)]/5"
+                )}
+                onDragOver={(e) => handleDragOver(e, 'left')}
+                onDragLeave={handleDragLeave}
+                onDrop={(e) => handleDrop(e, 'left')}
+              >
                 <p className="text-xs font-semibold uppercase tracking-wider text-[var(--admin-text-muted)] mb-3">Global Navigation - Left Side</p>
+                {draggingPageId && (
+                  <div className={cn(
+                    "mb-2 p-3 border-2 border-dashed rounded-lg text-center text-sm transition-colors",
+                    dragOverSection === 'left'
+                      ? "border-[var(--primary)] bg-[var(--primary)]/10 text-[var(--primary)]"
+                      : "border-[var(--admin-border)] text-[var(--admin-text-muted)]"
+                  )}>
+                    Drop here to add to left position
+                  </div>
+                )}
                 <Reorder.Group
                   axis="y"
                   values={pagesList.filter(p => p.showInNav && p.navPosition === 'left').sort((a, b) => (a.navOrder || 0) - (b.navOrder || 0))}
@@ -1592,8 +1647,26 @@ export default function NavigationPage() {
               </div>
 
               {/* Global Navigation - Center */}
-              <div className="mb-6 pb-6 border-b border-[var(--admin-border)]">
+              <div
+                className={cn(
+                  "mb-6 pb-6 border-b border-[var(--admin-border)] rounded-xl transition-all",
+                  dragOverSection === 'center' && "ring-2 ring-[var(--primary)] ring-offset-2 ring-offset-[var(--admin-input)] bg-[var(--primary)]/5"
+                )}
+                onDragOver={(e) => handleDragOver(e, 'center')}
+                onDragLeave={handleDragLeave}
+                onDrop={(e) => handleDrop(e, 'center')}
+              >
                 <p className="text-xs font-semibold uppercase tracking-wider text-[var(--admin-text-muted)] mb-3">Global Navigation - Center</p>
+                {draggingPageId && (
+                  <div className={cn(
+                    "mb-2 p-3 border-2 border-dashed rounded-lg text-center text-sm transition-colors",
+                    dragOverSection === 'center'
+                      ? "border-[var(--primary)] bg-[var(--primary)]/10 text-[var(--primary)]"
+                      : "border-[var(--admin-border)] text-[var(--admin-text-muted)]"
+                  )}>
+                    Drop here to add to center position
+                  </div>
+                )}
                 <Reorder.Group
                   axis="y"
                   values={pagesList.filter(p => p.showInNav && p.navPosition === 'center').sort((a, b) => (a.navOrder || 0) - (b.navOrder || 0))}
@@ -1684,8 +1757,26 @@ export default function NavigationPage() {
               </div>
 
               {/* Global Navigation - Right Side */}
-              <div>
+              <div
+                className={cn(
+                  "rounded-xl transition-all",
+                  dragOverSection === 'right' && "ring-2 ring-[var(--primary)] ring-offset-2 ring-offset-[var(--admin-input)] bg-[var(--primary)]/5"
+                )}
+                onDragOver={(e) => handleDragOver(e, 'right')}
+                onDragLeave={handleDragLeave}
+                onDrop={(e) => handleDrop(e, 'right')}
+              >
                 <p className="text-xs font-semibold uppercase tracking-wider text-[var(--admin-text-muted)] mb-3">Global Navigation - Right Side</p>
+                {draggingPageId && (
+                  <div className={cn(
+                    "mb-2 p-3 border-2 border-dashed rounded-lg text-center text-sm transition-colors",
+                    dragOverSection === 'right'
+                      ? "border-[var(--primary)] bg-[var(--primary)]/10 text-[var(--primary)]"
+                      : "border-[var(--admin-border)] text-[var(--admin-text-muted)]"
+                  )}>
+                    Drop here to add to right position
+                  </div>
+                )}
                 <Reorder.Group
                   axis="y"
                   values={pagesList.filter(p => p.showInNav && (p.navPosition === 'right' || !p.navPosition)).sort((a, b) => (a.navOrder || 0) - (b.navOrder || 0))}
@@ -1782,7 +1873,7 @@ export default function NavigationPage() {
             <div className="p-6 border-b border-[var(--admin-border)]">
               <h2 className="font-medium text-lg text-[var(--admin-text-primary)] mb-2">Available Pages</h2>
               <p className="text-sm text-[var(--admin-text-secondary)]">
-                Pages that are not currently in the navigation. Toggle to add them.
+                Drag pages to the navigation sections above, or use the toggle to add them to the right position.
               </p>
             </div>
 
@@ -1795,9 +1886,16 @@ export default function NavigationPage() {
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    className="p-4 bg-[var(--admin-hover)] rounded-lg flex items-center gap-4"
+                    draggable
+                    onDragStart={(e) => handleDragStart(e as unknown as React.DragEvent, page.id)}
+                    onDragEnd={handleDragEnd}
+                    className={cn(
+                      "p-4 bg-[var(--admin-hover)] rounded-lg flex items-center gap-4 cursor-grab active:cursor-grabbing transition-all",
+                      draggingPageId === page.id && "opacity-50 ring-2 ring-[var(--primary)]"
+                    )}
                   >
-                    <div className="flex-1">
+                    <GripVertical className="w-4 h-4 text-[var(--admin-text-muted)] shrink-0" />
+                    <div className="flex-1 min-w-0">
                       <p className="font-medium text-[var(--admin-text-primary)]">{page.title}</p>
                       <p className="text-sm text-[var(--admin-text-muted)]">/{page.slug}</p>
                     </div>
