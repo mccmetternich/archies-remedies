@@ -3,8 +3,9 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ArrowRight, Download, Check, Loader2, Mail, Phone, ChevronDown, Star, ExternalLink } from 'lucide-react';
+import { X, ArrowRight, Download, Check, Loader2, Mail, Phone, ChevronDown, Star } from 'lucide-react';
 import { usePopup } from './popup-provider';
+import { PopupRotatingBadge } from './shared/popup-rotating-badge';
 
 interface WelcomePopupProps {
   enabled?: boolean;
@@ -32,6 +33,7 @@ interface WelcomePopupProps {
   downloadEnabled?: boolean;
   downloadFileUrl?: string | null;
   downloadFileName?: string | null;
+  downloadText?: string | null;
   successTitle?: string;
   successMessage?: string;
   noSpamText?: string;
@@ -79,6 +81,7 @@ export function WelcomePopup({
   downloadEnabled = false,
   downloadFileUrl,
   downloadFileName,
+  downloadText = 'Download starts on submission',
   successTitle = "You're In!",
   successMessage,
   noSpamText = 'No spam, ever. Unsubscribe anytime.',
@@ -517,33 +520,9 @@ export function WelcomePopup({
               {/* Content Section - Right side on desktop, bottom on mobile */}
               <div className="relative p-6 md:p-8 md:w-1/2 md:flex md:flex-col md:justify-center">
                 {/* Rotating Badge - Desktop only */}
-                {status === 'success' || status === 'downloading' || status === 'downloaded' ? (
-                  // Success state badge
-                  successBadgeUrl && (
-                    <div className="hidden md:block absolute -top-8 -right-8 w-[140px] h-[140px] z-10 animate-spin-slow">
-                      <Image
-                        src={successBadgeUrl}
-                        alt="Badge"
-                        width={140}
-                        height={140}
-                        className="w-full h-full object-contain"
-                      />
-                    </div>
-                  )
-                ) : (
-                  // Form state badge
-                  formBadgeUrl && (
-                    <div className="hidden md:block absolute -top-8 -right-8 w-[140px] h-[140px] z-10 animate-spin-slow">
-                      <Image
-                        src={formBadgeUrl}
-                        alt="Badge"
-                        width={140}
-                        height={140}
-                        className="w-full h-full object-contain"
-                      />
-                    </div>
-                  )
-                )}
+                <PopupRotatingBadge
+                  badgeUrl={isSuccessState ? successBadgeUrl : formBadgeUrl}
+                />
 
                 {status === 'success' || status === 'downloading' || status === 'downloaded' ? (
                   <div className="py-4 text-center">
@@ -775,7 +754,7 @@ export function WelcomePopup({
                           <div className="flex justify-center pt-1">
                             <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#bbdae9]/20 border border-[#bbdae9]/40 rounded-full">
                               <Download className="w-3.5 h-3.5 text-[#7ab8d4]" />
-                              <span className="text-xs text-gray-600">Download starts on submission</span>
+                              <span className="text-xs text-gray-600">{downloadText}</span>
                             </div>
                           </div>
                         )}

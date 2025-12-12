@@ -35,6 +35,7 @@ import {
 import { cn } from '@/lib/utils';
 import { MediaPickerButton } from '@/components/admin/media-picker';
 import { InternalLinkSelector } from '@/components/admin/internal-link-selector';
+import { PopupRotatingBadge } from '@/components/popups/shared/popup-rotating-badge';
 
 interface PopupSettings {
   // Welcome Popup
@@ -62,6 +63,7 @@ interface PopupSettings {
   welcomePopupDownloadEnabled: boolean | null;
   welcomePopupDownloadUrl: string | null;
   welcomePopupDownloadName: string | null;
+  welcomePopupDownloadText: string | null;
   welcomePopupSuccessTitle: string | null;
   welcomePopupSuccessMessage: string | null;
   welcomePopupNoSpamText: string | null;
@@ -104,6 +106,7 @@ interface PopupSettings {
   exitPopupDownloadEnabled: boolean | null;
   exitPopupDownloadUrl: string | null;
   exitPopupDownloadName: string | null;
+  exitPopupDownloadText: string | null;
   exitPopupSuccessTitle: string | null;
   exitPopupSuccessMessage: string | null;
   exitPopupNoSpamText: string | null;
@@ -243,6 +246,7 @@ export default function PopupsPage() {
         welcomePopupDownloadEnabled: data.welcomePopupDownloadEnabled ?? false,
         welcomePopupDownloadUrl: data.welcomePopupDownloadUrl ?? null,
         welcomePopupDownloadName: data.welcomePopupDownloadName ?? null,
+        welcomePopupDownloadText: data.welcomePopupDownloadText ?? 'Download starts on submission',
         welcomePopupSuccessTitle: data.welcomePopupSuccessTitle ?? "You're In!",
         welcomePopupSuccessMessage: data.welcomePopupSuccessMessage ?? "Thanks for joining. We'll be in touch soon.",
         welcomePopupNoSpamText: data.welcomePopupNoSpamText ?? 'No spam, ever. Unsubscribe anytime.',
@@ -285,6 +289,7 @@ export default function PopupsPage() {
         exitPopupDownloadEnabled: data.exitPopupDownloadEnabled ?? false,
         exitPopupDownloadUrl: data.exitPopupDownloadUrl ?? null,
         exitPopupDownloadName: data.exitPopupDownloadName ?? null,
+        exitPopupDownloadText: data.exitPopupDownloadText ?? 'Download starts on submission',
         exitPopupSuccessTitle: data.exitPopupSuccessTitle ?? "You're In!",
         exitPopupSuccessMessage: data.exitPopupSuccessMessage ?? "Thanks for subscribing. Check your inbox!",
         exitPopupNoSpamText: data.exitPopupNoSpamText ?? 'No spam, ever. Unsubscribe anytime.',
@@ -390,6 +395,7 @@ export default function PopupsPage() {
   const currentDownloadEnabled = isWelcome ? settings.welcomePopupDownloadEnabled : settings.exitPopupDownloadEnabled;
   const currentDownloadUrl = isWelcome ? settings.welcomePopupDownloadUrl : settings.exitPopupDownloadUrl;
   const currentDownloadName = isWelcome ? settings.welcomePopupDownloadName : settings.exitPopupDownloadName;
+  const currentDownloadText = isWelcome ? settings.welcomePopupDownloadText : settings.exitPopupDownloadText;
   const currentSuccessTitle = isWelcome ? settings.welcomePopupSuccessTitle : settings.exitPopupSuccessTitle;
   const currentSuccessMessage = isWelcome ? settings.welcomePopupSuccessMessage : settings.exitPopupSuccessMessage;
   const currentNoSpamText = isWelcome ? settings.welcomePopupNoSpamText : settings.exitPopupNoSpamText;
@@ -960,7 +966,7 @@ export default function PopupsPage() {
                       <div>
                         <p className="font-medium text-[var(--admin-text-primary)]">Include file download</p>
                         <p className="text-xs text-[var(--admin-text-muted)]">
-                          Shows badge: "Download starts on submission"
+                          Shows a badge with customizable text below the form
                         </p>
                       </div>
                     </label>
@@ -983,6 +989,17 @@ export default function PopupsPage() {
                             placeholder="guide.pdf"
                             className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border-light)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
                           />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Badge Text</label>
+                          <input
+                            type="text"
+                            value={currentDownloadText || ''}
+                            onChange={(e) => updateField(isWelcome ? 'welcomePopupDownloadText' : 'exitPopupDownloadText', e.target.value)}
+                            placeholder="Download starts on submission"
+                            className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border-light)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+                          />
+                          <p className="text-xs text-[var(--admin-text-muted)] mt-1">Text shown in the badge below the form</p>
                         </div>
                       </div>
                     )}
@@ -1611,7 +1628,7 @@ export default function PopupsPage() {
                                 <div className="flex justify-center">
                                   <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#bbdae9]/20 border border-[#bbdae9]/40 rounded-full">
                                     <Download className="w-3.5 h-3.5 text-[#7ab8d4]" />
-                                    <span className="text-xs text-gray-600">Download starts on submission</span>
+                                    <span className="text-xs text-gray-600">{currentDownloadText || 'Download starts on submission'}</span>
                                   </div>
                                 </div>
                               )}
@@ -1697,31 +1714,9 @@ export default function PopupsPage() {
                     {/* Content Section - Right side */}
                     <div className="relative w-1/2 p-8 flex flex-col justify-center">
                       {/* Rotating Badge - Desktop only */}
-                      {previewState === 'success' ? (
-                        currentSuccessBadgeUrl && (
-                          <div className="absolute -top-8 -right-8 w-[140px] h-[140px] z-10 animate-spin-slow">
-                            <Image
-                              src={currentSuccessBadgeUrl}
-                              alt="Badge"
-                              width={140}
-                              height={140}
-                              className="w-full h-full object-contain"
-                            />
-                          </div>
-                        )
-                      ) : (
-                        currentFormBadgeUrl && (
-                          <div className="absolute -top-8 -right-8 w-[140px] h-[140px] z-10 animate-spin-slow">
-                            <Image
-                              src={currentFormBadgeUrl}
-                              alt="Badge"
-                              width={140}
-                              height={140}
-                              className="w-full h-full object-contain"
-                            />
-                          </div>
-                        )
-                      )}
+                      <PopupRotatingBadge
+                        badgeUrl={previewState === 'success' ? currentSuccessBadgeUrl : currentFormBadgeUrl}
+                      />
 
                       {previewState === 'success' ? (
                         <div className="text-center py-4">
@@ -1811,7 +1806,7 @@ export default function PopupsPage() {
                                 <div className="flex justify-center">
                                   <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#bbdae9]/20 border border-[#bbdae9]/40 rounded-full">
                                     <Download className="w-3.5 h-3.5 text-[#7ab8d4]" />
-                                    <span className="text-xs text-gray-600">Download starts on submission</span>
+                                    <span className="text-xs text-gray-600">{currentDownloadText || 'Download starts on submission'}</span>
                                   </div>
                                 </div>
                               )}

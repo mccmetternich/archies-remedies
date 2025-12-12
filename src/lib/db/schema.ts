@@ -80,6 +80,7 @@ export const siteSettings = sqliteTable('site_settings', {
   welcomePopupDownloadEnabled: integer('welcome_popup_download_enabled', { mode: 'boolean' }).default(false), // add-on to any CTA type
   welcomePopupDownloadUrl: text('welcome_popup_download_url'),
   welcomePopupDownloadName: text('welcome_popup_download_name'),
+  welcomePopupDownloadText: text('welcome_popup_download_text').default('Download starts on submission'),
   welcomePopupSuccessTitle: text('welcome_popup_success_title').default("You're In!"),
   welcomePopupSuccessMessage: text('welcome_popup_success_message').default("Thanks for joining. We'll be in touch soon."),
   welcomePopupNoSpamText: text('welcome_popup_no_spam_text').default('No spam, ever. Unsubscribe anytime.'),
@@ -124,6 +125,7 @@ export const siteSettings = sqliteTable('site_settings', {
   exitPopupDownloadEnabled: integer('exit_popup_download_enabled', { mode: 'boolean' }).default(false), // add-on to any CTA type
   exitPopupDownloadUrl: text('exit_popup_download_url'),
   exitPopupDownloadName: text('exit_popup_download_name'),
+  exitPopupDownloadText: text('exit_popup_download_text').default('Download starts on submission'),
   exitPopupSuccessTitle: text('exit_popup_success_title').default("You're In!"),
   exitPopupSuccessMessage: text('exit_popup_success_message').default("Thanks for subscribing. Check your inbox for your discount code."),
   exitPopupNoSpamText: text('exit_popup_no_spam_text').default('No spam, ever. Unsubscribe anytime.'),

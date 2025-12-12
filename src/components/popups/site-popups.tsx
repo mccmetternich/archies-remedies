@@ -32,6 +32,7 @@ interface SitePopupsProps {
     welcomePopupCtaType?: string | null;
     welcomePopupDownloadUrl?: string | null;
     welcomePopupDownloadName?: string | null;
+    welcomePopupDownloadText?: string | null;
     welcomePopupSuccessTitle?: string | null;
     welcomePopupSuccessMessage?: string | null;
     // Welcome popup testimonial
@@ -71,6 +72,7 @@ interface SitePopupsProps {
     exitPopupCtaType?: string | null;
     exitPopupDownloadUrl?: string | null;
     exitPopupDownloadName?: string | null;
+    exitPopupDownloadText?: string | null;
     exitPopupSuccessTitle?: string | null;
     exitPopupSuccessMessage?: string | null;
     exitPopupDelayAfterWelcome?: number | null;
@@ -120,6 +122,7 @@ export function SitePopups({ currentPage = '/', currentProductId, settings }: Si
         ctaType={(settings.welcomePopupCtaType as 'email' | 'sms' | 'download' | 'none') || 'email'}
         downloadFileUrl={settings.welcomePopupDownloadUrl}
         downloadFileName={settings.welcomePopupDownloadName}
+        downloadText={settings.welcomePopupDownloadText}
         successTitle={settings.welcomePopupSuccessTitle || undefined}
         successMessage={settings.welcomePopupSuccessMessage || undefined}
         // Testimonial bubble
@@ -160,6 +163,7 @@ export function SitePopups({ currentPage = '/', currentProductId, settings }: Si
         ctaType={(settings.exitPopupCtaType as 'email' | 'sms' | 'download' | 'none') || 'email'}
         downloadFileUrl={settings.exitPopupDownloadUrl}
         downloadFileName={settings.exitPopupDownloadName}
+        downloadText={settings.exitPopupDownloadText}
         successTitle={settings.exitPopupSuccessTitle || undefined}
         successMessage={settings.exitPopupSuccessMessage || undefined}
         welcomeEnabled={settings.welcomePopupEnabled ?? false}
