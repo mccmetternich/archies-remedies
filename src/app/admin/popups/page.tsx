@@ -226,13 +226,16 @@ export default function PopupsPage() {
   };
 
   const updateField = (field: keyof PopupSettings, value: string | boolean | number | null) => {
-    console.log('[PopupsPage] updateField called:', field, value, 'settings exists:', !!settings);
-    if (!settings) {
-      console.error('[PopupsPage] updateField failed: settings is null');
-      return;
-    }
-    setSettings({ ...settings, [field]: value });
-    console.log('[PopupsPage] updateField complete, new value set');
+    console.log('[PopupsPage] updateField called:', field, value);
+    setSettings(prev => {
+      if (!prev) {
+        console.error('[PopupsPage] updateField failed: settings is null');
+        return prev;
+      }
+      const newSettings = { ...prev, [field]: value };
+      console.log('[PopupsPage] updateField complete, field:', field, 'now:', newSettings[field]);
+      return newSettings;
+    });
   };
 
   if (loading) {
