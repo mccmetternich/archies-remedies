@@ -27,6 +27,8 @@ async function getPageData() {
       title: pages.title,
       showInNav: pages.showInNav,
       navOrder: pages.navOrder,
+      navShowOnDesktop: pages.navShowOnDesktop,
+      navShowOnMobile: pages.navShowOnMobile,
     })
     .from(pages)
     .where(eq(pages.isActive, true))

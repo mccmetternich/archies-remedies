@@ -865,7 +865,7 @@ export default function PopupsPage() {
                       className={cn(
                         'p-2 rounded-md transition-colors',
                         previewDevice === 'desktop'
-                          ? 'bg-[var(--admin-bg)] shadow-sm'
+                          ? 'bg-[#bbdae9] text-[#1a1a1a]'
                           : 'text-[var(--admin-text-muted)] hover:text-[var(--admin-text-secondary)]'
                       )}
                     >
@@ -876,7 +876,7 @@ export default function PopupsPage() {
                       className={cn(
                         'p-2 rounded-md transition-colors',
                         previewDevice === 'mobile'
-                          ? 'bg-[var(--admin-bg)] shadow-sm'
+                          ? 'bg-[#bbdae9] text-[#1a1a1a]'
                           : 'text-[var(--admin-text-muted)] hover:text-[var(--admin-text-secondary)]'
                       )}
                     >
@@ -891,126 +891,241 @@ export default function PopupsPage() {
                 'bg-black/40 rounded-2xl p-4 md:p-8 flex items-center justify-center min-h-[500px] transition-all',
                 previewDevice === 'mobile' ? 'max-w-[375px] mx-auto' : ''
               )}>
-                <div className={cn(
-                  'bg-white rounded-3xl overflow-hidden shadow-2xl w-full',
-                  previewDevice === 'mobile' ? 'max-w-sm' : 'max-w-md'
-                )}>
-                  {/* Media Header - Full width */}
-                  <div className="relative aspect-video w-full bg-gradient-to-br from-[#f5f0eb] via-white to-[#bbdae9]/30">
-                    {hasVideo && currentVideoUrl ? (
-                      <video
-                        src={currentVideoUrl}
-                        className="w-full h-full object-cover"
-                        autoPlay
-                        loop
-                        muted
-                        playsInline
-                      />
-                    ) : currentImageUrl ? (
-                      <Image
-                        src={currentImageUrl}
-                        alt=""
-                        fill
-                        className="object-cover"
-                      />
-                    ) : (
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <ImageIcon className="w-12 h-12 text-gray-300" />
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Content */}
-                  <div className="p-6 md:p-8">
-                    {previewState === 'success' ? (
-                      <div className="text-center py-4">
-                        <div className="flex items-center justify-center gap-3 mb-4">
-                          <div className="w-12 h-12 bg-[#bbdae9] rounded-full flex items-center justify-center">
-                            <Check className="w-6 h-6 text-[#1a1a1a]" />
-                          </div>
-                          <h3 className="text-2xl font-normal tracking-tight">{currentSuccessTitle || "You're In!"}</h3>
+                {/* Mobile Layout - Stacked */}
+                {previewDevice === 'mobile' ? (
+                  <div className="bg-white rounded-3xl overflow-hidden shadow-2xl w-full max-w-sm">
+                    {/* Media Header - Full width on mobile */}
+                    <div className="relative aspect-video w-full bg-gradient-to-br from-[#f5f0eb] via-white to-[#bbdae9]/30">
+                      {hasVideo && currentVideoUrl ? (
+                        <video
+                          src={currentVideoUrl}
+                          className="w-full h-full object-cover"
+                          autoPlay
+                          loop
+                          muted
+                          playsInline
+                        />
+                      ) : currentImageUrl ? (
+                        <Image
+                          src={currentImageUrl}
+                          alt=""
+                          fill
+                          className="object-cover"
+                        />
+                      ) : (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <ImageIcon className="w-12 h-12 text-gray-300" />
                         </div>
-                        <p className="text-gray-600">
-                          {currentSuccessMessage || "Thanks for joining. We'll be in touch soon."}
-                        </p>
-                        {currentDownloadEnabled && (
-                          <div className="mt-4 flex items-center justify-center gap-2">
-                            <div className="w-6 h-6 bg-[#bbdae9] rounded-full flex items-center justify-center">
-                              <Check className="w-4 h-4 text-white" />
-                            </div>
-                            <span className="text-sm text-gray-600">Download complete!</span>
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <>
-                        <h3 className="text-2xl md:text-3xl font-normal mb-3 tracking-tight text-center">
-                          {currentTitle || (isWelcome ? 'Join Our Community' : 'Wait! Before You Go...')}
-                        </h3>
-                        <p className="text-gray-600 mb-6 text-center leading-relaxed">
-                          {currentSubtitle || 'Get 10% off your first order plus exclusive access.'}
-                        </p>
+                      )}
+                    </div>
 
-                        {currentCtaType !== 'none' && (
-                          <div className="space-y-3">
-                            {/* Form fields based on CTA type */}
-                            {currentCtaType === 'both' ? (
-                              /* Dropdown-style input (Coming Soon page style) */
-                              <div className="relative">
-                                <div className="absolute left-3 top-1/2 -translate-y-1/2 z-10">
-                                  <div className="flex items-center gap-1 px-2 py-2 text-gray-500">
-                                    <Phone className="w-5 h-5" />
-                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                    </svg>
+                    {/* Content */}
+                    <div className="p-6">
+                      {previewState === 'success' ? (
+                        <div className="text-center py-4">
+                          <div className="flex items-center justify-center gap-3 mb-4">
+                            <div className="w-12 h-12 bg-[#bbdae9] rounded-full flex items-center justify-center">
+                              <Check className="w-6 h-6 text-[#1a1a1a]" />
+                            </div>
+                            <h3 className="text-2xl font-normal tracking-tight">{currentSuccessTitle || "You're In!"}</h3>
+                          </div>
+                          <p className="text-gray-600">
+                            {currentSuccessMessage || "Thanks for joining. We'll be in touch soon."}
+                          </p>
+                          {currentDownloadEnabled && (
+                            <div className="mt-4 flex items-center justify-center gap-2">
+                              <div className="w-6 h-6 bg-[#bbdae9] rounded-full flex items-center justify-center">
+                                <Check className="w-4 h-4 text-white" />
+                              </div>
+                              <span className="text-sm text-gray-600">Download complete!</span>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <>
+                          <h3 className="text-2xl font-normal mb-3 tracking-tight text-center">
+                            {currentTitle || (isWelcome ? 'Join Our Community' : 'Wait! Before You Go...')}
+                          </h3>
+                          <p className="text-gray-600 mb-6 text-center leading-relaxed text-sm">
+                            {currentSubtitle || 'Get 10% off your first order plus exclusive access.'}
+                          </p>
+
+                          {currentCtaType !== 'none' && (
+                            <div className="space-y-3">
+                              {/* Form fields based on CTA type */}
+                              {currentCtaType === 'both' ? (
+                                <div className="relative">
+                                  <div className="absolute left-3 top-1/2 -translate-y-1/2 z-10">
+                                    <div className="flex items-center gap-1 px-2 py-2 text-gray-500">
+                                      <Phone className="w-5 h-5" />
+                                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                      </svg>
+                                    </div>
                                   </div>
+                                  <input
+                                    type="tel"
+                                    placeholder="Enter Phone #"
+                                    className="w-full pl-14 pr-5 py-4 text-base bg-[#f5f5f0] border-0 rounded-full placeholder:text-gray-400"
+                                    readOnly
+                                  />
                                 </div>
+                              ) : currentCtaType === 'email' ? (
                                 <input
-                                  type="tel"
-                                  placeholder="Enter Phone #"
-                                  className="w-full pl-14 pr-5 py-4 text-base bg-[#f5f5f0] border-0 rounded-full focus:outline-none focus:ring-2 focus:ring-[#bbdae9] placeholder:text-gray-400"
+                                  type="email"
+                                  placeholder="Your email address"
+                                  className="w-full px-5 py-4 text-base bg-[#f5f5f0] border-0 rounded-full placeholder:text-gray-400"
                                   readOnly
                                 />
-                              </div>
-                            ) : currentCtaType === 'email' ? (
-                              <input
-                                type="email"
-                                placeholder="Your email address"
-                                className="w-full px-5 py-4 text-base bg-[#f5f5f0] border-0 rounded-full focus:outline-none focus:ring-2 focus:ring-[#bbdae9] placeholder:text-gray-400"
-                                readOnly
-                              />
-                            ) : currentCtaType === 'sms' && (
-                              <input
-                                type="tel"
-                                placeholder="Phone number"
-                                className="w-full px-5 py-4 text-base bg-[#f5f5f0] border-0 rounded-full focus:outline-none focus:ring-2 focus:ring-[#bbdae9] placeholder:text-gray-400"
-                                readOnly
-                              />
-                            )}
+                              ) : currentCtaType === 'sms' && (
+                                <input
+                                  type="tel"
+                                  placeholder="Phone number"
+                                  className="w-full px-5 py-4 text-base bg-[#f5f5f0] border-0 rounded-full placeholder:text-gray-400"
+                                  readOnly
+                                />
+                              )}
 
-                            <button className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-[#1a1a1a] text-white rounded-full font-medium text-sm hover:bg-[#bbdae9] hover:text-[#1a1a1a] transition-colors">
-                              {currentButtonText || 'Subscribe'}
-                            </button>
+                              <button className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-[#1a1a1a] text-white rounded-full font-medium text-sm">
+                                {currentButtonText || 'Subscribe'}
+                              </button>
 
-                            {/* Download badge */}
-                            {currentDownloadEnabled && (
-                              <div className="flex justify-center">
-                                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#bbdae9]/20 border border-[#bbdae9]/40 rounded-full">
-                                  <Download className="w-3.5 h-3.5 text-[#7ab8d4]" />
-                                  <span className="text-xs text-gray-600">Download starts on submission</span>
+                              {currentDownloadEnabled && (
+                                <div className="flex justify-center">
+                                  <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#bbdae9]/20 border border-[#bbdae9]/40 rounded-full">
+                                    <Download className="w-3.5 h-3.5 text-[#7ab8d4]" />
+                                    <span className="text-xs text-gray-600">Download starts on submission</span>
+                                  </div>
                                 </div>
-                              </div>
-                            )}
-                          </div>
-                        )}
+                              )}
+                            </div>
+                          )}
 
-                        <p className="text-xs text-gray-500 mt-4 text-center">
-                          {currentNoSpamText || 'No spam, ever. Unsubscribe anytime.'}
-                        </p>
-                      </>
-                    )}
+                          <p className="text-xs text-gray-500 mt-4 text-center">
+                            {currentNoSpamText || 'No spam, ever. Unsubscribe anytime.'}
+                          </p>
+                        </>
+                      )}
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  /* Desktop Layout - Side by Side */
+                  <div className="bg-white rounded-3xl overflow-hidden shadow-2xl w-full max-w-3xl flex min-h-[420px]">
+                    {/* Media Section - Left side */}
+                    <div className="relative w-1/2 bg-gradient-to-br from-[#f5f0eb] via-white to-[#bbdae9]/30">
+                      {hasVideo && currentVideoUrl ? (
+                        <video
+                          src={currentVideoUrl}
+                          className="absolute inset-0 w-full h-full object-cover"
+                          autoPlay
+                          loop
+                          muted
+                          playsInline
+                        />
+                      ) : currentImageUrl ? (
+                        <Image
+                          src={currentImageUrl}
+                          alt=""
+                          fill
+                          className="object-cover"
+                        />
+                      ) : (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <ImageIcon className="w-16 h-16 text-gray-300" />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Content Section - Right side */}
+                    <div className="w-1/2 p-8 flex flex-col justify-center">
+                      {previewState === 'success' ? (
+                        <div className="text-center py-4">
+                          <div className="flex items-center justify-center gap-3 mb-4">
+                            <div className="w-12 h-12 bg-[#bbdae9] rounded-full flex items-center justify-center">
+                              <Check className="w-6 h-6 text-[#1a1a1a]" />
+                            </div>
+                            <h3 className="text-2xl font-normal tracking-tight">{currentSuccessTitle || "You're In!"}</h3>
+                          </div>
+                          <p className="text-gray-600">
+                            {currentSuccessMessage || "Thanks for joining. We'll be in touch soon."}
+                          </p>
+                          {currentDownloadEnabled && (
+                            <div className="mt-4 flex items-center justify-center gap-2">
+                              <div className="w-6 h-6 bg-[#bbdae9] rounded-full flex items-center justify-center">
+                                <Check className="w-4 h-4 text-white" />
+                              </div>
+                              <span className="text-sm text-gray-600">Download complete!</span>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <>
+                          <h3 className="text-3xl font-normal mb-3 tracking-tight text-center">
+                            {currentTitle || (isWelcome ? 'Join Our Community' : 'Wait! Before You Go...')}
+                          </h3>
+                          <p className="text-gray-600 mb-6 text-center leading-relaxed">
+                            {currentSubtitle || 'Get 10% off your first order plus exclusive access.'}
+                          </p>
+
+                          {currentCtaType !== 'none' && (
+                            <div className="space-y-3">
+                              {/* Form fields based on CTA type */}
+                              {currentCtaType === 'both' ? (
+                                <div className="relative">
+                                  <div className="absolute left-3 top-1/2 -translate-y-1/2 z-10">
+                                    <div className="flex items-center gap-1 px-2 py-2 text-gray-500">
+                                      <Phone className="w-5 h-5" />
+                                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                      </svg>
+                                    </div>
+                                  </div>
+                                  <input
+                                    type="tel"
+                                    placeholder="Enter Phone #"
+                                    className="w-full pl-14 pr-5 py-4 text-base bg-[#f5f5f0] border-0 rounded-full placeholder:text-gray-400"
+                                    readOnly
+                                  />
+                                </div>
+                              ) : currentCtaType === 'email' ? (
+                                <input
+                                  type="email"
+                                  placeholder="Your email address"
+                                  className="w-full px-5 py-4 text-base bg-[#f5f5f0] border-0 rounded-full placeholder:text-gray-400"
+                                  readOnly
+                                />
+                              ) : currentCtaType === 'sms' && (
+                                <input
+                                  type="tel"
+                                  placeholder="Phone number"
+                                  className="w-full px-5 py-4 text-base bg-[#f5f5f0] border-0 rounded-full placeholder:text-gray-400"
+                                  readOnly
+                                />
+                              )}
+
+                              <button className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-[#1a1a1a] text-white rounded-full font-medium text-sm hover:bg-[#bbdae9] hover:text-[#1a1a1a] transition-colors">
+                                {currentButtonText || 'Subscribe'}
+                              </button>
+
+                              {currentDownloadEnabled && (
+                                <div className="flex justify-center">
+                                  <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#bbdae9]/20 border border-[#bbdae9]/40 rounded-full">
+                                    <Download className="w-3.5 h-3.5 text-[#7ab8d4]" />
+                                    <span className="text-xs text-gray-600">Download starts on submission</span>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          )}
+
+                          <p className="text-xs text-gray-500 mt-4 text-center">
+                            {currentNoSpamText || 'No spam, ever. Unsubscribe anytime.'}
+                          </p>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Summary Info */}

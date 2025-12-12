@@ -85,6 +85,8 @@ interface NavPage {
   title: string;
   showInNav: boolean | null;
   navOrder: number | null;
+  navShowOnDesktop: boolean | null;
+  navShowOnMobile: boolean | null;
 }
 
 interface HeaderProps {
@@ -124,9 +126,13 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
     ? products.find(p => p.id === globalNav.tile2ProductId)
     : products.find(p => p.slug === 'eye-wipes');
 
-  // Get nav pages sorted by order
-  const activeNavPages = navPages
-    .filter(p => p.showInNav)
+  // Get nav pages sorted by order - separate lists for desktop and mobile
+  const desktopNavPages = navPages
+    .filter(p => p.showInNav && p.navShowOnDesktop !== false)
+    .sort((a, b) => (a.navOrder || 0) - (b.navOrder || 0));
+
+  const mobileNavPages = navPages
+    .filter(p => p.showInNav && p.navShowOnMobile !== false)
     .sort((a, b) => (a.navOrder || 0) - (b.navOrder || 0));
 
   useEffect(() => {
@@ -517,9 +523,9 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
             {/* Spacer to push right items */}
             <div className="hidden lg:block flex-1" />
 
-            {/* Page Links - from admin settings */}
+            {/* Page Links - from admin settings (desktop only) */}
             <div className="hidden lg:flex items-center gap-8">
-              {activeNavPages.map((page) => (
+              {desktopNavPages.map((page) => (
                 <Link
                   key={page.id}
                   href={`/${page.slug}`}
@@ -530,7 +536,7 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
               ))}
 
               {/* Fallback "Our Story" if no pages configured */}
-              {activeNavPages.length === 0 && (
+              {desktopNavPages.length === 0 && (
                 <Link
                   href="/our-story"
                   className="text-base font-medium tracking-wide text-[#1a1a1a] hover:text-[#737373] transition-colors py-3"
@@ -660,10 +666,10 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                     </div>
                   </div>
 
-                  {/* Page Links - same as desktop nav */}
-                  {activeNavPages.length > 0 && (
+                  {/* Page Links - mobile version (filtered separately) */}
+                  {mobileNavPages.length > 0 && (
                     <div className="space-y-1">
-                      {activeNavPages.map((page) => (
+                      {mobileNavPages.map((page) => (
                         <Link
                           key={page.id}
                           href={`/${page.slug}`}
@@ -679,9 +685,22 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
 
                   {/* Mobile Marketing Tile - respects hide on mobile setting */}
                   {!globalNav?.marketingTileHideOnMobile && (
-                    <div className="p-4 rounded-xl bg-[var(--primary-light)]">
+                    <div className="relative p-4 rounded-xl bg-[var(--primary-light)] overflow-visible">
+                      {/* Rotating Badge - mobile version */}
+                      {globalNav?.marketingTileRotatingBadgeEnabled &&
+                       globalNav?.marketingTileRotatingBadgeUrl && (
+                        <div className="absolute -top-5 -right-2 w-14 h-14 z-10">
+                          <Image
+                            src={globalNav.marketingTileRotatingBadgeUrl}
+                            alt=""
+                            width={56}
+                            height={56}
+                            className="w-full h-full object-contain animate-spin-slow"
+                          />
+                        </div>
+                      )}
                       <div className="flex items-start gap-3">
-                        <div className="flex-1">
+                        <div className="flex-1 pr-8">
                           <p className="font-medium text-sm mb-1">{globalNav?.marketingTileTitle || cleanFormulasTitle}</p>
                           <p className="text-xs text-[var(--muted-foreground)] leading-relaxed">
                             {globalNav?.marketingTileDescription || cleanFormulasDescription}
@@ -698,16 +717,16 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                         <span className="text-[10px] px-2 py-0.5 bg-white rounded-full">{globalNav?.marketingTileBadge2 || 'Paraben-Free'}</span>
                         <span className="text-[10px] px-2 py-0.5 bg-white rounded-full">{globalNav?.marketingTileBadge3 || 'Sulfate-Free'}</span>
                       </div>
-                      {(globalNav?.marketingTileCtaEnabled || globalNav?.cleanFormulasCtaEnabled) &&
-                       (globalNav?.marketingTileCtaText || globalNav?.cleanFormulasCtaText) &&
-                       (globalNav?.marketingTileCtaUrl || globalNav?.cleanFormulasCtaUrl) && (
+                      {/* Mobile CTA Button - full width style like desktop */}
+                      {globalNav?.marketingTileCtaEnabled &&
+                       globalNav?.marketingTileCtaText && (
                         <Link
-                          href={globalNav.marketingTileCtaUrl || globalNav.cleanFormulasCtaUrl || ''}
+                          href={globalNav.marketingTileCtaUrl || '/about'}
                           onClick={() => setIsOpen(false)}
-                          className="inline-flex items-center gap-1.5 mt-3 text-xs font-medium text-[var(--foreground)] hover:text-[var(--muted-foreground)] transition-colors"
+                          className="cta-button-primary w-full justify-center mt-4 text-sm py-3"
                         >
-                          {globalNav.marketingTileCtaText || globalNav.cleanFormulasCtaText}
-                          <ArrowRight className="w-3 h-3" />
+                          {globalNav.marketingTileCtaText}
+                          <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                         </Link>
                       )}
                     </div>

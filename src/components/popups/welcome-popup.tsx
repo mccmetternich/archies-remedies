@@ -263,15 +263,15 @@ export function WelcomePopup({
             className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm"
           />
 
-          {/* Modal - Coming Soon aesthetic */}
+          {/* Modal - Desktop: side-by-side, Mobile: stacked */}
           <motion.div
             initial={{ opacity: 0, scale: 0.96, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 20 }}
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-[94%] max-w-md md:max-w-xl max-h-[90vh] overflow-y-auto"
+            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-[94%] max-w-md md:max-w-4xl max-h-[90vh] overflow-y-auto md:overflow-hidden"
           >
-            <div className="bg-white rounded-3xl overflow-hidden shadow-2xl">
+            <div className="bg-white rounded-3xl overflow-hidden shadow-2xl md:flex md:min-h-[480px]">
               {/* Close button */}
               <button
                 onClick={handleClose}
@@ -281,58 +281,60 @@ export function WelcomePopup({
                 <X className="w-4 h-4 text-gray-600" />
               </button>
 
-              {/* Media - Full width, aspect-video */}
-              {videoUrl && showVideo ? (
-                <div className="relative aspect-video bg-black">
-                  <VideoPlayer url={videoUrl} autoPlay />
-                </div>
-              ) : (
-                <div className="relative aspect-video w-full bg-gradient-to-br from-[#f5f0eb] via-white to-[#bbdae9]/30">
-                  {imageUrl ? (
-                    <Image
-                      src={imageUrl}
-                      alt=""
-                      fill
-                      className="object-cover"
-                    />
-                  ) : videoThumbnailUrl ? (
-                    <>
+              {/* Media Section - Left side on desktop, top on mobile */}
+              <div className="relative md:w-1/2 md:min-h-full">
+                {videoUrl && showVideo ? (
+                  <div className="relative aspect-video md:aspect-auto md:absolute md:inset-0 bg-black">
+                    <VideoPlayer url={videoUrl} autoPlay />
+                  </div>
+                ) : (
+                  <div className="relative aspect-video md:aspect-auto md:absolute md:inset-0 w-full bg-gradient-to-br from-[#f5f0eb] via-white to-[#bbdae9]/30">
+                    {imageUrl ? (
                       <Image
-                        src={videoThumbnailUrl}
-                        alt="Video thumbnail"
+                        src={imageUrl}
+                        alt=""
                         fill
                         className="object-cover"
                       />
+                    ) : videoThumbnailUrl ? (
+                      <>
+                        <Image
+                          src={videoThumbnailUrl}
+                          alt="Video thumbnail"
+                          fill
+                          className="object-cover"
+                        />
+                        <button
+                          onClick={() => setShowVideo(true)}
+                          className="absolute inset-0 flex items-center justify-center bg-black/20 hover:bg-black/30 transition-colors"
+                        >
+                          <div className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center shadow-lg">
+                            <Play className="w-6 h-6 text-[#1a1a1a] ml-1" fill="currentColor" />
+                          </div>
+                        </button>
+                      </>
+                    ) : hasVideo ? (
                       <button
                         onClick={() => setShowVideo(true)}
-                        className="absolute inset-0 flex items-center justify-center bg-black/20 hover:bg-black/30 transition-colors"
+                        className="absolute inset-0 flex items-center justify-center hover:bg-black/10 transition-colors"
                       >
                         <div className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center shadow-lg">
                           <Play className="w-6 h-6 text-[#1a1a1a] ml-1" fill="currentColor" />
                         </div>
                       </button>
-                    </>
-                  ) : hasVideo ? (
-                    <button
-                      onClick={() => setShowVideo(true)}
-                      className="absolute inset-0 flex items-center justify-center hover:bg-black/10 transition-colors"
-                    >
-                      <div className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center shadow-lg">
-                        <Play className="w-6 h-6 text-[#1a1a1a] ml-1" fill="currentColor" />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <span className="text-xs font-semibold tracking-[0.2em] uppercase text-gray-400">
+                          Archie&apos;s Remedies
+                        </span>
                       </div>
-                    </button>
-                  ) : (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-xs font-semibold tracking-[0.2em] uppercase text-gray-400">
-                        Archie&apos;s Remedies
-                      </span>
-                    </div>
-                  )}
-                </div>
-              )}
+                    )}
+                  </div>
+                )}
+              </div>
 
-              {/* Content */}
-              <div className="p-6 md:p-8">
+              {/* Content Section - Right side on desktop, bottom on mobile */}
+              <div className="p-6 md:p-8 md:w-1/2 md:flex md:flex-col md:justify-center">
                 {status === 'success' || status === 'downloading' || status === 'downloaded' ? (
                   <div className="py-4 text-center">
                     <div className="flex items-center justify-center gap-3 mb-4">

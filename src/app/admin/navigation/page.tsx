@@ -1413,11 +1413,46 @@ export default function NavigationPage() {
                       value={page}
                       className="p-4 bg-[var(--admin-hover)] rounded-lg cursor-grab active:cursor-grabbing"
                     >
-                      <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-3">
                         <GripVertical className="w-4 h-4 text-[var(--admin-text-muted)] shrink-0" />
                         <div className="flex-1 min-w-0">
                           <p className="font-medium text-[var(--admin-text-primary)]">{page.title}</p>
                           <p className="text-sm text-[var(--admin-text-muted)]">/{page.slug}</p>
+                        </div>
+                        {/* Device visibility toggles - inline with other controls */}
+                        <div className="flex items-center gap-1 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setPagesList(pagesList.map(p =>
+                                p.id === page.id ? { ...p, navShowOnDesktop: !p.navShowOnDesktop } : p
+                              ));
+                            }}
+                            className={`p-2 rounded-lg transition-colors ${
+                              page.navShowOnDesktop !== false
+                                ? 'bg-[#bbdae9] text-[#1a1a1a]'
+                                : 'bg-[var(--admin-input)] text-[var(--admin-text-muted)] hover:bg-[var(--admin-border)]'
+                            }`}
+                            title="Show on desktop"
+                          >
+                            <Monitor className="w-4 h-4" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setPagesList(pagesList.map(p =>
+                                p.id === page.id ? { ...p, navShowOnMobile: !p.navShowOnMobile } : p
+                              ));
+                            }}
+                            className={`p-2 rounded-lg transition-colors ${
+                              page.navShowOnMobile !== false
+                                ? 'bg-[#bbdae9] text-[#1a1a1a]'
+                                : 'bg-[var(--admin-input)] text-[var(--admin-text-muted)] hover:bg-[var(--admin-border)]'
+                            }`}
+                            title="Show on mobile"
+                          >
+                            <Smartphone className="w-4 h-4" />
+                          </button>
                         </div>
                         <select
                           value={page.navPosition || 'right'}
@@ -1438,37 +1473,6 @@ export default function NavigationPage() {
                         >
                           <X className="w-4 h-4" />
                         </button>
-                      </div>
-                      {/* Device visibility checkboxes */}
-                      <div className="flex items-center gap-4 mt-3 pt-3 border-t border-[var(--admin-border)]/50 ml-8">
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={page.navShowOnDesktop !== false}
-                            onChange={(e) => {
-                              setPagesList(pagesList.map(p =>
-                                p.id === page.id ? { ...p, navShowOnDesktop: e.target.checked } : p
-                              ));
-                            }}
-                            className="w-4 h-4 rounded border-[var(--admin-border)] bg-[var(--admin-input)] text-[var(--primary)] focus:ring-[var(--primary)] focus:ring-offset-0"
-                          />
-                          <Monitor className="w-4 h-4 text-[var(--admin-text-muted)]" />
-                          <span className="text-sm text-[var(--admin-text-secondary)]">Desktop</span>
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={page.navShowOnMobile !== false}
-                            onChange={(e) => {
-                              setPagesList(pagesList.map(p =>
-                                p.id === page.id ? { ...p, navShowOnMobile: e.target.checked } : p
-                              ));
-                            }}
-                            className="w-4 h-4 rounded border-[var(--admin-border)] bg-[var(--admin-input)] text-[var(--primary)] focus:ring-[var(--primary)] focus:ring-offset-0"
-                          />
-                          <Smartphone className="w-4 h-4 text-[var(--admin-text-muted)]" />
-                          <span className="text-sm text-[var(--admin-text-secondary)]">Mobile</span>
-                        </label>
                       </div>
                     </Reorder.Item>
                   ))}
@@ -1499,11 +1503,46 @@ export default function NavigationPage() {
                       value={page}
                       className="p-4 bg-[var(--admin-hover)] rounded-lg cursor-grab active:cursor-grabbing"
                     >
-                      <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-3">
                         <GripVertical className="w-4 h-4 text-[var(--admin-text-muted)] shrink-0" />
                         <div className="flex-1 min-w-0">
                           <p className="font-medium text-[var(--admin-text-primary)]">{page.title}</p>
                           <p className="text-sm text-[var(--admin-text-muted)]">/{page.slug}</p>
+                        </div>
+                        {/* Device visibility toggles - inline with other controls */}
+                        <div className="flex items-center gap-1 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setPagesList(pagesList.map(p =>
+                                p.id === page.id ? { ...p, navShowOnDesktop: !p.navShowOnDesktop } : p
+                              ));
+                            }}
+                            className={`p-2 rounded-lg transition-colors ${
+                              page.navShowOnDesktop !== false
+                                ? 'bg-[#bbdae9] text-[#1a1a1a]'
+                                : 'bg-[var(--admin-input)] text-[var(--admin-text-muted)] hover:bg-[var(--admin-border)]'
+                            }`}
+                            title="Show on desktop"
+                          >
+                            <Monitor className="w-4 h-4" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setPagesList(pagesList.map(p =>
+                                p.id === page.id ? { ...p, navShowOnMobile: !p.navShowOnMobile } : p
+                              ));
+                            }}
+                            className={`p-2 rounded-lg transition-colors ${
+                              page.navShowOnMobile !== false
+                                ? 'bg-[#bbdae9] text-[#1a1a1a]'
+                                : 'bg-[var(--admin-input)] text-[var(--admin-text-muted)] hover:bg-[var(--admin-border)]'
+                            }`}
+                            title="Show on mobile"
+                          >
+                            <Smartphone className="w-4 h-4" />
+                          </button>
                         </div>
                         <select
                           value={page.navPosition || 'right'}
@@ -1524,37 +1563,6 @@ export default function NavigationPage() {
                         >
                           <X className="w-4 h-4" />
                         </button>
-                      </div>
-                      {/* Device visibility checkboxes */}
-                      <div className="flex items-center gap-4 mt-3 pt-3 border-t border-[var(--admin-border)]/50 ml-8">
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={page.navShowOnDesktop !== false}
-                            onChange={(e) => {
-                              setPagesList(pagesList.map(p =>
-                                p.id === page.id ? { ...p, navShowOnDesktop: e.target.checked } : p
-                              ));
-                            }}
-                            className="w-4 h-4 rounded border-[var(--admin-border)] bg-[var(--admin-input)] text-[var(--primary)] focus:ring-[var(--primary)] focus:ring-offset-0"
-                          />
-                          <Monitor className="w-4 h-4 text-[var(--admin-text-muted)]" />
-                          <span className="text-sm text-[var(--admin-text-secondary)]">Desktop</span>
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={page.navShowOnMobile !== false}
-                            onChange={(e) => {
-                              setPagesList(pagesList.map(p =>
-                                p.id === page.id ? { ...p, navShowOnMobile: e.target.checked } : p
-                              ));
-                            }}
-                            className="w-4 h-4 rounded border-[var(--admin-border)] bg-[var(--admin-input)] text-[var(--primary)] focus:ring-[var(--primary)] focus:ring-offset-0"
-                          />
-                          <Smartphone className="w-4 h-4 text-[var(--admin-text-muted)]" />
-                          <span className="text-sm text-[var(--admin-text-secondary)]">Mobile</span>
-                        </label>
                       </div>
                     </Reorder.Item>
                   ))}
@@ -1585,11 +1593,46 @@ export default function NavigationPage() {
                       value={page}
                       className="p-4 bg-[var(--admin-hover)] rounded-lg cursor-grab active:cursor-grabbing"
                     >
-                      <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-3">
                         <GripVertical className="w-4 h-4 text-[var(--admin-text-muted)] shrink-0" />
                         <div className="flex-1 min-w-0">
                           <p className="font-medium text-[var(--admin-text-primary)]">{page.title}</p>
                           <p className="text-sm text-[var(--admin-text-muted)]">/{page.slug}</p>
+                        </div>
+                        {/* Device visibility toggles - inline with other controls */}
+                        <div className="flex items-center gap-1 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setPagesList(pagesList.map(p =>
+                                p.id === page.id ? { ...p, navShowOnDesktop: !p.navShowOnDesktop } : p
+                              ));
+                            }}
+                            className={`p-2 rounded-lg transition-colors ${
+                              page.navShowOnDesktop !== false
+                                ? 'bg-[#bbdae9] text-[#1a1a1a]'
+                                : 'bg-[var(--admin-input)] text-[var(--admin-text-muted)] hover:bg-[var(--admin-border)]'
+                            }`}
+                            title="Show on desktop"
+                          >
+                            <Monitor className="w-4 h-4" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setPagesList(pagesList.map(p =>
+                                p.id === page.id ? { ...p, navShowOnMobile: !p.navShowOnMobile } : p
+                              ));
+                            }}
+                            className={`p-2 rounded-lg transition-colors ${
+                              page.navShowOnMobile !== false
+                                ? 'bg-[#bbdae9] text-[#1a1a1a]'
+                                : 'bg-[var(--admin-input)] text-[var(--admin-text-muted)] hover:bg-[var(--admin-border)]'
+                            }`}
+                            title="Show on mobile"
+                          >
+                            <Smartphone className="w-4 h-4" />
+                          </button>
                         </div>
                         <select
                           value={page.navPosition || 'right'}
@@ -1610,37 +1653,6 @@ export default function NavigationPage() {
                         >
                           <X className="w-4 h-4" />
                         </button>
-                      </div>
-                      {/* Device visibility checkboxes */}
-                      <div className="flex items-center gap-4 mt-3 pt-3 border-t border-[var(--admin-border)]/50 ml-8">
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={page.navShowOnDesktop !== false}
-                            onChange={(e) => {
-                              setPagesList(pagesList.map(p =>
-                                p.id === page.id ? { ...p, navShowOnDesktop: e.target.checked } : p
-                              ));
-                            }}
-                            className="w-4 h-4 rounded border-[var(--admin-border)] bg-[var(--admin-input)] text-[var(--primary)] focus:ring-[var(--primary)] focus:ring-offset-0"
-                          />
-                          <Monitor className="w-4 h-4 text-[var(--admin-text-muted)]" />
-                          <span className="text-sm text-[var(--admin-text-secondary)]">Desktop</span>
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={page.navShowOnMobile !== false}
-                            onChange={(e) => {
-                              setPagesList(pagesList.map(p =>
-                                p.id === page.id ? { ...p, navShowOnMobile: e.target.checked } : p
-                              ));
-                            }}
-                            className="w-4 h-4 rounded border-[var(--admin-border)] bg-[var(--admin-input)] text-[var(--primary)] focus:ring-[var(--primary)] focus:ring-offset-0"
-                          />
-                          <Smartphone className="w-4 h-4 text-[var(--admin-text-muted)]" />
-                          <span className="text-sm text-[var(--admin-text-secondary)]">Mobile</span>
-                        </label>
                       </div>
                     </Reorder.Item>
                   ))}
