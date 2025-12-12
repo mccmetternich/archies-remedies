@@ -567,8 +567,8 @@ export function ExitPopup({
                                       ))}
                                     </div>
                                   </div>
-                                  <p className="text-[13px] text-gray-600 leading-snug italic">
-                                    {testimonialQuote}
+                                  <p className="text-[13px] text-gray-600 leading-snug">
+                                    <span className="italic">{testimonialQuote}</span>
                                   </p>
                                 </div>
                               </div>
@@ -577,25 +577,25 @@ export function ExitPopup({
                         )}
                         {/* Mobile testimonial - only show if mobile enabled */}
                         {testimonialEnabledMobile && (
-                          <div className="md:hidden absolute bottom-1.5 left-2 right-2">
-                            <div className="bg-white/98 backdrop-blur-md rounded-lg px-2.5 py-2 shadow-lg ring-1 ring-black/[0.03]">
-                              <div className="flex items-center gap-2">
+                          <div className="md:hidden absolute bottom-1.5 left-0 right-0 flex justify-center px-2">
+                            <div className="inline-flex bg-white/98 backdrop-blur-md rounded-lg px-2 py-1.5 shadow-lg ring-1 ring-black/[0.03]">
+                              <div className="flex items-center gap-1.5">
                                 {testimonialAvatarUrl ? (
                                   <Image
                                     src={testimonialAvatarUrl}
                                     alt={testimonialAuthor || 'Reviewer'}
-                                    width={32}
-                                    height={32}
-                                    className="rounded-full object-cover flex-shrink-0 ring-1 ring-white shadow-sm w-8 h-8"
+                                    width={28}
+                                    height={28}
+                                    className="rounded-full object-cover flex-shrink-0 ring-1 ring-white shadow-sm w-7 h-7"
                                   />
                                 ) : (
-                                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#bbdae9]/40 to-[#bbdae9]/20 flex items-center justify-center flex-shrink-0 ring-1 ring-white shadow-sm">
-                                    <span className="text-xs font-semibold text-[#1a1a1a]">
+                                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#bbdae9]/40 to-[#bbdae9]/20 flex items-center justify-center flex-shrink-0 ring-1 ring-white shadow-sm">
+                                    <span className="text-[10px] font-semibold text-[#1a1a1a]">
                                       {(testimonialAuthor || 'A')[0]}
                                     </span>
                                   </div>
                                 )}
-                                <div className="flex-1 min-w-0">
+                                <div className="min-w-0">
                                   {/* Author name + stars on same row */}
                                   <div className="flex items-center gap-1 mb-0.5">
                                     {testimonialAuthor && (
@@ -607,8 +607,8 @@ export function ExitPopup({
                                       ))}
                                     </div>
                                   </div>
-                                  <p className="text-[10px] text-gray-600 leading-snug line-clamp-2 italic">
-                                    {testimonialQuote}
+                                  <p className="text-[11px] text-gray-600 leading-snug line-clamp-2">
+                                    <span className="italic">{testimonialQuote}</span>
                                   </p>
                                 </div>
                               </div>
