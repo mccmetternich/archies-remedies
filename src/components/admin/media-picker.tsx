@@ -54,8 +54,12 @@ export function MediaPickerButton({
   // Determine file accept types
   const acceptTypes = acceptVideo ? 'image/*,video/mp4,video/webm' : 'image/*';
 
-  // Check if value is a video
-  const isVideo = value && (value.includes('video/') || value.endsWith('.mp4') || value.endsWith('.webm'));
+  // Check if value is a video - check extension, Cloudinary path, and mime type pattern
+  const isVideo = value && (
+    value.includes('/video/upload/') ||
+    value.match(/\.(mp4|webm|mov)(\?|$)/i) ||
+    value.includes('video/')
+  );
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

@@ -264,8 +264,11 @@ export default function PopupsPage() {
   const currentSuccessMessage = isWelcome ? settings.welcomePopupSuccessMessage : settings.exitPopupSuccessMessage;
   const currentNoSpamText = isWelcome ? settings.welcomePopupNoSpamText : settings.exitPopupNoSpamText;
 
-  // Check if media is video
-  const hasVideo = currentVideoUrl && currentVideoUrl.match(/\.(mp4|webm|mov)$/i);
+  // Check if media is video - check both file extension and Cloudinary video resource type
+  const hasVideo = currentVideoUrl && (
+    currentVideoUrl.match(/\.(mp4|webm|mov)(\?|$)/i) ||
+    currentVideoUrl.includes('/video/upload/')
+  );
 
   return (
     <div className="space-y-6">
@@ -548,7 +551,12 @@ export default function PopupsPage() {
                   label="Image or Video"
                   value={currentVideoUrl || currentImageUrl}
                   onChange={(url) => {
-                    if (url?.match(/\.(mp4|webm|mov)$/i)) {
+                    // Check if URL is a video - check both file extension and Cloudinary video path
+                    const isVideoUrl = url && (
+                      url.match(/\.(mp4|webm|mov)(\?|$)/i) ||
+                      url.includes('/video/upload/')
+                    );
+                    if (isVideoUrl) {
                       updateField(isWelcome ? 'welcomePopupVideoUrl' : 'exitPopupVideoUrl', url);
                       updateField(isWelcome ? 'welcomePopupImageUrl' : 'exitPopupImageUrl', null);
                     } else {
