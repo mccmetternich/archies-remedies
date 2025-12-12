@@ -21,6 +21,8 @@ interface HeroSlide {
   testimonialText: string | null;
   testimonialAuthor: string | null;
   testimonialAvatarUrl: string | null;
+  layout?: string | null; // 'full-width', 'two-column', 'two-column-reversed'
+  textColor?: string | null; // 'dark', 'light'
 }
 
 // Default avatar if none provided
@@ -64,27 +66,132 @@ export function HeroCarousel({ slides, isPaused = false }: HeroCarouselProps) {
   }
 
   const slide = slides[currentIndex];
+  const layout = slide.layout || 'full-width';
+  const textColor = slide.textColor || 'dark';
+  const isLightText = textColor === 'light';
+  const isTwoColumn = layout === 'two-column' || layout === 'two-column-reversed';
+  const isReversed = layout === 'two-column-reversed';
 
+  // Text content component (shared between layouts)
+  const TextContent = () => (
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={`content-${currentIndex}`}
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -15 }}
+        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+        style={{ willChange: 'opacity, transform' }}
+      >
+        {/* Stars and Verified Reviews - Above title */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1, duration: 0.6 }}
+          className="flex items-center gap-3 mb-6"
+        >
+          <div className="flex">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <Star key={i} className={cn(
+                "w-4 h-4",
+                isLightText ? "fill-white text-white" : "fill-[var(--primary)] text-[var(--primary)]"
+              )} />
+            ))}
+          </div>
+          <span className={cn("text-sm font-medium", isLightText ? "text-white" : "text-[var(--foreground)]")}>4.9</span>
+          <span className={cn("text-sm", isLightText ? "text-white/80" : "text-[var(--muted-foreground)]")}>2,500+ Verified Reviews</span>
+        </motion.div>
+
+        {/* Title - Editorial typography */}
+        <motion.h1
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2, duration: 0.8 }}
+          className={cn(
+            "text-[clamp(2.5rem,5vw,4.5rem)] font-normal leading-[1.05] tracking-[-0.03em] mb-6",
+            isLightText ? "text-white" : "text-[var(--foreground)]"
+          )}
+        >
+          {slide.title || 'Instant Relief,\nClean Formula'}
+        </motion.h1>
+
+        {/* Subtitle */}
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3, duration: 0.6 }}
+          className={cn(
+            "text-lg md:text-xl mb-10 leading-relaxed max-w-md",
+            isLightText ? "text-white/90" : "text-[var(--muted-foreground)]"
+          )}
+        >
+          {slide.subtitle || 'Preservative-free eye drops crafted for sensitive eyes. Feel the difference of truly clean ingredients.'}
+        </motion.p>
+
+        {/* CTA - Buttons with hover states */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4, duration: 0.6 }}
+          className="flex flex-wrap items-center gap-4"
+        >
+          {/* Primary button */}
+          {slide.buttonUrl && (
+            <Link
+              href={slide.buttonUrl}
+              className={cn(
+                "group inline-flex items-center gap-3 px-6 py-4 rounded-full text-base font-semibold transition-all duration-300",
+                isLightText
+                  ? "bg-white text-[#1a1a1a] hover:bg-white/90"
+                  : "cta-button-primary cta-button-primary-lg"
+              )}
+            >
+              {slide.buttonText || 'Shop Now'}
+              <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+            </Link>
+          )}
+          {/* Secondary button - hidden on mobile */}
+          <Link
+            href={slide.secondaryButtonUrl || '/about'}
+            className={cn(
+              "hidden md:inline-flex group items-center gap-3 px-6 py-4 rounded-full text-base font-semibold border-2 transition-all duration-300",
+              isLightText
+                ? "border-white/40 text-white hover:bg-white/10 hover:border-white/60"
+                : "border-[#1a1a1a]/20 bg-white text-[#1a1a1a] hover:bg-[#f5f5f5] hover:border-[#1a1a1a]/40"
+            )}
+          >
+            {slide.secondaryButtonText || 'Learn More'}
+            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+          </Link>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
+  );
 
   return (
     <section
-      className="relative h-[90vh] min-h-[700px] max-h-[950px] overflow-hidden"
+      className={cn(
+        "relative overflow-hidden",
+        isTwoColumn
+          ? "min-h-[600px] lg:min-h-[700px]"
+          : "h-[90vh] min-h-[700px] max-h-[950px]"
+      )}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Background - Full bleed editorial image with clickable overlay */}
-      <AnimatePresence mode="sync">
-        <motion.div
-          key={currentIndex}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          className="absolute inset-0"
-          style={{ willChange: 'opacity' }}
-        >
-          {slide.imageUrl ? (
-            <>
+      {/* Background for full-width layout */}
+      {!isTwoColumn && (
+        <AnimatePresence mode="sync">
+          <motion.div
+            key={currentIndex}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            className="absolute inset-0"
+            style={{ willChange: 'opacity' }}
+          >
+            {slide.imageUrl ? (
               <Image
                 src={slide.imageUrl}
                 alt={slide.title || 'Hero image'}
@@ -93,151 +200,131 @@ export function HeroCarousel({ slides, isPaused = false }: HeroCarouselProps) {
                 priority
                 sizes="100vw"
               />
-              {/* Sophisticated gradient overlay */}
-              <div className="absolute inset-0 bg-gradient-to-r from-white via-white/90 to-white/40" />
-            </>
-          ) : (
-            <div className="absolute inset-0 bg-gradient-to-br from-[var(--cream)] via-white to-[var(--primary-light)]" />
-          )}
+            ) : (
+              <div className="absolute inset-0 bg-gradient-to-br from-[var(--cream)] via-white to-[var(--primary-light)]" />
+            )}
 
-          {/* Clickable overlay - links entire hero to primary button URL */}
-          {slide.buttonUrl && (
-            <Link
-              href={slide.buttonUrl}
-              className="absolute inset-0 z-10"
-              aria-label={slide.buttonText || 'Shop Now'}
-            />
-          )}
-        </motion.div>
-      </AnimatePresence>
+            {/* Clickable overlay - links entire hero to primary button URL */}
+            {slide.buttonUrl && (
+              <Link
+                href={slide.buttonUrl}
+                className="absolute inset-0 z-10"
+                aria-label={slide.buttonText || 'Shop Now'}
+              />
+            )}
+          </motion.div>
+        </AnimatePresence>
+      )}
 
-      {/* Content - Above the clickable overlay */}
-      <div className="container relative z-20 h-full flex items-center pointer-events-none">
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 pointer-events-auto w-full">
-          {/* Left - Text content - vertically centered */}
-          <div className="max-w-xl self-center">
-            <AnimatePresence mode="wait">
+      {/* Two-column layout background (cream/light background) */}
+      {isTwoColumn && (
+        <div className="absolute inset-0 bg-[var(--cream)]" />
+      )}
+
+      {/* Content */}
+      {isTwoColumn ? (
+        // Two-column layout
+        <div className="container relative z-20 h-full">
+          <div className={cn(
+            "grid lg:grid-cols-2 gap-8 lg:gap-16 h-full items-center py-12 lg:py-0",
+            isReversed && "lg:[&>*:first-child]:order-2 lg:[&>*:last-child]:order-1"
+          )}>
+            {/* Text content */}
+            <div className="max-w-xl py-8 lg:py-16">
+              <TextContent />
+            </div>
+
+            {/* Image */}
+            <AnimatePresence mode="sync">
               <motion.div
-                key={`content-${currentIndex}`}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -15 }}
-                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                style={{ willChange: 'opacity, transform' }}
+                key={`image-${currentIndex}`}
+                initial={{ opacity: 0, x: isReversed ? -30 : 30 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: isReversed ? 30 : -30 }}
+                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                className="relative h-[400px] lg:h-[600px] rounded-2xl overflow-hidden"
               >
-                {/* Stars and Verified Reviews - Above title */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1, duration: 0.6 }}
-                  className="flex items-center gap-3 mb-6"
-                >
-                  <div className="flex">
-                    {[1, 2, 3, 4, 5].map((i) => (
-                      <Star key={i} className="w-4 h-4 fill-[var(--primary)] text-[var(--primary)]" />
-                    ))}
-                  </div>
-                  <span className="text-sm font-medium text-[var(--foreground)]">4.9</span>
-                  <span className="text-sm text-[var(--muted-foreground)]">2,500+ Verified Reviews</span>
-                </motion.div>
+                {slide.imageUrl ? (
+                  <Image
+                    src={slide.imageUrl}
+                    alt={slide.title || 'Hero image'}
+                    fill
+                    className="object-cover"
+                    priority
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                  />
+                ) : (
+                  <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)] to-[var(--primary-light)]" />
+                )}
 
-                {/* Title - Editorial typography */}
-                <motion.h1
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2, duration: 0.8 }}
-                  className="text-[clamp(2.5rem,5vw,4.5rem)] font-normal leading-[1.05] tracking-[-0.03em] mb-6"
-                >
-                  {slide.title || 'Instant Relief,\nClean Formula'}
-                </motion.h1>
-
-                {/* Subtitle */}
-                <motion.p
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3, duration: 0.6 }}
-                  className="text-lg md:text-xl text-[var(--muted-foreground)] mb-10 leading-relaxed max-w-md"
-                >
-                  {slide.subtitle || 'Preservative-free eye drops crafted for sensitive eyes. Feel the difference of truly clean ingredients.'}
-                </motion.p>
-
-                {/* CTA - Buttons with hover states */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4, duration: 0.6 }}
-                  className="flex flex-wrap items-center gap-4"
-                >
-                  {/* Primary button - Uses definitive CSS class to avoid Tailwind v4 color issues */}
-                  {slide.buttonUrl && (
-                    <Link
-                      href={slide.buttonUrl}
-                      className="cta-button-primary cta-button-primary-lg group"
-                    >
-                      {slide.buttonText || 'Shop Now'}
-                      <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
-                    </Link>
-                  )}
-                  {/* Secondary button - white bg, dark text - hidden on mobile */}
+                {/* Clickable overlay for two-column */}
+                {slide.buttonUrl && (
                   <Link
-                    href={slide.secondaryButtonUrl || '/about'}
-                    className="hidden md:inline-flex group items-center gap-3 px-6 py-4 rounded-full text-base font-semibold border-2 border-[#1a1a1a]/20 bg-white [&]:text-[#1a1a1a] transition-all duration-300 hover:bg-[#f5f5f5] hover:border-[#1a1a1a]/40"
-                  >
-                    {slide.secondaryButtonText || 'Learn More'}
-                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-                  </Link>
-                </motion.div>
+                    href={slide.buttonUrl}
+                    className="absolute inset-0 z-10"
+                    aria-label={slide.buttonText || 'Shop Now'}
+                  />
+                )}
               </motion.div>
             </AnimatePresence>
           </div>
+        </div>
+      ) : (
+        // Full-width layout (original)
+        <div className="container relative z-20 h-full flex items-center pointer-events-none">
+          <div className="pointer-events-auto w-full">
+            <div className="max-w-xl">
+              <TextContent />
+            </div>
+          </div>
+        </div>
+      )}
 
-          {/* Right - Featured testimonial card - Positioned at bottom */}
-          <AnimatePresence mode="wait">
-            {slide.testimonialText && (
-              <motion.div
-                key={`testimonial-${currentIndex}`}
-                initial={{ opacity: 0, x: 30 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                style={{ willChange: 'opacity, transform' }}
-                className="hidden lg:block self-end"
-              >
-                <div className="relative max-w-md">
-                  {/* Decorative element */}
-                  <div className="absolute -top-6 -left-6 w-20 h-20 bg-[var(--primary)] rounded-full opacity-30 blur-2xl" />
+      {/* Featured testimonial card - Absolutely positioned at bottom-right */}
+      <AnimatePresence mode="wait">
+        {slide.testimonialText && (
+          <motion.div
+            key={`testimonial-${currentIndex}`}
+            initial={{ opacity: 0, y: 20, x: 20 }}
+            animate={{ opacity: 1, y: 0, x: 0 }}
+            exit={{ opacity: 0, y: 10, x: 10 }}
+            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}
+            style={{ willChange: 'opacity, transform' }}
+            className="hidden lg:block absolute bottom-24 right-8 xl:right-16 z-30 pointer-events-auto"
+          >
+            <div className="relative max-w-sm">
+              {/* Decorative element */}
+              <div className="absolute -top-4 -left-4 w-16 h-16 bg-[var(--primary)] rounded-full opacity-30 blur-2xl" />
 
-                  <div className="relative bg-white p-8 rounded-2xl shadow-xl border border-[var(--border-light)]">
-                    <div className="flex gap-0.5 mb-4">
-                      {[1, 2, 3, 4, 5].map((i) => (
-                        <Star key={i} className="w-5 h-5 fill-[var(--foreground)] text-[var(--foreground)]" />
-                      ))}
-                    </div>
-                    <blockquote className="text-lg leading-relaxed mb-5 text-[var(--foreground)]">
-                      &ldquo;{slide.testimonialText}&rdquo;
-                    </blockquote>
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-full overflow-hidden bg-[var(--sand)]">
-                        <Image
-                          src={slide.testimonialAvatarUrl || DEFAULT_AVATAR}
-                          alt={slide.testimonialAuthor || 'Customer'}
-                          width={48}
-                          height={48}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <div>
-                        <p className="font-medium">{slide.testimonialAuthor || 'Verified Buyer'}</p>
-                        <p className="text-sm text-[var(--muted-foreground)]">Verified Purchase</p>
-                      </div>
-                    </div>
+              <div className="relative bg-white/95 backdrop-blur-sm p-6 rounded-2xl shadow-2xl border border-[var(--border-light)]">
+                <div className="flex gap-0.5 mb-3">
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <Star key={i} className="w-4 h-4 fill-[var(--foreground)] text-[var(--foreground)]" />
+                  ))}
+                </div>
+                <blockquote className="text-base leading-relaxed mb-4 text-[var(--foreground)]">
+                  &ldquo;{slide.testimonialText}&rdquo;
+                </blockquote>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full overflow-hidden bg-[var(--sand)]">
+                    <Image
+                      src={slide.testimonialAvatarUrl || DEFAULT_AVATAR}
+                      alt={slide.testimonialAuthor || 'Customer'}
+                      width={40}
+                      height={40}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div>
+                    <p className="font-medium text-sm">{slide.testimonialAuthor || 'Verified Buyer'}</p>
+                    <p className="text-xs text-[var(--muted-foreground)]">Verified Purchase</p>
                   </div>
                 </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Minimal progress indicator */}
       {slides.length > 1 && (

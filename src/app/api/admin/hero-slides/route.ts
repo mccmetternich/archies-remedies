@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { heroSlides } from '@/lib/db/schema';
+import { heroSlides, products } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { generateId } from '@/lib/utils';
 import { requireAuth } from '@/lib/api-auth';
@@ -10,11 +10,35 @@ export async function GET() {
   if (!auth.authenticated) return auth.response;
 
   try {
+    // Get all slides with product data
     const slides = await db
       .select()
       .from(heroSlides)
       .orderBy(heroSlides.sortOrder);
-    return NextResponse.json(slides);
+
+    // Get all products for lookup
+    const allProducts = await db.select().from(products);
+    const productMap = new Map(allProducts.map((p) => [p.id, p]));
+
+    // Enrich slides with product data
+    const enrichedSlides = slides.map((slide) => {
+      const product = slide.productId ? productMap.get(slide.productId) : null;
+      return {
+        ...slide,
+        product: product
+          ? {
+              id: product.id,
+              name: product.name,
+              slug: product.slug,
+              price: product.price,
+              rating: product.rating,
+              reviewCount: product.reviewCount,
+            }
+          : null,
+      };
+    });
+
+    return NextResponse.json(enrichedSlides);
   } catch (error) {
     console.error('Failed to fetch hero slides:', error);
     return NextResponse.json({ error: 'Failed to fetch slides' }, { status: 500 });
@@ -37,17 +61,31 @@ export async function PUT(request: Request) {
     // Insert all slides with new order
     for (const slide of slides) {
       await db.insert(heroSlides).values({
-        id: slide.id.startsWith('new-') ? generateId() : slide.id,
+        id: slide.id.startsWith('new-') || slide.id.startsWith('slide-') ? generateId() : slide.id,
         title: slide.title || null,
         subtitle: slide.subtitle || null,
+        bodyText: slide.bodyText || null,
+        productId: slide.productId || null,
         buttonText: slide.buttonText || null,
         buttonUrl: slide.buttonUrl || null,
+        secondaryButtonText: slide.secondaryButtonText || null,
+        secondaryButtonUrl: slide.secondaryButtonUrl || null,
+        secondaryButtonType: slide.secondaryButtonType || 'page',
+        secondaryAnchorTarget: slide.secondaryAnchorTarget || null,
         imageUrl: slide.imageUrl || '',
         mobileImageUrl: slide.mobileImageUrl || null,
+        videoUrl: slide.videoUrl || null,
+        mobileVideoUrl: slide.mobileVideoUrl || null,
         testimonialText: slide.testimonialText || null,
         testimonialAuthor: slide.testimonialAuthor || null,
         testimonialAvatarUrl: slide.testimonialAvatarUrl || null,
+        testimonialVerifiedText: slide.testimonialVerifiedText || 'Verified Purchase',
+        testimonialShowCheckmark: slide.testimonialShowCheckmark ?? true,
+        ratingOverride: slide.ratingOverride || null,
+        reviewCountOverride: slide.reviewCountOverride || null,
         isActive: slide.isActive ?? true,
+        showOnDesktop: slide.showOnDesktop ?? true,
+        showOnMobile: slide.showOnMobile ?? true,
         sortOrder: slide.sortOrder || 0,
       });
     }

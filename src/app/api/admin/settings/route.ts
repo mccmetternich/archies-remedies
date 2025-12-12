@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidateTag } from 'next/cache';
 import { db } from '@/lib/db';
 import { siteSettings } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
@@ -50,8 +51,10 @@ export async function PUT(request: Request) {
       })
       .where(eq(siteSettings.id, data.id || 'default'));
 
-    // Draft mode is now checked directly from the database
-    // No need for cookies anymore
+    // Invalidate all cached page data so popups and settings take effect immediately
+    revalidateTag('homepage-data', 'max');
+    revalidateTag('page-data', 'max');
+    revalidateTag('settings', 'max');
 
     return NextResponse.json({ success: true });
   } catch (error) {

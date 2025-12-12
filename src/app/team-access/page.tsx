@@ -17,9 +17,9 @@ function TeamAccessContent() {
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [badgeUrl, setBadgeUrl] = useState<string | null>(null);
 
-  // Fetch site settings for logo and badge
+  // Fetch site settings for logo and badge (from public endpoint)
   useEffect(() => {
-    fetch('/api/admin/settings')
+    fetch('/api/public/settings')
       .then(res => res.json())
       .then(data => {
         if (data.logoUrl) setLogoUrl(data.logoUrl);

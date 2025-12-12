@@ -256,6 +256,13 @@ export const siteSettings = sqliteTable('site_settings', {
   facebookFollowers: integer('facebook_followers'),
   tiktokFollowers: integer('tiktok_followers'),
 
+  // Homepage Marquee Bar (scrolling text under hero)
+  marqueeEnabled: integer('marquee_enabled', { mode: 'boolean' }).default(true),
+  marqueeText: text('marquee_text').default('Preservative-Free ✦ Clean Ingredients ✦ Doctor Trusted ✦ Instant Relief ✦ Gentle Formula ✦ Made with Love'),
+  marqueeSpeed: text('marquee_speed').default('slow'), // 'slow', 'medium', 'fast'
+  marqueeSize: text('marquee_size').default('xl'), // 'sm', 'md', 'lg', 'xl'
+  marqueeStyle: text('marquee_style').default('dark'), // 'dark', 'light', 'primary'
+
   createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
   updatedAt: text('updated_at').default(sql`CURRENT_TIMESTAMP`),
 });
@@ -370,23 +377,48 @@ export const heroSlides = sqliteTable('hero_slides', {
   id: text('id').primaryKey(),
   title: text('title'),
   subtitle: text('subtitle'),
+  bodyText: text('body_text'), // Optional body copy
+
+  // Product association - auto-populates rating/reviews/URL
+  productId: text('product_id').references(() => products.id),
 
   // Primary button
   buttonText: text('button_text'),
   buttonUrl: text('button_url'),
 
-  // Secondary button
+  // Secondary button (Learn More - anchors to product page widget)
   secondaryButtonText: text('secondary_button_text'),
   secondaryButtonUrl: text('secondary_button_url'),
   secondaryButtonType: text('secondary_button_type').default('page'), // 'page', 'anchor', 'external'
   secondaryAnchorTarget: text('secondary_anchor_target'), // Widget ID or path with anchor (e.g., "/products/eye-drops#benefits")
 
+  // Media - images
   imageUrl: text('image_url').notNull(),
   mobileImageUrl: text('mobile_image_url'),
+
+  // Media - videos (alternative to images)
+  videoUrl: text('video_url'),
+  mobileVideoUrl: text('mobile_video_url'),
+
+  // Testimonial overlay
   testimonialText: text('testimonial_text'),
   testimonialAuthor: text('testimonial_author'),
   testimonialAvatarUrl: text('testimonial_avatar_url'),
+  testimonialVerifiedText: text('testimonial_verified_text').default('Verified Purchase'),
+  testimonialShowCheckmark: integer('testimonial_show_checkmark', { mode: 'boolean' }).default(true),
+
+  // Rating (auto from product or manual override)
+  ratingOverride: real('rating_override'), // null = use product rating
+  reviewCountOverride: integer('review_count_override'), // null = use product review count
+
+  // Layout options
+  layout: text('layout').default('full-width'), // 'full-width', 'two-column', 'two-column-reversed'
+  textColor: text('text_color').default('dark'), // 'dark', 'light' - for text over images
+
+  // Visibility controls
   isActive: integer('is_active', { mode: 'boolean' }).default(true),
+  showOnDesktop: integer('show_on_desktop', { mode: 'boolean' }).default(true),
+  showOnMobile: integer('show_on_mobile', { mode: 'boolean' }).default(true),
   sortOrder: integer('sort_order').default(0),
 
   createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),

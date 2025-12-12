@@ -160,13 +160,15 @@ export default async function HomePage() {
         {/* Hero Carousel */}
         <HeroCarousel slides={data.slides} />
 
-        {/* Scrolling Text Bar - XL Dark Style */}
-        <ScrollingTextBar
-          text="Preservative-Free ✦ Clean Ingredients ✦ Doctor Trusted ✦ Instant Relief ✦ Gentle Formula ✦ Made with Love"
-          size="xl"
-          speed="slow"
-          stylePreset="dark"
-        />
+        {/* Scrolling Text Bar - Configurable from admin */}
+        {data.settings?.marqueeEnabled !== false && data.settings?.marqueeText && (
+          <ScrollingTextBar
+            text={data.settings.marqueeText}
+            size={(data.settings.marqueeSize as 'small' | 'medium' | 'large' | 'xl' | 'xxl') || 'xl'}
+            speed={(data.settings.marqueeSpeed as 'slow' | 'normal' | 'fast') || 'slow'}
+            stylePreset={(data.settings.marqueeStyle as 'baby-blue' | 'dark' | 'light') || 'dark'}
+          />
+        )}
 
         {/* Product Tiles */}
         <ProductTiles

@@ -599,9 +599,9 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                         <Link
                           href={`/products/${tile1Product.slug}`}
                           onClick={() => setIsOpen(false)}
-                          className="flex items-center gap-4 p-4 rounded-xl bg-[var(--cream)] hover:bg-[var(--sand)] transition-colors"
+                          className="flex items-center gap-4 p-4 rounded-2xl bg-[var(--cream)] hover:bg-[var(--sand)] transition-colors"
                         >
-                          <div className="w-14 h-14 rounded-lg bg-white overflow-hidden relative">
+                          <div className="w-20 h-20 rounded-xl bg-white overflow-hidden relative flex-shrink-0">
                             {(() => {
                               const mediaUrl = globalNav?.tile1ImageUrl || tile1Product.heroImageUrl || PRODUCT_IMAGES['eye-drops'];
                               const isVideo = mediaUrl?.match(/\.(mp4|webm|mov)$/i);
@@ -618,27 +618,27 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                                 <Image
                                   src={mediaUrl}
                                   alt={tile1Product.name}
-                                  width={56}
-                                  height={56}
+                                  width={80}
+                                  height={80}
                                   className="w-full h-full object-cover"
                                 />
                               );
                             })()}
                           </div>
-                          <div className="flex-1">
-                            <p className="font-medium">{globalNav?.tile1Title || tile1Product.name}</p>
-                            <p className="text-xs text-[var(--muted-foreground)]">{globalNav?.tile1Subtitle || 'Preservative-free relief'}</p>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-base">{globalNav?.tile1Title || tile1Product.name}</p>
+                            <p className="text-sm text-[var(--muted-foreground)]">{globalNav?.tile1Subtitle || 'Preservative-free relief'}</p>
                           </div>
-                          <ArrowRight className="w-4 h-4 text-[var(--muted-foreground)]" />
+                          <ArrowRight className="w-5 h-5 text-[var(--muted-foreground)] flex-shrink-0" />
                         </Link>
                       )}
                       {tile2Product && (
                         <Link
                           href={`/products/${tile2Product.slug}`}
                           onClick={() => setIsOpen(false)}
-                          className="flex items-center gap-4 p-4 rounded-xl bg-[var(--cream)] hover:bg-[var(--sand)] transition-colors"
+                          className="flex items-center gap-4 p-4 rounded-2xl bg-[var(--cream)] hover:bg-[var(--sand)] transition-colors"
                         >
-                          <div className="w-14 h-14 rounded-lg bg-white overflow-hidden relative">
+                          <div className="w-20 h-20 rounded-xl bg-white overflow-hidden relative flex-shrink-0">
                             {(() => {
                               const mediaUrl = globalNav?.tile2ImageUrl || tile2Product.heroImageUrl || PRODUCT_IMAGES['eye-wipes'];
                               const isVideo = mediaUrl?.match(/\.(mp4|webm|mov)$/i);
@@ -655,18 +655,18 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                                 <Image
                                   src={mediaUrl}
                                   alt={tile2Product.name}
-                                  width={56}
-                                  height={56}
+                                  width={80}
+                                  height={80}
                                   className="w-full h-full object-cover"
                                 />
                               );
                             })()}
                           </div>
-                          <div className="flex-1">
-                            <p className="font-medium">{globalNav?.tile2Title || tile2Product.name}</p>
-                            <p className="text-xs text-[var(--muted-foreground)]">{globalNav?.tile2Subtitle || 'Gentle daily cleansing'}</p>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-base">{globalNav?.tile2Title || tile2Product.name}</p>
+                            <p className="text-sm text-[var(--muted-foreground)]">{globalNav?.tile2Subtitle || 'Gentle daily cleansing'}</p>
                           </div>
-                          <ArrowRight className="w-4 h-4 text-[var(--muted-foreground)]" />
+                          <ArrowRight className="w-5 h-5 text-[var(--muted-foreground)] flex-shrink-0" />
                         </Link>
                       )}
                     </div>

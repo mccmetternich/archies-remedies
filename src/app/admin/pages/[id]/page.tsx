@@ -15,37 +15,28 @@ import {
   GripVertical,
   Trash2,
   Settings,
-  Type,
-  Image as ImageIcon,
-  Quote,
-  Star,
-  MessageSquare,
-  HelpCircle,
-  Instagram,
-  PlayCircle,
   ChevronDown,
   ChevronUp,
   PanelRightOpen,
   PanelRightClose,
-  ShoppingBag,
-  Award,
-  Sparkles,
-  Columns,
-  List,
-  Users,
-  Gift,
-  Zap,
-  Video,
-  MousePointerClick,
-  Grid3X3,
-  Megaphone,
   Check,
   Search,
   ExternalLink,
+  Monitor,
+  Smartphone,
 } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { MediaPickerButton } from '@/components/admin/media-picker';
+import {
+  WIDGET_CATEGORIES as CENTRALIZED_CATEGORIES,
+  WIDGET_TYPES,
+  getWidgetByType,
+  getWidgetDisplayName,
+  getDefaultConfig,
+} from '@/lib/widget-library';
+import { DevicePreviewToggle, type DeviceType } from '@/components/admin/widget-editor/device-preview';
+import { HeroCarouselConfig } from '@/components/admin/widget-configs/hero-carousel-config';
 
 interface PageWidget {
   id: string;
@@ -79,49 +70,54 @@ interface PageData {
   navOrder: number;
 }
 
-// Widget categories for organization
-const WIDGET_CATEGORIES = [
-  {
-    name: 'Content',
-    widgets: [
-      { type: 'hero', label: 'Hero Section', icon: ImageIcon, description: 'Full-width hero with image and text overlay' },
-      { type: 'text', label: 'Text Block', icon: Type, description: 'Rich text content section' },
-      { type: 'image', label: 'Image', icon: ImageIcon, description: 'Single image or gallery grid' },
-      { type: 'image_text', label: 'Image + Text', icon: Columns, description: 'Split layout with image and copy' },
-      { type: 'video', label: 'Video', icon: Video, description: 'Embedded video player' },
-      { type: 'quote', label: 'Quote', icon: Quote, description: 'Testimonial or pull quote' },
-    ],
-  },
-  {
-    name: 'Social Proof',
-    widgets: [
-      { type: 'testimonials', label: 'Testimonials', icon: Star, description: 'Customer testimonial carousel' },
-      { type: 'video_testimonials', label: 'Video Reviews', icon: PlayCircle, description: 'Video testimonial grid' },
-      { type: 'instagram', label: 'Instagram Feed', icon: Instagram, description: 'Instagram post grid' },
-      { type: 'press', label: 'Press & Media', icon: Megaphone, description: 'As seen in logos' },
-    ],
-  },
-  {
-    name: 'Product',
-    widgets: [
-      { type: 'product_grid', label: 'Product Grid', icon: Grid3X3, description: 'Featured products showcase' },
-      { type: 'benefits', label: 'Benefits', icon: Sparkles, description: 'Product benefits with icons' },
-      { type: 'ingredients', label: 'Ingredients', icon: List, description: 'Ingredient list with info' },
-      { type: 'comparison', label: 'Comparison', icon: Columns, description: 'Before/after comparison' },
-      { type: 'certifications', label: 'Certifications', icon: Award, description: 'Trust badges and certifications' },
-    ],
-  },
-  {
-    name: 'Engagement',
-    widgets: [
-      { type: 'cta', label: 'Call to Action', icon: MousePointerClick, description: 'Button with background' },
-      { type: 'faqs', label: 'FAQs', icon: HelpCircle, description: 'Accordion FAQ section' },
-      { type: 'contact_form', label: 'Contact Form', icon: MessageSquare, description: 'Email contact form' },
-      { type: 'newsletter', label: 'Newsletter', icon: Gift, description: 'Email signup form' },
-      { type: 'marquee', label: 'Marquee Bar', icon: Zap, description: 'Scrolling text banner' },
-    ],
-  },
-];
+interface Product {
+  id: string;
+  name: string;
+  slug: string;
+  price: number;
+  rating: number | null;
+  reviewCount: number | null;
+}
+
+interface HeroSlide {
+  id: string;
+  title: string | null;
+  subtitle: string | null;
+  bodyText: string | null;
+  productId: string | null;
+  buttonText: string | null;
+  buttonUrl: string | null;
+  secondaryButtonText: string | null;
+  secondaryButtonUrl: string | null;
+  secondaryButtonType: string;
+  secondaryAnchorTarget: string | null;
+  imageUrl: string;
+  mobileImageUrl: string | null;
+  videoUrl: string | null;
+  mobileVideoUrl: string | null;
+  testimonialText: string | null;
+  testimonialAuthor: string | null;
+  testimonialAvatarUrl: string | null;
+  testimonialVerifiedText: string | null;
+  testimonialShowCheckmark: boolean;
+  ratingOverride: number | null;
+  reviewCountOverride: number | null;
+  isActive: boolean;
+  showOnDesktop: boolean;
+  showOnMobile: boolean;
+  sortOrder: number;
+}
+
+// Use centralized widget library - create compatible format for existing code
+const WIDGET_CATEGORIES = CENTRALIZED_CATEGORIES.map((cat) => ({
+  name: cat.name,
+  widgets: WIDGET_TYPES.filter((w) => w.category === cat.name).map((w) => ({
+    type: w.type,
+    label: w.name,
+    icon: w.icon,
+    description: w.description,
+  })),
+})).filter((cat) => cat.widgets.length > 0);
 
 // Flat list for lookup
 const ALL_WIDGETS = WIDGET_CATEGORIES.flatMap((cat) => cat.widgets);
@@ -160,6 +156,14 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
   const [isHomepage, setIsHomepage] = useState(false);
   const [homepageWidgets, setHomepageWidgets] = useState<PageWidget[]>([]);
 
+  // Device preview state
+  const [previewDevice, setPreviewDevice] = useState<DeviceType>('desktop');
+
+  // Homepage data state
+  const [products, setProducts] = useState<Product[]>([]);
+  const [heroSlides, setHeroSlides] = useState<HeroSlide[]>([]);
+  const [heroSlidesLoading, setHeroSlidesLoading] = useState(false);
+
   // Track unsaved changes
   const hasChanges = originalPage && (
     JSON.stringify(page) !== JSON.stringify(originalPage) ||
@@ -190,6 +194,11 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
         if (homepageData.widgets) {
           setHomepageWidgets(homepageData.widgets);
         }
+
+        // Fetch products for hero carousel product association
+        fetchProducts();
+        // Fetch hero slides
+        fetchHeroSlides();
       }
 
       if (data.widgets) {
@@ -206,6 +215,42 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
       console.error('Failed to fetch page:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchProducts = async () => {
+    try {
+      const res = await fetch('/api/admin/products');
+      const data = await res.json();
+      setProducts(data);
+    } catch (error) {
+      console.error('Failed to fetch products:', error);
+    }
+  };
+
+  const fetchHeroSlides = async () => {
+    setHeroSlidesLoading(true);
+    try {
+      const res = await fetch('/api/admin/hero-slides');
+      const data = await res.json();
+      setHeroSlides(data);
+    } catch (error) {
+      console.error('Failed to fetch hero slides:', error);
+    } finally {
+      setHeroSlidesLoading(false);
+    }
+  };
+
+  const handleSaveHeroSlides = async (updatedSlides: HeroSlide[]) => {
+    try {
+      await fetch('/api/admin/hero-slides', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slides: updatedSlides }),
+      });
+      setHeroSlides(updatedSlides);
+    } catch (error) {
+      console.error('Failed to save hero slides:', error);
     }
   };
 
@@ -330,6 +375,9 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
           </div>
         </div>
         <div className="flex items-center gap-3">
+          {/* Device Preview Toggle */}
+          <DevicePreviewToggle device={previewDevice} onChange={setPreviewDevice} />
+
           {/* Status Toggle */}
           <button
             onClick={() => setPage({ ...page, isActive: !page.isActive })}
@@ -641,50 +689,107 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
                 )}
               </div>
 
-              {/* Homepage Widgets - Special Display */}
+              {/* Homepage Widgets - Special Display with Inline Editing */}
               {isHomepage && homepageWidgets.length > 0 ? (
                 <div className="divide-y divide-[var(--admin-border)]">
                   {homepageWidgets.map((widget, index) => {
                     const Icon = getWidgetIcon(widget.type);
+                    const isExpanded = expandedWidget === widget.id;
+                    const isHeroCarousel = widget.type === 'hero_carousel';
+
                     return (
-                      <Link
-                        key={widget.id}
-                        href={widget.editUrl || '#'}
-                        className="flex items-center gap-4 p-4 hover:bg-[var(--admin-sidebar)] transition-colors group"
-                      >
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs text-[var(--admin-text-muted)] font-mono w-5">
-                            {index + 1}
-                          </span>
-                        </div>
-
-                        <div className="w-10 h-10 rounded-lg bg-[var(--primary)]/10 flex items-center justify-center">
-                          <Icon className="w-5 h-5 text-[var(--primary)]" />
-                        </div>
-
-                        <div className="flex-1 min-w-0">
-                          <h4 className="font-medium text-[var(--admin-text-primary)] group-hover:text-[var(--primary)] transition-colors">
-                            {widget.title}
-                          </h4>
-                          <p className="text-xs text-[var(--admin-text-muted)]">
-                            {widget.subtitle}
-                          </p>
-                        </div>
-
-                        <div className="flex items-center gap-3">
-                          {widget.count !== undefined && (
-                            <span className={cn(
-                              'px-2.5 py-1 text-xs font-medium rounded-full',
-                              widget.isVisible
-                                ? 'bg-green-500/10 text-green-400'
-                                : 'bg-[var(--admin-hover)] text-[var(--admin-text-muted)]'
-                            )}>
-                              {widget.count} items
-                            </span>
+                      <div key={widget.id}>
+                        <div
+                          className={cn(
+                            'flex items-center gap-4 p-4 transition-colors cursor-pointer',
+                            isExpanded ? 'bg-[var(--admin-sidebar)]' : 'hover:bg-[var(--admin-sidebar)]'
                           )}
-                          <ExternalLink className="w-4 h-4 text-[var(--admin-text-muted)] group-hover:text-[var(--primary)] transition-colors" />
+                          onClick={() => {
+                            if (isHeroCarousel) {
+                              setExpandedWidget(isExpanded ? null : widget.id);
+                            }
+                          }}
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-[var(--admin-text-muted)] font-mono w-5">
+                              {index + 1}
+                            </span>
+                          </div>
+
+                          <div className="w-10 h-10 rounded-lg bg-[var(--primary)]/10 flex items-center justify-center">
+                            <Icon className="w-5 h-5 text-[var(--primary)]" />
+                          </div>
+
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-medium text-[var(--admin-text-primary)]">
+                              {widget.title}
+                            </h4>
+                            <p className="text-xs text-[var(--admin-text-muted)]">
+                              {widget.subtitle}
+                            </p>
+                          </div>
+
+                          <div className="flex items-center gap-3">
+                            {widget.count !== undefined && (
+                              <span className={cn(
+                                'px-2.5 py-1 text-xs font-medium rounded-full',
+                                widget.isVisible
+                                  ? 'bg-green-500/10 text-green-400'
+                                  : 'bg-[var(--admin-hover)] text-[var(--admin-text-muted)]'
+                              )}>
+                                {widget.count} items
+                              </span>
+                            )}
+                            {isHeroCarousel ? (
+                              <button
+                                className="p-2 rounded-lg hover:bg-[var(--admin-input)] transition-colors text-[var(--admin-text-secondary)]"
+                              >
+                                {isExpanded ? (
+                                  <ChevronUp className="w-4 h-4" />
+                                ) : (
+                                  <ChevronDown className="w-4 h-4" />
+                                )}
+                              </button>
+                            ) : (
+                              <Link
+                                href={widget.editUrl || '#'}
+                                onClick={(e) => e.stopPropagation()}
+                                className="p-2 rounded-lg hover:bg-[var(--admin-input)] transition-colors text-[var(--admin-text-muted)] hover:text-[var(--primary)]"
+                              >
+                                <ExternalLink className="w-4 h-4" />
+                              </Link>
+                            )}
+                          </div>
                         </div>
-                      </Link>
+
+                        {/* Inline Hero Carousel Editor */}
+                        <AnimatePresence>
+                          {isExpanded && isHeroCarousel && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: 'auto', opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              transition={{ duration: 0.2 }}
+                              className="overflow-hidden"
+                            >
+                              <div className="border-t border-[var(--admin-border)] bg-[var(--admin-bg)] p-4">
+                                {heroSlidesLoading ? (
+                                  <div className="flex items-center justify-center py-12">
+                                    <Loader2 className="w-6 h-6 animate-spin text-[var(--admin-text-muted)]" />
+                                  </div>
+                                ) : (
+                                  <HeroCarouselConfig
+                                    slides={heroSlides}
+                                    products={products}
+                                    onSlidesChange={handleSaveHeroSlides}
+                                    previewDevice={previewDevice}
+                                  />
+                                )}
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
                     );
                   })}
                 </div>

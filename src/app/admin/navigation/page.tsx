@@ -1603,7 +1603,7 @@ export default function NavigationPage() {
                             type="button"
                             onClick={() => {
                               setPagesList(pagesList.map(p =>
-                                p.id === page.id ? { ...p, navShowOnMobile: !p.navShowOnMobile } : p
+                                p.id === page.id ? { ...p, navShowOnMobile: p.navShowOnMobile !== false ? false : true } : p
                               ));
                             }}
                             className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
@@ -1713,7 +1713,7 @@ export default function NavigationPage() {
                             type="button"
                             onClick={() => {
                               setPagesList(pagesList.map(p =>
-                                p.id === page.id ? { ...p, navShowOnMobile: !p.navShowOnMobile } : p
+                                p.id === page.id ? { ...p, navShowOnMobile: p.navShowOnMobile !== false ? false : true } : p
                               ));
                             }}
                             className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
@@ -1823,7 +1823,7 @@ export default function NavigationPage() {
                             type="button"
                             onClick={() => {
                               setPagesList(pagesList.map(p =>
-                                p.id === page.id ? { ...p, navShowOnMobile: !p.navShowOnMobile } : p
+                                p.id === page.id ? { ...p, navShowOnMobile: p.navShowOnMobile !== false ? false : true } : p
                               ));
                             }}
                             className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
