@@ -372,6 +372,7 @@ function MediaLibraryModal({ isOpen, onClose, onSelect }: MediaLibraryModalProps
                   <button
                     key={file.id}
                     onClick={() => setSelectedFile(file)}
+                    onDoubleClick={() => onSelect(file.url)}
                     className={cn(
                       'group relative aspect-square rounded-xl overflow-hidden bg-[var(--admin-input)] border-2 transition-all',
                       selectedFile?.id === file.id
@@ -431,7 +432,7 @@ function MediaLibraryModal({ isOpen, onClose, onSelect }: MediaLibraryModalProps
         {/* Footer */}
         <div className="flex items-center justify-between p-4 border-t border-[var(--admin-border)] bg-[var(--admin-input)] shrink-0">
           <p className="text-sm text-[var(--admin-text-muted)]">
-            {selectedFile ? `Selected: ${selectedFile.filename}` : 'Click an image to select'}
+            {selectedFile ? `Selected: ${selectedFile.filename}` : 'Click to select, double-click to apply instantly'}
           </p>
           <div className="flex gap-2">
             <button
