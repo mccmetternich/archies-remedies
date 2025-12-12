@@ -4,7 +4,7 @@ import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-import { Save, Loader2, Check, Palette, Share2, Code, ExternalLink, Navigation, Menu, Megaphone, Construction, Eye, Copy, Trash2, MousePointerClick, Mail, Phone, ChevronDown, ArrowRight } from 'lucide-react';
+import { Save, Loader2, Check, Palette, Share2, Code, ExternalLink, Navigation, Menu, Megaphone, Construction, Eye, Copy, Trash2, Mail, Phone, ChevronDown, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { MediaPickerButton } from '@/components/admin/media-picker';
 
@@ -33,11 +33,6 @@ interface SiteSettings {
   googleAnalyticsId: string | null;
   tiktokPixelId: string | null;
   contactEmail: string | null;
-  emailPopupEnabled: boolean | null;
-  emailPopupTitle: string | null;
-  emailPopupSubtitle: string | null;
-  emailPopupButtonText: string | null;
-  emailPopupImageUrl: string | null;
   // Draft mode
   siteInDraftMode: boolean | null;
   draftModeTitle: string | null;
@@ -57,7 +52,6 @@ const tabs = [
   { id: 'general', label: 'General', icon: Share2 },
   { id: 'appearance', label: 'Appearance', icon: Palette },
   { id: 'navigation', label: 'Navigation', icon: Navigation },
-  { id: 'popup', label: 'Pop-ups', icon: MousePointerClick },
   { id: 'tracking', label: 'Tracking', icon: Code },
   { id: 'coming-soon', label: 'Coming Soon', icon: Construction },
 ];
@@ -679,72 +673,6 @@ function SettingsPageContent() {
                 <ExternalLink className="w-5 h-5 text-[var(--admin-text-muted)] group-hover:text-[var(--primary)] transition-colors" />
               </div>
             </a>
-          </motion.div>
-        )}
-
-        {activeTab === 'popup' && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-6"
-          >
-            <div className="flex items-center justify-between p-4 bg-[var(--admin-bg)] rounded-xl border border-[var(--admin-border)]">
-              <div>
-                <p className="font-medium text-[var(--admin-text-primary)]">Enable Email Popup</p>
-                <p className="text-sm text-[var(--admin-text-muted)]">Show a popup to collect email signups</p>
-              </div>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={settings.emailPopupEnabled ?? true}
-                  onChange={(e) => updateField('emailPopupEnabled', e.target.checked)}
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-[var(--admin-hover)] peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[var(--primary)]/50 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-gray-400 after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--primary)] peer-checked:after:bg-[var(--admin-bg)]"></div>
-              </label>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Popup Title</label>
-                <input
-                  type="text"
-                  value={settings.emailPopupTitle || ''}
-                  onChange={(e) => updateField('emailPopupTitle', e.target.value)}
-                  placeholder="Join the Archie's Community"
-                  className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Button Text</label>
-                <input
-                  type="text"
-                  value={settings.emailPopupButtonText || ''}
-                  onChange={(e) => updateField('emailPopupButtonText', e.target.value)}
-                  placeholder="Get My 10% Off"
-                  className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Popup Subtitle</label>
-              <textarea
-                value={settings.emailPopupSubtitle || ''}
-                onChange={(e) => updateField('emailPopupSubtitle', e.target.value)}
-                placeholder="Get 10% off your first order and be the first to know..."
-                rows={2}
-                className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors resize-none"
-              />
-            </div>
-
-            <MediaPickerButton
-              label="Popup Image"
-              value={settings.emailPopupImageUrl}
-              onChange={(url) => updateField('emailPopupImageUrl', url || '')}
-              helpText="Display a product image in your email popup"
-              folder="popups"
-            />
           </motion.div>
         )}
 

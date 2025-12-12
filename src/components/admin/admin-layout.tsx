@@ -148,7 +148,7 @@ function AdminLayoutInner({ children, unreadMessages = 0 }: AdminLayoutProps) {
         { href: '/admin/inbox', label: 'Inbox', icon: Inbox, badge: unreadMessages },
         { href: '/admin/performance', label: 'Performance', icon: Rocket },
         { href: '/admin/contacts', label: 'Contacts', icon: Users },
-        { href: '/admin/settings?tab=popup', label: 'Pop-ups', icon: MousePointerClick },
+        { href: '/admin/popups', label: 'Pop-ups', icon: MousePointerClick },
       ],
     },
     {

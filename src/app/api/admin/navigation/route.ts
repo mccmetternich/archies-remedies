@@ -23,6 +23,8 @@ export async function GET() {
       shortDescription: products.shortDescription,
       badge: products.badge,
       badgeEmoji: products.badgeEmoji,
+      rating: products.rating,
+      reviewCount: products.reviewCount,
     }).from(products).where(eq(products.isActive, true)).orderBy(products.sortOrder);
 
     // Get all pages that can be added to nav

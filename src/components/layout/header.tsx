@@ -14,6 +14,8 @@ interface Product {
   slug: string;
   shortDescription: string | null;
   heroImageUrl: string | null;
+  rating?: number | null;
+  reviewCount?: number | null;
 }
 
 interface BumperSettings {
@@ -328,7 +330,7 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                                   )}
                                 </div>
                                 <div className="flex items-center gap-2 mb-1.5">
-                                  <span className="text-sm text-[var(--foreground)] font-medium">2,900+</span>
+                                  <span className="text-sm text-[var(--foreground)] font-medium">{(tile1Product.reviewCount || 2900).toLocaleString()}+</span>
                                   <div className="flex gap-0.5">
                                     {[1,2,3,4,5].map(i => (
                                       <Star key={i} className="w-3.5 h-3.5 fill-[var(--primary)] text-[var(--primary)]" />
@@ -418,7 +420,7 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                                   )}
                                 </div>
                                 <div className="flex items-center gap-2 mb-1.5">
-                                  <span className="text-sm text-[var(--foreground)] font-medium">2,900+</span>
+                                  <span className="text-sm text-[var(--foreground)] font-medium">{(tile2Product.reviewCount || 2900).toLocaleString()}+</span>
                                   <div className="flex gap-0.5">
                                     {[1,2,3,4,5].map(i => (
                                       <Star key={i} className="w-3.5 h-3.5 fill-[var(--primary)] text-[var(--primary)]" />

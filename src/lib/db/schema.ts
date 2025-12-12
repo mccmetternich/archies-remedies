@@ -223,6 +223,10 @@ export const products = sqliteTable('products', {
   rotatingBadgeEnabled: integer('rotating_badge_enabled', { mode: 'boolean' }).default(false),
   rotatingBadgeText: text('rotating_badge_text'), // e.g., "NEW"
 
+  // Reviews / Ratings (displayed on product cards, nav dropdown, etc.)
+  rating: real('rating').default(4.9), // Average rating (1-5)
+  reviewCount: integer('review_count').default(2900), // Total number of reviews
+
   // Rotating Seal (slow-spinning circular badge on gallery)
   rotatingSealEnabled: integer('rotating_seal_enabled', { mode: 'boolean' }).default(false),
   rotatingSealImageUrl: text('rotating_seal_image_url'), // CMS uploadable PNG

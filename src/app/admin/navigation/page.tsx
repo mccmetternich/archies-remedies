@@ -115,6 +115,8 @@ interface ProductOption {
   shortDescription: string | null;
   badge: string | null;
   badgeEmoji: string | null;
+  rating: number | null;
+  reviewCount: number | null;
 }
 
 interface PageOption {
@@ -746,65 +748,68 @@ export default function NavigationPage() {
                   </div>
 
                   {/* Badge */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Badge Text</label>
-                      <input
-                        value={globalNavSettings.tile1Badge || ''}
-                        onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, tile1Badge: e.target.value || null })}
-                        placeholder="Bestseller"
-                        className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Badge Emoji</label>
-                      <input
-                        value={globalNavSettings.tile1BadgeEmoji || ''}
-                        onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, tile1BadgeEmoji: e.target.value || null })}
-                        placeholder=""
-                        className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Badge Colors */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Badge Background</label>
-                      <div className="flex items-center gap-3">
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-[80px_1fr] gap-3">
+                      <div>
+                        <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Emoji</label>
                         <input
-                          type="color"
-                          value={globalNavSettings.tile1BadgeBgColor}
-                          onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, tile1BadgeBgColor: e.target.value })}
-                          className="w-12 h-12 rounded-lg border border-[var(--admin-border)] cursor-pointer bg-transparent"
+                          value={globalNavSettings.tile1BadgeEmoji || ''}
+                          onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, tile1BadgeEmoji: e.target.value || null })}
+                          placeholder="🔥"
+                          className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors text-center text-lg"
                         />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Badge Text</label>
                         <input
-                          type="text"
-                          value={globalNavSettings.tile1BadgeBgColor}
-                          onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, tile1BadgeBgColor: e.target.value })}
-                          placeholder="#1a1a1a"
-                          className="flex-1 px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors font-mono text-sm"
+                          value={globalNavSettings.tile1Badge || ''}
+                          onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, tile1Badge: e.target.value || null })}
+                          placeholder="Bestseller"
+                          className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
                         />
                       </div>
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Badge Text Color</label>
-                      <div className="flex items-center gap-3">
-                        <input
-                          type="color"
-                          value={globalNavSettings.tile1BadgeTextColor}
-                          onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, tile1BadgeTextColor: e.target.value })}
-                          className="w-12 h-12 rounded-lg border border-[var(--admin-border)] cursor-pointer bg-transparent"
-                        />
-                        <input
-                          type="text"
-                          value={globalNavSettings.tile1BadgeTextColor}
-                          onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, tile1BadgeTextColor: e.target.value })}
-                          placeholder="#ffffff"
-                          className="flex-1 px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors font-mono text-sm"
-                        />
+                    {/* Badge Colors - only show if badge text or emoji is set */}
+                    {(globalNavSettings.tile1Badge || globalNavSettings.tile1BadgeEmoji) && (
+                      <div className="grid grid-cols-2 gap-3 pt-2">
+                        <div>
+                          <label className="block text-xs font-medium text-[var(--admin-text-muted)] mb-1.5">Background</label>
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="color"
+                              value={globalNavSettings.tile1BadgeBgColor}
+                              onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, tile1BadgeBgColor: e.target.value })}
+                              className="w-10 h-10 rounded-lg border border-[var(--admin-border)] cursor-pointer bg-transparent"
+                            />
+                            <input
+                              type="text"
+                              value={globalNavSettings.tile1BadgeBgColor}
+                              onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, tile1BadgeBgColor: e.target.value })}
+                              placeholder="#1a1a1a"
+                              className="flex-1 px-3 py-2 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors font-mono text-xs"
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-[var(--admin-text-muted)] mb-1.5">Text Color</label>
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="color"
+                              value={globalNavSettings.tile1BadgeTextColor}
+                              onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, tile1BadgeTextColor: e.target.value })}
+                              className="w-10 h-10 rounded-lg border border-[var(--admin-border)] cursor-pointer bg-transparent"
+                            />
+                            <input
+                              type="text"
+                              value={globalNavSettings.tile1BadgeTextColor}
+                              onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, tile1BadgeTextColor: e.target.value })}
+                              placeholder="#ffffff"
+                              className="flex-1 px-3 py-2 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors font-mono text-xs"
+                            />
+                          </div>
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </div>
 
                   {/* Primary Image Override */}
@@ -915,13 +920,13 @@ export default function NavigationPage() {
                       )}
                     </div>
                     <div className="flex items-center gap-2 mb-1.5">
+                      <span className="text-sm text-[#1a1a1a] font-medium">{(getProductById(globalNavSettings.tile1ProductId)?.reviewCount || 2900).toLocaleString()}+</span>
                       <div className="flex gap-0.5">
                         {[1,2,3,4,5].map(i => (
                           <Star key={i} className="w-3.5 h-3.5 fill-[#7CB4B8] text-[#7CB4B8]" />
                         ))}
                       </div>
-                      <span className="text-sm text-[#1a1a1a] font-medium">4.9</span>
-                      <span className="text-xs text-[#737373]">(2,100+)</span>
+                      <span className="text-xs text-[#737373]">Verified Reviews</span>
                     </div>
                     <h4 className="text-lg font-medium mb-1 text-[#1a1a1a] group-hover/tile1:text-[#737373] transition-colors">
                       {globalNavSettings.tile1Title || getProductById(globalNavSettings.tile1ProductId)?.name || 'Product Name'}
@@ -999,65 +1004,68 @@ export default function NavigationPage() {
                   </div>
 
                   {/* Badge */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Badge Text</label>
-                      <input
-                        value={globalNavSettings.tile2Badge || ''}
-                        onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, tile2Badge: e.target.value || null })}
-                        placeholder="New"
-                        className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Badge Emoji</label>
-                      <input
-                        value={globalNavSettings.tile2BadgeEmoji || ''}
-                        onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, tile2BadgeEmoji: e.target.value || null })}
-                        placeholder=""
-                        className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Badge Colors */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Badge Background</label>
-                      <div className="flex items-center gap-3">
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-[80px_1fr] gap-3">
+                      <div>
+                        <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Emoji</label>
                         <input
-                          type="color"
-                          value={globalNavSettings.tile2BadgeBgColor}
-                          onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, tile2BadgeBgColor: e.target.value })}
-                          className="w-12 h-12 rounded-lg border border-[var(--admin-border)] cursor-pointer bg-transparent"
+                          value={globalNavSettings.tile2BadgeEmoji || ''}
+                          onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, tile2BadgeEmoji: e.target.value || null })}
+                          placeholder="✨"
+                          className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors text-center text-lg"
                         />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Badge Text</label>
                         <input
-                          type="text"
-                          value={globalNavSettings.tile2BadgeBgColor}
-                          onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, tile2BadgeBgColor: e.target.value })}
-                          placeholder="#bbdae9"
-                          className="flex-1 px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors font-mono text-sm"
+                          value={globalNavSettings.tile2Badge || ''}
+                          onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, tile2Badge: e.target.value || null })}
+                          placeholder="New"
+                          className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
                         />
                       </div>
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Badge Text Color</label>
-                      <div className="flex items-center gap-3">
-                        <input
-                          type="color"
-                          value={globalNavSettings.tile2BadgeTextColor}
-                          onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, tile2BadgeTextColor: e.target.value })}
-                          className="w-12 h-12 rounded-lg border border-[var(--admin-border)] cursor-pointer bg-transparent"
-                        />
-                        <input
-                          type="text"
-                          value={globalNavSettings.tile2BadgeTextColor}
-                          onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, tile2BadgeTextColor: e.target.value })}
-                          placeholder="#1a1a1a"
-                          className="flex-1 px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors font-mono text-sm"
-                        />
+                    {/* Badge Colors - only show if badge text or emoji is set */}
+                    {(globalNavSettings.tile2Badge || globalNavSettings.tile2BadgeEmoji) && (
+                      <div className="grid grid-cols-2 gap-3 pt-2">
+                        <div>
+                          <label className="block text-xs font-medium text-[var(--admin-text-muted)] mb-1.5">Background</label>
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="color"
+                              value={globalNavSettings.tile2BadgeBgColor}
+                              onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, tile2BadgeBgColor: e.target.value })}
+                              className="w-10 h-10 rounded-lg border border-[var(--admin-border)] cursor-pointer bg-transparent"
+                            />
+                            <input
+                              type="text"
+                              value={globalNavSettings.tile2BadgeBgColor}
+                              onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, tile2BadgeBgColor: e.target.value })}
+                              placeholder="#bbdae9"
+                              className="flex-1 px-3 py-2 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors font-mono text-xs"
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-[var(--admin-text-muted)] mb-1.5">Text Color</label>
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="color"
+                              value={globalNavSettings.tile2BadgeTextColor}
+                              onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, tile2BadgeTextColor: e.target.value })}
+                              className="w-10 h-10 rounded-lg border border-[var(--admin-border)] cursor-pointer bg-transparent"
+                            />
+                            <input
+                              type="text"
+                              value={globalNavSettings.tile2BadgeTextColor}
+                              onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, tile2BadgeTextColor: e.target.value })}
+                              placeholder="#1a1a1a"
+                              className="flex-1 px-3 py-2 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors font-mono text-xs"
+                            />
+                          </div>
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </div>
 
                   {/* Primary Image Override */}
@@ -1168,13 +1176,13 @@ export default function NavigationPage() {
                       )}
                     </div>
                     <div className="flex items-center gap-2 mb-1.5">
+                      <span className="text-sm text-[#1a1a1a] font-medium">{(getProductById(globalNavSettings.tile2ProductId)?.reviewCount || 2900).toLocaleString()}+</span>
                       <div className="flex gap-0.5">
                         {[1,2,3,4,5].map(i => (
                           <Star key={i} className="w-3.5 h-3.5 fill-[#7CB4B8] text-[#7CB4B8]" />
                         ))}
                       </div>
-                      <span className="text-sm text-[#1a1a1a] font-medium">4.9</span>
-                      <span className="text-xs text-[#737373]">(850+)</span>
+                      <span className="text-xs text-[#737373]">Verified Reviews</span>
                     </div>
                     <h4 className="text-lg font-medium mb-1 text-[#1a1a1a] group-hover/tile2:text-[#737373] transition-colors">
                       {globalNavSettings.tile2Title || getProductById(globalNavSettings.tile2ProductId)?.name || 'Product Name'}
