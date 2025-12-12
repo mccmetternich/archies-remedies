@@ -782,14 +782,16 @@ export default function NavigationPage() {
                     <h4 className="text-xs font-semibold uppercase tracking-wider text-[var(--admin-text-muted)]">Preview</h4>
                   </div>
                   <label className="hidden lg:block text-sm font-medium text-[var(--admin-text-secondary)] mb-3">Live Preview</label>
-                  <div className="p-5 rounded-2xl bg-white border border-[var(--admin-border)] hover:shadow-md transition-all duration-300 group">
+                  <div className="p-5 rounded-2xl bg-white border border-[var(--admin-border)] hover:shadow-md transition-all duration-300 group/tile1">
                     <div className="relative mb-4">
-                      <div className="aspect-square w-full rounded-xl overflow-hidden bg-[#f5f5f0]">
+                      <div className="aspect-square w-full rounded-xl overflow-hidden bg-[#f5f5f0] relative">
                         {(() => {
-                          const mediaUrl = globalNavSettings.tile1ImageUrl || getProductById(globalNavSettings.tile1ProductId)?.heroImageUrl;
-                          const isVideo = mediaUrl?.match(/\.(mp4|webm|mov)$/i);
+                          const primaryUrl = globalNavSettings.tile1ImageUrl || getProductById(globalNavSettings.tile1ProductId)?.heroImageUrl;
+                          const hoverUrl = globalNavSettings.tile1HoverImageUrl;
+                          const primaryIsVideo = primaryUrl?.match(/\.(mp4|webm|mov)$/i);
+                          const hoverIsVideo = hoverUrl?.match(/\.(mp4|webm|mov)$/i);
 
-                          if (!mediaUrl) {
+                          if (!primaryUrl) {
                             return (
                               <div className="w-full h-full flex items-center justify-center">
                                 <ImageIcon className="w-12 h-12 text-[var(--admin-text-muted)]" />
@@ -797,23 +799,49 @@ export default function NavigationPage() {
                             );
                           }
 
-                          return isVideo ? (
-                            <video
-                              src={mediaUrl}
-                              autoPlay
-                              loop
-                              muted
-                              playsInline
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <Image
-                              src={mediaUrl}
-                              alt=""
-                              width={300}
-                              height={300}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                            />
+                          return (
+                            <>
+                              {/* Primary Media */}
+                              {primaryIsVideo ? (
+                                <video
+                                  src={primaryUrl}
+                                  autoPlay
+                                  loop
+                                  muted
+                                  playsInline
+                                  className={`w-full h-full object-cover transition-opacity duration-300 ${hoverUrl ? 'group-hover/tile1:opacity-0' : ''}`}
+                                />
+                              ) : (
+                                <Image
+                                  src={primaryUrl}
+                                  alt=""
+                                  width={300}
+                                  height={300}
+                                  className={`w-full h-full object-cover transition-opacity duration-300 ${hoverUrl ? 'group-hover/tile1:opacity-0' : 'group-hover/tile1:scale-105'}`}
+                                />
+                              )}
+                              {/* Hover Media */}
+                              {hoverUrl && (
+                                hoverIsVideo ? (
+                                  <video
+                                    src={hoverUrl}
+                                    autoPlay
+                                    loop
+                                    muted
+                                    playsInline
+                                    className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover/tile1:opacity-100 transition-opacity duration-300"
+                                  />
+                                ) : (
+                                  <Image
+                                    src={hoverUrl}
+                                    alt=""
+                                    width={300}
+                                    height={300}
+                                    className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover/tile1:opacity-100 transition-opacity duration-300"
+                                  />
+                                )
+                              )}
+                            </>
                           );
                         })()}
                       </div>
@@ -832,7 +860,7 @@ export default function NavigationPage() {
                       <span className="text-sm text-[#1a1a1a] font-medium">4.9</span>
                       <span className="text-xs text-[#737373]">(2,100+)</span>
                     </div>
-                    <h4 className="text-lg font-medium mb-1 text-[#1a1a1a] group-hover:text-[#737373] transition-colors">
+                    <h4 className="text-lg font-medium mb-1 text-[#1a1a1a] group-hover/tile1:text-[#737373] transition-colors">
                       {globalNavSettings.tile1Title || getProductById(globalNavSettings.tile1ProductId)?.name || 'Product Name'}
                     </h4>
                     <p className="text-sm text-[#737373]">
@@ -961,14 +989,16 @@ export default function NavigationPage() {
                     <h4 className="text-xs font-semibold uppercase tracking-wider text-[var(--admin-text-muted)]">Preview</h4>
                   </div>
                   <label className="hidden lg:block text-sm font-medium text-[var(--admin-text-secondary)] mb-3">Live Preview</label>
-                  <div className="p-5 rounded-2xl bg-white border border-[var(--admin-border)] hover:shadow-md transition-all duration-300 group">
+                  <div className="p-5 rounded-2xl bg-white border border-[var(--admin-border)] hover:shadow-md transition-all duration-300 group/tile2">
                     <div className="relative mb-4">
-                      <div className="aspect-square w-full rounded-xl overflow-hidden bg-[#f5f5f0]">
+                      <div className="aspect-square w-full rounded-xl overflow-hidden bg-[#f5f5f0] relative">
                         {(() => {
-                          const mediaUrl = globalNavSettings.tile2ImageUrl || getProductById(globalNavSettings.tile2ProductId)?.heroImageUrl;
-                          const isVideo = mediaUrl?.match(/\.(mp4|webm|mov)$/i);
+                          const primaryUrl = globalNavSettings.tile2ImageUrl || getProductById(globalNavSettings.tile2ProductId)?.heroImageUrl;
+                          const hoverUrl = globalNavSettings.tile2HoverImageUrl;
+                          const primaryIsVideo = primaryUrl?.match(/\.(mp4|webm|mov)$/i);
+                          const hoverIsVideo = hoverUrl?.match(/\.(mp4|webm|mov)$/i);
 
-                          if (!mediaUrl) {
+                          if (!primaryUrl) {
                             return (
                               <div className="w-full h-full flex items-center justify-center">
                                 <ImageIcon className="w-12 h-12 text-[var(--admin-text-muted)]" />
@@ -976,23 +1006,49 @@ export default function NavigationPage() {
                             );
                           }
 
-                          return isVideo ? (
-                            <video
-                              src={mediaUrl}
-                              autoPlay
-                              loop
-                              muted
-                              playsInline
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <Image
-                              src={mediaUrl}
-                              alt=""
-                              width={300}
-                              height={300}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                            />
+                          return (
+                            <>
+                              {/* Primary Media */}
+                              {primaryIsVideo ? (
+                                <video
+                                  src={primaryUrl}
+                                  autoPlay
+                                  loop
+                                  muted
+                                  playsInline
+                                  className={`w-full h-full object-cover transition-opacity duration-300 ${hoverUrl ? 'group-hover/tile2:opacity-0' : ''}`}
+                                />
+                              ) : (
+                                <Image
+                                  src={primaryUrl}
+                                  alt=""
+                                  width={300}
+                                  height={300}
+                                  className={`w-full h-full object-cover transition-opacity duration-300 ${hoverUrl ? 'group-hover/tile2:opacity-0' : 'group-hover/tile2:scale-105'}`}
+                                />
+                              )}
+                              {/* Hover Media */}
+                              {hoverUrl && (
+                                hoverIsVideo ? (
+                                  <video
+                                    src={hoverUrl}
+                                    autoPlay
+                                    loop
+                                    muted
+                                    playsInline
+                                    className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover/tile2:opacity-100 transition-opacity duration-300"
+                                  />
+                                ) : (
+                                  <Image
+                                    src={hoverUrl}
+                                    alt=""
+                                    width={300}
+                                    height={300}
+                                    className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover/tile2:opacity-100 transition-opacity duration-300"
+                                  />
+                                )
+                              )}
+                            </>
                           );
                         })()}
                       </div>
@@ -1011,7 +1067,7 @@ export default function NavigationPage() {
                       <span className="text-sm text-[#1a1a1a] font-medium">4.9</span>
                       <span className="text-xs text-[#737373]">(850+)</span>
                     </div>
-                    <h4 className="text-lg font-medium mb-1 text-[#1a1a1a] group-hover:text-[#737373] transition-colors">
+                    <h4 className="text-lg font-medium mb-1 text-[#1a1a1a] group-hover/tile2:text-[#737373] transition-colors">
                       {globalNavSettings.tile2Title || getProductById(globalNavSettings.tile2ProductId)?.name || 'Product Name'}
                     </h4>
                     <p className="text-sm text-[#737373]">
