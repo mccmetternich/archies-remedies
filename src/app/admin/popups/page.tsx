@@ -43,6 +43,8 @@ interface PopupSettings {
   welcomePopupVideoUrl: string | null;
   welcomePopupDelay: number | null;
   welcomePopupDismissDays: number | null;
+  welcomePopupSessionOnly: boolean | null;
+  welcomePopupSessionExpiryHours: number | null;
   welcomePopupCtaType: string | null;
   welcomePopupDownloadUrl: string | null;
   welcomePopupDownloadName: string | null;
@@ -171,6 +173,8 @@ export default function PopupsPage() {
         welcomePopupVideoUrl: data.welcomePopupVideoUrl ?? null,
         welcomePopupDelay: data.welcomePopupDelay ?? 3,
         welcomePopupDismissDays: data.welcomePopupDismissDays ?? 7,
+        welcomePopupSessionOnly: data.welcomePopupSessionOnly ?? true,
+        welcomePopupSessionExpiryHours: data.welcomePopupSessionExpiryHours ?? 24,
         welcomePopupCtaType: data.welcomePopupCtaType ?? 'email',
         welcomePopupDownloadUrl: data.welcomePopupDownloadUrl ?? null,
         welcomePopupDownloadName: data.welcomePopupDownloadName ?? null,
@@ -351,7 +355,7 @@ export default function PopupsPage() {
             </span>
             <span className="flex items-center gap-1">
               <Calendar className="w-3.5 h-3.5" />
-              {settings.welcomePopupDismissDays}d cooldown
+              {settings.welcomePopupSessionOnly ? `${settings.welcomePopupSessionExpiryHours}h expiry` : `${settings.welcomePopupDismissDays}d cooldown`}
             </span>
           </div>
         </div>
@@ -679,22 +683,67 @@ export default function PopupsPage() {
                         How long to wait after page load before showing the popup
                       </p>
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
-                        Days Before Showing Again
-                      </label>
-                      <input
-                        type="number"
-                        min={1}
-                        max={365}
-                        value={settings.welcomePopupDismissDays ?? 7}
-                        onChange={(e) => updateField('welcomePopupDismissDays', parseInt(e.target.value) || 7)}
-                        className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border-light)] rounded-xl text-[var(--admin-text-primary)] focus:outline-none focus:border-[var(--primary)] transition-colors"
-                      />
-                      <p className="text-xs text-[var(--admin-text-muted)] mt-2">
-                        After dismissal or submission, how many days before showing again
-                      </p>
+
+                    {/* Session-based behavior toggle */}
+                    <div className="pt-4 border-t border-[var(--admin-border-light)]">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-medium text-[var(--admin-text-primary)]">Show Once Per Session</p>
+                          <p className="text-xs text-[var(--admin-text-muted)] mt-1">
+                            Only show once per browsing session, then wait until expiry
+                          </p>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={settings.welcomePopupSessionOnly ?? true}
+                            onChange={(e) => updateField('welcomePopupSessionOnly', e.target.checked)}
+                            className="sr-only peer"
+                          />
+                          <div className="w-14 h-7 bg-[var(--admin-border-light)] peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-green-500/50 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-gray-400 after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-green-500 peer-checked:after:bg-white"></div>
+                        </label>
+                      </div>
                     </div>
+
+                    {/* Session expiry hours - only shown when session mode is on */}
+                    {settings.welcomePopupSessionOnly && (
+                      <div>
+                        <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
+                          Session Expiry (hours)
+                        </label>
+                        <input
+                          type="number"
+                          min={1}
+                          max={720}
+                          value={settings.welcomePopupSessionExpiryHours ?? 24}
+                          onChange={(e) => updateField('welcomePopupSessionExpiryHours', parseInt(e.target.value) || 24)}
+                          className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border-light)] rounded-xl text-[var(--admin-text-primary)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+                        />
+                        <p className="text-xs text-[var(--admin-text-muted)] mt-2">
+                          After this many hours, the popup can show again to returning visitors (default: 24h)
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Legacy days cooldown - only shown when session mode is off */}
+                    {!settings.welcomePopupSessionOnly && (
+                      <div>
+                        <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
+                          Days Before Showing Again
+                        </label>
+                        <input
+                          type="number"
+                          min={1}
+                          max={365}
+                          value={settings.welcomePopupDismissDays ?? 7}
+                          onChange={(e) => updateField('welcomePopupDismissDays', parseInt(e.target.value) || 7)}
+                          className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border-light)] rounded-xl text-[var(--admin-text-primary)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+                        />
+                        <p className="text-xs text-[var(--admin-text-muted)] mt-2">
+                          After dismissal or submission, how many days before showing again
+                        </p>
+                      </div>
+                    )}
                   </>
                 ) : (
                   <>
@@ -999,7 +1048,9 @@ export default function PopupsPage() {
               {/* Timing info */}
               <div className="mt-2 text-center text-xs text-[var(--admin-text-muted)]">
                 {isWelcome
-                  ? `Shows after ${settings.welcomePopupDelay}s, then waits ${settings.welcomePopupDismissDays} days`
+                  ? settings.welcomePopupSessionOnly
+                    ? `Shows after ${settings.welcomePopupDelay}s, once per session (${settings.welcomePopupSessionExpiryHours}h expiry)`
+                    : `Shows after ${settings.welcomePopupDelay}s, then waits ${settings.welcomePopupDismissDays} days`
                   : `Triggers on exit after ${settings.exitPopupMinTimeOnSite}s on site`
                 }
               </div>

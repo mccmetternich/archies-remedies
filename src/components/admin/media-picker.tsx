@@ -196,7 +196,7 @@ export function MediaPickerButton({
         </div>
       </div>
 
-      {/* Media Library Modal */}
+      {/* Media Library Modal - Don't filter by folder, show all media for browsing */}
       {showModal && (
         <MediaLibraryModal
           isOpen={showModal}
@@ -205,7 +205,6 @@ export function MediaPickerButton({
             onChange(url);
             setShowModal(false);
           }}
-          folder={folder}
         />
       )}
     </div>
@@ -216,10 +215,9 @@ interface MediaLibraryModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSelect: (url: string) => void;
-  folder?: string;
 }
 
-function MediaLibraryModal({ isOpen, onClose, onSelect, folder }: MediaLibraryModalProps) {
+function MediaLibraryModal({ isOpen, onClose, onSelect }: MediaLibraryModalProps) {
   const [files, setFiles] = useState<MediaFile[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -229,9 +227,9 @@ function MediaLibraryModal({ isOpen, onClose, onSelect, folder }: MediaLibraryMo
     setLoading(true);
     try {
       const params = new URLSearchParams();
-      if (folder) params.set('folder', folder);
+      // Don't filter by folder - always show all media in library
       if (searchQuery) params.set('search', searchQuery);
-      params.set('limit', '50');
+      params.set('limit', '100'); // Increased limit for better browsing
 
       const res = await fetch(`/api/admin/media?${params}`);
       const data = await res.json();
@@ -241,7 +239,7 @@ function MediaLibraryModal({ isOpen, onClose, onSelect, folder }: MediaLibraryMo
     } finally {
       setLoading(false);
     }
-  }, [folder, searchQuery]);
+  }, [searchQuery]);
 
   useEffect(() => {
     if (isOpen) {

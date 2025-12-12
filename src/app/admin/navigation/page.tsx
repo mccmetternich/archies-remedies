@@ -92,6 +92,7 @@ interface GlobalNavSettings {
   marketingTileCtaUrl: string | null;
   marketingTileRotatingBadgeEnabled: boolean;
   marketingTileRotatingBadgeUrl: string | null;
+  marketingTileHideOnMobile: boolean;
   // Legacy aliases for backwards compatibility
   cleanFormulasTitle?: string;
   cleanFormulasDescription?: string;
@@ -119,6 +120,8 @@ interface PageOption {
   showInNav: boolean | null;
   navOrder: number | null;
   navPosition: string | null;
+  navShowOnDesktop: boolean | null;
+  navShowOnMobile: boolean | null;
 }
 
 // Special "Shop" nav item that represents the dropdown
@@ -171,6 +174,7 @@ export default function NavigationPage() {
     marketingTileCtaUrl: null,
     marketingTileRotatingBadgeEnabled: false,
     marketingTileRotatingBadgeUrl: null,
+    marketingTileHideOnMobile: false,
   });
   const [products, setProducts] = useState<ProductOption[]>([]);
   const [pagesList, setPagesList] = useState<PageOption[]>([]);
@@ -248,6 +252,7 @@ export default function NavigationPage() {
         marketingTileCtaUrl: data.globalNav.marketingTileCtaUrl || data.globalNav.cleanFormulasCtaUrl || null,
         marketingTileRotatingBadgeEnabled: data.globalNav.marketingTileRotatingBadgeEnabled ?? data.globalNav.cleanFormulasBadgeEnabled ?? false,
         marketingTileRotatingBadgeUrl: data.globalNav.marketingTileRotatingBadgeUrl || data.globalNav.cleanFormulasBadgeUrl || null,
+        marketingTileHideOnMobile: data.globalNav.marketingTileHideOnMobile ?? false,
       } : globalNavSettings;
 
       setNavItems(nav);
@@ -1079,12 +1084,12 @@ export default function NavigationPage() {
             </div>
           </div>
 
-          {/* Additional Marketing Tile */}
+          {/* Marketing Tile (Far Right) */}
           <div className="bg-[var(--admin-input)] rounded-xl border border-[var(--admin-border)]">
             <div className="p-6 border-b border-[var(--admin-border)]">
-              <h2 className="font-medium text-lg text-[var(--admin-text-primary)] mb-2">Addtl Marketing Tile</h2>
+              <h2 className="font-medium text-lg text-[var(--admin-text-primary)] mb-2">Marketing Tile (Far Right)</h2>
               <p className="text-sm text-[var(--admin-text-secondary)]">
-                Information card shown on the right side of the dropdown
+                Information card shown between product tiles in the dropdown
               </p>
             </div>
             <div className="p-6 space-y-4">
@@ -1213,9 +1218,33 @@ export default function NavigationPage() {
                     value={globalNavSettings.marketingTileRotatingBadgeUrl}
                     onChange={(url) => setGlobalNavSettings({ ...globalNavSettings, marketingTileRotatingBadgeUrl: url || null })}
                     helpText="Upload a PNG with transparent background. It will spin slowly and overlap the top-right corner."
-                    folder="general"
+                    folder="branding"
                   />
                 )}
+              </div>
+
+              {/* Hide on Mobile Toggle */}
+              <div className="pt-4 border-t border-[var(--admin-border)]">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium text-[var(--admin-text-primary)]">Hide on Mobile</p>
+                    <p className="text-sm text-[var(--admin-text-muted)]">Hide this tile on mobile devices to save space</p>
+                  </div>
+                  <button
+                    onClick={() => setGlobalNavSettings({ ...globalNavSettings, marketingTileHideOnMobile: !globalNavSettings.marketingTileHideOnMobile })}
+                    className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
+                    style={{
+                      backgroundColor: globalNavSettings.marketingTileHideOnMobile ? '#22c55e' : '#374151'
+                    }}
+                  >
+                    <span
+                      className={cn(
+                        "inline-block h-4 w-4 transform rounded-full bg-white transition-transform",
+                        globalNavSettings.marketingTileHideOnMobile ? "translate-x-6" : "translate-x-1"
+                      )}
+                    />
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -1270,32 +1299,65 @@ export default function NavigationPage() {
                     <Reorder.Item
                       key={page.id}
                       value={page}
-                      className="p-4 bg-[var(--admin-hover)] rounded-lg flex items-center gap-4 cursor-grab active:cursor-grabbing"
+                      className="p-4 bg-[var(--admin-hover)] rounded-lg cursor-grab active:cursor-grabbing"
                     >
-                      <GripVertical className="w-4 h-4 text-[var(--admin-text-muted)]" />
-                      <div className="flex-1">
-                        <p className="font-medium text-[var(--admin-text-primary)]">{page.title}</p>
-                        <p className="text-sm text-[var(--admin-text-muted)]">/{page.slug}</p>
+                      <div className="flex items-center gap-4">
+                        <GripVertical className="w-4 h-4 text-[var(--admin-text-muted)] shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-[var(--admin-text-primary)]">{page.title}</p>
+                          <p className="text-sm text-[var(--admin-text-muted)]">/{page.slug}</p>
+                        </div>
+                        <select
+                          value={page.navPosition || 'right'}
+                          onChange={(e) => {
+                            setPagesList(pagesList.map(p =>
+                              p.id === page.id ? { ...p, navPosition: e.target.value } : p
+                            ));
+                          }}
+                          className="px-3 py-1.5 text-sm bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)] focus:outline-none focus:border-[var(--primary)]"
+                        >
+                          <option value="left">Left</option>
+                          <option value="center">Center</option>
+                          <option value="right">Right</option>
+                        </select>
+                        <button
+                          onClick={() => setPagesList(pagesList.map(p => p.id === page.id ? { ...p, showInNav: false } : p))}
+                          className="p-2 rounded-lg hover:bg-red-500/10 text-red-400 transition-colors shrink-0"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
                       </div>
-                      <select
-                        value={page.navPosition || 'right'}
-                        onChange={(e) => {
-                          setPagesList(pagesList.map(p =>
-                            p.id === page.id ? { ...p, navPosition: e.target.value } : p
-                          ));
-                        }}
-                        className="px-3 py-1.5 text-sm bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)] focus:outline-none focus:border-[var(--primary)]"
-                      >
-                        <option value="left">Left</option>
-                        <option value="center">Center</option>
-                        <option value="right">Right</option>
-                      </select>
-                      <button
-                        onClick={() => setPagesList(pagesList.map(p => p.id === page.id ? { ...p, showInNav: false } : p))}
-                        className="p-2 rounded-lg hover:bg-red-500/10 text-red-400 transition-colors"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
+                      {/* Device visibility checkboxes */}
+                      <div className="flex items-center gap-4 mt-3 pt-3 border-t border-[var(--admin-border)]/50 ml-8">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={page.navShowOnDesktop !== false}
+                            onChange={(e) => {
+                              setPagesList(pagesList.map(p =>
+                                p.id === page.id ? { ...p, navShowOnDesktop: e.target.checked } : p
+                              ));
+                            }}
+                            className="w-4 h-4 rounded border-[var(--admin-border)] bg-[var(--admin-input)] text-[var(--primary)] focus:ring-[var(--primary)] focus:ring-offset-0"
+                          />
+                          <Monitor className="w-4 h-4 text-[var(--admin-text-muted)]" />
+                          <span className="text-sm text-[var(--admin-text-secondary)]">Desktop</span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={page.navShowOnMobile !== false}
+                            onChange={(e) => {
+                              setPagesList(pagesList.map(p =>
+                                p.id === page.id ? { ...p, navShowOnMobile: e.target.checked } : p
+                              ));
+                            }}
+                            className="w-4 h-4 rounded border-[var(--admin-border)] bg-[var(--admin-input)] text-[var(--primary)] focus:ring-[var(--primary)] focus:ring-offset-0"
+                          />
+                          <Smartphone className="w-4 h-4 text-[var(--admin-text-muted)]" />
+                          <span className="text-sm text-[var(--admin-text-secondary)]">Mobile</span>
+                        </label>
+                      </div>
                     </Reorder.Item>
                   ))}
                 </Reorder.Group>
@@ -1323,32 +1385,65 @@ export default function NavigationPage() {
                     <Reorder.Item
                       key={page.id}
                       value={page}
-                      className="p-4 bg-[var(--admin-hover)] rounded-lg flex items-center gap-4 cursor-grab active:cursor-grabbing"
+                      className="p-4 bg-[var(--admin-hover)] rounded-lg cursor-grab active:cursor-grabbing"
                     >
-                      <GripVertical className="w-4 h-4 text-[var(--admin-text-muted)]" />
-                      <div className="flex-1">
-                        <p className="font-medium text-[var(--admin-text-primary)]">{page.title}</p>
-                        <p className="text-sm text-[var(--admin-text-muted)]">/{page.slug}</p>
+                      <div className="flex items-center gap-4">
+                        <GripVertical className="w-4 h-4 text-[var(--admin-text-muted)] shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-[var(--admin-text-primary)]">{page.title}</p>
+                          <p className="text-sm text-[var(--admin-text-muted)]">/{page.slug}</p>
+                        </div>
+                        <select
+                          value={page.navPosition || 'right'}
+                          onChange={(e) => {
+                            setPagesList(pagesList.map(p =>
+                              p.id === page.id ? { ...p, navPosition: e.target.value } : p
+                            ));
+                          }}
+                          className="px-3 py-1.5 text-sm bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)] focus:outline-none focus:border-[var(--primary)]"
+                        >
+                          <option value="left">Left</option>
+                          <option value="center">Center</option>
+                          <option value="right">Right</option>
+                        </select>
+                        <button
+                          onClick={() => setPagesList(pagesList.map(p => p.id === page.id ? { ...p, showInNav: false } : p))}
+                          className="p-2 rounded-lg hover:bg-red-500/10 text-red-400 transition-colors shrink-0"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
                       </div>
-                      <select
-                        value={page.navPosition || 'right'}
-                        onChange={(e) => {
-                          setPagesList(pagesList.map(p =>
-                            p.id === page.id ? { ...p, navPosition: e.target.value } : p
-                          ));
-                        }}
-                        className="px-3 py-1.5 text-sm bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)] focus:outline-none focus:border-[var(--primary)]"
-                      >
-                        <option value="left">Left</option>
-                        <option value="center">Center</option>
-                        <option value="right">Right</option>
-                      </select>
-                      <button
-                        onClick={() => setPagesList(pagesList.map(p => p.id === page.id ? { ...p, showInNav: false } : p))}
-                        className="p-2 rounded-lg hover:bg-red-500/10 text-red-400 transition-colors"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
+                      {/* Device visibility checkboxes */}
+                      <div className="flex items-center gap-4 mt-3 pt-3 border-t border-[var(--admin-border)]/50 ml-8">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={page.navShowOnDesktop !== false}
+                            onChange={(e) => {
+                              setPagesList(pagesList.map(p =>
+                                p.id === page.id ? { ...p, navShowOnDesktop: e.target.checked } : p
+                              ));
+                            }}
+                            className="w-4 h-4 rounded border-[var(--admin-border)] bg-[var(--admin-input)] text-[var(--primary)] focus:ring-[var(--primary)] focus:ring-offset-0"
+                          />
+                          <Monitor className="w-4 h-4 text-[var(--admin-text-muted)]" />
+                          <span className="text-sm text-[var(--admin-text-secondary)]">Desktop</span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={page.navShowOnMobile !== false}
+                            onChange={(e) => {
+                              setPagesList(pagesList.map(p =>
+                                p.id === page.id ? { ...p, navShowOnMobile: e.target.checked } : p
+                              ));
+                            }}
+                            className="w-4 h-4 rounded border-[var(--admin-border)] bg-[var(--admin-input)] text-[var(--primary)] focus:ring-[var(--primary)] focus:ring-offset-0"
+                          />
+                          <Smartphone className="w-4 h-4 text-[var(--admin-text-muted)]" />
+                          <span className="text-sm text-[var(--admin-text-secondary)]">Mobile</span>
+                        </label>
+                      </div>
                     </Reorder.Item>
                   ))}
                 </Reorder.Group>
@@ -1376,32 +1471,65 @@ export default function NavigationPage() {
                     <Reorder.Item
                       key={page.id}
                       value={page}
-                      className="p-4 bg-[var(--admin-hover)] rounded-lg flex items-center gap-4 cursor-grab active:cursor-grabbing"
+                      className="p-4 bg-[var(--admin-hover)] rounded-lg cursor-grab active:cursor-grabbing"
                     >
-                      <GripVertical className="w-4 h-4 text-[var(--admin-text-muted)]" />
-                      <div className="flex-1">
-                        <p className="font-medium text-[var(--admin-text-primary)]">{page.title}</p>
-                        <p className="text-sm text-[var(--admin-text-muted)]">/{page.slug}</p>
+                      <div className="flex items-center gap-4">
+                        <GripVertical className="w-4 h-4 text-[var(--admin-text-muted)] shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-[var(--admin-text-primary)]">{page.title}</p>
+                          <p className="text-sm text-[var(--admin-text-muted)]">/{page.slug}</p>
+                        </div>
+                        <select
+                          value={page.navPosition || 'right'}
+                          onChange={(e) => {
+                            setPagesList(pagesList.map(p =>
+                              p.id === page.id ? { ...p, navPosition: e.target.value } : p
+                            ));
+                          }}
+                          className="px-3 py-1.5 text-sm bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)] focus:outline-none focus:border-[var(--primary)]"
+                        >
+                          <option value="left">Left</option>
+                          <option value="center">Center</option>
+                          <option value="right">Right</option>
+                        </select>
+                        <button
+                          onClick={() => setPagesList(pagesList.map(p => p.id === page.id ? { ...p, showInNav: false } : p))}
+                          className="p-2 rounded-lg hover:bg-red-500/10 text-red-400 transition-colors shrink-0"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
                       </div>
-                      <select
-                        value={page.navPosition || 'right'}
-                        onChange={(e) => {
-                          setPagesList(pagesList.map(p =>
-                            p.id === page.id ? { ...p, navPosition: e.target.value } : p
-                          ));
-                        }}
-                        className="px-3 py-1.5 text-sm bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)] focus:outline-none focus:border-[var(--primary)]"
-                      >
-                        <option value="left">Left</option>
-                        <option value="center">Center</option>
-                        <option value="right">Right</option>
-                      </select>
-                      <button
-                        onClick={() => setPagesList(pagesList.map(p => p.id === page.id ? { ...p, showInNav: false } : p))}
-                        className="p-2 rounded-lg hover:bg-red-500/10 text-red-400 transition-colors"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
+                      {/* Device visibility checkboxes */}
+                      <div className="flex items-center gap-4 mt-3 pt-3 border-t border-[var(--admin-border)]/50 ml-8">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={page.navShowOnDesktop !== false}
+                            onChange={(e) => {
+                              setPagesList(pagesList.map(p =>
+                                p.id === page.id ? { ...p, navShowOnDesktop: e.target.checked } : p
+                              ));
+                            }}
+                            className="w-4 h-4 rounded border-[var(--admin-border)] bg-[var(--admin-input)] text-[var(--primary)] focus:ring-[var(--primary)] focus:ring-offset-0"
+                          />
+                          <Monitor className="w-4 h-4 text-[var(--admin-text-muted)]" />
+                          <span className="text-sm text-[var(--admin-text-secondary)]">Desktop</span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={page.navShowOnMobile !== false}
+                            onChange={(e) => {
+                              setPagesList(pagesList.map(p =>
+                                p.id === page.id ? { ...p, navShowOnMobile: e.target.checked } : p
+                              ));
+                            }}
+                            className="w-4 h-4 rounded border-[var(--admin-border)] bg-[var(--admin-input)] text-[var(--primary)] focus:ring-[var(--primary)] focus:ring-offset-0"
+                          />
+                          <Smartphone className="w-4 h-4 text-[var(--admin-text-muted)]" />
+                          <span className="text-sm text-[var(--admin-text-secondary)]">Mobile</span>
+                        </label>
+                      </div>
                     </Reorder.Item>
                   ))}
                 </Reorder.Group>
@@ -1436,21 +1564,20 @@ export default function NavigationPage() {
                       <p className="font-medium text-[var(--admin-text-primary)]">{page.title}</p>
                       <p className="text-sm text-[var(--admin-text-muted)]">/{page.slug}</p>
                     </div>
-                    {/* Toggle: Not In Nav / In Nav */}
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-red-400 font-medium">Not In Nav</span>
+                    {/* Toggle: Add to Navigation */}
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs font-medium text-[var(--admin-text-muted)]">Add to Nav</span>
                       <button
                         onClick={() => {
                           const maxOrder = Math.max(0, ...pagesList.filter(p => p.showInNav && (p.navPosition === 'right' || !p.navPosition)).map(p => p.navOrder || 0));
                           setPagesList(pagesList.map(p =>
-                            p.id === page.id ? { ...p, showInNav: true, navOrder: maxOrder + 1, navPosition: 'right' } : p
+                            p.id === page.id ? { ...p, showInNav: true, navOrder: maxOrder + 1, navPosition: 'right', navShowOnDesktop: true, navShowOnMobile: true } : p
                           ));
                         }}
-                        className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors bg-[#374151]"
+                        className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors bg-[#374151] hover:bg-[#4b5563]"
                       >
                         <span className="inline-block h-4 w-4 transform rounded-full bg-white transition-transform translate-x-1" />
                       </button>
-                      <span className="text-xs text-[var(--admin-text-muted)] font-medium">In Nav</span>
                     </div>
                   </motion.div>
                 ))}

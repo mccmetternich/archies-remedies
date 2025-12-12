@@ -6,6 +6,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback, Rea
 const STORAGE_KEYS = {
   POPUP_SUBMITTED: 'archies-popup-submitted', // If true, skip exit popups
   WELCOME_DISMISSED: 'archies-welcome-dismissed-at',
+  WELCOME_SESSION_SHOWN: 'archies-welcome-shown-session', // sessionStorage key
   EXIT_DISMISSED: 'archies-exit-dismissed-at',
   CUSTOM_DISMISSED: (id: string) => `archies-popup-${id}-dismissed-at`,
   // Legacy key for backwards compatibility
@@ -51,7 +52,7 @@ interface PopupContextType {
   setActivePopup: (popupId: string | null) => void;
 
   // Checks
-  canShowWelcomePopup: (dismissDays?: number) => boolean;
+  canShowWelcomePopup: (options?: { sessionOnly?: boolean; sessionExpiryHours?: number; dismissDays?: number }) => boolean;
   canShowExitPopup: (dismissDays?: number) => boolean;
   canShowCustomPopup: (popupId: string, dismissDays?: number) => boolean;
 
@@ -132,6 +133,12 @@ export function PopupProvider({ children, currentPage = '/', currentProductId }:
     const now = Date.now();
     localStorage.setItem(STORAGE_KEYS.WELCOME_DISMISSED, now.toString());
     localStorage.setItem(STORAGE_KEYS.LEGACY_DISMISSED, 'true');
+    // Also mark as shown this session
+    try {
+      sessionStorage.setItem(STORAGE_KEYS.WELCOME_SESSION_SHOWN, 'true');
+    } catch {
+      // sessionStorage not available
+    }
     setWelcomeDismissedAt(now);
   }, []);
 
@@ -147,17 +154,36 @@ export function PopupProvider({ children, currentPage = '/', currentProductId }:
     setCustomDismissals(prev => ({ ...prev, [popupId]: now }));
   }, []);
 
-  const canShowWelcomePopup = useCallback((dismissDays = 7) => {
+  const canShowWelcomePopup = useCallback((options?: { sessionOnly?: boolean; sessionExpiryHours?: number; dismissDays?: number }) => {
+    const { sessionOnly = true, sessionExpiryHours = 24, dismissDays = 7 } = options || {};
+
     // Don't show if already submitted
     if (hasSubmittedPopup) return false;
 
     // Don't show if another popup is active
     if (activePopup) return false;
 
-    // Check dismissal
-    if (welcomeDismissedAt) {
-      const daysSinceDismiss = (Date.now() - welcomeDismissedAt) / (1000 * 60 * 60 * 24);
-      if (daysSinceDismiss < dismissDays) return false;
+    // Session-based behavior (default)
+    if (sessionOnly) {
+      // Check if already shown this session (sessionStorage)
+      try {
+        const shownThisSession = sessionStorage.getItem(STORAGE_KEYS.WELCOME_SESSION_SHOWN);
+        if (shownThisSession === 'true') return false;
+      } catch {
+        // sessionStorage not available, fall back to localStorage
+      }
+
+      // Check time-based expiry (localStorage) - hours
+      if (welcomeDismissedAt) {
+        const hoursSinceDismiss = (Date.now() - welcomeDismissedAt) / (1000 * 60 * 60);
+        if (hoursSinceDismiss < sessionExpiryHours) return false;
+      }
+    } else {
+      // Legacy days-based behavior
+      if (welcomeDismissedAt) {
+        const daysSinceDismiss = (Date.now() - welcomeDismissedAt) / (1000 * 60 * 60 * 24);
+        if (daysSinceDismiss < dismissDays) return false;
+      }
     }
 
     return true;

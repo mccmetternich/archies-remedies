@@ -18,6 +18,8 @@ interface WelcomePopupProps {
   videoThumbnailUrl?: string | null;
   delay?: number;
   dismissDays?: number;
+  sessionOnly?: boolean;
+  sessionExpiryHours?: number;
   ctaType?: 'email' | 'sms' | 'download' | 'none';
   downloadFileUrl?: string | null;
   downloadFileName?: string | null;
@@ -35,6 +37,8 @@ export function WelcomePopup({
   videoThumbnailUrl,
   delay = 3000,
   dismissDays = 7,
+  sessionOnly = true,
+  sessionExpiryHours = 24,
   ctaType = 'email',
   downloadFileUrl,
   downloadFileName,
@@ -62,7 +66,7 @@ export function WelcomePopup({
     if (!enabled) return;
 
     const timer = setTimeout(() => {
-      if (canShowWelcomePopup(dismissDays)) {
+      if (canShowWelcomePopup({ sessionOnly, sessionExpiryHours, dismissDays })) {
         setIsOpen(true);
         setActivePopup('welcome');
         trackPopupView(null, 'welcome');
@@ -70,7 +74,7 @@ export function WelcomePopup({
     }, delay);
 
     return () => clearTimeout(timer);
-  }, [enabled, delay, dismissDays, canShowWelcomePopup, setActivePopup, trackPopupView]);
+  }, [enabled, delay, dismissDays, sessionOnly, sessionExpiryHours, canShowWelcomePopup, setActivePopup, trackPopupView]);
 
   const handleClose = () => {
     setIsOpen(false);

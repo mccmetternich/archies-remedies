@@ -62,6 +62,7 @@ interface GlobalNavSettings {
   marketingTileCtaUrl?: string | null;
   marketingTileRotatingBadgeEnabled?: boolean | null;
   marketingTileRotatingBadgeUrl?: string | null;
+  marketingTileHideOnMobile?: boolean | null;
   // Legacy aliases
   cleanFormulasTitle?: string | null;
   cleanFormulasDescription?: string | null;
@@ -549,17 +550,15 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
             className="fixed inset-0 z-[60] bg-white lg:hidden"
           >
             <div className="flex flex-col h-full">
-              {/* Close button - top right */}
-              <div className="flex justify-end p-4">
-                <button
-                  onClick={() => setIsOpen(false)}
-                  className="p-2 rounded-full hover:bg-[var(--sand)] transition-colors"
-                >
-                  <X className="w-6 h-6" />
-                </button>
-              </div>
+              {/* Close button - top right, positioned absolutely */}
+              <button
+                onClick={() => setIsOpen(false)}
+                className="absolute top-4 right-4 z-10 p-2 rounded-full hover:bg-[var(--sand)] transition-colors"
+              >
+                <X className="w-6 h-6" />
+              </button>
 
-              <div className="flex-1 overflow-auto px-6 pb-6">
+              <div className="flex-1 overflow-auto px-6 pt-4 pb-6">
                 <nav className="space-y-6">
                   {/* Products */}
                   <div>
@@ -575,7 +574,7 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                         >
                           <div className="w-14 h-14 rounded-lg bg-white overflow-hidden">
                             <Image
-                              src={tile1Product.heroImageUrl || PRODUCT_IMAGES['eye-drops']}
+                              src={globalNav?.tile1ImageUrl || tile1Product.heroImageUrl || PRODUCT_IMAGES['eye-drops']}
                               alt={tile1Product.name}
                               width={56}
                               height={56}
@@ -597,7 +596,7 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                         >
                           <div className="w-14 h-14 rounded-lg bg-white overflow-hidden">
                             <Image
-                              src={tile2Product.heroImageUrl || PRODUCT_IMAGES['eye-wipes']}
+                              src={globalNav?.tile2ImageUrl || tile2Product.heroImageUrl || PRODUCT_IMAGES['eye-wipes']}
                               alt={tile2Product.name}
                               width={56}
                               height={56}
@@ -631,37 +630,41 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                     </div>
                   )}
 
-                  {/* Mobile Clean Formulas Module - Compact */}
-                  <div className="p-4 rounded-xl bg-[var(--primary-light)]">
-                    <div className="flex items-start gap-3">
-                      <div className="flex-1">
-                        <p className="font-medium text-sm mb-1">{cleanFormulasTitle}</p>
-                        <p className="text-xs text-[var(--muted-foreground)] leading-relaxed">
-                          {cleanFormulasDescription}
-                        </p>
+                  {/* Mobile Marketing Tile - respects hide on mobile setting */}
+                  {!globalNav?.marketingTileHideOnMobile && (
+                    <div className="p-4 rounded-xl bg-[var(--primary-light)]">
+                      <div className="flex items-start gap-3">
+                        <div className="flex-1">
+                          <p className="font-medium text-sm mb-1">{globalNav?.marketingTileTitle || cleanFormulasTitle}</p>
+                          <p className="text-xs text-[var(--muted-foreground)] leading-relaxed">
+                            {globalNav?.marketingTileDescription || cleanFormulasDescription}
+                          </p>
+                        </div>
+                        <div className="flex gap-0.5 flex-shrink-0">
+                          {[1, 2, 3, 4, 5].map((i) => (
+                            <Star key={i} className="w-3 h-3 fill-[var(--primary)] text-[var(--primary)]" />
+                          ))}
+                        </div>
                       </div>
-                      <div className="flex gap-0.5 flex-shrink-0">
-                        {[1, 2, 3, 4, 5].map((i) => (
-                          <Star key={i} className="w-3 h-3 fill-[var(--primary)] text-[var(--primary)]" />
-                        ))}
+                      <div className="flex flex-wrap gap-1.5 mt-3">
+                        <span className="text-[10px] px-2 py-0.5 bg-white rounded-full">{globalNav?.marketingTileBadge1 || 'Preservative-Free'}</span>
+                        <span className="text-[10px] px-2 py-0.5 bg-white rounded-full">{globalNav?.marketingTileBadge2 || 'Paraben-Free'}</span>
+                        <span className="text-[10px] px-2 py-0.5 bg-white rounded-full">{globalNav?.marketingTileBadge3 || 'Sulfate-Free'}</span>
                       </div>
+                      {(globalNav?.marketingTileCtaEnabled || globalNav?.cleanFormulasCtaEnabled) &&
+                       (globalNav?.marketingTileCtaText || globalNav?.cleanFormulasCtaText) &&
+                       (globalNav?.marketingTileCtaUrl || globalNav?.cleanFormulasCtaUrl) && (
+                        <Link
+                          href={globalNav.marketingTileCtaUrl || globalNav.cleanFormulasCtaUrl || ''}
+                          onClick={() => setIsOpen(false)}
+                          className="inline-flex items-center gap-1.5 mt-3 text-xs font-medium text-[var(--foreground)] hover:text-[var(--muted-foreground)] transition-colors"
+                        >
+                          {globalNav.marketingTileCtaText || globalNav.cleanFormulasCtaText}
+                          <ArrowRight className="w-3 h-3" />
+                        </Link>
+                      )}
                     </div>
-                    <div className="flex flex-wrap gap-1.5 mt-3">
-                      <span className="text-[10px] px-2 py-0.5 bg-white rounded-full">Preservative-Free</span>
-                      <span className="text-[10px] px-2 py-0.5 bg-white rounded-full">Paraben-Free</span>
-                      <span className="text-[10px] px-2 py-0.5 bg-white rounded-full">Sulfate-Free</span>
-                    </div>
-                    {globalNav?.cleanFormulasCtaEnabled && globalNav?.cleanFormulasCtaText && globalNav?.cleanFormulasCtaUrl && (
-                      <Link
-                        href={globalNav.cleanFormulasCtaUrl}
-                        onClick={() => setIsOpen(false)}
-                        className="inline-flex items-center gap-1.5 mt-3 text-xs font-medium text-[var(--foreground)] hover:text-[var(--muted-foreground)] transition-colors"
-                      >
-                        {globalNav.cleanFormulasCtaText}
-                        <ArrowRight className="w-3 h-3" />
-                      </Link>
-                    )}
-                  </div>
+                  )}
                 </nav>
               </div>
 

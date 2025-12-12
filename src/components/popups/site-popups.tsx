@@ -17,6 +17,8 @@ interface SitePopupsProps {
     welcomePopupVideoUrl?: string | null;
     welcomePopupDelay?: number | null;
     welcomePopupDismissDays?: number | null;
+    welcomePopupSessionOnly?: boolean | null;
+    welcomePopupSessionExpiryHours?: number | null;
     welcomePopupCtaType?: string | null;
     welcomePopupDownloadUrl?: string | null;
     welcomePopupDownloadName?: string | null;
@@ -51,6 +53,8 @@ export function SitePopups({ currentPage = '/', currentProductId, settings }: Si
         videoUrl={settings.welcomePopupVideoUrl}
         delay={settings.welcomePopupDelay ?? 3000}
         dismissDays={settings.welcomePopupDismissDays ?? 7}
+        sessionOnly={settings.welcomePopupSessionOnly ?? true}
+        sessionExpiryHours={settings.welcomePopupSessionExpiryHours ?? 24}
         ctaType={(settings.welcomePopupCtaType as 'email' | 'sms' | 'download' | 'none') || 'email'}
         downloadFileUrl={settings.welcomePopupDownloadUrl}
         downloadFileName={settings.welcomePopupDownloadName}

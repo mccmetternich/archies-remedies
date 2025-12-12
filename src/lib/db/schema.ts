@@ -63,7 +63,9 @@ export const siteSettings = sqliteTable('site_settings', {
   welcomePopupImageUrl: text('welcome_popup_image_url'),
   welcomePopupVideoUrl: text('welcome_popup_video_url'),
   welcomePopupDelay: integer('welcome_popup_delay').default(3), // seconds before showing
-  welcomePopupDismissDays: integer('welcome_popup_dismiss_days').default(7), // days before showing again
+  welcomePopupDismissDays: integer('welcome_popup_dismiss_days').default(7), // days before showing again (legacy - used as fallback)
+  welcomePopupSessionOnly: integer('welcome_popup_session_only', { mode: 'boolean' }).default(true), // show once per session only
+  welcomePopupSessionExpiryHours: integer('welcome_popup_session_expiry_hours').default(24), // hours before showing again to same visitor
   welcomePopupCtaType: text('welcome_popup_cta_type').default('email'), // 'email' | 'sms' | 'download' | 'none'
   welcomePopupDownloadUrl: text('welcome_popup_download_url'),
   welcomePopupDownloadName: text('welcome_popup_download_name'),
@@ -138,6 +140,7 @@ export const siteSettings = sqliteTable('site_settings', {
   navMarketingTileCtaUrl: text('nav_marketing_tile_cta_url'),
   navMarketingTileRotatingBadgeEnabled: integer('nav_marketing_tile_rotating_badge_enabled', { mode: 'boolean' }).default(false),
   navMarketingTileRotatingBadgeUrl: text('nav_marketing_tile_rotating_badge_url'), // Rotating badge PNG
+  navMarketingTileHideOnMobile: integer('nav_marketing_tile_hide_on_mobile', { mode: 'boolean' }).default(false), // Hide on mobile devices
 
   // Legacy aliases (keep for backward compatibility)
   navCleanFormulasTitle: text('nav_clean_formulas_title'),
@@ -392,6 +395,8 @@ export const pages = sqliteTable('pages', {
   showInNav: integer('show_in_nav', { mode: 'boolean' }).default(false),
   navOrder: integer('nav_order').default(0),
   navPosition: text('nav_position').default('right'), // 'left' | 'center' | 'right' - position in header nav
+  navShowOnDesktop: integer('nav_show_on_desktop', { mode: 'boolean' }).default(true), // Show on desktop
+  navShowOnMobile: integer('nav_show_on_mobile', { mode: 'boolean' }).default(true), // Show on mobile
 
   createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
   updatedAt: text('updated_at').default(sql`CURRENT_TIMESTAMP`),

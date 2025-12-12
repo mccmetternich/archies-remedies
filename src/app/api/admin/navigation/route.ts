@@ -33,6 +33,8 @@ export async function GET() {
       showInNav: pages.showInNav,
       navOrder: pages.navOrder,
       navPosition: pages.navPosition,
+      navShowOnDesktop: pages.navShowOnDesktop,
+      navShowOnMobile: pages.navShowOnMobile,
     }).from(pages).where(eq(pages.isActive, true)).orderBy(pages.navOrder);
 
     const bumper = settings ? {
@@ -79,6 +81,7 @@ export async function GET() {
       marketingTileCtaUrl: settings.navMarketingTileCtaUrl || settings.navCleanFormulasCtaUrl,
       marketingTileRotatingBadgeEnabled: settings.navMarketingTileRotatingBadgeEnabled ?? settings.navCleanFormulasBadgeEnabled ?? false,
       marketingTileRotatingBadgeUrl: settings.navMarketingTileRotatingBadgeUrl || settings.navCleanFormulasBadgeUrl,
+      marketingTileHideOnMobile: settings.navMarketingTileHideOnMobile ?? false,
       // Legacy aliases for backwards compatibility
       cleanFormulasTitle: settings.navMarketingTileTitle || settings.navCleanFormulasTitle || 'Clean Formulas',
       cleanFormulasDescription: settings.navMarketingTileDescription || settings.navCleanFormulasDescription || 'No preservatives, phthalates, parabens, or sulfates.',
@@ -170,6 +173,7 @@ export async function PUT(request: Request) {
         navMarketingTileCtaUrl: globalNav.marketingTileCtaUrl || globalNav.cleanFormulasCtaUrl || null,
         navMarketingTileRotatingBadgeEnabled: globalNav.marketingTileRotatingBadgeEnabled ?? globalNav.cleanFormulasBadgeEnabled ?? false,
         navMarketingTileRotatingBadgeUrl: globalNav.marketingTileRotatingBadgeUrl || globalNav.cleanFormulasBadgeUrl || null,
+        navMarketingTileHideOnMobile: globalNav.marketingTileHideOnMobile ?? false,
         updatedAt: new Date().toISOString(),
       };
 
@@ -183,7 +187,7 @@ export async function PUT(request: Request) {
       }
     }
 
-    // Update page nav settings (showInNav, navOrder, navPosition)
+    // Update page nav settings (showInNav, navOrder, navPosition, desktop/mobile visibility)
     if (pageNavUpdates && Array.isArray(pageNavUpdates)) {
       for (const pageUpdate of pageNavUpdates) {
         if (pageUpdate.id) {
@@ -191,6 +195,8 @@ export async function PUT(request: Request) {
             showInNav: pageUpdate.showInNav ?? false,
             navOrder: pageUpdate.navOrder ?? 0,
             navPosition: pageUpdate.navPosition ?? 'right',
+            navShowOnDesktop: pageUpdate.navShowOnDesktop ?? true,
+            navShowOnMobile: pageUpdate.navShowOnMobile ?? true,
             updatedAt: new Date().toISOString(),
           }).where(eq(pages.id, pageUpdate.id));
         }

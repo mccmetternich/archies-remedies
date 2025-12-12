@@ -7,11 +7,8 @@ async function main() {
   });
 
   const columns = [
-    // Marketing tile mobile hide
-    'ALTER TABLE site_settings ADD COLUMN nav_marketing_tile_hide_on_mobile INTEGER DEFAULT 0',
-    // Pages desktop/mobile visibility
-    'ALTER TABLE pages ADD COLUMN nav_show_on_desktop INTEGER DEFAULT 1',
-    'ALTER TABLE pages ADD COLUMN nav_show_on_mobile INTEGER DEFAULT 1',
+    'ALTER TABLE site_settings ADD COLUMN welcome_popup_session_only INTEGER DEFAULT 1',
+    'ALTER TABLE site_settings ADD COLUMN welcome_popup_session_expiry_hours INTEGER DEFAULT 24',
   ];
 
   for (const sql of columns) {
