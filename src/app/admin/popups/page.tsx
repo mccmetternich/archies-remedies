@@ -375,6 +375,17 @@ export default function PopupsPage() {
   const currentButtonText = isWelcome ? settings.welcomePopupButtonText : settings.exitPopupButtonText;
   const currentImageUrl = isWelcome ? settings.welcomePopupImageUrl : settings.exitPopupImageUrl;
   const currentVideoUrl = isWelcome ? settings.welcomePopupVideoUrl : settings.exitPopupVideoUrl;
+
+  // Device-specific media
+  const currentFormDesktopImageUrl = isWelcome ? settings.welcomePopupFormDesktopImageUrl : settings.exitPopupFormDesktopImageUrl;
+  const currentFormDesktopVideoUrl = isWelcome ? settings.welcomePopupFormDesktopVideoUrl : settings.exitPopupFormDesktopVideoUrl;
+  const currentFormMobileImageUrl = isWelcome ? settings.welcomePopupFormMobileImageUrl : settings.exitPopupFormMobileImageUrl;
+  const currentFormMobileVideoUrl = isWelcome ? settings.welcomePopupFormMobileVideoUrl : settings.exitPopupFormMobileVideoUrl;
+  const currentSuccessDesktopImageUrl = isWelcome ? settings.welcomePopupSuccessDesktopImageUrl : settings.exitPopupSuccessDesktopImageUrl;
+  const currentSuccessDesktopVideoUrl = isWelcome ? settings.welcomePopupSuccessDesktopVideoUrl : settings.exitPopupSuccessDesktopVideoUrl;
+  const currentSuccessMobileImageUrl = isWelcome ? settings.welcomePopupSuccessMobileImageUrl : settings.exitPopupSuccessMobileImageUrl;
+  const currentSuccessMobileVideoUrl = isWelcome ? settings.welcomePopupSuccessMobileVideoUrl : settings.exitPopupSuccessMobileVideoUrl;
+
   const currentCtaType = (isWelcome ? settings.welcomePopupCtaType : settings.exitPopupCtaType) as CtaType || 'both';
   const currentDownloadEnabled = isWelcome ? settings.welcomePopupDownloadEnabled : settings.exitPopupDownloadEnabled;
   const currentDownloadUrl = isWelcome ? settings.welcomePopupDownloadUrl : settings.exitPopupDownloadUrl;
@@ -402,11 +413,38 @@ export default function PopupsPage() {
   const currentFormBadgeUrl = isWelcome ? settings.welcomePopupFormBadgeUrl : settings.exitPopupFormBadgeUrl;
   const currentSuccessBadgeUrl = isWelcome ? settings.welcomePopupSuccessBadgeUrl : settings.exitPopupSuccessBadgeUrl;
 
-  // Check if media is video - check both file extension and Cloudinary video resource type
-  const hasVideo = currentVideoUrl && (
-    currentVideoUrl.match(/\.(mp4|webm|mov)(\?|$)/i) ||
-    currentVideoUrl.includes('/video/upload/')
-  );
+  // Check if URL is video
+  const isVideoUrl = (url: string | null | undefined): boolean => {
+    if (!url) return false;
+    return !!(url.match(/\.(mp4|webm|mov)(\?|$)/i) || url.includes('/video/upload/'));
+  };
+
+  // Calculate effective media URLs based on preview state and device
+  const isSuccessPreview = previewState === 'success';
+  const isMobilePreview = previewDevice === 'mobile';
+
+  // Desktop media: success state falls back to form state, form state falls back to legacy
+  const effectiveDesktopVideoUrl = isSuccessPreview
+    ? (currentSuccessDesktopVideoUrl || currentFormDesktopVideoUrl || currentVideoUrl)
+    : (currentFormDesktopVideoUrl || currentVideoUrl);
+  const effectiveDesktopImageUrl = isSuccessPreview
+    ? (currentSuccessDesktopImageUrl || currentFormDesktopImageUrl || currentImageUrl)
+    : (currentFormDesktopImageUrl || currentImageUrl);
+
+  // Mobile media: success state falls back to form state mobile, then desktop
+  const effectiveMobileVideoUrl = isSuccessPreview
+    ? (currentSuccessMobileVideoUrl || currentSuccessDesktopVideoUrl || currentFormMobileVideoUrl || currentFormDesktopVideoUrl || currentVideoUrl)
+    : (currentFormMobileVideoUrl || currentFormDesktopVideoUrl || currentVideoUrl);
+  const effectiveMobileImageUrl = isSuccessPreview
+    ? (currentSuccessMobileImageUrl || currentSuccessDesktopImageUrl || currentFormMobileImageUrl || currentFormDesktopImageUrl || currentImageUrl)
+    : (currentFormMobileImageUrl || currentFormDesktopImageUrl || currentImageUrl);
+
+  // Get effective media based on preview device
+  const effectiveVideoUrl = isMobilePreview ? effectiveMobileVideoUrl : effectiveDesktopVideoUrl;
+  const effectiveImageUrl = isMobilePreview ? effectiveMobileImageUrl : effectiveDesktopImageUrl;
+
+  // Check if current effective media is video
+  const hasVideo = isVideoUrl(effectiveVideoUrl);
 
   return (
     <div className="space-y-6">
@@ -1419,18 +1457,18 @@ export default function PopupsPage() {
                   <div className="bg-white rounded-3xl overflow-hidden shadow-2xl w-full max-w-sm">
                     {/* Media Header - Full width on mobile */}
                     <div className="relative aspect-video w-full bg-gradient-to-br from-[#f5f0eb] via-white to-[#bbdae9]/30">
-                      {hasVideo && currentVideoUrl ? (
+                      {hasVideo && effectiveVideoUrl ? (
                         <video
-                          src={currentVideoUrl}
+                          src={effectiveVideoUrl}
                           className="w-full h-full object-cover object-center"
                           autoPlay
                           loop
                           muted
                           playsInline
                         />
-                      ) : currentImageUrl ? (
+                      ) : effectiveImageUrl ? (
                         <Image
-                          src={currentImageUrl}
+                          src={effectiveImageUrl}
                           alt=""
                           fill
                           className="object-cover object-center"
@@ -1592,18 +1630,18 @@ export default function PopupsPage() {
                   <div className="bg-white rounded-3xl overflow-hidden shadow-2xl w-full max-w-3xl flex min-h-[420px]">
                     {/* Media Section - Left side */}
                     <div className="relative w-1/2 bg-gradient-to-br from-[#f5f0eb] via-white to-[#bbdae9]/30">
-                      {hasVideo && currentVideoUrl ? (
+                      {hasVideo && effectiveVideoUrl ? (
                         <video
-                          src={currentVideoUrl}
+                          src={effectiveVideoUrl}
                           className="absolute inset-0 w-full h-full object-cover object-center"
                           autoPlay
                           loop
                           muted
                           playsInline
                         />
-                      ) : currentImageUrl ? (
+                      ) : effectiveImageUrl ? (
                         <Image
-                          src={currentImageUrl}
+                          src={effectiveImageUrl}
                           alt=""
                           fill
                           className="object-cover object-center"
