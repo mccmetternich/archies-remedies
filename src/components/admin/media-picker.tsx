@@ -48,6 +48,9 @@ export function MediaPickerButton({
   folder,
   acceptVideo = false,
 }: MediaPickerButtonProps) {
+  // Debug: log when value prop changes
+  console.log('[MediaPickerButton] Rendering with value:', value ? value.substring(0, 50) + '...' : value);
+
   const [showModal, setShowModal] = useState(false);
   const [showUrlInput, setShowUrlInput] = useState(false);
   const [urlInputValue, setUrlInputValue] = useState('');
@@ -310,7 +313,9 @@ export function MediaPickerButton({
           onClose={() => setShowModal(false)}
           onSelect={(url) => {
             console.log('[MediaPicker] Selected from library:', url);
+            console.log('[MediaPicker] Calling onChange with url...');
             onChange(url);
+            console.log('[MediaPicker] onChange called, closing modal');
             setShowModal(false);
           }}
         />
