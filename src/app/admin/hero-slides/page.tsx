@@ -33,6 +33,8 @@ interface HeroSlide {
   testimonialAvatarUrl: string | null;
   isActive: boolean | null;
   sortOrder: number | null;
+  layout: string | null; // 'full-width' | 'two-column' | 'two-column-reversed'
+  textColor: string | null; // 'dark' | 'light'
 }
 
 export default function HeroSlidesPage() {
@@ -90,6 +92,8 @@ export default function HeroSlidesPage() {
       testimonialAvatarUrl: '',
       isActive: true,
       sortOrder: slides.length,
+      layout: 'full-width',
+      textColor: 'dark',
     };
     setSlides([...slides, newSlide]);
     setEditingId(newSlide.id);
@@ -268,6 +272,43 @@ export default function HeroSlidesPage() {
                   <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[var(--primary-light)] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-[var(--card)] after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
                 </label>
                 <span className="font-medium">Active</span>
+              </div>
+
+              {/* Layout & Text Color */}
+              <div className="grid md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Layout</label>
+                  <select
+                    value={editForm.layout || 'full-width'}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, layout: e.target.value })
+                    }
+                    className="flex w-full rounded-lg border-[1.5px] border-[var(--border)] bg-[var(--background)] px-4 py-3 text-base transition-all duration-150 focus:outline-none focus:border-[var(--primary-dark)] focus:ring-[3px] focus:ring-[var(--primary-light)]"
+                  >
+                    <option value="full-width">Full Width (image background)</option>
+                    <option value="two-column">Two Column (image right)</option>
+                    <option value="two-column-reversed">Two Column Reversed (image left)</option>
+                  </select>
+                  <p className="text-xs text-[var(--muted-foreground)] mt-1">
+                    Full width uses image as background. Two column shows text and image side by side.
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Text Color</label>
+                  <select
+                    value={editForm.textColor || 'dark'}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, textColor: e.target.value })
+                    }
+                    className="flex w-full rounded-lg border-[1.5px] border-[var(--border)] bg-[var(--background)] px-4 py-3 text-base transition-all duration-150 focus:outline-none focus:border-[var(--primary-dark)] focus:ring-[3px] focus:ring-[var(--primary-light)]"
+                  >
+                    <option value="dark">Dark (for light backgrounds)</option>
+                    <option value="light">Light (for dark backgrounds)</option>
+                  </select>
+                  <p className="text-xs text-[var(--muted-foreground)] mt-1">
+                    Choose light text when using dark background images.
+                  </p>
+                </div>
               </div>
 
               <div className="grid md:grid-cols-2 gap-4">

@@ -86,6 +86,8 @@ export async function PUT(request: Request) {
         isActive: slide.isActive ?? true,
         showOnDesktop: slide.showOnDesktop ?? true,
         showOnMobile: slide.showOnMobile ?? true,
+        layout: slide.layout || 'full-width',
+        textColor: slide.textColor || 'dark',
         sortOrder: slide.sortOrder || 0,
       });
     }

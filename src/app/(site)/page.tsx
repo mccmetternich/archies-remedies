@@ -218,34 +218,95 @@ export default async function HomePage() {
       <SitePopups
         currentPage="/"
         settings={{
-          // Welcome popup
+          // Welcome popup - basic
           welcomePopupEnabled: data.settings?.welcomePopupEnabled ?? data.settings?.emailPopupEnabled ?? false,
           welcomePopupTitle: data.settings?.welcomePopupTitle ?? data.settings?.emailPopupTitle,
           welcomePopupSubtitle: data.settings?.welcomePopupSubtitle ?? data.settings?.emailPopupSubtitle,
           welcomePopupButtonText: data.settings?.welcomePopupButtonText ?? data.settings?.emailPopupButtonText,
           welcomePopupImageUrl: data.settings?.welcomePopupImageUrl ?? data.settings?.emailPopupImageUrl,
           welcomePopupVideoUrl: data.settings?.welcomePopupVideoUrl,
-          welcomePopupDelay: data.settings?.welcomePopupDelay ?? 5000,
+          // Welcome popup - desktop/mobile form media
+          welcomePopupFormDesktopImageUrl: data.settings?.welcomePopupFormDesktopImageUrl,
+          welcomePopupFormDesktopVideoUrl: data.settings?.welcomePopupFormDesktopVideoUrl,
+          welcomePopupFormMobileImageUrl: data.settings?.welcomePopupFormMobileImageUrl,
+          welcomePopupFormMobileVideoUrl: data.settings?.welcomePopupFormMobileVideoUrl,
+          // Welcome popup - desktop/mobile success media
+          welcomePopupSuccessDesktopImageUrl: data.settings?.welcomePopupSuccessDesktopImageUrl,
+          welcomePopupSuccessDesktopVideoUrl: data.settings?.welcomePopupSuccessDesktopVideoUrl,
+          welcomePopupSuccessMobileImageUrl: data.settings?.welcomePopupSuccessMobileImageUrl,
+          welcomePopupSuccessMobileVideoUrl: data.settings?.welcomePopupSuccessMobileVideoUrl,
+          // Welcome popup - timing
+          welcomePopupDelay: data.settings?.welcomePopupDelay ?? 3000,
           welcomePopupDismissDays: data.settings?.welcomePopupDismissDays ?? 7,
+          welcomePopupSessionOnly: data.settings?.welcomePopupSessionOnly ?? true,
+          welcomePopupSessionExpiryHours: data.settings?.welcomePopupSessionExpiryHours ?? 24,
+          // Welcome popup - CTA
           welcomePopupCtaType: data.settings?.welcomePopupCtaType ?? 'email',
           welcomePopupDownloadUrl: data.settings?.welcomePopupDownloadUrl,
           welcomePopupDownloadName: data.settings?.welcomePopupDownloadName,
+          welcomePopupDownloadText: data.settings?.welcomePopupDownloadText,
           welcomePopupSuccessTitle: data.settings?.welcomePopupSuccessTitle,
           welcomePopupSuccessMessage: data.settings?.welcomePopupSuccessMessage,
-          // Exit popup
+          // Welcome popup - testimonial
+          welcomePopupTestimonialEnabled: data.settings?.welcomePopupTestimonialEnabled ?? false,
+          welcomePopupTestimonialEnabledDesktop: data.settings?.welcomePopupTestimonialEnabledDesktop ?? true,
+          welcomePopupTestimonialEnabledMobile: data.settings?.welcomePopupTestimonialEnabledMobile ?? true,
+          welcomePopupTestimonialQuote: data.settings?.welcomePopupTestimonialQuote,
+          welcomePopupTestimonialAuthor: data.settings?.welcomePopupTestimonialAuthor,
+          welcomePopupTestimonialAvatarUrl: data.settings?.welcomePopupTestimonialAvatarUrl,
+          welcomePopupTestimonialStars: data.settings?.welcomePopupTestimonialStars ?? 5,
+          // Welcome popup - success links
+          welcomePopupSuccessLink1Text: data.settings?.welcomePopupSuccessLink1Text,
+          welcomePopupSuccessLink1Url: data.settings?.welcomePopupSuccessLink1Url,
+          welcomePopupSuccessLink2Text: data.settings?.welcomePopupSuccessLink2Text,
+          welcomePopupSuccessLink2Url: data.settings?.welcomePopupSuccessLink2Url,
+          // Welcome popup - rotating badges
+          welcomePopupFormBadgeUrl: data.settings?.welcomePopupFormBadgeUrl,
+          welcomePopupSuccessBadgeUrl: data.settings?.welcomePopupSuccessBadgeUrl,
+
+          // Exit popup - basic
           exitPopupEnabled: data.settings?.exitPopupEnabled ?? false,
           exitPopupTitle: data.settings?.exitPopupTitle,
           exitPopupSubtitle: data.settings?.exitPopupSubtitle,
           exitPopupButtonText: data.settings?.exitPopupButtonText,
           exitPopupImageUrl: data.settings?.exitPopupImageUrl,
           exitPopupVideoUrl: data.settings?.exitPopupVideoUrl,
+          // Exit popup - desktop/mobile form media
+          exitPopupFormDesktopImageUrl: data.settings?.exitPopupFormDesktopImageUrl,
+          exitPopupFormDesktopVideoUrl: data.settings?.exitPopupFormDesktopVideoUrl,
+          exitPopupFormMobileImageUrl: data.settings?.exitPopupFormMobileImageUrl,
+          exitPopupFormMobileVideoUrl: data.settings?.exitPopupFormMobileVideoUrl,
+          // Exit popup - desktop/mobile success media
+          exitPopupSuccessDesktopImageUrl: data.settings?.exitPopupSuccessDesktopImageUrl,
+          exitPopupSuccessDesktopVideoUrl: data.settings?.exitPopupSuccessDesktopVideoUrl,
+          exitPopupSuccessMobileImageUrl: data.settings?.exitPopupSuccessMobileImageUrl,
+          exitPopupSuccessMobileVideoUrl: data.settings?.exitPopupSuccessMobileVideoUrl,
+          // Exit popup - timing
           exitPopupDismissDays: data.settings?.exitPopupDismissDays ?? 7,
+          exitPopupDelayAfterWelcome: data.settings?.exitPopupDelayAfterWelcome ?? 30,
+          // Exit popup - CTA
           exitPopupCtaType: data.settings?.exitPopupCtaType ?? 'email',
           exitPopupDownloadUrl: data.settings?.exitPopupDownloadUrl,
           exitPopupDownloadName: data.settings?.exitPopupDownloadName,
+          exitPopupDownloadText: data.settings?.exitPopupDownloadText,
           exitPopupSuccessTitle: data.settings?.exitPopupSuccessTitle,
           exitPopupSuccessMessage: data.settings?.exitPopupSuccessMessage,
-          exitPopupDelayAfterWelcome: data.settings?.exitPopupDelayAfterWelcome ?? 30,
+          // Exit popup - testimonial
+          exitPopupTestimonialEnabled: data.settings?.exitPopupTestimonialEnabled ?? false,
+          exitPopupTestimonialEnabledDesktop: data.settings?.exitPopupTestimonialEnabledDesktop ?? true,
+          exitPopupTestimonialEnabledMobile: data.settings?.exitPopupTestimonialEnabledMobile ?? true,
+          exitPopupTestimonialQuote: data.settings?.exitPopupTestimonialQuote,
+          exitPopupTestimonialAuthor: data.settings?.exitPopupTestimonialAuthor,
+          exitPopupTestimonialAvatarUrl: data.settings?.exitPopupTestimonialAvatarUrl,
+          exitPopupTestimonialStars: data.settings?.exitPopupTestimonialStars ?? 5,
+          // Exit popup - success links
+          exitPopupSuccessLink1Text: data.settings?.exitPopupSuccessLink1Text,
+          exitPopupSuccessLink1Url: data.settings?.exitPopupSuccessLink1Url,
+          exitPopupSuccessLink2Text: data.settings?.exitPopupSuccessLink2Text,
+          exitPopupSuccessLink2Url: data.settings?.exitPopupSuccessLink2Url,
+          // Exit popup - rotating badges
+          exitPopupFormBadgeUrl: data.settings?.exitPopupFormBadgeUrl,
+          exitPopupSuccessBadgeUrl: data.settings?.exitPopupSuccessBadgeUrl,
         }}
       />
     </>
