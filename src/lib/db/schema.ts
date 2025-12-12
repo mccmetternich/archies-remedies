@@ -86,6 +86,10 @@ export const siteSettings = sqliteTable('site_settings', {
   welcomePopupSuccessLink1Url: text('welcome_popup_success_link1_url'),
   welcomePopupSuccessLink2Text: text('welcome_popup_success_link2_text'),
   welcomePopupSuccessLink2Url: text('welcome_popup_success_link2_url'),
+  // Rotating badge (desktop only) - form state
+  welcomePopupFormBadgeUrl: text('welcome_popup_form_badge_url'),
+  // Rotating badge (desktop only) - success state
+  welcomePopupSuccessBadgeUrl: text('welcome_popup_success_badge_url'),
 
   // Exit Intent Popup
   exitPopupEnabled: integer('exit_popup_enabled', { mode: 'boolean' }).default(false),
@@ -117,6 +121,10 @@ export const siteSettings = sqliteTable('site_settings', {
   exitPopupSuccessLink1Url: text('exit_popup_success_link1_url'),
   exitPopupSuccessLink2Text: text('exit_popup_success_link2_text'),
   exitPopupSuccessLink2Url: text('exit_popup_success_link2_url'),
+  // Rotating badge (desktop only) - form state
+  exitPopupFormBadgeUrl: text('exit_popup_form_badge_url'),
+  // Rotating badge (desktop only) - success state
+  exitPopupSuccessBadgeUrl: text('exit_popup_success_badge_url'),
 
   // Legacy fields (for backwards compatibility)
   emailPopupEnabled: integer('email_popup_enabled', { mode: 'boolean' }).default(true),

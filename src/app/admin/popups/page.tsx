@@ -69,6 +69,9 @@ interface PopupSettings {
   welcomePopupSuccessLink1Url: string | null;
   welcomePopupSuccessLink2Text: string | null;
   welcomePopupSuccessLink2Url: string | null;
+  // Welcome Popup Rotating Badges (desktop only)
+  welcomePopupFormBadgeUrl: string | null;
+  welcomePopupSuccessBadgeUrl: string | null;
   // Exit Popup
   exitPopupEnabled: boolean | null;
   exitPopupTitle: string | null;
@@ -99,6 +102,9 @@ interface PopupSettings {
   exitPopupSuccessLink1Url: string | null;
   exitPopupSuccessLink2Text: string | null;
   exitPopupSuccessLink2Url: string | null;
+  // Exit Popup Rotating Badges (desktop only)
+  exitPopupFormBadgeUrl: string | null;
+  exitPopupSuccessBadgeUrl: string | null;
 }
 
 interface CustomPopup {
@@ -223,6 +229,9 @@ export default function PopupsPage() {
         welcomePopupSuccessLink1Url: data.welcomePopupSuccessLink1Url ?? null,
         welcomePopupSuccessLink2Text: data.welcomePopupSuccessLink2Text ?? null,
         welcomePopupSuccessLink2Url: data.welcomePopupSuccessLink2Url ?? null,
+        // Welcome Popup Rotating Badges
+        welcomePopupFormBadgeUrl: data.welcomePopupFormBadgeUrl ?? null,
+        welcomePopupSuccessBadgeUrl: data.welcomePopupSuccessBadgeUrl ?? null,
         // Exit Popup
         exitPopupEnabled: data.exitPopupEnabled ?? false,
         exitPopupTitle: data.exitPopupTitle ?? 'Wait! Before You Go...',
@@ -253,6 +262,9 @@ export default function PopupsPage() {
         exitPopupSuccessLink1Url: data.exitPopupSuccessLink1Url ?? null,
         exitPopupSuccessLink2Text: data.exitPopupSuccessLink2Text ?? null,
         exitPopupSuccessLink2Url: data.exitPopupSuccessLink2Url ?? null,
+        // Exit Popup Rotating Badges
+        exitPopupFormBadgeUrl: data.exitPopupFormBadgeUrl ?? null,
+        exitPopupSuccessBadgeUrl: data.exitPopupSuccessBadgeUrl ?? null,
       };
 
       setSettings(popupSettings);
@@ -1134,6 +1146,53 @@ export default function PopupsPage() {
                         />
                       </div>
                     </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Rotating Badge Section */}
+              <div className="bg-[var(--admin-card)] rounded-2xl p-5 border border-[var(--admin-border-light)]">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-9 h-9 bg-gradient-to-br from-[var(--primary)]/20 to-[var(--primary)]/5 rounded-xl flex items-center justify-center">
+                    <Star className="w-4 h-4 text-[var(--primary)]" />
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-[var(--admin-text-primary)]">Rotating Badge</h3>
+                    <p className="text-xs text-[var(--admin-text-muted)]">Animated badge shown on desktop only</p>
+                  </div>
+                </div>
+
+                <div className="space-y-4 pt-2">
+                  {/* Form State Badge */}
+                  <div className="p-4 bg-[var(--admin-bg)] rounded-xl space-y-3">
+                    <p className="text-sm font-medium text-[var(--admin-text-secondary)]">Form State Badge</p>
+                    <p className="text-xs text-[var(--admin-text-muted)]">Shown while the signup form is displayed</p>
+                    <MediaPickerButton
+                      label="Badge Image"
+                      value={isWelcome ? settings.welcomePopupFormBadgeUrl : settings.exitPopupFormBadgeUrl}
+                      onChange={(url) => updateField(
+                        isWelcome ? 'welcomePopupFormBadgeUrl' : 'exitPopupFormBadgeUrl',
+                        url
+                      )}
+                      helpText="PNG with transparent background recommended (80x80px)"
+                      folder="badges"
+                    />
+                  </div>
+
+                  {/* Success State Badge */}
+                  <div className="p-4 bg-[var(--admin-bg)] rounded-xl space-y-3">
+                    <p className="text-sm font-medium text-[var(--admin-text-secondary)]">Success State Badge</p>
+                    <p className="text-xs text-[var(--admin-text-muted)]">Shown after form submission</p>
+                    <MediaPickerButton
+                      label="Badge Image"
+                      value={isWelcome ? settings.welcomePopupSuccessBadgeUrl : settings.exitPopupSuccessBadgeUrl}
+                      onChange={(url) => updateField(
+                        isWelcome ? 'welcomePopupSuccessBadgeUrl' : 'exitPopupSuccessBadgeUrl',
+                        url
+                      )}
+                      helpText="PNG with transparent background recommended (80x80px)"
+                      folder="badges"
+                    />
                   </div>
                 </div>
               </div>

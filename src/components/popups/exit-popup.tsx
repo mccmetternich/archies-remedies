@@ -41,6 +41,9 @@ interface ExitPopupProps {
   successLink1Url?: string | null;
   successLink2Text?: string | null;
   successLink2Url?: string | null;
+  // Rotating badges (desktop only)
+  formBadgeUrl?: string | null;
+  successBadgeUrl?: string | null;
 }
 
 export function ExitPopup({
@@ -76,6 +79,9 @@ export function ExitPopup({
   successLink1Url,
   successLink2Text,
   successLink2Url,
+  // Rotating badges (desktop only)
+  formBadgeUrl,
+  successBadgeUrl,
 }: ExitPopupProps) {
   const {
     canShowExitPopup,
@@ -478,7 +484,7 @@ export function ExitPopup({
                                     )}
                                     <div className="flex items-center gap-0.5">
                                       {[...Array(testimonialStars)].map((_, i) => (
-                                        <Star key={i} className="w-3 h-3 fill-amber-400 text-amber-400" />
+                                        <Star key={i} className="w-3 h-3 fill-[#bbdae9] text-[#bbdae9]" />
                                       ))}
                                     </div>
                                   </div>
@@ -520,7 +526,7 @@ export function ExitPopup({
                                     )}
                                     <div className="flex items-center gap-0.5">
                                       {[...Array(testimonialStars)].map((_, i) => (
-                                        <Star key={i} className="w-2.5 h-2.5 fill-amber-400 text-amber-400" />
+                                        <Star key={i} className="w-2.5 h-2.5 fill-[#bbdae9] text-[#bbdae9]" />
                                       ))}
                                     </div>
                                   </div>
@@ -538,7 +544,36 @@ export function ExitPopup({
               </div>
 
               {/* Content Section - Right side on desktop, bottom on mobile */}
-              <div className="p-6 md:p-8 md:w-1/2 md:flex md:flex-col md:justify-center">
+              <div className="relative p-6 md:p-8 md:w-1/2 md:flex md:flex-col md:justify-center">
+                {/* Rotating Badge - Desktop only */}
+                {status === 'success' || status === 'downloading' || status === 'downloaded' ? (
+                  // Success state badge
+                  successBadgeUrl && (
+                    <div className="hidden md:block absolute -top-4 -right-4 w-[70px] h-[70px] z-10 animate-spin-slow">
+                      <Image
+                        src={successBadgeUrl}
+                        alt="Badge"
+                        width={70}
+                        height={70}
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
+                  )
+                ) : (
+                  // Form state badge
+                  formBadgeUrl && (
+                    <div className="hidden md:block absolute -top-4 -right-4 w-[70px] h-[70px] z-10 animate-spin-slow">
+                      <Image
+                        src={formBadgeUrl}
+                        alt="Badge"
+                        width={70}
+                        height={70}
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
+                  )
+                )}
+
                 {status === 'success' || status === 'downloading' || status === 'downloaded' ? (
                   <div className="py-4 text-center">
                     <div className="flex items-center justify-center gap-3 mb-4">
@@ -582,23 +617,21 @@ export function ExitPopup({
 
                     {/* Success Links */}
                     {(successLink1Text || successLink2Text) && (
-                      <div className="mt-6 space-y-2">
+                      <div className="mt-6 space-y-2 max-w-xs mx-auto">
                         {successLink1Text && successLink1Url && (
                           <a
                             href={successLink1Url}
-                            className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-[#1a1a1a] text-white rounded-full font-medium text-sm hover:bg-[#bbdae9] hover:text-[#1a1a1a] transition-colors"
+                            className="block text-center px-5 py-2.5 bg-[#1a1a1a] text-white rounded-full font-medium text-sm hover:bg-[#bbdae9] hover:text-[#1a1a1a] transition-colors"
                           >
                             {successLink1Text}
-                            <ExternalLink className="w-3.5 h-3.5" />
                           </a>
                         )}
                         {successLink2Text && successLink2Url && (
                           <a
                             href={successLink2Url}
-                            className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-transparent border border-gray-200 text-gray-700 rounded-full font-medium text-sm hover:bg-gray-50 transition-colors"
+                            className="block text-center px-5 py-2.5 border border-gray-300 text-gray-700 rounded-full font-medium text-sm hover:border-[#1a1a1a] hover:text-[#1a1a1a] transition-colors"
                           >
                             {successLink2Text}
-                            <ExternalLink className="w-3.5 h-3.5" />
                           </a>
                         )}
                       </div>

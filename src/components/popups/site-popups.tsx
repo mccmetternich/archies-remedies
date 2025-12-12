@@ -37,6 +37,9 @@ interface SitePopupsProps {
     welcomePopupSuccessLink1Url?: string | null;
     welcomePopupSuccessLink2Text?: string | null;
     welcomePopupSuccessLink2Url?: string | null;
+    // Welcome popup rotating badges
+    welcomePopupFormBadgeUrl?: string | null;
+    welcomePopupSuccessBadgeUrl?: string | null;
     // Exit popup
     exitPopupEnabled?: boolean;
     exitPopupTitle?: string | null;
@@ -64,6 +67,9 @@ interface SitePopupsProps {
     exitPopupSuccessLink1Url?: string | null;
     exitPopupSuccessLink2Text?: string | null;
     exitPopupSuccessLink2Url?: string | null;
+    // Exit popup rotating badges
+    exitPopupFormBadgeUrl?: string | null;
+    exitPopupSuccessBadgeUrl?: string | null;
   };
 }
 
@@ -99,6 +105,9 @@ export function SitePopups({ currentPage = '/', currentProductId, settings }: Si
         successLink1Url={settings.welcomePopupSuccessLink1Url}
         successLink2Text={settings.welcomePopupSuccessLink2Text}
         successLink2Url={settings.welcomePopupSuccessLink2Url}
+        // Rotating badges
+        formBadgeUrl={settings.welcomePopupFormBadgeUrl}
+        successBadgeUrl={settings.welcomePopupSuccessBadgeUrl}
       />
       <ExitPopup
         enabled={settings.exitPopupEnabled ?? false}
@@ -128,6 +137,9 @@ export function SitePopups({ currentPage = '/', currentProductId, settings }: Si
         successLink1Url={settings.exitPopupSuccessLink1Url}
         successLink2Text={settings.exitPopupSuccessLink2Text}
         successLink2Url={settings.exitPopupSuccessLink2Url}
+        // Rotating badges
+        formBadgeUrl={settings.exitPopupFormBadgeUrl}
+        successBadgeUrl={settings.exitPopupSuccessBadgeUrl}
       />
     </PopupProvider>
   );
