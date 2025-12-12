@@ -309,6 +309,7 @@ export function MediaPickerButton({
           isOpen={showModal}
           onClose={() => setShowModal(false)}
           onSelect={(url) => {
+            console.log('[MediaPicker] Selected from library:', url);
             onChange(url);
             setShowModal(false);
           }}
@@ -479,7 +480,12 @@ function MediaLibraryModal({ isOpen, onClose, onSelect }: MediaLibraryModalProps
               Cancel
             </button>
             <button
-              onClick={() => selectedFile && onSelect(selectedFile.url)}
+              onClick={() => {
+                if (selectedFile) {
+                  console.log('[MediaLibrary] Select button clicked, file:', selectedFile.url);
+                  onSelect(selectedFile.url);
+                }
+              }}
               disabled={!selectedFile}
               className="px-4 py-2 bg-[var(--primary)] text-[var(--admin-button-text)] rounded-lg text-sm font-medium hover:bg-[var(--primary-dark)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
