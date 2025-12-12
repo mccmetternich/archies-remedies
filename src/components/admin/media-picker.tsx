@@ -11,6 +11,7 @@ import {
   Loader2,
   Link as LinkIcon,
   FolderOpen,
+  Play,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -295,39 +296,66 @@ function MediaLibraryModal({ isOpen, onClose, onSelect, folder }: MediaLibraryMo
             </div>
           ) : (
             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
-              {files.map((file) => (
-                <button
-                  key={file.id}
-                  onClick={() => setSelectedFile(file)}
-                  className={cn(
-                    'group relative aspect-square rounded-xl overflow-hidden bg-[var(--admin-input)] border-2 transition-all',
-                    selectedFile?.id === file.id
-                      ? 'border-[var(--primary)] ring-2 ring-[var(--primary)]/30'
-                      : 'border-transparent hover:border-[var(--admin-border)]'
-                  )}
-                >
-                  {file.mimeType?.startsWith('image/') ? (
-                    <Image
-                      src={file.thumbnailUrl || file.url}
-                      alt={file.filename}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  ) : (
-                    <div className="flex items-center justify-center h-full">
-                      <ImageIcon className="w-8 h-8 text-[var(--admin-text-muted)]" />
+              {files.map((file) => {
+                const isVideo = file.mimeType?.startsWith('video/') ||
+                  file.url?.match(/\.(mp4|webm|mov)$/i);
+
+                return (
+                  <button
+                    key={file.id}
+                    onClick={() => setSelectedFile(file)}
+                    className={cn(
+                      'group relative aspect-square rounded-xl overflow-hidden bg-[var(--admin-input)] border-2 transition-all',
+                      selectedFile?.id === file.id
+                        ? 'border-[var(--primary)] ring-2 ring-[var(--primary)]/30'
+                        : 'border-transparent hover:border-[var(--admin-border)]'
+                    )}
+                  >
+                    {isVideo ? (
+                      <>
+                        {/* Video thumbnail with autoplay on hover */}
+                        <video
+                          src={file.url}
+                          className="w-full h-full object-cover"
+                          muted
+                          playsInline
+                          loop
+                          onMouseEnter={(e) => e.currentTarget.play()}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.pause();
+                            e.currentTarget.currentTime = 0;
+                          }}
+                        />
+                        {/* Play icon overlay */}
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none group-hover:opacity-0 transition-opacity">
+                          <div className="w-10 h-10 bg-black/60 rounded-full flex items-center justify-center">
+                            <Play className="w-5 h-5 text-white fill-white ml-0.5" />
+                          </div>
+                        </div>
+                      </>
+                    ) : file.mimeType?.startsWith('image/') ? (
+                      <Image
+                        src={file.thumbnailUrl || file.url}
+                        alt={file.filename}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    ) : (
+                      <div className="flex items-center justify-center h-full">
+                        <ImageIcon className="w-8 h-8 text-[var(--admin-text-muted)]" />
+                      </div>
+                    )}
+                    {selectedFile?.id === file.id && (
+                      <div className="absolute top-2 right-2 w-6 h-6 bg-[var(--primary)] rounded-full flex items-center justify-center">
+                        <Check className="w-4 h-4 text-[var(--admin-button-text)]" />
+                      </div>
+                    )}
+                    <div className="absolute inset-x-0 bottom-0 p-2 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                      <p className="text-xs text-white truncate">{file.filename}</p>
                     </div>
-                  )}
-                  {selectedFile?.id === file.id && (
-                    <div className="absolute top-2 right-2 w-6 h-6 bg-[var(--primary)] rounded-full flex items-center justify-center">
-                      <Check className="w-4 h-4 text-[var(--admin-button-text)]" />
-                    </div>
-                  )}
-                  <div className="absolute inset-x-0 bottom-0 p-2 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                    <p className="text-xs text-white truncate">{file.filename}</p>
-                  </div>
-                </button>
-              ))}
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>

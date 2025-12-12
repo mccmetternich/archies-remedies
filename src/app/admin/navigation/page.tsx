@@ -785,19 +785,37 @@ export default function NavigationPage() {
                   <div className="p-5 rounded-2xl bg-white border border-[var(--admin-border)] hover:shadow-md transition-all duration-300 group">
                     <div className="relative mb-4">
                       <div className="aspect-square w-full rounded-xl overflow-hidden bg-[#f5f5f0]">
-                        {(globalNavSettings.tile1ImageUrl || getProductById(globalNavSettings.tile1ProductId)?.heroImageUrl) ? (
-                          <Image
-                            src={globalNavSettings.tile1ImageUrl || getProductById(globalNavSettings.tile1ProductId)?.heroImageUrl || ''}
-                            alt=""
-                            width={300}
-                            height={300}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <ImageIcon className="w-12 h-12 text-[var(--admin-text-muted)]" />
-                          </div>
-                        )}
+                        {(() => {
+                          const mediaUrl = globalNavSettings.tile1ImageUrl || getProductById(globalNavSettings.tile1ProductId)?.heroImageUrl;
+                          const isVideo = mediaUrl?.match(/\.(mp4|webm|mov)$/i);
+
+                          if (!mediaUrl) {
+                            return (
+                              <div className="w-full h-full flex items-center justify-center">
+                                <ImageIcon className="w-12 h-12 text-[var(--admin-text-muted)]" />
+                              </div>
+                            );
+                          }
+
+                          return isVideo ? (
+                            <video
+                              src={mediaUrl}
+                              autoPlay
+                              loop
+                              muted
+                              playsInline
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <Image
+                              src={mediaUrl}
+                              alt=""
+                              width={300}
+                              height={300}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            />
+                          );
+                        })()}
                       </div>
                       {(globalNavSettings.tile1Badge || globalNavSettings.tile1BadgeEmoji) && (
                         <span className="absolute top-3 right-3 text-xs px-2.5 py-1 bg-[#1a1a1a] text-white rounded-full font-medium flex items-center gap-1">
@@ -946,19 +964,37 @@ export default function NavigationPage() {
                   <div className="p-5 rounded-2xl bg-white border border-[var(--admin-border)] hover:shadow-md transition-all duration-300 group">
                     <div className="relative mb-4">
                       <div className="aspect-square w-full rounded-xl overflow-hidden bg-[#f5f5f0]">
-                        {(globalNavSettings.tile2ImageUrl || getProductById(globalNavSettings.tile2ProductId)?.heroImageUrl) ? (
-                          <Image
-                            src={globalNavSettings.tile2ImageUrl || getProductById(globalNavSettings.tile2ProductId)?.heroImageUrl || ''}
-                            alt=""
-                            width={300}
-                            height={300}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <ImageIcon className="w-12 h-12 text-[var(--admin-text-muted)]" />
-                          </div>
-                        )}
+                        {(() => {
+                          const mediaUrl = globalNavSettings.tile2ImageUrl || getProductById(globalNavSettings.tile2ProductId)?.heroImageUrl;
+                          const isVideo = mediaUrl?.match(/\.(mp4|webm|mov)$/i);
+
+                          if (!mediaUrl) {
+                            return (
+                              <div className="w-full h-full flex items-center justify-center">
+                                <ImageIcon className="w-12 h-12 text-[var(--admin-text-muted)]" />
+                              </div>
+                            );
+                          }
+
+                          return isVideo ? (
+                            <video
+                              src={mediaUrl}
+                              autoPlay
+                              loop
+                              muted
+                              playsInline
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <Image
+                              src={mediaUrl}
+                              alt=""
+                              width={300}
+                              height={300}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            />
+                          );
+                        })()}
                       </div>
                       {(globalNavSettings.tile2Badge || globalNavSettings.tile2BadgeEmoji) && (
                         <span className="absolute top-3 right-3 text-xs px-2.5 py-1 bg-[#7CB4B8] text-[#1a1a1a] rounded-full font-medium flex items-center gap-1">
