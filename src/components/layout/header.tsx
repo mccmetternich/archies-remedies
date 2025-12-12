@@ -258,17 +258,36 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                               >
                                 <div className="relative mb-4">
                                   <div className="aspect-square w-full rounded-xl overflow-hidden bg-[var(--cream)] relative">
-                                    {/* Primary Image - visible by default, hidden on hover if there's a hover media */}
-                                    <Image
-                                      src={globalNav?.tile1ImageUrl || tile1Product.heroImageUrl || PRODUCT_IMAGES['eye-drops']}
-                                      alt={globalNav?.tile1Title || tile1Product.name}
-                                      width={400}
-                                      height={400}
-                                      className={cn(
-                                        "w-full h-full object-cover transition-opacity duration-300",
-                                        globalNav?.tile1HoverImageUrl ? "group-hover/tile:opacity-0" : "group-hover/tile:scale-105"
-                                      )}
-                                    />
+                                    {/* Primary Media - video or image, visible by default */}
+                                    {(() => {
+                                      const primaryUrl = globalNav?.tile1ImageUrl || tile1Product.heroImageUrl || PRODUCT_IMAGES['eye-drops'];
+                                      const isVideo = primaryUrl?.match(/\.(mp4|webm|mov)$/i);
+
+                                      return isVideo ? (
+                                        <video
+                                          src={primaryUrl}
+                                          autoPlay
+                                          loop
+                                          muted
+                                          playsInline
+                                          className={cn(
+                                            "w-full h-full object-cover transition-opacity duration-300",
+                                            globalNav?.tile1HoverImageUrl ? "group-hover/tile:opacity-0" : ""
+                                          )}
+                                        />
+                                      ) : (
+                                        <Image
+                                          src={primaryUrl}
+                                          alt={globalNav?.tile1Title || tile1Product.name}
+                                          width={400}
+                                          height={400}
+                                          className={cn(
+                                            "w-full h-full object-cover transition-opacity duration-300",
+                                            globalNav?.tile1HoverImageUrl ? "group-hover/tile:opacity-0" : "group-hover/tile:scale-105"
+                                          )}
+                                        />
+                                      );
+                                    })()}
                                     {/* Hover Media - video or image, shown on hover */}
                                     {globalNav?.tile1HoverImageUrl && (
                                       globalNav.tile1HoverImageUrl.match(/\.(mp4|webm|mov)$/i) ? (
@@ -323,17 +342,36 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                               >
                                 <div className="relative mb-4">
                                   <div className="aspect-square w-full rounded-xl overflow-hidden bg-[var(--cream)] relative">
-                                    {/* Primary Image - visible by default, hidden on hover if there's a hover media */}
-                                    <Image
-                                      src={globalNav?.tile2ImageUrl || tile2Product.heroImageUrl || PRODUCT_IMAGES['eye-wipes']}
-                                      alt={globalNav?.tile2Title || tile2Product.name}
-                                      width={400}
-                                      height={400}
-                                      className={cn(
-                                        "w-full h-full object-cover transition-opacity duration-300",
-                                        globalNav?.tile2HoverImageUrl ? "group-hover/tile:opacity-0" : "group-hover/tile:scale-105"
-                                      )}
-                                    />
+                                    {/* Primary Media - video or image, visible by default */}
+                                    {(() => {
+                                      const primaryUrl = globalNav?.tile2ImageUrl || tile2Product.heroImageUrl || PRODUCT_IMAGES['eye-wipes'];
+                                      const isVideo = primaryUrl?.match(/\.(mp4|webm|mov)$/i);
+
+                                      return isVideo ? (
+                                        <video
+                                          src={primaryUrl}
+                                          autoPlay
+                                          loop
+                                          muted
+                                          playsInline
+                                          className={cn(
+                                            "w-full h-full object-cover transition-opacity duration-300",
+                                            globalNav?.tile2HoverImageUrl ? "group-hover/tile:opacity-0" : ""
+                                          )}
+                                        />
+                                      ) : (
+                                        <Image
+                                          src={primaryUrl}
+                                          alt={globalNav?.tile2Title || tile2Product.name}
+                                          width={400}
+                                          height={400}
+                                          className={cn(
+                                            "w-full h-full object-cover transition-opacity duration-300",
+                                            globalNav?.tile2HoverImageUrl ? "group-hover/tile:opacity-0" : "group-hover/tile:scale-105"
+                                          )}
+                                        />
+                                      );
+                                    })()}
                                     {/* Hover Media - video or image, shown on hover */}
                                     {globalNav?.tile2HoverImageUrl && (
                                       globalNav.tile2HoverImageUrl.match(/\.(mp4|webm|mov)$/i) ? (

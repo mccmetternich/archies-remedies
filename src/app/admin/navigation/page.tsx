@@ -753,11 +753,12 @@ export default function NavigationPage() {
                   {/* Primary Image Override */}
                   <div className="pt-4 border-t border-[var(--admin-border)]">
                     <MediaPickerButton
-                      label="Primary Image Override"
+                      label="Primary Image/Video Override"
                       value={globalNavSettings.tile1ImageUrl}
                       onChange={(url) => setGlobalNavSettings({ ...globalNavSettings, tile1ImageUrl: url || null })}
-                      helpText="Leave blank to use product image"
+                      helpText="Leave blank to use product image. Supports images and MP4/WebM videos."
                       folder="products"
+                      acceptVideo={true}
                     />
                   </div>
 
@@ -913,11 +914,12 @@ export default function NavigationPage() {
                   {/* Primary Image Override */}
                   <div className="pt-4 border-t border-[var(--admin-border)]">
                     <MediaPickerButton
-                      label="Primary Image Override"
+                      label="Primary Image/Video Override"
                       value={globalNavSettings.tile2ImageUrl}
                       onChange={(url) => setGlobalNavSettings({ ...globalNavSettings, tile2ImageUrl: url || null })}
-                      helpText="Leave blank to use product image"
+                      helpText="Leave blank to use product image. Supports images and MP4/WebM videos."
                       folder="products"
+                      acceptVideo={true}
                     />
                   </div>
 
