@@ -2,6 +2,8 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
+    // Enable modern image formats for better compression
+    formats: ['image/avif', 'image/webp'],
     remotePatterns: [
       {
         protocol: 'https',
@@ -32,6 +34,10 @@ const nextConfig: NextConfig = {
         hostname: 'res.cloudinary.com',
       },
     ],
+  },
+  // Optimize package imports to reduce bundle size
+  experimental: {
+    optimizePackageImports: ['lucide-react', 'framer-motion'],
   },
 };
 

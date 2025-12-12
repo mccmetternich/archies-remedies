@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, ReactNode } from 'react';
 
 // localStorage keys
 const STORAGE_KEYS = {
@@ -332,7 +332,8 @@ export function PopupProvider({ children, currentPage = '/', currentProductId }:
     }
   }, [setPopupSubmitted]);
 
-  const value: PopupContextType = {
+  // Memoize context value to prevent unnecessary re-renders
+  const value = useMemo<PopupContextType>(() => ({
     hasSubmittedPopup,
     welcomeDismissedAt,
     exitDismissedAt,
@@ -350,7 +351,24 @@ export function PopupProvider({ children, currentPage = '/', currentProductId }:
     trackPopupDismiss,
     submitEmail,
     submitPhone,
-  };
+  }), [
+    hasSubmittedPopup,
+    welcomeDismissedAt,
+    exitDismissedAt,
+    activePopup,
+    customPopup,
+    setPopupSubmitted,
+    dismissWelcomePopup,
+    dismissExitPopup,
+    dismissCustomPopup,
+    canShowWelcomePopup,
+    canShowExitPopup,
+    canShowCustomPopup,
+    trackPopupView,
+    trackPopupDismiss,
+    submitEmail,
+    submitPhone,
+  ]);
 
   return (
     <PopupContext.Provider value={value}>

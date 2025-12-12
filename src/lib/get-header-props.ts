@@ -1,29 +1,41 @@
 import { db } from '@/lib/db';
 import { siteSettings, products, pages } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
+import { unstable_cache } from 'next/cache';
+
+// Cached header data - revalidates every 60 seconds
+const getCachedHeaderData = unstable_cache(
+  async () => {
+    const [settings] = await db.select().from(siteSettings).limit(1);
+
+    const productList = await db
+      .select()
+      .from(products)
+      .where(eq(products.isActive, true))
+      .orderBy(products.sortOrder);
+
+    const navPages = await db
+      .select({
+        id: pages.id,
+        slug: pages.slug,
+        title: pages.title,
+        showInNav: pages.showInNav,
+        navOrder: pages.navOrder,
+        navShowOnDesktop: pages.navShowOnDesktop,
+        navShowOnMobile: pages.navShowOnMobile,
+      })
+      .from(pages)
+      .where(eq(pages.isActive, true))
+      .orderBy(pages.navOrder);
+
+    return { settings, productList, navPages };
+  },
+  ['header-data'],
+  { revalidate: 60, tags: ['header-data'] }
+);
 
 export async function getHeaderProps() {
-  const [settings] = await db.select().from(siteSettings).limit(1);
-
-  const productList = await db
-    .select()
-    .from(products)
-    .where(eq(products.isActive, true))
-    .orderBy(products.sortOrder);
-
-  const navPages = await db
-    .select({
-      id: pages.id,
-      slug: pages.slug,
-      title: pages.title,
-      showInNav: pages.showInNav,
-      navOrder: pages.navOrder,
-      navShowOnDesktop: pages.navShowOnDesktop,
-      navShowOnMobile: pages.navShowOnMobile,
-    })
-    .from(pages)
-    .where(eq(pages.isActive, true))
-    .orderBy(pages.navOrder);
+  const { settings, productList, navPages } = await getCachedHeaderData();
 
   return {
     logo: settings?.logoUrl,

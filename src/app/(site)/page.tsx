@@ -12,66 +12,76 @@ import { VideoTestimonials } from '@/components/home/video-testimonials';
 import { InstagramFeed } from '@/components/home/instagram-feed';
 import { SitePopups } from '@/components/popups';
 import { ScrollingTextBar } from '@/components/ui/scrolling-text-bar';
+import { unstable_cache } from 'next/cache';
 
 export const revalidate = 60; // Revalidate every minute
 
+// Cached homepage data for better performance
+const getCachedPageData = unstable_cache(
+  async () => {
+    const [settings] = await db.select().from(siteSettings).limit(1);
+
+    const slides = await db
+      .select()
+      .from(heroSlides)
+      .where(eq(heroSlides.isActive, true))
+      .orderBy(heroSlides.sortOrder);
+
+    const productList = await db
+      .select()
+      .from(products)
+      .where(eq(products.isActive, true))
+      .orderBy(products.sortOrder);
+
+    const testimonialList = await db
+      .select()
+      .from(testimonials)
+      .where(eq(testimonials.isActive, true))
+      .orderBy(testimonials.sortOrder);
+
+    const videoList = await db
+      .select()
+      .from(videoTestimonials)
+      .where(eq(videoTestimonials.isActive, true))
+      .orderBy(videoTestimonials.sortOrder);
+
+    const instagramList = await db
+      .select()
+      .from(instagramPosts)
+      .where(eq(instagramPosts.isActive, true))
+      .orderBy(instagramPosts.sortOrder);
+
+    // Get pages for nav
+    const navPages = await db
+      .select({
+        id: pages.id,
+        slug: pages.slug,
+        title: pages.title,
+        showInNav: pages.showInNav,
+        navOrder: pages.navOrder,
+        navShowOnDesktop: pages.navShowOnDesktop,
+        navShowOnMobile: pages.navShowOnMobile,
+      })
+      .from(pages)
+      .where(eq(pages.isActive, true))
+      .orderBy(pages.navOrder);
+
+    return {
+      settings,
+      slides,
+      products: productList,
+      testimonials: testimonialList,
+      videos: videoList,
+      instagramPosts: instagramList,
+      navPages,
+    };
+  },
+  ['homepage-data'],
+  { revalidate: 60, tags: ['homepage-data'] }
+);
+
 async function getPageData() {
-  const [settings] = await db.select().from(siteSettings).limit(1);
-
-  const slides = await db
-    .select()
-    .from(heroSlides)
-    .where(eq(heroSlides.isActive, true))
-    .orderBy(heroSlides.sortOrder);
-
-  const productList = await db
-    .select()
-    .from(products)
-    .where(eq(products.isActive, true))
-    .orderBy(products.sortOrder);
-
-  const testimonialList = await db
-    .select()
-    .from(testimonials)
-    .where(eq(testimonials.isActive, true))
-    .orderBy(testimonials.sortOrder);
-
-  const videoList = await db
-    .select()
-    .from(videoTestimonials)
-    .where(eq(videoTestimonials.isActive, true))
-    .orderBy(videoTestimonials.sortOrder);
-
-  const instagramList = await db
-    .select()
-    .from(instagramPosts)
-    .where(eq(instagramPosts.isActive, true))
-    .orderBy(instagramPosts.sortOrder);
-
-  // Get pages for nav
-  const navPages = await db
-    .select({
-      id: pages.id,
-      slug: pages.slug,
-      title: pages.title,
-      showInNav: pages.showInNav,
-      navOrder: pages.navOrder,
-      navShowOnDesktop: pages.navShowOnDesktop,
-      navShowOnMobile: pages.navShowOnMobile,
-    })
-    .from(pages)
-    .where(eq(pages.isActive, true))
-    .orderBy(pages.navOrder);
-
-  return {
-    settings,
-    slides,
-    products: productList,
-    testimonials: testimonialList,
-    videos: videoList,
-    instagramPosts: instagramList,
-    navPages,
-  };
+  return getCachedPageData();
 }
 
 export default async function HomePage() {

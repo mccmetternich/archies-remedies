@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import React, { memo } from 'react';
 
 interface PopupRotatingBadgeProps {
   badgeUrl: string | null | undefined;
@@ -11,8 +12,9 @@ interface PopupRotatingBadgeProps {
  * Shared rotating badge component for popups.
  * Desktop only (hidden on mobile via CSS).
  * Used in welcome popup, exit popup, and admin preview.
+ * Wrapped with React.memo to prevent unnecessary re-renders.
  */
-export function PopupRotatingBadge({ badgeUrl, className = '' }: PopupRotatingBadgeProps) {
+export const PopupRotatingBadge = memo(function PopupRotatingBadge({ badgeUrl, className = '' }: PopupRotatingBadgeProps) {
   if (!badgeUrl) return null;
 
   return (
@@ -26,4 +28,4 @@ export function PopupRotatingBadge({ badgeUrl, className = '' }: PopupRotatingBa
       />
     </div>
   );
-}
+});

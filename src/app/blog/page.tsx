@@ -1,11 +1,13 @@
 import { db } from '@/lib/db';
 import { blogPosts, blogTags, blogPostTags } from '@/lib/db/schema';
-import { desc, eq } from 'drizzle-orm';
+import { desc, eq, inArray } from 'drizzle-orm';
 import Link from 'next/link';
 import { Clock, Calendar, ArrowRight, Tag } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { unstable_cache } from 'next/cache';
 
-export const dynamic = 'force-dynamic';
+// ISR: Revalidate every 60 seconds instead of force-dynamic
+export const revalidate = 60;
 
 interface BlogPost {
   id: string;
@@ -21,36 +23,62 @@ interface BlogPost {
   tags?: { id: string; name: string; slug: string; color: string | null }[];
 }
 
+// Cached blog data with single efficient query (fixes N+1 problem)
+const getCachedBlogData = unstable_cache(
+  async () => {
+    // Get published posts
+    const posts = await db
+      .select()
+      .from(blogPosts)
+      .where(eq(blogPosts.status, 'published'))
+      .orderBy(desc(blogPosts.publishedAt));
+
+    // Get all tags for all posts in a single query (fixes N+1)
+    const postIds = posts.map((p) => p.id);
+    const allPostTags = postIds.length > 0
+      ? await db
+          .select({
+            postId: blogPostTags.postId,
+            tagId: blogTags.id,
+            tagName: blogTags.name,
+            tagSlug: blogTags.slug,
+            tagColor: blogTags.color,
+          })
+          .from(blogPostTags)
+          .innerJoin(blogTags, eq(blogPostTags.tagId, blogTags.id))
+          .where(inArray(blogPostTags.postId, postIds))
+      : [];
+
+    // Group tags by post ID
+    const tagsByPostId = new Map<string, { id: string; name: string; slug: string; color: string | null }[]>();
+    for (const row of allPostTags) {
+      const existing = tagsByPostId.get(row.postId) || [];
+      existing.push({
+        id: row.tagId,
+        name: row.tagName,
+        slug: row.tagSlug,
+        color: row.tagColor,
+      });
+      tagsByPostId.set(row.postId, existing);
+    }
+
+    // Combine posts with their tags
+    const postsWithTags = posts.map((post) => ({
+      ...post,
+      tags: tagsByPostId.get(post.id) || [],
+    }));
+
+    // Get all tags
+    const allTags = await db.select().from(blogTags);
+
+    return { posts: postsWithTags as BlogPost[], tags: allTags };
+  },
+  ['blog-data'],
+  { revalidate: 60, tags: ['blog-data'] }
+);
+
 async function getBlogData() {
-  // Get published posts
-  const posts = await db
-    .select()
-    .from(blogPosts)
-    .where(eq(blogPosts.status, 'published'))
-    .orderBy(desc(blogPosts.publishedAt));
-
-  // Get tags for each post
-  const postsWithTags = await Promise.all(
-    posts.map(async (post) => {
-      const postTags = await db
-        .select({
-          id: blogTags.id,
-          name: blogTags.name,
-          slug: blogTags.slug,
-          color: blogTags.color,
-        })
-        .from(blogPostTags)
-        .innerJoin(blogTags, eq(blogPostTags.tagId, blogTags.id))
-        .where(eq(blogPostTags.postId, post.id));
-
-      return { ...post, tags: postTags };
-    })
-  );
-
-  // Get all tags with post counts
-  const allTags = await db.select().from(blogTags);
-
-  return { posts: postsWithTags as BlogPost[], tags: allTags };
+  return getCachedBlogData();
 }
 
 export default async function BlogPage() {

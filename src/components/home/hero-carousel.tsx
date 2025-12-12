@@ -79,8 +79,9 @@ export function HeroCarousel({ slides, isPaused = false }: HeroCarouselProps) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
           className="absolute inset-0"
+          style={{ willChange: 'opacity' }}
         >
           {slide.imageUrl ? (
             <>
@@ -118,10 +119,11 @@ export function HeroCarousel({ slides, isPaused = false }: HeroCarouselProps) {
             <AnimatePresence mode="wait">
               <motion.div
                 key={`content-${currentIndex}`}
-                initial={{ opacity: 0, y: 40 }}
+                initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                exit={{ opacity: 0, y: -15 }}
+                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                style={{ willChange: 'opacity, transform' }}
               >
                 {/* Stars and Verified Reviews - Above title */}
                 <motion.div
@@ -194,10 +196,11 @@ export function HeroCarousel({ slides, isPaused = false }: HeroCarouselProps) {
             {slide.testimonialText && (
               <motion.div
                 key={`testimonial-${currentIndex}`}
-                initial={{ opacity: 0, x: 40 }}
+                initial={{ opacity: 0, x: 30 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -30 }}
-                transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                style={{ willChange: 'opacity, transform' }}
                 className="hidden lg:block self-end"
               >
                 <div className="relative max-w-md">

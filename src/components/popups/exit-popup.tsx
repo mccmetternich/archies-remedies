@@ -450,10 +450,11 @@ export function ExitPopup({
 
           {/* Modal - Desktop: side-by-side, Mobile: stacked (with attention-grabbing border) */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: -50 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: -50 }}
-            transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            style={{ willChange: 'opacity, transform' }}
             className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-[94%] max-w-md md:max-w-4xl max-h-[90vh] overflow-y-auto md:overflow-hidden"
           >
             <div className="bg-white rounded-3xl overflow-hidden shadow-2xl border-2 border-[#bbdae9] md:flex md:min-h-[480px]">
@@ -478,6 +479,7 @@ export function ExitPopup({
                         muted
                         loop
                         playsInline
+                        preload="metadata"
                         className="w-full h-full object-cover object-center"
                       />
                     ) : effectiveDesktopImageUrl ? (
@@ -508,6 +510,7 @@ export function ExitPopup({
                         muted
                         loop
                         playsInline
+                        preload="metadata"
                         className="w-full h-full object-cover object-center"
                       />
                     ) : effectiveMobileImageUrl ? (
