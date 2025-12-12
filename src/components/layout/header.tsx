@@ -465,15 +465,15 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                               <span className="text-xs px-2.5 py-1 bg-white rounded-full">{globalNav?.marketingTileBadge3 || 'Sulfate-Free'}</span>
                             </div>
 
-                            {/* CTA Button for Marketing Tile */}
+                            {/* CTA Button for Marketing Tile - matches global nav Shop Now button */}
                             {globalNav?.marketingTileCtaEnabled &&
                              globalNav?.marketingTileCtaText && (
                               <Link
                                 href={globalNav.marketingTileCtaUrl || '/about'}
-                                className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--foreground)] text-white rounded-full text-sm font-medium hover:bg-black transition-colors mb-4"
+                                className="cta-button-primary w-full justify-center mb-4 group"
                               >
                                 {globalNav.marketingTileCtaText}
-                                <ArrowRight className="w-3 h-3" />
+                                <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
                               </Link>
                             )}
 
