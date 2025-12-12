@@ -15,6 +15,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { MediaPickerButton } from '@/components/admin/media-picker';
+import { InternalLinkSelector } from '@/components/admin/internal-link-selector';
 
 interface HeroSlide {
   id: string;
@@ -308,12 +309,12 @@ export default function HeroSlidesPage() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-1">Button URL</label>
-                    <Input
+                    <InternalLinkSelector
                       value={editForm.buttonUrl || ''}
-                      onChange={(e) =>
-                        setEditForm({ ...editForm, buttonUrl: e.target.value })
+                      onChange={(value) =>
+                        setEditForm({ ...editForm, buttonUrl: value })
                       }
-                      placeholder="/products/eye-drops"
+                      placeholder="Select page or enter URL"
                     />
                   </div>
                 </div>
@@ -352,24 +353,36 @@ export default function HeroSlidesPage() {
                   <label className="block text-sm font-medium mb-1">
                     {editForm.secondaryButtonType === 'anchor'
                       ? 'Anchor Target (e.g., /products/eye-drops#benefits)'
+                      : editForm.secondaryButtonType === 'external'
+                      ? 'External URL'
                       : 'Button URL'}
                   </label>
-                  <Input
-                    value={editForm.secondaryButtonType === 'anchor'
-                      ? (editForm.secondaryAnchorTarget || '')
-                      : (editForm.secondaryButtonUrl || '')}
-                    onChange={(e) =>
-                      setEditForm({
-                        ...editForm,
-                        ...(editForm.secondaryButtonType === 'anchor'
-                          ? { secondaryAnchorTarget: e.target.value }
-                          : { secondaryButtonUrl: e.target.value })
-                      })
-                    }
-                    placeholder={editForm.secondaryButtonType === 'anchor'
-                      ? '/products/eye-drops#benefits'
-                      : '/about'}
-                  />
+                  {editForm.secondaryButtonType === 'page' || !editForm.secondaryButtonType ? (
+                    <InternalLinkSelector
+                      value={editForm.secondaryButtonUrl || ''}
+                      onChange={(value) =>
+                        setEditForm({ ...editForm, secondaryButtonUrl: value })
+                      }
+                      placeholder="Select page or enter URL"
+                    />
+                  ) : (
+                    <Input
+                      value={editForm.secondaryButtonType === 'anchor'
+                        ? (editForm.secondaryAnchorTarget || '')
+                        : (editForm.secondaryButtonUrl || '')}
+                      onChange={(e) =>
+                        setEditForm({
+                          ...editForm,
+                          ...(editForm.secondaryButtonType === 'anchor'
+                            ? { secondaryAnchorTarget: e.target.value }
+                            : { secondaryButtonUrl: e.target.value })
+                        })
+                      }
+                      placeholder={editForm.secondaryButtonType === 'anchor'
+                        ? '/products/eye-drops#benefits'
+                        : 'https://...'}
+                    />
+                  )}
                 </div>
               </div>
 

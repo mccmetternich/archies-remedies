@@ -354,35 +354,40 @@ export function WelcomePopup({
                         {/* Desktop testimonial - only show if desktop enabled */}
                         {testimonialEnabledDesktop && (
                           <div className="hidden md:block absolute bottom-4 left-4 right-4">
-                            <div className="bg-white/95 backdrop-blur-sm rounded-xl p-3.5 shadow-lg">
-                              <div className="flex items-start gap-3">
+                            <div className="relative bg-white/98 backdrop-blur-md rounded-2xl px-4 py-3 shadow-lg ring-1 ring-black/[0.03]">
+                              {/* Subtle accent line */}
+                              <div className="absolute left-0 top-3 bottom-3 w-[3px] bg-gradient-to-b from-[#bbdae9] to-[#bbdae9]/40 rounded-full" />
+                              <div className="flex items-center gap-3.5 pl-2">
                                 {testimonialAvatarUrl ? (
                                   <Image
                                     src={testimonialAvatarUrl}
                                     alt={testimonialAuthor || 'Reviewer'}
-                                    width={40}
-                                    height={40}
-                                    className="rounded-full object-cover flex-shrink-0"
+                                    width={48}
+                                    height={48}
+                                    className="rounded-full object-cover flex-shrink-0 ring-2 ring-white shadow-sm"
                                   />
                                 ) : (
-                                  <div className="w-10 h-10 rounded-full bg-[#bbdae9]/30 flex items-center justify-center flex-shrink-0">
-                                    <span className="text-sm font-medium text-[#1a1a1a]">
+                                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#bbdae9]/40 to-[#bbdae9]/20 flex items-center justify-center flex-shrink-0 ring-2 ring-white shadow-sm">
+                                    <span className="text-base font-semibold text-[#1a1a1a]">
                                       {(testimonialAuthor || 'A')[0]}
                                     </span>
                                   </div>
                                 )}
                                 <div className="flex-1 min-w-0">
-                                  <div className="flex items-center gap-1 mb-1">
-                                    {[...Array(testimonialStars)].map((_, i) => (
-                                      <Star key={i} className="w-3.5 h-3.5 fill-[#bbdae9] text-[#bbdae9]" />
-                                    ))}
+                                  {/* Author name + stars on same row */}
+                                  <div className="flex items-center gap-2 mb-1">
+                                    {testimonialAuthor && (
+                                      <span className="text-sm font-semibold text-[#1a1a1a]">{testimonialAuthor}</span>
+                                    )}
+                                    <div className="flex items-center gap-0.5">
+                                      {[...Array(testimonialStars)].map((_, i) => (
+                                        <Star key={i} className="w-3 h-3 fill-amber-400 text-amber-400" />
+                                      ))}
+                                    </div>
                                   </div>
-                                  <p className="text-sm text-gray-700 leading-snug">
-                                    &ldquo;{testimonialQuote}&rdquo;
+                                  <p className="text-[13px] text-gray-600 leading-snug italic">
+                                    {testimonialQuote}
                                   </p>
-                                  {testimonialAuthor && (
-                                    <p className="text-xs text-gray-500 mt-1">{testimonialAuthor}</p>
-                                  )}
                                 </div>
                               </div>
                             </div>
@@ -391,35 +396,40 @@ export function WelcomePopup({
                         {/* Mobile testimonial - only show if mobile enabled */}
                         {testimonialEnabledMobile && (
                           <div className="md:hidden absolute bottom-3 left-3 right-3">
-                            <div className="bg-white/95 backdrop-blur-sm rounded-xl p-3 shadow-lg">
-                              <div className="flex items-start gap-2.5">
+                            <div className="relative bg-white/98 backdrop-blur-md rounded-xl px-3 py-2.5 shadow-lg ring-1 ring-black/[0.03]">
+                              {/* Subtle accent line */}
+                              <div className="absolute left-0 top-2.5 bottom-2.5 w-[2px] bg-gradient-to-b from-[#bbdae9] to-[#bbdae9]/40 rounded-full" />
+                              <div className="flex items-center gap-2.5 pl-1.5">
                                 {testimonialAvatarUrl ? (
                                   <Image
                                     src={testimonialAvatarUrl}
                                     alt={testimonialAuthor || 'Reviewer'}
-                                    width={36}
-                                    height={36}
-                                    className="rounded-full object-cover flex-shrink-0"
+                                    width={40}
+                                    height={40}
+                                    className="rounded-full object-cover flex-shrink-0 ring-2 ring-white shadow-sm"
                                   />
                                 ) : (
-                                  <div className="w-9 h-9 rounded-full bg-[#bbdae9]/30 flex items-center justify-center flex-shrink-0">
-                                    <span className="text-sm font-medium text-[#1a1a1a]">
+                                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#bbdae9]/40 to-[#bbdae9]/20 flex items-center justify-center flex-shrink-0 ring-2 ring-white shadow-sm">
+                                    <span className="text-sm font-semibold text-[#1a1a1a]">
                                       {(testimonialAuthor || 'A')[0]}
                                     </span>
                                   </div>
                                 )}
                                 <div className="flex-1 min-w-0">
-                                  <div className="flex items-center gap-1 mb-0.5">
-                                    {[...Array(testimonialStars)].map((_, i) => (
-                                      <Star key={i} className="w-3 h-3 fill-[#bbdae9] text-[#bbdae9]" />
-                                    ))}
+                                  {/* Author name + stars on same row */}
+                                  <div className="flex items-center gap-1.5 mb-0.5">
+                                    {testimonialAuthor && (
+                                      <span className="text-xs font-semibold text-[#1a1a1a]">{testimonialAuthor}</span>
+                                    )}
+                                    <div className="flex items-center gap-0.5">
+                                      {[...Array(testimonialStars)].map((_, i) => (
+                                        <Star key={i} className="w-2.5 h-2.5 fill-amber-400 text-amber-400" />
+                                      ))}
+                                    </div>
                                   </div>
-                                  <p className="text-xs text-gray-700 leading-snug line-clamp-2">
-                                    &ldquo;{testimonialQuote}&rdquo;
+                                  <p className="text-[11px] text-gray-600 leading-snug line-clamp-2 italic">
+                                    {testimonialQuote}
                                   </p>
-                                  {testimonialAuthor && (
-                                    <p className="text-[10px] text-gray-500 mt-0.5">{testimonialAuthor}</p>
-                                  )}
                                 </div>
                               </div>
                             </div>

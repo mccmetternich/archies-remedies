@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { MediaPickerButton } from '@/components/admin/media-picker';
+import { InternalLinkSelector } from '@/components/admin/internal-link-selector';
 
 interface FooterLink {
   id: string;
@@ -783,12 +784,10 @@ export default function FooterAdminPage() {
                   <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
                     Privacy Policy URL
                   </label>
-                  <input
-                    type="text"
+                  <InternalLinkSelector
                     value={legalLinks.privacyUrl}
-                    onChange={(e) => setLegalLinks({ ...legalLinks, privacyUrl: e.target.value })}
-                    placeholder="/privacy"
-                    className="w-full px-4 py-3 bg-[var(--admin-card)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+                    onChange={(value) => setLegalLinks({ ...legalLinks, privacyUrl: value })}
+                    placeholder="Select page or enter URL"
                   />
                 </div>
               </div>
@@ -811,12 +810,10 @@ export default function FooterAdminPage() {
                   <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
                     Terms of Service URL
                   </label>
-                  <input
-                    type="text"
+                  <InternalLinkSelector
                     value={legalLinks.termsUrl}
-                    onChange={(e) => setLegalLinks({ ...legalLinks, termsUrl: e.target.value })}
-                    placeholder="/terms"
-                    className="w-full px-4 py-3 bg-[var(--admin-card)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+                    onChange={(value) => setLegalLinks({ ...legalLinks, termsUrl: value })}
+                    placeholder="Select page or enter URL"
                   />
                 </div>
               </div>
@@ -884,17 +881,6 @@ export default function FooterAdminPage() {
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">URL</label>
-                <input
-                  type="text"
-                  value={editingLink.url}
-                  onChange={(e) => setEditingLink({ ...editingLink, url: e.target.value })}
-                  placeholder="/products/eye-drops"
-                  className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
-                />
-              </div>
-
               <div className="flex items-center gap-3">
                 <label className="relative inline-flex items-center cursor-pointer">
                   <input
@@ -910,29 +896,24 @@ export default function FooterAdminPage() {
                 </span>
               </div>
 
-              {/* Page Suggestions */}
-              {pages.length > 0 && !editingLink.url && (
-                <div>
-                  <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
-                    Or choose a page:
-                  </label>
-                  <div className="flex flex-wrap gap-2">
-                    {pages.slice(0, 6).map((page) => (
-                      <button
-                        key={page.id}
-                        onClick={() => setEditingLink({
-                          ...editingLink,
-                          label: editingLink.label || page.title,
-                          url: `/${page.slug}`
-                        })}
-                        className="px-3 py-1.5 text-xs bg-[var(--admin-input)] text-[var(--admin-text-secondary)] rounded-lg hover:bg-[var(--admin-hover)] transition-colors"
-                      >
-                        {page.title}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
+              <div>
+                <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">URL</label>
+                {editingLink.isExternal ? (
+                  <input
+                    type="text"
+                    value={editingLink.url}
+                    onChange={(e) => setEditingLink({ ...editingLink, url: e.target.value })}
+                    placeholder="https://..."
+                    className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+                  />
+                ) : (
+                  <InternalLinkSelector
+                    value={editingLink.url}
+                    onChange={(value) => setEditingLink({ ...editingLink, url: value })}
+                    placeholder="Select page or enter URL"
+                  />
+                )}
+              </div>
             </div>
 
             <div className="p-6 border-t border-[var(--admin-border)] flex justify-end gap-3">

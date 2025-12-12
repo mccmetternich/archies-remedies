@@ -31,6 +31,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { MediaPickerButton } from '@/components/admin/media-picker';
+import { InternalLinkSelector } from '@/components/admin/internal-link-selector';
 
 interface NavItem {
   id: string;
@@ -704,11 +705,10 @@ export default function NavigationPage() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Button URL</label>
-                  <input
+                  <InternalLinkSelector
                     value={globalNavSettings.ctaUrl}
-                    onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, ctaUrl: e.target.value })}
-                    placeholder="/products/eye-drops"
-                    className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+                    onChange={(value) => setGlobalNavSettings({ ...globalNavSettings, ctaUrl: value })}
+                    placeholder="Select page or enter URL"
                   />
                 </div>
               </div>
@@ -1387,11 +1387,10 @@ export default function NavigationPage() {
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Button URL</label>
-                        <input
+                        <InternalLinkSelector
                           value={globalNavSettings.marketingTileCtaUrl || ''}
-                          onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, marketingTileCtaUrl: e.target.value || null })}
-                          placeholder="/our-story"
-                          className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+                          onChange={(value) => setGlobalNavSettings({ ...globalNavSettings, marketingTileCtaUrl: value || null })}
+                          placeholder="Select page or enter URL"
                         />
                       </div>
                     </div>
@@ -2028,11 +2027,10 @@ export default function NavigationPage() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Link URL (optional)</label>
-                <input
+                <InternalLinkSelector
                   value={bumperSettings.bumperLinkUrl}
-                  onChange={(e) => setBumperSettings({ ...bumperSettings, bumperLinkUrl: e.target.value })}
-                  placeholder="/products/eye-drops"
-                  className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+                  onChange={(value) => setBumperSettings({ ...bumperSettings, bumperLinkUrl: value })}
+                  placeholder="Select page or enter URL"
                 />
               </div>
             </div>
@@ -2111,11 +2109,10 @@ export default function NavigationPage() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">URL</label>
-                  <input
+                  <InternalLinkSelector
                     value={(editForm as any).url || ''}
-                    onChange={(e) => setEditForm({ ...editForm, url: e.target.value })}
-                    placeholder="/products"
-                    className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+                    onChange={(value) => setEditForm({ ...editForm, url: value })}
+                    placeholder="Select page or enter URL"
                   />
                 </div>
               </div>

@@ -35,6 +35,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { MediaPickerButton } from '@/components/admin/media-picker';
+import { InternalLinkSelector } from '@/components/admin/internal-link-selector';
 
 interface PopupSettings {
   // Welcome Popup
@@ -1091,16 +1092,14 @@ export default function PopupsPage() {
                         />
                       </div>
                       <div>
-                        <label className="block text-xs text-[var(--admin-text-muted)] mb-1">URL</label>
-                        <input
-                          type="text"
+                        <InternalLinkSelector
+                          label="URL"
                           value={currentSuccessLink1Url || ''}
-                          onChange={(e) => updateField(
+                          onChange={(value) => updateField(
                             isWelcome ? 'welcomePopupSuccessLink1Url' : 'exitPopupSuccessLink1Url',
-                            e.target.value
+                            value
                           )}
-                          placeholder="/products"
-                          className="w-full px-3 py-2 bg-[var(--admin-input)] border border-[var(--admin-border-light)] rounded-lg text-sm text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+                          placeholder="Select page or enter URL"
                         />
                       </div>
                     </div>
@@ -1124,16 +1123,14 @@ export default function PopupsPage() {
                         />
                       </div>
                       <div>
-                        <label className="block text-xs text-[var(--admin-text-muted)] mb-1">URL</label>
-                        <input
-                          type="text"
+                        <InternalLinkSelector
+                          label="URL"
                           value={currentSuccessLink2Url || ''}
-                          onChange={(e) => updateField(
+                          onChange={(value) => updateField(
                             isWelcome ? 'welcomePopupSuccessLink2Url' : 'exitPopupSuccessLink2Url',
-                            e.target.value
+                            value
                           )}
-                          placeholder="/about"
-                          className="w-full px-3 py-2 bg-[var(--admin-input)] border border-[var(--admin-border-light)] rounded-lg text-sm text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+                          placeholder="Select page or enter URL"
                         />
                       </div>
                     </div>
