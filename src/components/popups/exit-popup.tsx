@@ -620,12 +620,12 @@ export function ExitPopup({
                 {status === 'success' || status === 'downloading' || status === 'downloaded' ? (
                   // Success state badge
                   successBadgeUrl && (
-                    <div className="hidden md:block absolute -top-4 -right-4 w-[70px] h-[70px] z-10 animate-spin-slow">
+                    <div className="hidden md:block absolute -top-8 -right-8 w-[140px] h-[140px] z-10 animate-spin-slow">
                       <Image
                         src={successBadgeUrl}
                         alt="Badge"
-                        width={70}
-                        height={70}
+                        width={140}
+                        height={140}
                         className="w-full h-full object-contain"
                       />
                     </div>
@@ -633,12 +633,12 @@ export function ExitPopup({
                 ) : (
                   // Form state badge
                   formBadgeUrl && (
-                    <div className="hidden md:block absolute -top-4 -right-4 w-[70px] h-[70px] z-10 animate-spin-slow">
+                    <div className="hidden md:block absolute -top-8 -right-8 w-[140px] h-[140px] z-10 animate-spin-slow">
                       <Image
                         src={formBadgeUrl}
                         alt="Badge"
-                        width={70}
-                        height={70}
+                        width={140}
+                        height={140}
                         className="w-full h-full object-contain"
                       />
                     </div>
