@@ -24,6 +24,19 @@ interface SitePopupsProps {
     welcomePopupDownloadName?: string | null;
     welcomePopupSuccessTitle?: string | null;
     welcomePopupSuccessMessage?: string | null;
+    // Welcome popup testimonial
+    welcomePopupTestimonialEnabled?: boolean | null;
+    welcomePopupTestimonialEnabledDesktop?: boolean | null;
+    welcomePopupTestimonialEnabledMobile?: boolean | null;
+    welcomePopupTestimonialQuote?: string | null;
+    welcomePopupTestimonialAuthor?: string | null;
+    welcomePopupTestimonialAvatarUrl?: string | null;
+    welcomePopupTestimonialStars?: number | null;
+    // Welcome popup success links
+    welcomePopupSuccessLink1Text?: string | null;
+    welcomePopupSuccessLink1Url?: string | null;
+    welcomePopupSuccessLink2Text?: string | null;
+    welcomePopupSuccessLink2Url?: string | null;
     // Exit popup
     exitPopupEnabled?: boolean;
     exitPopupTitle?: string | null;
@@ -38,6 +51,19 @@ interface SitePopupsProps {
     exitPopupSuccessTitle?: string | null;
     exitPopupSuccessMessage?: string | null;
     exitPopupDelayAfterWelcome?: number | null;
+    // Exit popup testimonial
+    exitPopupTestimonialEnabled?: boolean | null;
+    exitPopupTestimonialEnabledDesktop?: boolean | null;
+    exitPopupTestimonialEnabledMobile?: boolean | null;
+    exitPopupTestimonialQuote?: string | null;
+    exitPopupTestimonialAuthor?: string | null;
+    exitPopupTestimonialAvatarUrl?: string | null;
+    exitPopupTestimonialStars?: number | null;
+    // Exit popup success links
+    exitPopupSuccessLink1Text?: string | null;
+    exitPopupSuccessLink1Url?: string | null;
+    exitPopupSuccessLink2Text?: string | null;
+    exitPopupSuccessLink2Url?: string | null;
   };
 }
 
@@ -60,6 +86,19 @@ export function SitePopups({ currentPage = '/', currentProductId, settings }: Si
         downloadFileName={settings.welcomePopupDownloadName}
         successTitle={settings.welcomePopupSuccessTitle || undefined}
         successMessage={settings.welcomePopupSuccessMessage || undefined}
+        // Testimonial bubble
+        testimonialEnabled={settings.welcomePopupTestimonialEnabled ?? false}
+        testimonialEnabledDesktop={settings.welcomePopupTestimonialEnabledDesktop ?? true}
+        testimonialEnabledMobile={settings.welcomePopupTestimonialEnabledMobile ?? true}
+        testimonialQuote={settings.welcomePopupTestimonialQuote}
+        testimonialAuthor={settings.welcomePopupTestimonialAuthor}
+        testimonialAvatarUrl={settings.welcomePopupTestimonialAvatarUrl}
+        testimonialStars={settings.welcomePopupTestimonialStars ?? 5}
+        // Success links
+        successLink1Text={settings.welcomePopupSuccessLink1Text}
+        successLink1Url={settings.welcomePopupSuccessLink1Url}
+        successLink2Text={settings.welcomePopupSuccessLink2Text}
+        successLink2Url={settings.welcomePopupSuccessLink2Url}
       />
       <ExitPopup
         enabled={settings.exitPopupEnabled ?? false}
@@ -76,6 +115,19 @@ export function SitePopups({ currentPage = '/', currentProductId, settings }: Si
         successMessage={settings.exitPopupSuccessMessage || undefined}
         welcomeEnabled={settings.welcomePopupEnabled ?? false}
         delayAfterWelcome={settings.exitPopupDelayAfterWelcome ?? 30}
+        // Testimonial bubble
+        testimonialEnabled={settings.exitPopupTestimonialEnabled ?? false}
+        testimonialEnabledDesktop={settings.exitPopupTestimonialEnabledDesktop ?? true}
+        testimonialEnabledMobile={settings.exitPopupTestimonialEnabledMobile ?? true}
+        testimonialQuote={settings.exitPopupTestimonialQuote}
+        testimonialAuthor={settings.exitPopupTestimonialAuthor}
+        testimonialAvatarUrl={settings.exitPopupTestimonialAvatarUrl}
+        testimonialStars={settings.exitPopupTestimonialStars ?? 5}
+        // Success links
+        successLink1Text={settings.exitPopupSuccessLink1Text}
+        successLink1Url={settings.exitPopupSuccessLink1Url}
+        successLink2Text={settings.exitPopupSuccessLink2Text}
+        successLink2Url={settings.exitPopupSuccessLink2Url}
       />
     </PopupProvider>
   );

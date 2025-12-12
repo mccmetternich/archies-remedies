@@ -3,9 +3,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ArrowRight, Download, Play, Check, Loader2, Mail, Phone, ChevronDown } from 'lucide-react';
+import { X, ArrowRight, Download, Check, Loader2, Mail, Phone, ChevronDown, Star, ExternalLink } from 'lucide-react';
 import { usePopup } from './popup-provider';
-import { VideoPlayer } from './video-player';
 
 interface ExitPopupProps {
   enabled?: boolean;
@@ -29,6 +28,19 @@ interface ExitPopupProps {
   // Delay after welcome popup (in seconds)
   delayAfterWelcome?: number;
   welcomeEnabled?: boolean;
+  // Testimonial bubble
+  testimonialEnabled?: boolean;
+  testimonialEnabledDesktop?: boolean;
+  testimonialEnabledMobile?: boolean;
+  testimonialQuote?: string | null;
+  testimonialAuthor?: string | null;
+  testimonialAvatarUrl?: string | null;
+  testimonialStars?: number;
+  // Success view links
+  successLink1Text?: string | null;
+  successLink1Url?: string | null;
+  successLink2Text?: string | null;
+  successLink2Url?: string | null;
 }
 
 export function ExitPopup({
@@ -51,6 +63,19 @@ export function ExitPopup({
   delayBeforeEnabled = 5000,
   delayAfterWelcome = 30,
   welcomeEnabled = false,
+  // Testimonial bubble
+  testimonialEnabled = false,
+  testimonialEnabledDesktop = true,
+  testimonialEnabledMobile = true,
+  testimonialQuote,
+  testimonialAuthor,
+  testimonialAvatarUrl,
+  testimonialStars = 5,
+  // Success view links
+  successLink1Text,
+  successLink1Url,
+  successLink2Text,
+  successLink2Url,
 }: ExitPopupProps) {
   const {
     canShowExitPopup,
@@ -70,7 +95,6 @@ export function ExitPopup({
   const [showDropdown, setShowDropdown] = useState(false);
   const [validationError, setValidationError] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'downloading' | 'downloaded' | 'error'>('idle');
-  const [showVideo, setShowVideo] = useState(false);
   const [exitDetectionEnabled, setExitDetectionEnabled] = useState(false);
   const [hasTriggered, setHasTriggered] = useState(false);
   const [welcomeDelayComplete, setWelcomeDelayComplete] = useState(!welcomeEnabled);
@@ -347,8 +371,17 @@ export function ExitPopup({
 
   if (!enabled) return null;
 
-  // Check if media is video
-  const hasVideo = videoUrl && videoUrl.match(/\.(mp4|webm|mov)$/i);
+  // Check if media is video - support file extensions and Cloudinary video URLs
+  const isVideoUrl = (url: string | null | undefined): boolean => {
+    if (!url) return false;
+    // Check file extensions
+    if (url.match(/\.(mp4|webm|mov|m4v)(\?|$)/i)) return true;
+    // Check Cloudinary video resource type
+    if (url.includes('/video/upload/')) return true;
+    return false;
+  };
+
+  const hasVideo = isVideoUrl(videoUrl);
 
   return (
     <AnimatePresence>
@@ -383,57 +416,115 @@ export function ExitPopup({
 
               {/* Media Section - Left side on desktop, top on mobile */}
               <div className="relative md:w-1/2 md:min-h-full">
-                {videoUrl && showVideo ? (
-                  <div className="relative aspect-video md:aspect-auto md:absolute md:inset-0 bg-black">
-                    <VideoPlayer url={videoUrl} autoPlay />
-                  </div>
-                ) : (
-                  <div className="relative aspect-video md:aspect-auto md:absolute md:inset-0 w-full bg-gradient-to-br from-[#f5f0eb] via-white to-[#bbdae9]/30">
-                    {imageUrl ? (
-                      <Image
-                        src={imageUrl}
-                        alt=""
-                        fill
-                        className="object-cover"
-                      />
-                    ) : videoThumbnailUrl ? (
-                      <>
-                        <Image
-                          src={videoThumbnailUrl}
-                          alt="Video thumbnail"
-                          fill
-                          className="object-cover"
-                        />
-                        <button
-                          onClick={() => setShowVideo(true)}
-                          className="absolute inset-0 flex items-center justify-center bg-black/20 hover:bg-black/30 transition-colors"
-                        >
-                          <div className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center shadow-lg">
-                            <Play className="w-6 h-6 text-[#1a1a1a] ml-1" fill="currentColor" />
-                          </div>
-                        </button>
-                      </>
-                    ) : hasVideo ? (
-                      <button
-                        onClick={() => setShowVideo(true)}
-                        className="absolute inset-0 flex items-center justify-center hover:bg-black/10 transition-colors"
-                      >
-                        <div className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center shadow-lg">
-                          <Play className="w-6 h-6 text-[#1a1a1a] ml-1" fill="currentColor" />
-                        </div>
-                      </button>
-                    ) : (
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="text-center">
-                          <span className="text-4xl mb-2 block">👋</span>
-                          <span className="text-xs font-semibold tracking-[0.2em] uppercase text-gray-400">
-                            Wait!
-                          </span>
-                        </div>
+                <div className="relative aspect-video md:aspect-auto md:absolute md:inset-0 w-full bg-gradient-to-br from-[#f5f0eb] via-white to-[#bbdae9]/30 overflow-hidden">
+                  {/* Video - autoplay, muted, loop, no controls */}
+                  {hasVideo && videoUrl ? (
+                    <video
+                      src={videoUrl}
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                  ) : imageUrl ? (
+                    <Image
+                      src={imageUrl}
+                      alt=""
+                      fill
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="text-center">
+                        <span className="text-4xl mb-2 block">👋</span>
+                        <span className="text-xs font-semibold tracking-[0.2em] uppercase text-gray-400">
+                          Wait!
+                        </span>
                       </div>
+                    </div>
+                  )}
+
+                  {/* Testimonial Bubble */}
+                    {testimonialEnabled && testimonialQuote && (
+                      <>
+                        {/* Desktop testimonial - only show if desktop enabled */}
+                        {testimonialEnabledDesktop && (
+                          <div className="hidden md:block absolute bottom-4 left-4 right-4">
+                            <div className="bg-white/95 backdrop-blur-sm rounded-xl p-3.5 shadow-lg">
+                              <div className="flex items-start gap-3">
+                                {testimonialAvatarUrl ? (
+                                  <Image
+                                    src={testimonialAvatarUrl}
+                                    alt={testimonialAuthor || 'Reviewer'}
+                                    width={40}
+                                    height={40}
+                                    className="rounded-full object-cover flex-shrink-0"
+                                  />
+                                ) : (
+                                  <div className="w-10 h-10 rounded-full bg-[#bbdae9]/30 flex items-center justify-center flex-shrink-0">
+                                    <span className="text-sm font-medium text-[#1a1a1a]">
+                                      {(testimonialAuthor || 'A')[0]}
+                                    </span>
+                                  </div>
+                                )}
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-1 mb-1">
+                                    {[...Array(testimonialStars)].map((_, i) => (
+                                      <Star key={i} className="w-3.5 h-3.5 fill-[#bbdae9] text-[#bbdae9]" />
+                                    ))}
+                                  </div>
+                                  <p className="text-sm text-gray-700 leading-snug">
+                                    &ldquo;{testimonialQuote}&rdquo;
+                                  </p>
+                                  {testimonialAuthor && (
+                                    <p className="text-xs text-gray-500 mt-1">{testimonialAuthor}</p>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                        {/* Mobile testimonial - only show if mobile enabled */}
+                        {testimonialEnabledMobile && (
+                          <div className="md:hidden absolute bottom-3 left-3 right-3">
+                            <div className="bg-white/95 backdrop-blur-sm rounded-xl p-3 shadow-lg">
+                              <div className="flex items-start gap-2.5">
+                                {testimonialAvatarUrl ? (
+                                  <Image
+                                    src={testimonialAvatarUrl}
+                                    alt={testimonialAuthor || 'Reviewer'}
+                                    width={36}
+                                    height={36}
+                                    className="rounded-full object-cover flex-shrink-0"
+                                  />
+                                ) : (
+                                  <div className="w-9 h-9 rounded-full bg-[#bbdae9]/30 flex items-center justify-center flex-shrink-0">
+                                    <span className="text-sm font-medium text-[#1a1a1a]">
+                                      {(testimonialAuthor || 'A')[0]}
+                                    </span>
+                                  </div>
+                                )}
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-1 mb-0.5">
+                                    {[...Array(testimonialStars)].map((_, i) => (
+                                      <Star key={i} className="w-3 h-3 fill-[#bbdae9] text-[#bbdae9]" />
+                                    ))}
+                                  </div>
+                                  <p className="text-xs text-gray-700 leading-snug line-clamp-2">
+                                    &ldquo;{testimonialQuote}&rdquo;
+                                  </p>
+                                  {testimonialAuthor && (
+                                    <p className="text-[10px] text-gray-500 mt-0.5">{testimonialAuthor}</p>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </>
                     )}
-                  </div>
-                )}
+                </div>
               </div>
 
               {/* Content Section - Right side on desktop, bottom on mobile */}
@@ -476,6 +567,30 @@ export function ExitPopup({
                             <span className="text-sm text-gray-600">Download complete!</span>
                           </>
                         ) : null}
+                      </div>
+                    )}
+
+                    {/* Success Links */}
+                    {(successLink1Text || successLink2Text) && (
+                      <div className="mt-6 space-y-2">
+                        {successLink1Text && successLink1Url && (
+                          <a
+                            href={successLink1Url}
+                            className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-[#1a1a1a] text-white rounded-full font-medium text-sm hover:bg-[#bbdae9] hover:text-[#1a1a1a] transition-colors"
+                          >
+                            {successLink1Text}
+                            <ExternalLink className="w-3.5 h-3.5" />
+                          </a>
+                        )}
+                        {successLink2Text && successLink2Url && (
+                          <a
+                            href={successLink2Url}
+                            className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-transparent border border-gray-200 text-gray-700 rounded-full font-medium text-sm hover:bg-gray-50 transition-colors"
+                          >
+                            {successLink2Text}
+                            <ExternalLink className="w-3.5 h-3.5" />
+                          </a>
+                        )}
                       </div>
                     )}
                   </div>

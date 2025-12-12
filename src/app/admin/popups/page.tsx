@@ -27,6 +27,11 @@ import {
   Users,
   Image as ImageIcon,
   Play,
+  Star,
+  Quote,
+  ExternalLink,
+  Link as LinkIcon,
+  ChevronDown,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { MediaPickerButton } from '@/components/admin/media-picker';
@@ -50,6 +55,19 @@ interface PopupSettings {
   welcomePopupSuccessTitle: string | null;
   welcomePopupSuccessMessage: string | null;
   welcomePopupNoSpamText: string | null;
+  // Welcome Popup Testimonial
+  welcomePopupTestimonialEnabled: boolean | null;
+  welcomePopupTestimonialEnabledDesktop: boolean | null;
+  welcomePopupTestimonialEnabledMobile: boolean | null;
+  welcomePopupTestimonialQuote: string | null;
+  welcomePopupTestimonialAuthor: string | null;
+  welcomePopupTestimonialAvatarUrl: string | null;
+  welcomePopupTestimonialStars: number | null;
+  // Welcome Popup Success Links
+  welcomePopupSuccessLink1Text: string | null;
+  welcomePopupSuccessLink1Url: string | null;
+  welcomePopupSuccessLink2Text: string | null;
+  welcomePopupSuccessLink2Url: string | null;
   // Exit Popup
   exitPopupEnabled: boolean | null;
   exitPopupTitle: string | null;
@@ -67,6 +85,19 @@ interface PopupSettings {
   exitPopupSuccessMessage: string | null;
   exitPopupNoSpamText: string | null;
   exitPopupDelayAfterWelcome: number | null;
+  // Exit Popup Testimonial
+  exitPopupTestimonialEnabled: boolean | null;
+  exitPopupTestimonialEnabledDesktop: boolean | null;
+  exitPopupTestimonialEnabledMobile: boolean | null;
+  exitPopupTestimonialQuote: string | null;
+  exitPopupTestimonialAuthor: string | null;
+  exitPopupTestimonialAvatarUrl: string | null;
+  exitPopupTestimonialStars: number | null;
+  // Exit Popup Success Links
+  exitPopupSuccessLink1Text: string | null;
+  exitPopupSuccessLink1Url: string | null;
+  exitPopupSuccessLink2Text: string | null;
+  exitPopupSuccessLink2Url: string | null;
 }
 
 interface CustomPopup {
@@ -178,6 +209,20 @@ export default function PopupsPage() {
         welcomePopupSuccessTitle: data.welcomePopupSuccessTitle ?? "You're In!",
         welcomePopupSuccessMessage: data.welcomePopupSuccessMessage ?? "Thanks for joining. We'll be in touch soon.",
         welcomePopupNoSpamText: data.welcomePopupNoSpamText ?? 'No spam, ever. Unsubscribe anytime.',
+        // Welcome Popup Testimonial
+        welcomePopupTestimonialEnabled: data.welcomePopupTestimonialEnabled ?? false,
+        welcomePopupTestimonialEnabledDesktop: data.welcomePopupTestimonialEnabledDesktop ?? true,
+        welcomePopupTestimonialEnabledMobile: data.welcomePopupTestimonialEnabledMobile ?? true,
+        welcomePopupTestimonialQuote: data.welcomePopupTestimonialQuote ?? null,
+        welcomePopupTestimonialAuthor: data.welcomePopupTestimonialAuthor ?? null,
+        welcomePopupTestimonialAvatarUrl: data.welcomePopupTestimonialAvatarUrl ?? null,
+        welcomePopupTestimonialStars: data.welcomePopupTestimonialStars ?? 5,
+        // Welcome Popup Success Links
+        welcomePopupSuccessLink1Text: data.welcomePopupSuccessLink1Text ?? null,
+        welcomePopupSuccessLink1Url: data.welcomePopupSuccessLink1Url ?? null,
+        welcomePopupSuccessLink2Text: data.welcomePopupSuccessLink2Text ?? null,
+        welcomePopupSuccessLink2Url: data.welcomePopupSuccessLink2Url ?? null,
+        // Exit Popup
         exitPopupEnabled: data.exitPopupEnabled ?? false,
         exitPopupTitle: data.exitPopupTitle ?? 'Wait! Before You Go...',
         exitPopupSubtitle: data.exitPopupSubtitle ?? 'Get 10% off your first order when you sign up.',
@@ -194,6 +239,19 @@ export default function PopupsPage() {
         exitPopupSuccessMessage: data.exitPopupSuccessMessage ?? "Thanks for subscribing. Check your inbox!",
         exitPopupNoSpamText: data.exitPopupNoSpamText ?? 'No spam, ever. Unsubscribe anytime.',
         exitPopupDelayAfterWelcome: data.exitPopupDelayAfterWelcome ?? 30,
+        // Exit Popup Testimonial
+        exitPopupTestimonialEnabled: data.exitPopupTestimonialEnabled ?? false,
+        exitPopupTestimonialEnabledDesktop: data.exitPopupTestimonialEnabledDesktop ?? true,
+        exitPopupTestimonialEnabledMobile: data.exitPopupTestimonialEnabledMobile ?? true,
+        exitPopupTestimonialQuote: data.exitPopupTestimonialQuote ?? null,
+        exitPopupTestimonialAuthor: data.exitPopupTestimonialAuthor ?? null,
+        exitPopupTestimonialAvatarUrl: data.exitPopupTestimonialAvatarUrl ?? null,
+        exitPopupTestimonialStars: data.exitPopupTestimonialStars ?? 5,
+        // Exit Popup Success Links
+        exitPopupSuccessLink1Text: data.exitPopupSuccessLink1Text ?? null,
+        exitPopupSuccessLink1Url: data.exitPopupSuccessLink1Url ?? null,
+        exitPopupSuccessLink2Text: data.exitPopupSuccessLink2Text ?? null,
+        exitPopupSuccessLink2Url: data.exitPopupSuccessLink2Url ?? null,
       };
 
       setSettings(popupSettings);
@@ -271,6 +329,21 @@ export default function PopupsPage() {
   const currentSuccessTitle = isWelcome ? settings.welcomePopupSuccessTitle : settings.exitPopupSuccessTitle;
   const currentSuccessMessage = isWelcome ? settings.welcomePopupSuccessMessage : settings.exitPopupSuccessMessage;
   const currentNoSpamText = isWelcome ? settings.welcomePopupNoSpamText : settings.exitPopupNoSpamText;
+
+  // Testimonial bubble settings
+  const currentTestimonialEnabled = isWelcome ? settings.welcomePopupTestimonialEnabled : settings.exitPopupTestimonialEnabled;
+  const currentTestimonialEnabledDesktop = isWelcome ? settings.welcomePopupTestimonialEnabledDesktop : settings.exitPopupTestimonialEnabledDesktop;
+  const currentTestimonialEnabledMobile = isWelcome ? settings.welcomePopupTestimonialEnabledMobile : settings.exitPopupTestimonialEnabledMobile;
+  const currentTestimonialQuote = isWelcome ? settings.welcomePopupTestimonialQuote : settings.exitPopupTestimonialQuote;
+  const currentTestimonialAuthor = isWelcome ? settings.welcomePopupTestimonialAuthor : settings.exitPopupTestimonialAuthor;
+  const currentTestimonialAvatarUrl = isWelcome ? settings.welcomePopupTestimonialAvatarUrl : settings.exitPopupTestimonialAvatarUrl;
+  const currentTestimonialStars = isWelcome ? settings.welcomePopupTestimonialStars : settings.exitPopupTestimonialStars;
+
+  // Success view links
+  const currentSuccessLink1Text = isWelcome ? settings.welcomePopupSuccessLink1Text : settings.exitPopupSuccessLink1Text;
+  const currentSuccessLink1Url = isWelcome ? settings.welcomePopupSuccessLink1Url : settings.exitPopupSuccessLink1Url;
+  const currentSuccessLink2Text = isWelcome ? settings.welcomePopupSuccessLink2Text : settings.exitPopupSuccessLink2Text;
+  const currentSuccessLink2Url = isWelcome ? settings.welcomePopupSuccessLink2Url : settings.exitPopupSuccessLink2Url;
 
   // Check if media is video - check both file extension and Cloudinary video resource type
   const hasVideo = currentVideoUrl && (
@@ -853,6 +926,220 @@ export default function PopupsPage() {
                   </p>
                 </div>
               </div>
+
+              {/* Testimonial Bubble */}
+              <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-[#bbdae9]/20 flex items-center justify-center">
+                      <Quote className="w-5 h-5 text-[#bbdae9]" />
+                    </div>
+                    <div>
+                      <h3 className="font-medium text-[var(--admin-text-primary)]">Testimonial Bubble</h3>
+                      <p className="text-xs text-[var(--admin-text-muted)]">Social proof overlay on popup media</p>
+                    </div>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={currentTestimonialEnabled ?? false}
+                      onChange={(e) => updateField(
+                        isWelcome ? 'welcomePopupTestimonialEnabled' : 'exitPopupTestimonialEnabled',
+                        e.target.checked
+                      )}
+                      className="sr-only peer"
+                    />
+                    <div className="w-14 h-7 bg-[var(--admin-border-light)] peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#bbdae9]/50 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-gray-400 after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-[#bbdae9] peer-checked:after:bg-white"></div>
+                  </label>
+                </div>
+
+                {currentTestimonialEnabled && (
+                  <div className="space-y-4 pt-4 border-t border-[var(--admin-border-light)]">
+                    {/* Device visibility toggles */}
+                    <div className="flex gap-4">
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={currentTestimonialEnabledDesktop ?? true}
+                          onChange={(e) => updateField(
+                            isWelcome ? 'welcomePopupTestimonialEnabledDesktop' : 'exitPopupTestimonialEnabledDesktop',
+                            e.target.checked
+                          )}
+                          className="w-4 h-4 rounded border-[var(--admin-border-light)] text-[#bbdae9] focus:ring-[#bbdae9]"
+                        />
+                        <Monitor className="w-4 h-4 text-[var(--admin-text-muted)]" />
+                        <span className="text-sm text-[var(--admin-text-secondary)]">Desktop</span>
+                      </label>
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={currentTestimonialEnabledMobile ?? true}
+                          onChange={(e) => updateField(
+                            isWelcome ? 'welcomePopupTestimonialEnabledMobile' : 'exitPopupTestimonialEnabledMobile',
+                            e.target.checked
+                          )}
+                          className="w-4 h-4 rounded border-[var(--admin-border-light)] text-[#bbdae9] focus:ring-[#bbdae9]"
+                        />
+                        <Smartphone className="w-4 h-4 text-[var(--admin-text-muted)]" />
+                        <span className="text-sm text-[var(--admin-text-secondary)]">Mobile</span>
+                      </label>
+                    </div>
+
+                    {/* Avatar */}
+                    <MediaPickerButton
+                      label="Avatar"
+                      value={currentTestimonialAvatarUrl}
+                      onChange={(url) => updateField(
+                        isWelcome ? 'welcomePopupTestimonialAvatarUrl' : 'exitPopupTestimonialAvatarUrl',
+                        url
+                      )}
+                      helpText="Square profile image (min 64x64)"
+                      folder="testimonials"
+                    />
+
+                    {/* Quote */}
+                    <div>
+                      <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Quote</label>
+                      <textarea
+                        value={currentTestimonialQuote || ''}
+                        onChange={(e) => updateField(
+                          isWelcome ? 'welcomePopupTestimonialQuote' : 'exitPopupTestimonialQuote',
+                          e.target.value
+                        )}
+                        placeholder="This changed my life!"
+                        rows={2}
+                        className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border-light)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors resize-none"
+                      />
+                    </div>
+
+                    {/* Author */}
+                    <div>
+                      <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Author Name</label>
+                      <input
+                        type="text"
+                        value={currentTestimonialAuthor || ''}
+                        onChange={(e) => updateField(
+                          isWelcome ? 'welcomePopupTestimonialAuthor' : 'exitPopupTestimonialAuthor',
+                          e.target.value
+                        )}
+                        placeholder="Sarah M."
+                        className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border-light)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+                      />
+                    </div>
+
+                    {/* Star Rating */}
+                    <div>
+                      <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Star Rating</label>
+                      <div className="flex items-center gap-1">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <button
+                            key={star}
+                            type="button"
+                            onClick={() => updateField(
+                              isWelcome ? 'welcomePopupTestimonialStars' : 'exitPopupTestimonialStars',
+                              star
+                            )}
+                            className="p-1 transition-colors"
+                          >
+                            <Star
+                              className={cn(
+                                'w-6 h-6 transition-colors',
+                                star <= (currentTestimonialStars ?? 5)
+                                  ? 'fill-[#bbdae9] text-[#bbdae9]'
+                                  : 'text-gray-300'
+                              )}
+                            />
+                          </button>
+                        ))}
+                        <span className="ml-2 text-sm text-[var(--admin-text-muted)]">
+                          {currentTestimonialStars ?? 5} star{(currentTestimonialStars ?? 5) !== 1 ? 's' : ''}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Success Links */}
+              <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6 space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-[#bbdae9]/20 flex items-center justify-center">
+                    <LinkIcon className="w-5 h-5 text-[#bbdae9]" />
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-[var(--admin-text-primary)]">Success View Links</h3>
+                    <p className="text-xs text-[var(--admin-text-muted)]">Navigation links shown after form submission</p>
+                  </div>
+                </div>
+
+                <div className="space-y-4 pt-2">
+                  {/* Link 1 */}
+                  <div className="p-4 bg-[var(--admin-bg)] rounded-xl space-y-3">
+                    <p className="text-sm font-medium text-[var(--admin-text-secondary)]">Link 1</p>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-xs text-[var(--admin-text-muted)] mb-1">Button Text</label>
+                        <input
+                          type="text"
+                          value={currentSuccessLink1Text || ''}
+                          onChange={(e) => updateField(
+                            isWelcome ? 'welcomePopupSuccessLink1Text' : 'exitPopupSuccessLink1Text',
+                            e.target.value
+                          )}
+                          placeholder="Shop Now"
+                          className="w-full px-3 py-2 bg-[var(--admin-input)] border border-[var(--admin-border-light)] rounded-lg text-sm text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-[var(--admin-text-muted)] mb-1">URL</label>
+                        <input
+                          type="text"
+                          value={currentSuccessLink1Url || ''}
+                          onChange={(e) => updateField(
+                            isWelcome ? 'welcomePopupSuccessLink1Url' : 'exitPopupSuccessLink1Url',
+                            e.target.value
+                          )}
+                          placeholder="/products"
+                          className="w-full px-3 py-2 bg-[var(--admin-input)] border border-[var(--admin-border-light)] rounded-lg text-sm text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Link 2 */}
+                  <div className="p-4 bg-[var(--admin-bg)] rounded-xl space-y-3">
+                    <p className="text-sm font-medium text-[var(--admin-text-secondary)]">Link 2 (Optional)</p>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-xs text-[var(--admin-text-muted)] mb-1">Button Text</label>
+                        <input
+                          type="text"
+                          value={currentSuccessLink2Text || ''}
+                          onChange={(e) => updateField(
+                            isWelcome ? 'welcomePopupSuccessLink2Text' : 'exitPopupSuccessLink2Text',
+                            e.target.value
+                          )}
+                          placeholder="Learn More"
+                          className="w-full px-3 py-2 bg-[var(--admin-input)] border border-[var(--admin-border-light)] rounded-lg text-sm text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-[var(--admin-text-muted)] mb-1">URL</label>
+                        <input
+                          type="text"
+                          value={currentSuccessLink2Url || ''}
+                          onChange={(e) => updateField(
+                            isWelcome ? 'welcomePopupSuccessLink2Url' : 'exitPopupSuccessLink2Url',
+                            e.target.value
+                          )}
+                          placeholder="/about"
+                          className="w-full px-3 py-2 bg-[var(--admin-input)] border border-[var(--admin-border-light)] rounded-lg text-sm text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Preview Panel */}
@@ -925,6 +1212,44 @@ export default function PopupsPage() {
                           <ImageIcon className="w-12 h-12 text-gray-300" />
                         </div>
                       )}
+
+                      {/* Testimonial Bubble - Mobile */}
+                      {currentTestimonialEnabled && currentTestimonialEnabledMobile && currentTestimonialQuote && (
+                        <div className="absolute bottom-3 left-3 right-3">
+                          <div className="bg-white/95 backdrop-blur-sm rounded-xl p-3 shadow-lg">
+                            <div className="flex items-start gap-2.5">
+                              {currentTestimonialAvatarUrl ? (
+                                <Image
+                                  src={currentTestimonialAvatarUrl}
+                                  alt={currentTestimonialAuthor || 'Reviewer'}
+                                  width={36}
+                                  height={36}
+                                  className="rounded-full object-cover flex-shrink-0"
+                                />
+                              ) : (
+                                <div className="w-9 h-9 rounded-full bg-[#bbdae9]/30 flex items-center justify-center flex-shrink-0">
+                                  <span className="text-sm font-medium text-[#1a1a1a]">
+                                    {(currentTestimonialAuthor || 'A')[0]}
+                                  </span>
+                                </div>
+                              )}
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-1 mb-0.5">
+                                  {[...Array(currentTestimonialStars ?? 5)].map((_, i) => (
+                                    <Star key={i} className="w-3 h-3 fill-[#bbdae9] text-[#bbdae9]" />
+                                  ))}
+                                </div>
+                                <p className="text-xs text-gray-700 leading-snug line-clamp-2">
+                                  &ldquo;{currentTestimonialQuote}&rdquo;
+                                </p>
+                                {currentTestimonialAuthor && (
+                                  <p className="text-[10px] text-gray-500 mt-0.5">{currentTestimonialAuthor}</p>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     {/* Content */}
@@ -946,6 +1271,23 @@ export default function PopupsPage() {
                                 <Check className="w-4 h-4 text-white" />
                               </div>
                               <span className="text-sm text-gray-600">Download complete!</span>
+                            </div>
+                          )}
+                          {/* Success Links - Mobile */}
+                          {(currentSuccessLink1Text || currentSuccessLink2Text) && (
+                            <div className="mt-6 space-y-2">
+                              {currentSuccessLink1Text && (
+                                <button className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-[#1a1a1a] text-white rounded-full font-medium text-sm">
+                                  {currentSuccessLink1Text}
+                                  <ExternalLink className="w-3.5 h-3.5" />
+                                </button>
+                              )}
+                              {currentSuccessLink2Text && (
+                                <button className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-transparent border border-gray-200 text-gray-700 rounded-full font-medium text-sm">
+                                  {currentSuccessLink2Text}
+                                  <ExternalLink className="w-3.5 h-3.5" />
+                                </button>
+                              )}
                             </div>
                           )}
                         </div>
@@ -1042,6 +1384,44 @@ export default function PopupsPage() {
                           <ImageIcon className="w-16 h-16 text-gray-300" />
                         </div>
                       )}
+
+                      {/* Testimonial Bubble - Desktop */}
+                      {currentTestimonialEnabled && currentTestimonialEnabledDesktop && currentTestimonialQuote && (
+                        <div className="absolute bottom-4 left-4 right-4">
+                          <div className="bg-white/95 backdrop-blur-sm rounded-xl p-3.5 shadow-lg">
+                            <div className="flex items-start gap-3">
+                              {currentTestimonialAvatarUrl ? (
+                                <Image
+                                  src={currentTestimonialAvatarUrl}
+                                  alt={currentTestimonialAuthor || 'Reviewer'}
+                                  width={40}
+                                  height={40}
+                                  className="rounded-full object-cover flex-shrink-0"
+                                />
+                              ) : (
+                                <div className="w-10 h-10 rounded-full bg-[#bbdae9]/30 flex items-center justify-center flex-shrink-0">
+                                  <span className="text-sm font-medium text-[#1a1a1a]">
+                                    {(currentTestimonialAuthor || 'A')[0]}
+                                  </span>
+                                </div>
+                              )}
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-1 mb-1">
+                                  {[...Array(currentTestimonialStars ?? 5)].map((_, i) => (
+                                    <Star key={i} className="w-3.5 h-3.5 fill-[#bbdae9] text-[#bbdae9]" />
+                                  ))}
+                                </div>
+                                <p className="text-sm text-gray-700 leading-snug">
+                                  &ldquo;{currentTestimonialQuote}&rdquo;
+                                </p>
+                                {currentTestimonialAuthor && (
+                                  <p className="text-xs text-gray-500 mt-1">{currentTestimonialAuthor}</p>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     {/* Content Section - Right side */}
@@ -1063,6 +1443,23 @@ export default function PopupsPage() {
                                 <Check className="w-4 h-4 text-white" />
                               </div>
                               <span className="text-sm text-gray-600">Download complete!</span>
+                            </div>
+                          )}
+                          {/* Success Links - Desktop */}
+                          {(currentSuccessLink1Text || currentSuccessLink2Text) && (
+                            <div className="mt-6 space-y-2">
+                              {currentSuccessLink1Text && (
+                                <button className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-[#1a1a1a] text-white rounded-full font-medium text-sm hover:bg-[#bbdae9] hover:text-[#1a1a1a] transition-colors">
+                                  {currentSuccessLink1Text}
+                                  <ExternalLink className="w-3.5 h-3.5" />
+                                </button>
+                              )}
+                              {currentSuccessLink2Text && (
+                                <button className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-transparent border border-gray-200 text-gray-700 rounded-full font-medium text-sm hover:bg-gray-50 transition-colors">
+                                  {currentSuccessLink2Text}
+                                  <ExternalLink className="w-3.5 h-3.5" />
+                                </button>
+                              )}
                             </div>
                           )}
                         </div>

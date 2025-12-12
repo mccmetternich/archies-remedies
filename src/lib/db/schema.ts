@@ -73,6 +73,19 @@ export const siteSettings = sqliteTable('site_settings', {
   welcomePopupSuccessTitle: text('welcome_popup_success_title').default("You're In!"),
   welcomePopupSuccessMessage: text('welcome_popup_success_message').default("Thanks for joining. We'll be in touch soon."),
   welcomePopupNoSpamText: text('welcome_popup_no_spam_text').default('No spam, ever. Unsubscribe anytime.'),
+  // Testimonial bubble (social proof overlay on media)
+  welcomePopupTestimonialEnabled: integer('welcome_popup_testimonial_enabled', { mode: 'boolean' }).default(false),
+  welcomePopupTestimonialEnabledDesktop: integer('welcome_popup_testimonial_enabled_desktop', { mode: 'boolean' }).default(true),
+  welcomePopupTestimonialEnabledMobile: integer('welcome_popup_testimonial_enabled_mobile', { mode: 'boolean' }).default(true),
+  welcomePopupTestimonialQuote: text('welcome_popup_testimonial_quote'),
+  welcomePopupTestimonialAuthor: text('welcome_popup_testimonial_author'),
+  welcomePopupTestimonialAvatarUrl: text('welcome_popup_testimonial_avatar_url'),
+  welcomePopupTestimonialStars: integer('welcome_popup_testimonial_stars').default(5), // 1-5 stars
+  // Success view links
+  welcomePopupSuccessLink1Text: text('welcome_popup_success_link1_text'),
+  welcomePopupSuccessLink1Url: text('welcome_popup_success_link1_url'),
+  welcomePopupSuccessLink2Text: text('welcome_popup_success_link2_text'),
+  welcomePopupSuccessLink2Url: text('welcome_popup_success_link2_url'),
 
   // Exit Intent Popup
   exitPopupEnabled: integer('exit_popup_enabled', { mode: 'boolean' }).default(false),
@@ -91,6 +104,19 @@ export const siteSettings = sqliteTable('site_settings', {
   exitPopupSuccessMessage: text('exit_popup_success_message').default("Thanks for subscribing. Check your inbox for your discount code."),
   exitPopupNoSpamText: text('exit_popup_no_spam_text').default('No spam, ever. Unsubscribe anytime.'),
   exitPopupDelayAfterWelcome: integer('exit_popup_delay_after_welcome').default(30), // seconds to wait after welcome popup before allowing exit popup
+  // Exit Popup Testimonial bubble (social proof overlay on media)
+  exitPopupTestimonialEnabled: integer('exit_popup_testimonial_enabled', { mode: 'boolean' }).default(false),
+  exitPopupTestimonialEnabledDesktop: integer('exit_popup_testimonial_enabled_desktop', { mode: 'boolean' }).default(true),
+  exitPopupTestimonialEnabledMobile: integer('exit_popup_testimonial_enabled_mobile', { mode: 'boolean' }).default(true),
+  exitPopupTestimonialQuote: text('exit_popup_testimonial_quote'),
+  exitPopupTestimonialAuthor: text('exit_popup_testimonial_author'),
+  exitPopupTestimonialAvatarUrl: text('exit_popup_testimonial_avatar_url'),
+  exitPopupTestimonialStars: integer('exit_popup_testimonial_stars').default(5), // 1-5 stars
+  // Exit Popup Success view links
+  exitPopupSuccessLink1Text: text('exit_popup_success_link1_text'),
+  exitPopupSuccessLink1Url: text('exit_popup_success_link1_url'),
+  exitPopupSuccessLink2Text: text('exit_popup_success_link2_text'),
+  exitPopupSuccessLink2Url: text('exit_popup_success_link2_url'),
 
   // Legacy fields (for backwards compatibility)
   emailPopupEnabled: integer('email_popup_enabled', { mode: 'boolean' }).default(true),
