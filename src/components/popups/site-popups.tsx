@@ -13,8 +13,18 @@ interface SitePopupsProps {
     welcomePopupTitle?: string | null;
     welcomePopupSubtitle?: string | null;
     welcomePopupButtonText?: string | null;
-    welcomePopupImageUrl?: string | null;
-    welcomePopupVideoUrl?: string | null;
+    welcomePopupImageUrl?: string | null; // Legacy
+    welcomePopupVideoUrl?: string | null; // Legacy
+    // Form state media (desktop/mobile)
+    welcomePopupFormDesktopImageUrl?: string | null;
+    welcomePopupFormDesktopVideoUrl?: string | null;
+    welcomePopupFormMobileImageUrl?: string | null;
+    welcomePopupFormMobileVideoUrl?: string | null;
+    // Success state media (desktop/mobile)
+    welcomePopupSuccessDesktopImageUrl?: string | null;
+    welcomePopupSuccessDesktopVideoUrl?: string | null;
+    welcomePopupSuccessMobileImageUrl?: string | null;
+    welcomePopupSuccessMobileVideoUrl?: string | null;
     welcomePopupDelay?: number | null;
     welcomePopupDismissDays?: number | null;
     welcomePopupSessionOnly?: boolean | null;
@@ -45,8 +55,18 @@ interface SitePopupsProps {
     exitPopupTitle?: string | null;
     exitPopupSubtitle?: string | null;
     exitPopupButtonText?: string | null;
-    exitPopupImageUrl?: string | null;
-    exitPopupVideoUrl?: string | null;
+    exitPopupImageUrl?: string | null; // Legacy
+    exitPopupVideoUrl?: string | null; // Legacy
+    // Form state media (desktop/mobile)
+    exitPopupFormDesktopImageUrl?: string | null;
+    exitPopupFormDesktopVideoUrl?: string | null;
+    exitPopupFormMobileImageUrl?: string | null;
+    exitPopupFormMobileVideoUrl?: string | null;
+    // Success state media (desktop/mobile)
+    exitPopupSuccessDesktopImageUrl?: string | null;
+    exitPopupSuccessDesktopVideoUrl?: string | null;
+    exitPopupSuccessMobileImageUrl?: string | null;
+    exitPopupSuccessMobileVideoUrl?: string | null;
     exitPopupDismissDays?: number | null;
     exitPopupCtaType?: string | null;
     exitPopupDownloadUrl?: string | null;
@@ -83,6 +103,16 @@ export function SitePopups({ currentPage = '/', currentProductId, settings }: Si
         buttonText={settings.welcomePopupButtonText || undefined}
         imageUrl={settings.welcomePopupImageUrl}
         videoUrl={settings.welcomePopupVideoUrl}
+        // Form state media (desktop/mobile)
+        formDesktopImageUrl={settings.welcomePopupFormDesktopImageUrl}
+        formDesktopVideoUrl={settings.welcomePopupFormDesktopVideoUrl}
+        formMobileImageUrl={settings.welcomePopupFormMobileImageUrl}
+        formMobileVideoUrl={settings.welcomePopupFormMobileVideoUrl}
+        // Success state media (desktop/mobile)
+        successDesktopImageUrl={settings.welcomePopupSuccessDesktopImageUrl}
+        successDesktopVideoUrl={settings.welcomePopupSuccessDesktopVideoUrl}
+        successMobileImageUrl={settings.welcomePopupSuccessMobileImageUrl}
+        successMobileVideoUrl={settings.welcomePopupSuccessMobileVideoUrl}
         delay={settings.welcomePopupDelay ?? 3000}
         dismissDays={settings.welcomePopupDismissDays ?? 7}
         sessionOnly={settings.welcomePopupSessionOnly ?? true}
@@ -116,6 +146,16 @@ export function SitePopups({ currentPage = '/', currentProductId, settings }: Si
         buttonText={settings.exitPopupButtonText || undefined}
         imageUrl={settings.exitPopupImageUrl}
         videoUrl={settings.exitPopupVideoUrl}
+        // Form state media (desktop/mobile)
+        formDesktopImageUrl={settings.exitPopupFormDesktopImageUrl}
+        formDesktopVideoUrl={settings.exitPopupFormDesktopVideoUrl}
+        formMobileImageUrl={settings.exitPopupFormMobileImageUrl}
+        formMobileVideoUrl={settings.exitPopupFormMobileVideoUrl}
+        // Success state media (desktop/mobile)
+        successDesktopImageUrl={settings.exitPopupSuccessDesktopImageUrl}
+        successDesktopVideoUrl={settings.exitPopupSuccessDesktopVideoUrl}
+        successMobileImageUrl={settings.exitPopupSuccessMobileImageUrl}
+        successMobileVideoUrl={settings.exitPopupSuccessMobileVideoUrl}
         dismissDays={settings.exitPopupDismissDays ?? 7}
         ctaType={(settings.exitPopupCtaType as 'email' | 'sms' | 'download' | 'none') || 'email'}
         downloadFileUrl={settings.exitPopupDownloadUrl}

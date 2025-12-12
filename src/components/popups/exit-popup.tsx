@@ -11,9 +11,19 @@ interface ExitPopupProps {
   title?: string;
   subtitle?: string;
   buttonText?: string;
-  imageUrl?: string | null;
-  videoUrl?: string | null;
+  imageUrl?: string | null; // Legacy
+  videoUrl?: string | null; // Legacy
   videoThumbnailUrl?: string | null;
+  // Form state media (desktop/mobile)
+  formDesktopImageUrl?: string | null;
+  formDesktopVideoUrl?: string | null;
+  formMobileImageUrl?: string | null;
+  formMobileVideoUrl?: string | null;
+  // Success state media (desktop/mobile)
+  successDesktopImageUrl?: string | null;
+  successDesktopVideoUrl?: string | null;
+  successMobileImageUrl?: string | null;
+  successMobileVideoUrl?: string | null;
   dismissDays?: number;
   ctaType?: 'email' | 'sms' | 'both' | 'download' | 'none';
   downloadEnabled?: boolean;
@@ -54,6 +64,16 @@ export function ExitPopup({
   imageUrl,
   videoUrl,
   videoThumbnailUrl,
+  // Form state media (desktop/mobile)
+  formDesktopImageUrl,
+  formDesktopVideoUrl,
+  formMobileImageUrl,
+  formMobileVideoUrl,
+  // Success state media (desktop/mobile)
+  successDesktopImageUrl,
+  successDesktopVideoUrl,
+  successMobileImageUrl,
+  successMobileVideoUrl,
   dismissDays = 7,
   ctaType = 'email',
   downloadEnabled = false,
@@ -387,6 +407,29 @@ export function ExitPopup({
     return false;
   };
 
+  // Calculate effective media URLs based on state
+  const isSuccessState = status === 'success' || status === 'downloading' || status === 'downloaded';
+
+  // Desktop media: success state falls back to form state, form state falls back to legacy
+  const effectiveDesktopVideoUrl = isSuccessState
+    ? (successDesktopVideoUrl || formDesktopVideoUrl || videoUrl)
+    : (formDesktopVideoUrl || videoUrl);
+  const effectiveDesktopImageUrl = isSuccessState
+    ? (successDesktopImageUrl || formDesktopImageUrl || imageUrl)
+    : (formDesktopImageUrl || imageUrl);
+
+  // Mobile media: success state falls back to form state mobile, then desktop
+  const effectiveMobileVideoUrl = isSuccessState
+    ? (successMobileVideoUrl || successDesktopVideoUrl || formMobileVideoUrl || formDesktopVideoUrl || videoUrl)
+    : (formMobileVideoUrl || formDesktopVideoUrl || videoUrl);
+  const effectiveMobileImageUrl = isSuccessState
+    ? (successMobileImageUrl || successDesktopImageUrl || formMobileImageUrl || formDesktopImageUrl || imageUrl)
+    : (formMobileImageUrl || formDesktopImageUrl || imageUrl);
+
+  const hasDesktopVideo = isVideoUrl(effectiveDesktopVideoUrl);
+  const hasMobileVideo = isVideoUrl(effectiveMobileVideoUrl);
+
+  // Legacy fallback
   const hasVideo = isVideoUrl(videoUrl);
 
   return (
@@ -423,33 +466,65 @@ export function ExitPopup({
               {/* Media Section - Left side on desktop, top on mobile */}
               <div className="relative md:w-1/2 md:min-h-full">
                 <div className="relative aspect-video md:aspect-auto md:absolute md:inset-0 w-full bg-gradient-to-br from-[#f5f0eb] via-white to-[#bbdae9]/30 overflow-hidden">
-                  {/* Video - autoplay, muted, loop, no controls */}
-                  {hasVideo && videoUrl ? (
-                    <video
-                      src={videoUrl}
-                      autoPlay
-                      muted
-                      loop
-                      playsInline
-                      className="absolute inset-0 w-full h-full object-cover object-center"
-                    />
-                  ) : imageUrl ? (
-                    <Image
-                      src={imageUrl}
-                      alt=""
-                      fill
-                      className="object-cover object-center"
-                    />
-                  ) : (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="text-center">
-                        <span className="text-4xl mb-2 block">👋</span>
-                        <span className="text-xs font-semibold tracking-[0.2em] uppercase text-gray-400">
-                          Wait!
-                        </span>
+                  {/* Desktop Media */}
+                  <div className="hidden md:block absolute inset-0">
+                    {hasDesktopVideo && effectiveDesktopVideoUrl ? (
+                      <video
+                        src={effectiveDesktopVideoUrl}
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                        className="w-full h-full object-cover object-center"
+                      />
+                    ) : effectiveDesktopImageUrl ? (
+                      <Image
+                        src={effectiveDesktopImageUrl}
+                        alt=""
+                        fill
+                        className="object-cover object-center"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="text-center">
+                          <span className="text-4xl mb-2 block">👋</span>
+                          <span className="text-xs font-semibold tracking-[0.2em] uppercase text-gray-400">
+                            Wait!
+                          </span>
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
+                  </div>
+
+                  {/* Mobile Media */}
+                  <div className="md:hidden absolute inset-0">
+                    {hasMobileVideo && effectiveMobileVideoUrl ? (
+                      <video
+                        src={effectiveMobileVideoUrl}
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                        className="w-full h-full object-cover object-center"
+                      />
+                    ) : effectiveMobileImageUrl ? (
+                      <Image
+                        src={effectiveMobileImageUrl}
+                        alt=""
+                        fill
+                        className="object-cover object-center"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="text-center">
+                          <span className="text-4xl mb-2 block">👋</span>
+                          <span className="text-xs font-semibold tracking-[0.2em] uppercase text-gray-400">
+                            Wait!
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
 
                   {/* Testimonial Bubble */}
                     {testimonialEnabled && testimonialQuote && (
@@ -457,10 +532,8 @@ export function ExitPopup({
                         {/* Desktop testimonial - only show if desktop enabled */}
                         {testimonialEnabledDesktop && (
                           <div className="hidden md:block absolute bottom-4 left-4 right-4">
-                            <div className="relative bg-white/98 backdrop-blur-md rounded-2xl px-4 py-3 shadow-lg ring-1 ring-black/[0.03]">
-                              {/* Subtle accent line */}
-                              <div className="absolute left-0 top-3 bottom-3 w-[3px] bg-gradient-to-b from-[#bbdae9] to-[#bbdae9]/40 rounded-full" />
-                              <div className="flex items-center gap-3.5 pl-2">
+                            <div className="bg-white/98 backdrop-blur-md rounded-2xl px-4 py-3 shadow-lg ring-1 ring-black/[0.03]">
+                              <div className="flex items-center gap-3.5">
                                 {testimonialAvatarUrl ? (
                                   <Image
                                     src={testimonialAvatarUrl}
@@ -499,10 +572,8 @@ export function ExitPopup({
                         {/* Mobile testimonial - only show if mobile enabled */}
                         {testimonialEnabledMobile && (
                           <div className="md:hidden absolute bottom-3 left-3 right-3">
-                            <div className="relative bg-white/98 backdrop-blur-md rounded-xl px-3 py-2.5 shadow-lg ring-1 ring-black/[0.03]">
-                              {/* Subtle accent line */}
-                              <div className="absolute left-0 top-2.5 bottom-2.5 w-[2px] bg-gradient-to-b from-[#bbdae9] to-[#bbdae9]/40 rounded-full" />
-                              <div className="flex items-center gap-2.5 pl-1.5">
+                            <div className="bg-white/98 backdrop-blur-md rounded-xl px-3 py-2.5 shadow-lg ring-1 ring-black/[0.03]">
+                              <div className="flex items-center gap-2.5">
                                 {testimonialAvatarUrl ? (
                                   <Image
                                     src={testimonialAvatarUrl}
