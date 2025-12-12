@@ -15,6 +15,15 @@ export async function POST(request: NextRequest) {
   const auth = await requireAuth();
   if (!auth.authenticated) return auth.response;
 
+  // Check Cloudinary config early
+  if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+    console.error('Missing Cloudinary environment variables');
+    return NextResponse.json(
+      { error: 'Server configuration error. Please contact support.' },
+      { status: 500 }
+    );
+  }
+
   try {
     const formData = await request.formData();
     const file = formData.get('file') as File | null;
@@ -51,10 +60,22 @@ export async function POST(request: NextRequest) {
     // Upload to Cloudinary
     let result;
     try {
+      // Log config status (not secrets)
+      console.log('Cloudinary config check:', {
+        hasCloudName: !!process.env.CLOUDINARY_CLOUD_NAME,
+        hasApiKey: !!process.env.CLOUDINARY_API_KEY,
+        hasApiSecret: !!process.env.CLOUDINARY_API_SECRET,
+        folder,
+        resourceType,
+        fileSize: file.size,
+      });
+
       result = await uploadToCloudinary(dataUrl, {
         folder,
         resource_type: resourceType,
       });
+
+      console.log('Cloudinary upload success:', result.public_id);
     } catch (cloudinaryError) {
       console.error('Cloudinary upload error:', cloudinaryError);
       const errorMessage = cloudinaryError instanceof Error ? cloudinaryError.message : 'Cloudinary upload failed';
