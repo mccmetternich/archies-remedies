@@ -721,6 +721,10 @@ export const contactActivity = sqliteTable('contact_activity', {
   productId: text('product_id').references(() => products.id),
   pageSlug: text('page_slug'),
 
+  // Download tracking - captures what file compelled the user to sign up
+  downloadFileUrl: text('download_file_url'),
+  downloadFileName: text('download_file_name'),
+
   // Visitor Info (for linking before contact created)
   visitorId: text('visitor_id'),
   sessionId: text('session_id'),

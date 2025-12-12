@@ -5,6 +5,12 @@ import { mediaFiles } from '@/lib/db/schema';
 import { nanoid } from 'nanoid';
 import { requireAuth } from '@/lib/api-auth';
 
+// Allow longer execution time for video uploads (2 minutes)
+export const maxDuration = 120;
+
+// Maximum file size: 100MB
+const MAX_FILE_SIZE = 100 * 1024 * 1024;
+
 export async function POST(request: NextRequest) {
   const auth = await requireAuth();
   if (!auth.authenticated) return auth.response;
@@ -17,6 +23,14 @@ export async function POST(request: NextRequest) {
 
     if (!file) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
+    }
+
+    // Validate file size
+    if (file.size > MAX_FILE_SIZE) {
+      return NextResponse.json(
+        { error: `File too large. Maximum size is ${MAX_FILE_SIZE / 1024 / 1024}MB.` },
+        { status: 413 }
+      );
     }
 
     // Convert File to base64 data URL
@@ -35,10 +49,35 @@ export async function POST(request: NextRequest) {
     }
 
     // Upload to Cloudinary
-    const result = await uploadToCloudinary(dataUrl, {
-      folder,
-      resource_type: resourceType,
-    });
+    let result;
+    try {
+      result = await uploadToCloudinary(dataUrl, {
+        folder,
+        resource_type: resourceType,
+      });
+    } catch (cloudinaryError) {
+      console.error('Cloudinary upload error:', cloudinaryError);
+      const errorMessage = cloudinaryError instanceof Error ? cloudinaryError.message : 'Cloudinary upload failed';
+
+      // Check for specific Cloudinary errors
+      if (errorMessage.includes('timeout') || errorMessage.includes('ETIMEDOUT')) {
+        return NextResponse.json(
+          { error: 'Upload timed out. Try a smaller file or check your connection.' },
+          { status: 408 }
+        );
+      }
+      if (errorMessage.includes('File size too large')) {
+        return NextResponse.json(
+          { error: 'File exceeds Cloudinary size limit.' },
+          { status: 413 }
+        );
+      }
+
+      return NextResponse.json(
+        { error: `Upload to cloud storage failed: ${errorMessage}` },
+        { status: 502 }
+      );
+    }
 
     // Save to database with Cloudinary URL
     const mediaFile = {
@@ -58,7 +97,19 @@ export async function POST(request: NextRequest) {
       cloudinaryPublicId: result.public_id, // Store for deletion
     };
 
-    await db.insert(mediaFiles).values(mediaFile);
+    try {
+      await db.insert(mediaFiles).values(mediaFile);
+    } catch (dbError) {
+      console.error('Database insert error:', dbError);
+      // File uploaded to Cloudinary but DB failed - still return the URL so user can use it
+      // Log this for manual cleanup later
+      console.warn(`Orphaned Cloudinary file: ${result.public_id}`);
+      return NextResponse.json({
+        success: true,
+        file: mediaFile,
+        warning: 'File uploaded but not saved to media library. You can still use it.',
+      });
+    }
 
     return NextResponse.json({
       success: true,
@@ -66,8 +117,29 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('Upload error:', error);
+
+    // Provide more specific error messages
+    if (error instanceof Error) {
+      if (error.message.includes('timeout') || error.message.includes('ETIMEDOUT')) {
+        return NextResponse.json(
+          { error: 'Upload timed out. Try a smaller file or check your connection.' },
+          { status: 408 }
+        );
+      }
+      if (error.message.includes('ECONNRESET') || error.message.includes('network')) {
+        return NextResponse.json(
+          { error: 'Network error. Please check your connection and try again.' },
+          { status: 503 }
+        );
+      }
+      return NextResponse.json(
+        { error: error.message },
+        { status: 500 }
+      );
+    }
+
     return NextResponse.json(
-      { error: 'Failed to upload file' },
+      { error: 'Failed to upload file. Please try again.' },
       { status: 500 }
     );
   }

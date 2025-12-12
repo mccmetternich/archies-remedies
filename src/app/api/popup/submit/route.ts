@@ -43,6 +43,8 @@ export async function POST(request: Request) {
       email,
       phone,
       source = 'popup',
+      downloadFileUrl,
+      downloadFileName,
     } = validation.data;
 
     // Get visitor ID from cookie
@@ -137,14 +139,22 @@ export async function POST(request: Request) {
       }
     }
 
-    // Record activity
+    // Record activity with download tracking
     if (contactId) {
       await db.insert(contactActivity).values({
         id: generateId(),
         contactId,
         activityType: 'popup_submit',
-        activityData: JSON.stringify({ popupType, ctaType }),
+        activityData: JSON.stringify({
+          popupType,
+          ctaType,
+          ...(downloadFileUrl && { downloadFileUrl }),
+          ...(downloadFileName && { downloadFileName }),
+        }),
         popupId: popupId || null,
+        // Download tracking - captures what file compelled the user to sign up
+        downloadFileUrl: downloadFileUrl || null,
+        downloadFileName: downloadFileName || null,
         visitorId: visitorId || null,
         sessionId: sessionId || null,
         createdAt: now,

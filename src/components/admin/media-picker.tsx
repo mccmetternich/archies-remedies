@@ -35,6 +35,9 @@ interface MediaPickerButtonProps {
   acceptVideo?: boolean; // Allow video files (mp4, webm)
 }
 
+// Maximum file size: 100MB
+const MAX_FILE_SIZE = 100 * 1024 * 1024;
+
 export function MediaPickerButton({
   label,
   value,
@@ -49,6 +52,8 @@ export function MediaPickerButton({
   const [showUrlInput, setShowUrlInput] = useState(false);
   const [urlInputValue, setUrlInputValue] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [uploadSuccess, setUploadSuccess] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Determine file accept types
@@ -61,9 +66,37 @@ export function MediaPickerButton({
     value.includes('video/')
   );
 
+  // Clear success message after 3 seconds
+  useEffect(() => {
+    if (uploadSuccess) {
+      const timer = setTimeout(() => setUploadSuccess(false), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [uploadSuccess]);
+
+  // Clear error message after 5 seconds
+  useEffect(() => {
+    if (uploadError) {
+      const timer = setTimeout(() => setUploadError(null), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [uploadError]);
+
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // Reset states
+    setUploadError(null);
+    setUploadSuccess(false);
+
+    // Validate file size
+    if (file.size > MAX_FILE_SIZE) {
+      setUploadError(`File too large. Maximum size is ${MAX_FILE_SIZE / 1024 / 1024}MB.`);
+      // Reset file input
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
 
     setUploading(true);
     try {
@@ -78,15 +111,34 @@ export function MediaPickerButton({
       });
 
       if (!response.ok) {
-        throw new Error('Upload failed');
+        // Try to get error message from response
+        let errorMessage = 'Upload failed';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorMessage;
+        } catch {
+          // Response wasn't JSON, use status text
+          if (response.status === 413) {
+            errorMessage = 'File too large for server';
+          } else if (response.status === 408) {
+            errorMessage = 'Upload timed out. Try a smaller file.';
+          } else if (response.status >= 500) {
+            errorMessage = 'Server error. Please try again.';
+          }
+        }
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
       onChange(data.file.url);
+      setUploadSuccess(true);
     } catch (error) {
       console.error('Upload failed:', error);
+      setUploadError(error instanceof Error ? error.message : 'Upload failed. Please try again.');
     } finally {
       setUploading(false);
+      // Reset file input so the same file can be re-selected
+      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
@@ -195,6 +247,20 @@ export function MediaPickerButton({
               >
                 Set
               </button>
+            </div>
+          )}
+
+          {/* Upload Status Messages */}
+          {uploadError && (
+            <div className="flex items-center gap-2 px-3 py-2 bg-red-500/10 border border-red-500/30 rounded-lg text-sm text-red-400">
+              <X className="w-4 h-4 shrink-0" />
+              <span>{uploadError}</span>
+            </div>
+          )}
+          {uploadSuccess && (
+            <div className="flex items-center gap-2 px-3 py-2 bg-green-500/10 border border-green-500/30 rounded-lg text-sm text-green-400">
+              <Check className="w-4 h-4 shrink-0" />
+              <span>Upload complete!</span>
             </div>
           )}
         </div>

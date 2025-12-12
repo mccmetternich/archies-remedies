@@ -64,9 +64,13 @@ interface GlobalNavSettings {
   marketingTileBadge2?: string | null;
   marketingTileBadge3?: string | null;
   marketingTileCtaEnabled?: boolean | null;
+  marketingTileCtaEnabledDesktop?: boolean | null;
+  marketingTileCtaEnabledMobile?: boolean | null;
   marketingTileCtaText?: string | null;
   marketingTileCtaUrl?: string | null;
   marketingTileRotatingBadgeEnabled?: boolean | null;
+  marketingTileRotatingBadgeEnabledDesktop?: boolean | null;
+  marketingTileRotatingBadgeEnabledMobile?: boolean | null;
   marketingTileRotatingBadgeUrl?: string | null;
   marketingTileHideOnMobile?: boolean | null;
   // Legacy aliases
@@ -448,8 +452,9 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                         {/* Marketing Tile (Clean Formulas) - Centered vertically in the dropdown */}
                         <div className="lg:col-span-4 relative overflow-visible">
                           <div className="p-6 rounded-2xl bg-[var(--primary-light)] relative">
-                            {/* Rotating Badge - overlapping top-right corner, highest z-index */}
+                            {/* Rotating Badge - Desktop only (respects desktop toggle) */}
                             {globalNav?.marketingTileRotatingBadgeEnabled &&
+                             (globalNav?.marketingTileRotatingBadgeEnabledDesktop !== false) &&
                              globalNav?.marketingTileRotatingBadgeUrl && (
                               <div className="absolute -top-8 -right-4 w-20 h-20 z-[100]">
                                 <Image
@@ -471,8 +476,9 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                               <span className="text-xs px-2.5 py-1 bg-white rounded-full">{globalNav?.marketingTileBadge3 || 'Sulfate-Free'}</span>
                             </div>
 
-                            {/* CTA Button for Marketing Tile - matches global nav Shop Now button */}
+                            {/* CTA Button for Marketing Tile - Desktop only (respects desktop toggle) */}
                             {globalNav?.marketingTileCtaEnabled &&
+                             (globalNav?.marketingTileCtaEnabledDesktop !== false) &&
                              globalNav?.marketingTileCtaText && (
                               <Link
                                 href={globalNav.marketingTileCtaUrl || '/about'}
@@ -686,8 +692,9 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                   {/* Mobile Marketing Tile - respects hide on mobile setting */}
                   {!globalNav?.marketingTileHideOnMobile && (
                     <div className="relative p-4 rounded-xl bg-[var(--primary-light)] overflow-visible">
-                      {/* Rotating Badge - mobile version */}
+                      {/* Rotating Badge - Mobile only (respects mobile toggle) */}
                       {globalNav?.marketingTileRotatingBadgeEnabled &&
+                       (globalNav?.marketingTileRotatingBadgeEnabledMobile !== false) &&
                        globalNav?.marketingTileRotatingBadgeUrl && (
                         <div className="absolute -top-5 -right-2 w-14 h-14 z-10">
                           <Image
@@ -717,8 +724,9 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                         <span className="text-[10px] px-2 py-0.5 bg-white rounded-full">{globalNav?.marketingTileBadge2 || 'Paraben-Free'}</span>
                         <span className="text-[10px] px-2 py-0.5 bg-white rounded-full">{globalNav?.marketingTileBadge3 || 'Sulfate-Free'}</span>
                       </div>
-                      {/* Mobile CTA Button - full width style like desktop */}
+                      {/* Mobile CTA Button - respects mobile toggle */}
                       {globalNav?.marketingTileCtaEnabled &&
+                       (globalNav?.marketingTileCtaEnabledMobile !== false) &&
                        globalNav?.marketingTileCtaText && (
                         <Link
                           href={globalNav.marketingTileCtaUrl || '/about'}

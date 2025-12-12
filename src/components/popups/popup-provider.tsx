@@ -60,9 +60,9 @@ interface PopupContextType {
   trackPopupView: (popupId: string | null, popupType: 'welcome' | 'exit' | 'custom', pageSlug?: string) => void;
   trackPopupDismiss: (popupId: string | null, popupType: 'welcome' | 'exit' | 'custom') => void;
 
-  // Submit handlers
-  submitEmail: (email: string, popupId: string | null, popupType: 'welcome' | 'exit' | 'custom') => Promise<boolean>;
-  submitPhone: (phone: string, popupId: string | null, popupType: 'welcome' | 'exit' | 'custom') => Promise<boolean>;
+  // Submit handlers (with optional download tracking)
+  submitEmail: (email: string, popupId: string | null, popupType: 'welcome' | 'exit' | 'custom', downloadInfo?: { fileUrl?: string; fileName?: string }) => Promise<boolean>;
+  submitPhone: (phone: string, popupId: string | null, popupType: 'welcome' | 'exit' | 'custom', downloadInfo?: { fileUrl?: string; fileName?: string }) => Promise<boolean>;
 }
 
 const PopupContext = createContext<PopupContextType | undefined>(undefined);
@@ -267,7 +267,8 @@ export function PopupProvider({ children, currentPage = '/', currentProductId }:
   const submitEmail = useCallback(async (
     email: string,
     popupId: string | null,
-    popupType: 'welcome' | 'exit' | 'custom'
+    popupType: 'welcome' | 'exit' | 'custom',
+    downloadInfo?: { fileUrl?: string; fileName?: string }
   ): Promise<boolean> => {
     try {
       const res = await fetch('/api/popup/submit', {
@@ -278,6 +279,8 @@ export function PopupProvider({ children, currentPage = '/', currentProductId }:
           popupType,
           ctaType: 'email',
           email,
+          ...(downloadInfo?.fileUrl && { downloadFileUrl: downloadInfo.fileUrl }),
+          ...(downloadInfo?.fileName && { downloadFileName: downloadInfo.fileName }),
         }),
       });
 
@@ -295,7 +298,8 @@ export function PopupProvider({ children, currentPage = '/', currentProductId }:
   const submitPhone = useCallback(async (
     phone: string,
     popupId: string | null,
-    popupType: 'welcome' | 'exit' | 'custom'
+    popupType: 'welcome' | 'exit' | 'custom',
+    downloadInfo?: { fileUrl?: string; fileName?: string }
   ): Promise<boolean> => {
     try {
       const res = await fetch('/api/popup/submit', {
@@ -306,6 +310,8 @@ export function PopupProvider({ children, currentPage = '/', currentProductId }:
           popupType,
           ctaType: 'sms',
           phone,
+          ...(downloadInfo?.fileUrl && { downloadFileUrl: downloadInfo.fileUrl }),
+          ...(downloadInfo?.fileName && { downloadFileName: downloadInfo.fileName }),
         }),
       });
 

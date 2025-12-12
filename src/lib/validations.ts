@@ -27,6 +27,9 @@ export const popupSubmitSchema = z.object({
   email: z.string().email('Invalid email').max(320).optional(),
   phone: z.string().max(30).optional(),
   source: z.string().max(100).optional(),
+  // Download tracking - captures what file compelled the user to sign up
+  downloadFileUrl: z.string().url().max(2000).optional(),
+  downloadFileName: z.string().max(255).optional(),
 }).refine(
   data => {
     // Email required for email CTA, phone required for SMS CTA

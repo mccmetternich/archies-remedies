@@ -92,9 +92,13 @@ interface GlobalNavSettings {
   marketingTileBadge2: string;
   marketingTileBadge3: string;
   marketingTileCtaEnabled: boolean;
+  marketingTileCtaEnabledDesktop: boolean;
+  marketingTileCtaEnabledMobile: boolean;
   marketingTileCtaText: string | null;
   marketingTileCtaUrl: string | null;
   marketingTileRotatingBadgeEnabled: boolean;
+  marketingTileRotatingBadgeEnabledDesktop: boolean;
+  marketingTileRotatingBadgeEnabledMobile: boolean;
   marketingTileRotatingBadgeUrl: string | null;
   marketingTileHideOnMobile: boolean;
   // Legacy aliases for backwards compatibility
@@ -180,9 +184,13 @@ export default function NavigationPage() {
     marketingTileBadge2: 'Paraben-Free',
     marketingTileBadge3: 'Sulfate-Free',
     marketingTileCtaEnabled: false,
+    marketingTileCtaEnabledDesktop: true,
+    marketingTileCtaEnabledMobile: true,
     marketingTileCtaText: null,
     marketingTileCtaUrl: null,
     marketingTileRotatingBadgeEnabled: false,
+    marketingTileRotatingBadgeEnabledDesktop: true,
+    marketingTileRotatingBadgeEnabledMobile: true,
     marketingTileRotatingBadgeUrl: null,
     marketingTileHideOnMobile: false,
   });
@@ -262,9 +270,13 @@ export default function NavigationPage() {
         marketingTileBadge2: data.globalNav.marketingTileBadge2 || 'Paraben-Free',
         marketingTileBadge3: data.globalNav.marketingTileBadge3 || 'Sulfate-Free',
         marketingTileCtaEnabled: data.globalNav.marketingTileCtaEnabled ?? data.globalNav.cleanFormulasCtaEnabled ?? false,
+        marketingTileCtaEnabledDesktop: data.globalNav.marketingTileCtaEnabledDesktop ?? true,
+        marketingTileCtaEnabledMobile: data.globalNav.marketingTileCtaEnabledMobile ?? true,
         marketingTileCtaText: data.globalNav.marketingTileCtaText || data.globalNav.cleanFormulasCtaText || null,
         marketingTileCtaUrl: data.globalNav.marketingTileCtaUrl || data.globalNav.cleanFormulasCtaUrl || null,
         marketingTileRotatingBadgeEnabled: data.globalNav.marketingTileRotatingBadgeEnabled ?? data.globalNav.cleanFormulasBadgeEnabled ?? false,
+        marketingTileRotatingBadgeEnabledDesktop: data.globalNav.marketingTileRotatingBadgeEnabledDesktop ?? true,
+        marketingTileRotatingBadgeEnabledMobile: data.globalNav.marketingTileRotatingBadgeEnabledMobile ?? true,
         marketingTileRotatingBadgeUrl: data.globalNav.marketingTileRotatingBadgeUrl || data.globalNav.cleanFormulasBadgeUrl || null,
         marketingTileHideOnMobile: data.globalNav.marketingTileHideOnMobile ?? false,
       } : globalNavSettings;
@@ -305,6 +317,8 @@ export default function NavigationPage() {
             showInNav: p.showInNav,
             navOrder: p.navOrder,
             navPosition: p.navPosition,
+            navShowOnDesktop: p.navShowOnDesktop,
+            navShowOnMobile: p.navShowOnMobile,
           })),
         }),
       });
@@ -477,19 +491,7 @@ export default function NavigationPage() {
           )}
         >
           <Layout className="w-4 h-4" />
-          Header Bar
-        </button>
-        <button
-          onClick={() => setActiveTab('dropdown')}
-          className={cn(
-            'flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm transition-all whitespace-nowrap',
-            activeTab === 'dropdown'
-              ? 'bg-[var(--primary)] text-[var(--admin-button-text)]'
-              : 'text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)] hover:bg-[var(--admin-input)]'
-          )}
-        >
-          <ChevronDown className="w-4 h-4" />
-          Shop Dropdown
+          Global Navigation
         </button>
         <button
           onClick={() => setActiveTab('pages')}
@@ -501,7 +503,19 @@ export default function NavigationPage() {
           )}
         >
           <FileText className="w-4 h-4" />
-          Page Links
+          Navigation Links
+        </button>
+        <button
+          onClick={() => setActiveTab('dropdown')}
+          className={cn(
+            'flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm transition-all whitespace-nowrap',
+            activeTab === 'dropdown'
+              ? 'bg-[var(--primary)] text-[var(--admin-button-text)]'
+              : 'text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)] hover:bg-[var(--admin-input)]'
+          )}
+        >
+          <ChevronDown className="w-4 h-4" />
+          Dropdown Menu
         </button>
         <button
           onClick={() => setActiveTab('bumper')}
@@ -513,7 +527,7 @@ export default function NavigationPage() {
           )}
         >
           <Megaphone className="w-4 h-4" />
-          Announcement
+          Announcement Bar
         </button>
       </div>
 
@@ -1278,24 +1292,71 @@ export default function NavigationPage() {
                 </div>
 
                 {globalNavSettings.marketingTileCtaEnabled && (
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Button Text</label>
-                      <input
-                        value={globalNavSettings.marketingTileCtaText || ''}
-                        onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, marketingTileCtaText: e.target.value || null })}
-                        placeholder="Learn More"
-                        className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
-                      />
+                  <div className="space-y-4">
+                    {/* Desktop/Mobile visibility toggles */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="flex items-center justify-between p-3 bg-[var(--admin-hover)] rounded-lg">
+                        <div className="flex items-center gap-2">
+                          <Monitor className="w-4 h-4 text-[var(--admin-text-muted)]" />
+                          <span className="text-sm text-[var(--admin-text-secondary)]">Show on Desktop</span>
+                        </div>
+                        <button
+                          onClick={() => setGlobalNavSettings({ ...globalNavSettings, marketingTileCtaEnabledDesktop: !globalNavSettings.marketingTileCtaEnabledDesktop })}
+                          className="relative inline-flex h-5 w-9 items-center rounded-full transition-colors"
+                          style={{
+                            backgroundColor: globalNavSettings.marketingTileCtaEnabledDesktop ? '#22c55e' : '#374151'
+                          }}
+                        >
+                          <span
+                            className={cn(
+                              "inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform",
+                              globalNavSettings.marketingTileCtaEnabledDesktop ? "translate-x-4" : "translate-x-1"
+                            )}
+                          />
+                        </button>
+                      </div>
+                      <div className="flex items-center justify-between p-3 bg-[var(--admin-hover)] rounded-lg">
+                        <div className="flex items-center gap-2">
+                          <Smartphone className="w-4 h-4 text-[var(--admin-text-muted)]" />
+                          <span className="text-sm text-[var(--admin-text-secondary)]">Show on Mobile</span>
+                        </div>
+                        <button
+                          onClick={() => setGlobalNavSettings({ ...globalNavSettings, marketingTileCtaEnabledMobile: !globalNavSettings.marketingTileCtaEnabledMobile })}
+                          className="relative inline-flex h-5 w-9 items-center rounded-full transition-colors"
+                          style={{
+                            backgroundColor: globalNavSettings.marketingTileCtaEnabledMobile ? '#22c55e' : '#374151'
+                          }}
+                        >
+                          <span
+                            className={cn(
+                              "inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform",
+                              globalNavSettings.marketingTileCtaEnabledMobile ? "translate-x-4" : "translate-x-1"
+                            )}
+                          />
+                        </button>
+                      </div>
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Button URL</label>
-                      <input
-                        value={globalNavSettings.marketingTileCtaUrl || ''}
-                        onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, marketingTileCtaUrl: e.target.value || null })}
-                        placeholder="/our-story"
-                        className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
-                      />
+
+                    {/* Button text and URL fields */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Button Text</label>
+                        <input
+                          value={globalNavSettings.marketingTileCtaText || ''}
+                          onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, marketingTileCtaText: e.target.value || null })}
+                          placeholder="Learn More"
+                          className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Button URL</label>
+                        <input
+                          value={globalNavSettings.marketingTileCtaUrl || ''}
+                          onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, marketingTileCtaUrl: e.target.value || null })}
+                          placeholder="/our-story"
+                          className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+                        />
+                      </div>
                     </div>
                   </div>
                 )}
@@ -1325,13 +1386,59 @@ export default function NavigationPage() {
                 </div>
 
                 {globalNavSettings.marketingTileRotatingBadgeEnabled && (
-                  <MediaPickerButton
-                    label="Badge Image"
-                    value={globalNavSettings.marketingTileRotatingBadgeUrl}
-                    onChange={(url) => setGlobalNavSettings({ ...globalNavSettings, marketingTileRotatingBadgeUrl: url || null })}
-                    helpText="Upload a PNG with transparent background. It will spin slowly and overlap the top-right corner."
-                    folder="branding"
-                  />
+                  <div className="space-y-4">
+                    {/* Desktop/Mobile visibility toggles */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="flex items-center justify-between p-3 bg-[var(--admin-hover)] rounded-lg">
+                        <div className="flex items-center gap-2">
+                          <Monitor className="w-4 h-4 text-[var(--admin-text-muted)]" />
+                          <span className="text-sm text-[var(--admin-text-secondary)]">Show on Desktop</span>
+                        </div>
+                        <button
+                          onClick={() => setGlobalNavSettings({ ...globalNavSettings, marketingTileRotatingBadgeEnabledDesktop: !globalNavSettings.marketingTileRotatingBadgeEnabledDesktop })}
+                          className="relative inline-flex h-5 w-9 items-center rounded-full transition-colors"
+                          style={{
+                            backgroundColor: globalNavSettings.marketingTileRotatingBadgeEnabledDesktop ? '#22c55e' : '#374151'
+                          }}
+                        >
+                          <span
+                            className={cn(
+                              "inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform",
+                              globalNavSettings.marketingTileRotatingBadgeEnabledDesktop ? "translate-x-4" : "translate-x-1"
+                            )}
+                          />
+                        </button>
+                      </div>
+                      <div className="flex items-center justify-between p-3 bg-[var(--admin-hover)] rounded-lg">
+                        <div className="flex items-center gap-2">
+                          <Smartphone className="w-4 h-4 text-[var(--admin-text-muted)]" />
+                          <span className="text-sm text-[var(--admin-text-secondary)]">Show on Mobile</span>
+                        </div>
+                        <button
+                          onClick={() => setGlobalNavSettings({ ...globalNavSettings, marketingTileRotatingBadgeEnabledMobile: !globalNavSettings.marketingTileRotatingBadgeEnabledMobile })}
+                          className="relative inline-flex h-5 w-9 items-center rounded-full transition-colors"
+                          style={{
+                            backgroundColor: globalNavSettings.marketingTileRotatingBadgeEnabledMobile ? '#22c55e' : '#374151'
+                          }}
+                        >
+                          <span
+                            className={cn(
+                              "inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform",
+                              globalNavSettings.marketingTileRotatingBadgeEnabledMobile ? "translate-x-4" : "translate-x-1"
+                            )}
+                          />
+                        </button>
+                      </div>
+                    </div>
+
+                    <MediaPickerButton
+                      label="Badge Image"
+                      value={globalNavSettings.marketingTileRotatingBadgeUrl}
+                      onChange={(url) => setGlobalNavSettings({ ...globalNavSettings, marketingTileRotatingBadgeUrl: url || null })}
+                      helpText="Upload a PNG with transparent background. It will spin slowly and overlap the top-right corner."
+                      folder="branding"
+                    />
+                  </div>
                 )}
               </div>
 
@@ -1378,9 +1485,9 @@ export default function NavigationPage() {
             </div>
 
             <div className="p-6">
-              {/* Shop Dropdown - Special item */}
+              {/* Global Navigation - Dropdown Menu */}
               <div className="mb-6 pb-6 border-b border-[var(--admin-border)]">
-                <p className="text-xs font-semibold uppercase tracking-wider text-[var(--admin-text-muted)] mb-3">Shop Dropdown</p>
+                <p className="text-xs font-semibold uppercase tracking-wider text-[var(--admin-text-muted)] mb-3">Global Navigation - Dropdown Menu</p>
                 <div className="p-4 bg-[var(--admin-hover)] rounded-lg flex items-center gap-4">
                   <div className="flex-1">
                     <p className="font-medium text-[var(--admin-text-primary)]">Shop</p>
@@ -1392,9 +1499,9 @@ export default function NavigationPage() {
                 </div>
               </div>
 
-              {/* Left Position */}
+              {/* Global Navigation - Left Side */}
               <div className="mb-6">
-                <p className="text-xs font-semibold uppercase tracking-wider text-[var(--admin-text-muted)] mb-3">Left Position</p>
+                <p className="text-xs font-semibold uppercase tracking-wider text-[var(--admin-text-muted)] mb-3">Global Navigation - Left Side</p>
                 <Reorder.Group
                   axis="y"
                   values={pagesList.filter(p => p.showInNav && p.navPosition === 'left').sort((a, b) => (a.navOrder || 0) - (b.navOrder || 0))}
@@ -1419,8 +1526,8 @@ export default function NavigationPage() {
                           <p className="font-medium text-[var(--admin-text-primary)]">{page.title}</p>
                           <p className="text-sm text-[var(--admin-text-muted)]">/{page.slug}</p>
                         </div>
-                        {/* Device visibility toggles - inline with other controls */}
-                        <div className="flex items-center gap-1 shrink-0">
+                        {/* Device visibility toggles - clear ON/OFF indicators */}
+                        <div className="flex items-center gap-2 shrink-0">
                           <button
                             type="button"
                             onClick={() => {
@@ -1428,14 +1535,15 @@ export default function NavigationPage() {
                                 p.id === page.id ? { ...p, navShowOnDesktop: !p.navShowOnDesktop } : p
                               ));
                             }}
-                            className={`p-2 rounded-lg transition-colors ${
+                            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
                               page.navShowOnDesktop !== false
-                                ? 'bg-[#bbdae9] text-[#1a1a1a]'
-                                : 'bg-[var(--admin-input)] text-[var(--admin-text-muted)] hover:bg-[var(--admin-border)]'
+                                ? 'bg-green-500/20 text-green-400 border border-green-500/30'
+                                : 'bg-[var(--admin-input)] text-[var(--admin-text-muted)] border border-[var(--admin-border)] opacity-60 hover:opacity-100'
                             }`}
-                            title="Show on desktop"
+                            title={page.navShowOnDesktop !== false ? 'Visible on desktop - click to hide' : 'Hidden on desktop - click to show'}
                           >
-                            <Monitor className="w-4 h-4" />
+                            <Monitor className="w-3.5 h-3.5" />
+                            <span>{page.navShowOnDesktop !== false ? 'ON' : 'OFF'}</span>
                           </button>
                           <button
                             type="button"
@@ -1444,14 +1552,15 @@ export default function NavigationPage() {
                                 p.id === page.id ? { ...p, navShowOnMobile: !p.navShowOnMobile } : p
                               ));
                             }}
-                            className={`p-2 rounded-lg transition-colors ${
+                            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
                               page.navShowOnMobile !== false
-                                ? 'bg-[#bbdae9] text-[#1a1a1a]'
-                                : 'bg-[var(--admin-input)] text-[var(--admin-text-muted)] hover:bg-[var(--admin-border)]'
+                                ? 'bg-green-500/20 text-green-400 border border-green-500/30'
+                                : 'bg-[var(--admin-input)] text-[var(--admin-text-muted)] border border-[var(--admin-border)] opacity-60 hover:opacity-100'
                             }`}
-                            title="Show on mobile"
+                            title={page.navShowOnMobile !== false ? 'Visible on mobile - click to hide' : 'Hidden on mobile - click to show'}
                           >
-                            <Smartphone className="w-4 h-4" />
+                            <Smartphone className="w-3.5 h-3.5" />
+                            <span>{page.navShowOnMobile !== false ? 'ON' : 'OFF'}</span>
                           </button>
                         </div>
                         <select
@@ -1482,9 +1591,9 @@ export default function NavigationPage() {
                 )}
               </div>
 
-              {/* Center Position */}
+              {/* Global Navigation - Center */}
               <div className="mb-6 pb-6 border-b border-[var(--admin-border)]">
-                <p className="text-xs font-semibold uppercase tracking-wider text-[var(--admin-text-muted)] mb-3">Center Position</p>
+                <p className="text-xs font-semibold uppercase tracking-wider text-[var(--admin-text-muted)] mb-3">Global Navigation - Center</p>
                 <Reorder.Group
                   axis="y"
                   values={pagesList.filter(p => p.showInNav && p.navPosition === 'center').sort((a, b) => (a.navOrder || 0) - (b.navOrder || 0))}
@@ -1509,8 +1618,8 @@ export default function NavigationPage() {
                           <p className="font-medium text-[var(--admin-text-primary)]">{page.title}</p>
                           <p className="text-sm text-[var(--admin-text-muted)]">/{page.slug}</p>
                         </div>
-                        {/* Device visibility toggles - inline with other controls */}
-                        <div className="flex items-center gap-1 shrink-0">
+                        {/* Device visibility toggles - clear ON/OFF indicators */}
+                        <div className="flex items-center gap-2 shrink-0">
                           <button
                             type="button"
                             onClick={() => {
@@ -1518,14 +1627,15 @@ export default function NavigationPage() {
                                 p.id === page.id ? { ...p, navShowOnDesktop: !p.navShowOnDesktop } : p
                               ));
                             }}
-                            className={`p-2 rounded-lg transition-colors ${
+                            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
                               page.navShowOnDesktop !== false
-                                ? 'bg-[#bbdae9] text-[#1a1a1a]'
-                                : 'bg-[var(--admin-input)] text-[var(--admin-text-muted)] hover:bg-[var(--admin-border)]'
+                                ? 'bg-green-500/20 text-green-400 border border-green-500/30'
+                                : 'bg-[var(--admin-input)] text-[var(--admin-text-muted)] border border-[var(--admin-border)] opacity-60 hover:opacity-100'
                             }`}
-                            title="Show on desktop"
+                            title={page.navShowOnDesktop !== false ? 'Visible on desktop - click to hide' : 'Hidden on desktop - click to show'}
                           >
-                            <Monitor className="w-4 h-4" />
+                            <Monitor className="w-3.5 h-3.5" />
+                            <span>{page.navShowOnDesktop !== false ? 'ON' : 'OFF'}</span>
                           </button>
                           <button
                             type="button"
@@ -1534,14 +1644,15 @@ export default function NavigationPage() {
                                 p.id === page.id ? { ...p, navShowOnMobile: !p.navShowOnMobile } : p
                               ));
                             }}
-                            className={`p-2 rounded-lg transition-colors ${
+                            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
                               page.navShowOnMobile !== false
-                                ? 'bg-[#bbdae9] text-[#1a1a1a]'
-                                : 'bg-[var(--admin-input)] text-[var(--admin-text-muted)] hover:bg-[var(--admin-border)]'
+                                ? 'bg-green-500/20 text-green-400 border border-green-500/30'
+                                : 'bg-[var(--admin-input)] text-[var(--admin-text-muted)] border border-[var(--admin-border)] opacity-60 hover:opacity-100'
                             }`}
-                            title="Show on mobile"
+                            title={page.navShowOnMobile !== false ? 'Visible on mobile - click to hide' : 'Hidden on mobile - click to show'}
                           >
-                            <Smartphone className="w-4 h-4" />
+                            <Smartphone className="w-3.5 h-3.5" />
+                            <span>{page.navShowOnMobile !== false ? 'ON' : 'OFF'}</span>
                           </button>
                         </div>
                         <select
@@ -1572,9 +1683,9 @@ export default function NavigationPage() {
                 )}
               </div>
 
-              {/* Right Position */}
+              {/* Global Navigation - Right Side */}
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-[var(--admin-text-muted)] mb-3">Right Position</p>
+                <p className="text-xs font-semibold uppercase tracking-wider text-[var(--admin-text-muted)] mb-3">Global Navigation - Right Side</p>
                 <Reorder.Group
                   axis="y"
                   values={pagesList.filter(p => p.showInNav && (p.navPosition === 'right' || !p.navPosition)).sort((a, b) => (a.navOrder || 0) - (b.navOrder || 0))}
@@ -1599,8 +1710,8 @@ export default function NavigationPage() {
                           <p className="font-medium text-[var(--admin-text-primary)]">{page.title}</p>
                           <p className="text-sm text-[var(--admin-text-muted)]">/{page.slug}</p>
                         </div>
-                        {/* Device visibility toggles - inline with other controls */}
-                        <div className="flex items-center gap-1 shrink-0">
+                        {/* Device visibility toggles - clear ON/OFF indicators */}
+                        <div className="flex items-center gap-2 shrink-0">
                           <button
                             type="button"
                             onClick={() => {
@@ -1608,14 +1719,15 @@ export default function NavigationPage() {
                                 p.id === page.id ? { ...p, navShowOnDesktop: !p.navShowOnDesktop } : p
                               ));
                             }}
-                            className={`p-2 rounded-lg transition-colors ${
+                            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
                               page.navShowOnDesktop !== false
-                                ? 'bg-[#bbdae9] text-[#1a1a1a]'
-                                : 'bg-[var(--admin-input)] text-[var(--admin-text-muted)] hover:bg-[var(--admin-border)]'
+                                ? 'bg-green-500/20 text-green-400 border border-green-500/30'
+                                : 'bg-[var(--admin-input)] text-[var(--admin-text-muted)] border border-[var(--admin-border)] opacity-60 hover:opacity-100'
                             }`}
-                            title="Show on desktop"
+                            title={page.navShowOnDesktop !== false ? 'Visible on desktop - click to hide' : 'Hidden on desktop - click to show'}
                           >
-                            <Monitor className="w-4 h-4" />
+                            <Monitor className="w-3.5 h-3.5" />
+                            <span>{page.navShowOnDesktop !== false ? 'ON' : 'OFF'}</span>
                           </button>
                           <button
                             type="button"
@@ -1624,14 +1736,15 @@ export default function NavigationPage() {
                                 p.id === page.id ? { ...p, navShowOnMobile: !p.navShowOnMobile } : p
                               ));
                             }}
-                            className={`p-2 rounded-lg transition-colors ${
+                            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
                               page.navShowOnMobile !== false
-                                ? 'bg-[#bbdae9] text-[#1a1a1a]'
-                                : 'bg-[var(--admin-input)] text-[var(--admin-text-muted)] hover:bg-[var(--admin-border)]'
+                                ? 'bg-green-500/20 text-green-400 border border-green-500/30'
+                                : 'bg-[var(--admin-input)] text-[var(--admin-text-muted)] border border-[var(--admin-border)] opacity-60 hover:opacity-100'
                             }`}
-                            title="Show on mobile"
+                            title={page.navShowOnMobile !== false ? 'Visible on mobile - click to hide' : 'Hidden on mobile - click to show'}
                           >
-                            <Smartphone className="w-4 h-4" />
+                            <Smartphone className="w-3.5 h-3.5" />
+                            <span>{page.navShowOnMobile !== false ? 'ON' : 'OFF'}</span>
                           </button>
                         </div>
                         <select

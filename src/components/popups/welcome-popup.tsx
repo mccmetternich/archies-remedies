@@ -200,18 +200,24 @@ export function WelcomePopup({
 
     let success = false;
 
+    // Build download info if download is enabled
+    const downloadInfo = downloadEnabled && downloadFileUrl ? {
+      fileUrl: downloadFileUrl,
+      fileName: downloadFileName || 'download',
+    } : undefined;
+
     if (ctaType === 'email') {
-      success = await submitEmail(contactValue, null, 'welcome');
+      success = await submitEmail(contactValue, null, 'welcome', downloadInfo);
     } else if (ctaType === 'sms') {
       const phoneDigits = contactValue.replace(/\D/g, '');
-      success = await submitPhone(phoneDigits, null, 'welcome');
+      success = await submitPhone(phoneDigits, null, 'welcome', downloadInfo);
     } else if (ctaType === 'both') {
       // Submit based on selected type in dropdown
       if (contactType === 'phone') {
         const phoneDigits = contactValue.replace(/\D/g, '');
-        success = await submitPhone(phoneDigits, null, 'welcome');
+        success = await submitPhone(phoneDigits, null, 'welcome', downloadInfo);
       } else {
-        success = await submitEmail(contactValue, null, 'welcome');
+        success = await submitEmail(contactValue, null, 'welcome', downloadInfo);
       }
     }
 

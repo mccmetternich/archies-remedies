@@ -237,17 +237,23 @@ export function CustomPopup({ popup, enabled = true }: CustomPopupProps) {
 
     let success = false;
 
+    // Build download info if popup has a download file
+    const downloadInfo = popup.downloadFileUrl ? {
+      fileUrl: popup.downloadFileUrl,
+      fileName: popup.downloadFileName || 'download',
+    } : undefined;
+
     if (popup.ctaType === 'email') {
-      success = await submitEmail(contactValue, popup.id, 'custom');
+      success = await submitEmail(contactValue, popup.id, 'custom', downloadInfo);
     } else if (popup.ctaType === 'sms') {
       const phoneDigits = contactValue.replace(/\D/g, '');
-      success = await submitPhone(phoneDigits, popup.id, 'custom');
+      success = await submitPhone(phoneDigits, popup.id, 'custom', downloadInfo);
     } else if (popup.ctaType === 'both') {
       if (contactType === 'phone') {
         const phoneDigits = contactValue.replace(/\D/g, '');
-        success = await submitPhone(phoneDigits, popup.id, 'custom');
+        success = await submitPhone(phoneDigits, popup.id, 'custom', downloadInfo);
       } else {
-        success = await submitEmail(contactValue, popup.id, 'custom');
+        success = await submitEmail(contactValue, popup.id, 'custom', downloadInfo);
       }
     }
 
