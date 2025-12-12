@@ -74,10 +74,10 @@ export function MediaPickerButton({
     }
   }, [uploadSuccess]);
 
-  // Clear error message after 5 seconds
+  // Clear error message after 10 seconds (longer so user can read it)
   useEffect(() => {
     if (uploadError) {
-      const timer = setTimeout(() => setUploadError(null), 5000);
+      const timer = setTimeout(() => setUploadError(null), 10000);
       return () => clearTimeout(timer);
     }
   }, [uploadError]);
@@ -99,25 +99,32 @@ export function MediaPickerButton({
     }
 
     setUploading(true);
+    console.log('[MediaPicker] Starting upload:', { fileName: file.name, fileSize: file.size, folder });
+
     try {
       // Upload to Cloudinary via our API
       const formData = new FormData();
       formData.append('file', file);
       formData.append('folder', folder || 'general');
 
+      console.log('[MediaPicker] Sending request to /api/admin/upload');
       const response = await fetch('/api/admin/upload', {
         method: 'POST',
         body: formData,
       });
+
+      console.log('[MediaPicker] Response status:', response.status);
 
       if (!response.ok) {
         // Try to get error message from response
         let errorMessage = 'Upload failed';
         try {
           const errorData = await response.json();
+          console.log('[MediaPicker] Error response:', errorData);
           errorMessage = errorData.error || errorMessage;
         } catch {
           // Response wasn't JSON, use status text
+          console.log('[MediaPicker] Could not parse error response as JSON');
           if (response.status === 413) {
             errorMessage = 'File too large for server';
           } else if (response.status === 408) {
@@ -130,10 +137,11 @@ export function MediaPickerButton({
       }
 
       const data = await response.json();
+      console.log('[MediaPicker] Upload success:', data.file?.url);
       onChange(data.file.url);
       setUploadSuccess(true);
     } catch (error) {
-      console.error('Upload failed:', error);
+      console.error('[MediaPicker] Upload failed:', error);
       setUploadError(error instanceof Error ? error.message : 'Upload failed. Please try again.');
     } finally {
       setUploading(false);
