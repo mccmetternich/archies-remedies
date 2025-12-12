@@ -118,6 +118,8 @@ export const siteSettings = sqliteTable('site_settings', {
   navDropdownTile1Subtitle: text('nav_dropdown_tile1_subtitle'), // Override description
   navDropdownTile1Badge: text('nav_dropdown_tile1_badge'), // e.g., "Bestseller"
   navDropdownTile1BadgeEmoji: text('nav_dropdown_tile1_badge_emoji'), // e.g., "🔥"
+  navDropdownTile1BadgeBgColor: text('nav_dropdown_tile1_badge_bg_color').default('#1a1a1a'), // Badge background color
+  navDropdownTile1BadgeTextColor: text('nav_dropdown_tile1_badge_text_color').default('#ffffff'), // Badge text color
   navDropdownTile1ImageUrl: text('nav_dropdown_tile1_image_url'), // Primary image override
   navDropdownTile1HoverImageUrl: text('nav_dropdown_tile1_hover_image_url'), // Hover image override
 
@@ -126,6 +128,8 @@ export const siteSettings = sqliteTable('site_settings', {
   navDropdownTile2Subtitle: text('nav_dropdown_tile2_subtitle'),
   navDropdownTile2Badge: text('nav_dropdown_tile2_badge'),
   navDropdownTile2BadgeEmoji: text('nav_dropdown_tile2_badge_emoji'),
+  navDropdownTile2BadgeBgColor: text('nav_dropdown_tile2_badge_bg_color').default('#bbdae9'), // Badge background color
+  navDropdownTile2BadgeTextColor: text('nav_dropdown_tile2_badge_text_color').default('#1a1a1a'), // Badge text color
   navDropdownTile2ImageUrl: text('nav_dropdown_tile2_image_url'), // Primary image override
   navDropdownTile2HoverImageUrl: text('nav_dropdown_tile2_hover_image_url'), // Hover image override
 

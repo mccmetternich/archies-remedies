@@ -60,6 +60,8 @@ export async function GET() {
       tile1Subtitle: settings.navDropdownTile1Subtitle,
       tile1Badge: settings.navDropdownTile1Badge,
       tile1BadgeEmoji: settings.navDropdownTile1BadgeEmoji,
+      tile1BadgeBgColor: settings.navDropdownTile1BadgeBgColor || '#1a1a1a',
+      tile1BadgeTextColor: settings.navDropdownTile1BadgeTextColor || '#ffffff',
       tile1ImageUrl: settings.navDropdownTile1ImageUrl,
       tile1HoverImageUrl: settings.navDropdownTile1HoverImageUrl,
       // Dropdown tile 2
@@ -68,6 +70,8 @@ export async function GET() {
       tile2Subtitle: settings.navDropdownTile2Subtitle,
       tile2Badge: settings.navDropdownTile2Badge,
       tile2BadgeEmoji: settings.navDropdownTile2BadgeEmoji,
+      tile2BadgeBgColor: settings.navDropdownTile2BadgeBgColor || '#bbdae9',
+      tile2BadgeTextColor: settings.navDropdownTile2BadgeTextColor || '#1a1a1a',
       tile2ImageUrl: settings.navDropdownTile2ImageUrl,
       tile2HoverImageUrl: settings.navDropdownTile2HoverImageUrl,
       // Marketing tile (formerly "Clean Formulas")
@@ -153,6 +157,8 @@ export async function PUT(request: Request) {
         navDropdownTile1Subtitle: globalNav.tile1Subtitle || null,
         navDropdownTile1Badge: globalNav.tile1Badge || null,
         navDropdownTile1BadgeEmoji: globalNav.tile1BadgeEmoji || null,
+        navDropdownTile1BadgeBgColor: globalNav.tile1BadgeBgColor || '#1a1a1a',
+        navDropdownTile1BadgeTextColor: globalNav.tile1BadgeTextColor || '#ffffff',
         navDropdownTile1ImageUrl: globalNav.tile1ImageUrl || null,
         navDropdownTile1HoverImageUrl: globalNav.tile1HoverImageUrl || null,
         navDropdownTile2ProductId: globalNav.tile2ProductId || null,
@@ -160,6 +166,8 @@ export async function PUT(request: Request) {
         navDropdownTile2Subtitle: globalNav.tile2Subtitle || null,
         navDropdownTile2Badge: globalNav.tile2Badge || null,
         navDropdownTile2BadgeEmoji: globalNav.tile2BadgeEmoji || null,
+        navDropdownTile2BadgeBgColor: globalNav.tile2BadgeBgColor || '#bbdae9',
+        navDropdownTile2BadgeTextColor: globalNav.tile2BadgeTextColor || '#1a1a1a',
         navDropdownTile2ImageUrl: globalNav.tile2ImageUrl || null,
         navDropdownTile2HoverImageUrl: globalNav.tile2HoverImageUrl || null,
         // Marketing tile settings (using new field names)

@@ -42,6 +42,8 @@ interface GlobalNavSettings {
   tile1Subtitle?: string | null;
   tile1Badge?: string | null;
   tile1BadgeEmoji?: string | null;
+  tile1BadgeBgColor?: string | null;
+  tile1BadgeTextColor?: string | null;
   tile1ImageUrl?: string | null;
   tile1HoverImageUrl?: string | null;
   tile2ProductId?: string | null;
@@ -49,6 +51,8 @@ interface GlobalNavSettings {
   tile2Subtitle?: string | null;
   tile2Badge?: string | null;
   tile2BadgeEmoji?: string | null;
+  tile2BadgeBgColor?: string | null;
+  tile2BadgeTextColor?: string | null;
   tile2ImageUrl?: string | null;
   tile2HoverImageUrl?: string | null;
   // Marketing tile (uses both new and legacy field names)
@@ -312,7 +316,13 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                                     )}
                                   </div>
                                   {(globalNav?.tile1Badge || globalNav?.tile1BadgeEmoji) && (
-                                    <span className="absolute top-3 right-3 text-xs px-2.5 py-1 bg-[var(--foreground)] text-white rounded-full font-medium flex items-center gap-1">
+                                    <span
+                                      className="absolute top-3 right-3 text-sm px-3 py-1.5 rounded-full font-medium flex items-center gap-1.5"
+                                      style={{
+                                        backgroundColor: globalNav?.tile1BadgeBgColor || '#1a1a1a',
+                                        color: globalNav?.tile1BadgeTextColor || '#ffffff'
+                                      }}
+                                    >
                                       {globalNav.tile1BadgeEmoji} {globalNav.tile1Badge}
                                     </span>
                                   )}
@@ -396,7 +406,13 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                                     )}
                                   </div>
                                   {(globalNav?.tile2Badge || globalNav?.tile2BadgeEmoji) && (
-                                    <span className="absolute top-3 right-3 text-xs px-2.5 py-1 bg-[var(--primary)] text-[var(--foreground)] rounded-full font-medium flex items-center gap-1">
+                                    <span
+                                      className="absolute top-3 right-3 text-sm px-3 py-1.5 rounded-full font-medium flex items-center gap-1.5"
+                                      style={{
+                                        backgroundColor: globalNav?.tile2BadgeBgColor || '#bbdae9',
+                                        color: globalNav?.tile2BadgeTextColor || '#1a1a1a'
+                                      }}
+                                    >
                                       {globalNav.tile2BadgeEmoji} {globalNav.tile2Badge}
                                     </span>
                                   )}
