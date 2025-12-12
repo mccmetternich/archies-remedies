@@ -249,11 +249,11 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                   style={{ top: showBumper ? '131px' : '87px' }}
                 >
 
-                  <div className="relative z-50 w-full bg-white shadow-[0_20px_40px_rgba(0,0,0,0.15)]">
+                  <div className="relative z-50 w-full bg-white shadow-[0_20px_40px_rgba(0,0,0,0.15)] overflow-visible">
                     {/* Shelf container with generous padding - pb-[30px] for whitespace below tiles */}
-                    <div className="container pt-8 pb-[30px]">
+                    <div className="container pt-8 pb-[30px] overflow-visible">
                       {/* Content grid - center aligned so marketing tile sits in vertical middle */}
-                      <div className="grid lg:grid-cols-12 gap-8 items-center">
+                      <div className="grid lg:grid-cols-12 gap-8 items-center overflow-visible">
                         {/* Product tiles - 2 columns */}
                         <div className="lg:col-span-8">
                           <div className="grid md:grid-cols-2 gap-6">
@@ -441,20 +441,20 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
 
                         {/* Marketing Tile (Clean Formulas) - Centered vertically in the dropdown */}
                         <div className="lg:col-span-4 relative overflow-visible">
-                          {/* Rotating Badge - positioned inside the tile area to avoid clipping */}
-                          {globalNav?.marketingTileRotatingBadgeEnabled &&
-                           globalNav?.marketingTileRotatingBadgeUrl && (
-                            <div className="absolute -top-6 right-4 w-20 h-20 z-20">
-                              <Image
-                                src={globalNav.marketingTileRotatingBadgeUrl}
-                                alt=""
-                                width={80}
-                                height={80}
-                                className="w-full h-full object-contain animate-spin-slow"
-                              />
-                            </div>
-                          )}
-                          <div className="p-6 pr-6 rounded-2xl bg-[var(--primary-light)] relative">
+                          <div className="p-6 rounded-2xl bg-[var(--primary-light)] relative">
+                            {/* Rotating Badge - overlapping top-right corner, highest z-index */}
+                            {globalNav?.marketingTileRotatingBadgeEnabled &&
+                             globalNav?.marketingTileRotatingBadgeUrl && (
+                              <div className="absolute -top-8 -right-4 w-20 h-20 z-[100]">
+                                <Image
+                                  src={globalNav.marketingTileRotatingBadgeUrl}
+                                  alt=""
+                                  width={80}
+                                  height={80}
+                                  className="w-full h-full object-contain animate-spin-slow"
+                                />
+                              </div>
+                            )}
                             <p className="text-lg font-medium mb-2">{globalNav?.marketingTileTitle || cleanFormulasTitle}</p>
                             <p className="text-sm text-[var(--muted-foreground)] leading-relaxed mb-4">
                               {globalNav?.marketingTileDescription || cleanFormulasDescription}
