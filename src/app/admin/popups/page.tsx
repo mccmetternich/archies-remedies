@@ -29,7 +29,6 @@ import {
   Play,
   Star,
   Quote,
-  ExternalLink,
   Link as LinkIcon,
   ChevronDown,
 } from 'lucide-react';
@@ -1272,35 +1271,40 @@ export default function PopupsPage() {
                       {/* Testimonial Bubble - Mobile */}
                       {currentTestimonialEnabled && currentTestimonialEnabledMobile && currentTestimonialQuote && (
                         <div className="absolute bottom-3 left-3 right-3">
-                          <div className="bg-white/95 backdrop-blur-sm rounded-xl p-3 shadow-lg">
-                            <div className="flex items-start gap-2.5">
+                          <div className="relative bg-white/98 backdrop-blur-md rounded-xl px-3 py-2.5 shadow-lg ring-1 ring-black/[0.03]">
+                            {/* Subtle accent line */}
+                            <div className="absolute left-0 top-2.5 bottom-2.5 w-[2px] bg-gradient-to-b from-[#bbdae9] to-[#bbdae9]/40 rounded-full" />
+                            <div className="flex items-center gap-2.5 pl-1.5">
                               {currentTestimonialAvatarUrl ? (
                                 <Image
                                   src={currentTestimonialAvatarUrl}
                                   alt={currentTestimonialAuthor || 'Reviewer'}
-                                  width={36}
-                                  height={36}
-                                  className="rounded-full object-cover flex-shrink-0"
+                                  width={40}
+                                  height={40}
+                                  className="rounded-full object-cover flex-shrink-0 ring-2 ring-white shadow-sm"
                                 />
                               ) : (
-                                <div className="w-9 h-9 rounded-full bg-[#bbdae9]/30 flex items-center justify-center flex-shrink-0">
-                                  <span className="text-sm font-medium text-[#1a1a1a]">
+                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#bbdae9]/40 to-[#bbdae9]/20 flex items-center justify-center flex-shrink-0 ring-2 ring-white shadow-sm">
+                                  <span className="text-sm font-semibold text-[#1a1a1a]">
                                     {(currentTestimonialAuthor || 'A')[0]}
                                   </span>
                                 </div>
                               )}
                               <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-1 mb-0.5">
-                                  {[...Array(currentTestimonialStars ?? 5)].map((_, i) => (
-                                    <Star key={i} className="w-3 h-3 fill-[#bbdae9] text-[#bbdae9]" />
-                                  ))}
+                                {/* Author name + stars on same row */}
+                                <div className="flex items-center gap-1.5 mb-0.5">
+                                  {currentTestimonialAuthor && (
+                                    <span className="text-xs font-semibold text-[#1a1a1a]">{currentTestimonialAuthor}</span>
+                                  )}
+                                  <div className="flex items-center gap-0.5">
+                                    {[...Array(currentTestimonialStars ?? 5)].map((_, i) => (
+                                      <Star key={i} className="w-2.5 h-2.5 fill-[#bbdae9] text-[#bbdae9]" />
+                                    ))}
+                                  </div>
                                 </div>
-                                <p className="text-xs text-gray-700 leading-snug line-clamp-2">
-                                  &ldquo;{currentTestimonialQuote}&rdquo;
+                                <p className="text-[11px] text-gray-600 leading-snug line-clamp-2 italic">
+                                  {currentTestimonialQuote}
                                 </p>
-                                {currentTestimonialAuthor && (
-                                  <p className="text-[10px] text-gray-500 mt-0.5">{currentTestimonialAuthor}</p>
-                                )}
                               </div>
                             </div>
                           </div>
@@ -1331,17 +1335,15 @@ export default function PopupsPage() {
                           )}
                           {/* Success Links - Mobile */}
                           {(currentSuccessLink1Text || currentSuccessLink2Text) && (
-                            <div className="mt-6 space-y-2">
+                            <div className="mt-6 space-y-2 max-w-xs mx-auto">
                               {currentSuccessLink1Text && (
-                                <button className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-[#1a1a1a] text-white rounded-full font-medium text-sm">
+                                <button className="block w-full text-center px-5 py-2.5 bg-[#1a1a1a] text-white rounded-full font-medium text-sm">
                                   {currentSuccessLink1Text}
-                                  <ExternalLink className="w-3.5 h-3.5" />
                                 </button>
                               )}
                               {currentSuccessLink2Text && (
-                                <button className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-transparent border border-gray-200 text-gray-700 rounded-full font-medium text-sm">
+                                <button className="block w-full text-center px-5 py-2.5 border border-gray-300 text-gray-700 rounded-full font-medium text-sm">
                                   {currentSuccessLink2Text}
-                                  <ExternalLink className="w-3.5 h-3.5" />
                                 </button>
                               )}
                             </div>
@@ -1444,35 +1446,40 @@ export default function PopupsPage() {
                       {/* Testimonial Bubble - Desktop */}
                       {currentTestimonialEnabled && currentTestimonialEnabledDesktop && currentTestimonialQuote && (
                         <div className="absolute bottom-4 left-4 right-4">
-                          <div className="bg-white/95 backdrop-blur-sm rounded-xl p-3.5 shadow-lg">
-                            <div className="flex items-start gap-3">
+                          <div className="relative bg-white/98 backdrop-blur-md rounded-2xl px-4 py-3 shadow-lg ring-1 ring-black/[0.03]">
+                            {/* Subtle accent line */}
+                            <div className="absolute left-0 top-3 bottom-3 w-[3px] bg-gradient-to-b from-[#bbdae9] to-[#bbdae9]/40 rounded-full" />
+                            <div className="flex items-center gap-3.5 pl-2">
                               {currentTestimonialAvatarUrl ? (
                                 <Image
                                   src={currentTestimonialAvatarUrl}
                                   alt={currentTestimonialAuthor || 'Reviewer'}
-                                  width={40}
-                                  height={40}
-                                  className="rounded-full object-cover flex-shrink-0"
+                                  width={48}
+                                  height={48}
+                                  className="rounded-full object-cover flex-shrink-0 ring-2 ring-white shadow-sm"
                                 />
                               ) : (
-                                <div className="w-10 h-10 rounded-full bg-[#bbdae9]/30 flex items-center justify-center flex-shrink-0">
-                                  <span className="text-sm font-medium text-[#1a1a1a]">
+                                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#bbdae9]/40 to-[#bbdae9]/20 flex items-center justify-center flex-shrink-0 ring-2 ring-white shadow-sm">
+                                  <span className="text-base font-semibold text-[#1a1a1a]">
                                     {(currentTestimonialAuthor || 'A')[0]}
                                   </span>
                                 </div>
                               )}
                               <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-1 mb-1">
-                                  {[...Array(currentTestimonialStars ?? 5)].map((_, i) => (
-                                    <Star key={i} className="w-3.5 h-3.5 fill-[#bbdae9] text-[#bbdae9]" />
-                                  ))}
+                                {/* Author name + stars on same row */}
+                                <div className="flex items-center gap-2 mb-1">
+                                  {currentTestimonialAuthor && (
+                                    <span className="text-sm font-semibold text-[#1a1a1a]">{currentTestimonialAuthor}</span>
+                                  )}
+                                  <div className="flex items-center gap-0.5">
+                                    {[...Array(currentTestimonialStars ?? 5)].map((_, i) => (
+                                      <Star key={i} className="w-3 h-3 fill-[#bbdae9] text-[#bbdae9]" />
+                                    ))}
+                                  </div>
                                 </div>
-                                <p className="text-sm text-gray-700 leading-snug">
-                                  &ldquo;{currentTestimonialQuote}&rdquo;
+                                <p className="text-[13px] text-gray-600 leading-snug italic">
+                                  {currentTestimonialQuote}
                                 </p>
-                                {currentTestimonialAuthor && (
-                                  <p className="text-xs text-gray-500 mt-1">{currentTestimonialAuthor}</p>
-                                )}
                               </div>
                             </div>
                           </div>
@@ -1503,17 +1510,15 @@ export default function PopupsPage() {
                           )}
                           {/* Success Links - Desktop */}
                           {(currentSuccessLink1Text || currentSuccessLink2Text) && (
-                            <div className="mt-6 space-y-2">
+                            <div className="mt-6 space-y-2 max-w-xs mx-auto">
                               {currentSuccessLink1Text && (
-                                <button className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-[#1a1a1a] text-white rounded-full font-medium text-sm hover:bg-[#bbdae9] hover:text-[#1a1a1a] transition-colors">
+                                <button className="block w-full text-center px-5 py-2.5 bg-[#1a1a1a] text-white rounded-full font-medium text-sm hover:bg-[#bbdae9] hover:text-[#1a1a1a] transition-colors">
                                   {currentSuccessLink1Text}
-                                  <ExternalLink className="w-3.5 h-3.5" />
                                 </button>
                               )}
                               {currentSuccessLink2Text && (
-                                <button className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-transparent border border-gray-200 text-gray-700 rounded-full font-medium text-sm hover:bg-gray-50 transition-colors">
+                                <button className="block w-full text-center px-5 py-2.5 border border-gray-300 text-gray-700 rounded-full font-medium text-sm hover:border-[#1a1a1a] hover:text-[#1a1a1a] transition-colors">
                                   {currentSuccessLink2Text}
-                                  <ExternalLink className="w-3.5 h-3.5" />
                                 </button>
                               )}
                             </div>
