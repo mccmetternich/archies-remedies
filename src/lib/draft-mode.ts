@@ -79,11 +79,26 @@ export async function validatePreviewToken(token: string): Promise<boolean> {
 }
 
 /**
+ * Check if user has team access via cookie
+ * Team access allows browsing the site when in draft mode
+ */
+export async function hasTeamAccess(): Promise<boolean> {
+  try {
+    const cookieStore = await cookies();
+    const teamToken = cookieStore.get('team_access_token');
+    return !!teamToken?.value;
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Check if the site is in draft mode and redirect to coming-soon if needed.
  *
  * Access is granted if:
  * 1. Site is NOT in draft mode (siteInDraftMode = false)
  * 2. URL contains a valid, non-expired preview token (?token=xxx)
+ * 3. User has team access (via team_access_token cookie)
  *
  * Note: Admin session alone does NOT grant access - admins must use the preview link with token
  *
@@ -98,6 +113,12 @@ export async function checkDraftMode(token?: string | null): Promise<{ isInDraft
   // If not in draft mode, allow access
   if (!isInDraftMode) {
     return { isInDraftMode: false, hasPreviewAccess: false };
+  }
+
+  // Check for team access cookie first
+  const hasTeam = await hasTeamAccess();
+  if (hasTeam) {
+    return { isInDraftMode: true, hasPreviewAccess: true };
   }
 
   // Check for valid preview token
@@ -119,6 +140,12 @@ export async function checkDraftMode(token?: string | null): Promise<{ isInDraft
  * @param token - Optional preview token from URL
  */
 export async function checkPageDraft(slug: string, token?: string | null): Promise<{ isDraft: boolean }> {
+  // Check for team access first
+  const hasTeam = await hasTeamAccess();
+  if (hasTeam) {
+    return { isDraft: false };
+  }
+
   // Check for valid preview token
   const previewToken = token ?? await getPreviewTokenFromRequest();
   const hasAccess = previewToken ? await validatePreviewToken(previewToken) : false;
@@ -161,6 +188,12 @@ export async function checkPageDraft(slug: string, token?: string | null): Promi
  * @param token - Optional preview token from URL
  */
 export async function checkProductDraft(productSlug: string, token?: string | null): Promise<{ isDraft: boolean }> {
+  // Check for team access first
+  const hasTeam = await hasTeamAccess();
+  if (hasTeam) {
+    return { isDraft: false };
+  }
+
   // Check for valid preview token
   const previewToken = token ?? await getPreviewTokenFromRequest();
   const hasAccess = previewToken ? await validatePreviewToken(previewToken) : false;
@@ -204,6 +237,12 @@ export async function getDraftModeStatus(token?: string | null): Promise<{
 
   if (!isInDraftMode) {
     return { isInDraftMode: false, hasAccess: true };
+  }
+
+  // Check team access first
+  const hasTeam = await hasTeamAccess();
+  if (hasTeam) {
+    return { isInDraftMode, hasAccess: true };
   }
 
   const previewToken = token ?? await getPreviewTokenFromRequest();
