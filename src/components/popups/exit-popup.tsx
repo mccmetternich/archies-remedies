@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ArrowRight, Download, Play } from 'lucide-react';
+import { X, ArrowRight, Download, Play, Check, Loader2 } from 'lucide-react';
 import { usePopup } from './popup-provider';
 import { PhoneInput } from './phone-input';
 import { VideoPlayer } from './video-player';
@@ -17,11 +17,13 @@ interface ExitPopupProps {
   videoUrl?: string | null;
   videoThumbnailUrl?: string | null;
   dismissDays?: number;
-  ctaType?: 'email' | 'sms' | 'download' | 'none';
+  ctaType?: 'email' | 'sms' | 'both' | 'download' | 'none';
+  downloadEnabled?: boolean;
   downloadFileUrl?: string | null;
   downloadFileName?: string | null;
   successTitle?: string;
   successMessage?: string;
+  noSpamText?: string;
   // Exit intent sensitivity
   sensitivity?: number; // Pixels from top of viewport to trigger
   delayBeforeEnabled?: number; // MS before exit intent detection starts
@@ -40,10 +42,12 @@ export function ExitPopup({
   videoThumbnailUrl,
   dismissDays = 7,
   ctaType = 'email',
+  downloadEnabled = false,
   downloadFileUrl,
   downloadFileName,
   successTitle = "You're In!",
   successMessage,
+  noSpamText = 'No spam, ever. Unsubscribe anytime.',
   sensitivity = 20,
   delayBeforeEnabled = 5000,
   delayAfterWelcome = 30,
@@ -64,7 +68,7 @@ export function ExitPopup({
   const [isOpen, setIsOpen] = useState(false);
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'downloading' | 'downloaded' | 'error'>('idle');
   const [showVideo, setShowVideo] = useState(false);
   const [exitDetectionEnabled, setExitDetectionEnabled] = useState(false);
   const [hasTriggered, setHasTriggered] = useState(false);
@@ -177,46 +181,9 @@ export function ExitPopup({
     trackPopupDismiss(null, 'exit');
   };
 
-  const handleEmailSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email) return;
-
-    setStatus('loading');
-    const success = await submitEmail(email, null, 'exit');
-
-    if (success) {
-      setStatus('success');
-      setTimeout(() => {
-        setIsOpen(false);
-        setActivePopup(null);
-      }, 2000);
-    } else {
-      setStatus('error');
-    }
-  };
-
-  const handlePhoneSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!phone) return;
-
-    setStatus('loading');
-    const success = await submitPhone(phone, null, 'exit');
-
-    if (success) {
-      setStatus('success');
-      setTimeout(() => {
-        setIsOpen(false);
-        setActivePopup(null);
-      }, 2000);
-    } else {
-      setStatus('error');
-    }
-  };
-
-  const handleDownload = () => {
+  const triggerDownload = () => {
     if (downloadFileUrl) {
-      setPopupSubmitted();
-
+      setStatus('downloading');
       const link = document.createElement('a');
       link.href = downloadFileUrl;
       link.download = downloadFileName || 'download';
@@ -224,14 +191,73 @@ export function ExitPopup({
       link.click();
       document.body.removeChild(link);
 
+      // Simulate download completion
       setTimeout(() => {
-        setIsOpen(false);
-        setActivePopup(null);
-      }, 500);
+        setStatus('downloaded');
+      }, 1500);
     }
   };
 
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // For "both" type, phone is required, email optional
+    // For "email" type, email is required
+    // For "sms" type, phone is required
+    if (ctaType === 'email' && !email) return;
+    if (ctaType === 'sms' && !phone) return;
+    if (ctaType === 'both' && !phone) return;
+
+    setStatus('loading');
+
+    let success = false;
+
+    if (ctaType === 'email') {
+      success = await submitEmail(email, null, 'exit');
+    } else if (ctaType === 'sms') {
+      success = await submitPhone(phone, null, 'exit');
+    } else if (ctaType === 'both') {
+      // Submit phone first (primary), then email if provided
+      success = await submitPhone(phone, null, 'exit');
+      if (success && email) {
+        await submitEmail(email, null, 'exit');
+      }
+    }
+
+    if (success) {
+      setStatus('success');
+
+      // If download is enabled, trigger it after success
+      if (downloadEnabled && downloadFileUrl) {
+        setTimeout(() => {
+          triggerDownload();
+        }, 500);
+      } else {
+        setTimeout(() => {
+          setIsOpen(false);
+          setActivePopup(null);
+        }, 2500);
+      }
+    } else {
+      setStatus('error');
+    }
+  };
+
+  const handleDownloadOnly = () => {
+    // For download-only CTA (no form)
+    setPopupSubmitted();
+    triggerDownload();
+
+    setTimeout(() => {
+      setIsOpen(false);
+      setActivePopup(null);
+    }, 2500);
+  };
+
   if (!enabled) return null;
+
+  // Check if media is video
+  const hasVideo = videoUrl && videoUrl.match(/\.(mp4|webm|mov)$/i);
 
   return (
     <AnimatePresence>
@@ -246,35 +272,35 @@ export function ExitPopup({
             className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm"
           />
 
-          {/* Modal - Bigger on desktop, compact on mobile, attention-grabbing border */}
+          {/* Modal - Coming Soon aesthetic with attention-grabbing border */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9, y: -50 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: -50 }}
             transition={{ type: 'spring', damping: 25, stiffness: 350 }}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-[92%] max-w-md md:max-w-xl max-h-[90vh] overflow-y-auto"
+            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-[94%] max-w-md md:max-w-xl max-h-[90vh] overflow-y-auto"
           >
-            <div className="bg-white rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl border-2 border-[var(--primary)]">
+            <div className="bg-white rounded-3xl overflow-hidden shadow-2xl border-2 border-[#bbdae9]">
               {/* Close button */}
               <button
                 onClick={handleClose}
-                className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center hover:bg-white transition-colors border border-[var(--border)]"
+                className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center hover:bg-white transition-colors border border-gray-200/50 shadow-sm"
                 aria-label="Close popup"
               >
-                <X className="w-4 h-4" />
+                <X className="w-4 h-4 text-gray-600" />
               </button>
 
-              {/* Video or Image - Taller on desktop */}
+              {/* Media - Full width, aspect-video */}
               {videoUrl && showVideo ? (
                 <div className="relative aspect-video bg-black">
                   <VideoPlayer url={videoUrl} autoPlay />
                 </div>
               ) : (
-                <div className="relative h-40 md:h-56 bg-gradient-to-br from-orange-100 via-[var(--cream)] to-orange-200">
+                <div className="relative aspect-video w-full bg-gradient-to-br from-[#f5f0eb] via-white to-[#bbdae9]/30">
                   {imageUrl ? (
                     <Image
                       src={imageUrl}
-                      alt="Special Offer"
+                      alt=""
                       fill
                       className="object-cover"
                     />
@@ -290,25 +316,25 @@ export function ExitPopup({
                         onClick={() => setShowVideo(true)}
                         className="absolute inset-0 flex items-center justify-center bg-black/20 hover:bg-black/30 transition-colors"
                       >
-                        <div className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center">
-                          <Play className="w-6 h-6 text-black ml-1" fill="currentColor" />
+                        <div className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center shadow-lg">
+                          <Play className="w-6 h-6 text-[#1a1a1a] ml-1" fill="currentColor" />
                         </div>
                       </button>
                     </>
-                  ) : videoUrl ? (
+                  ) : hasVideo ? (
                     <button
                       onClick={() => setShowVideo(true)}
                       className="absolute inset-0 flex items-center justify-center hover:bg-black/10 transition-colors"
                     >
                       <div className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center shadow-lg">
-                        <Play className="w-6 h-6 text-black ml-1" fill="currentColor" />
+                        <Play className="w-6 h-6 text-[#1a1a1a] ml-1" fill="currentColor" />
                       </div>
                     </button>
                   ) : (
                     <div className="absolute inset-0 flex items-center justify-center">
                       <div className="text-center">
                         <span className="text-4xl mb-2 block">👋</span>
-                        <span className="text-xs font-semibold tracking-[0.2em] uppercase text-[var(--foreground)]/60">
+                        <span className="text-xs font-semibold tracking-[0.2em] uppercase text-gray-400">
                           Wait!
                         </span>
                       </div>
@@ -317,69 +343,117 @@ export function ExitPopup({
                 </div>
               )}
 
-              {/* Content - More padding on desktop */}
-              <div className="p-6 md:p-10">
-                {status === 'success' ? (
-                  <div className="py-4 md:py-8">
-                    <div className="flex items-center justify-center gap-3 mb-4 md:mb-6">
-                      <div className="w-11 h-11 md:w-14 md:h-14 bg-[#bbdae9] rounded-full flex items-center justify-center flex-shrink-0">
-                        <svg
-                          className="w-5 h-5 md:w-7 md:h-7 text-[#1a1a1a]"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="3"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <path d="M5 13l4 4L19 7" />
-                        </svg>
+              {/* Content */}
+              <div className="p-6 md:p-8">
+                {status === 'success' || status === 'downloading' || status === 'downloaded' ? (
+                  <div className="py-4 text-center">
+                    <div className="flex items-center justify-center gap-3 mb-4">
+                      <div className="w-12 h-12 bg-[#bbdae9] rounded-full flex items-center justify-center flex-shrink-0">
+                        <Check className="w-6 h-6 text-[#1a1a1a]" strokeWidth={3} />
                       </div>
-                      <h3 className="text-2xl md:text-4xl font-normal tracking-tight">{successTitle}</h3>
+                      <h3 className="text-2xl md:text-3xl font-normal tracking-tight text-[#1a1a1a]">
+                        {successTitle}
+                      </h3>
                     </div>
-                    <p className="text-[var(--muted-foreground)] text-center text-base md:text-lg leading-relaxed">
+                    <p className="text-gray-600 text-base leading-relaxed mb-4">
                       {successMessage || (
                         <>
                           {ctaType === 'email' && 'Check your email for your special discount.'}
                           {ctaType === 'sms' && 'Check your phone for your special discount.'}
+                          {ctaType === 'both' && 'Check your phone for your special discount.'}
                           {ctaType === 'download' && 'Your download should start automatically.'}
                           {ctaType === 'none' && 'Thank you for staying!'}
                         </>
                       )}
                     </p>
+
+                    {/* Download status indicator */}
+                    {downloadEnabled && downloadFileUrl && (
+                      <div className="flex items-center justify-center gap-2 mt-4">
+                        {status === 'downloading' ? (
+                          <>
+                            <Loader2 className="w-5 h-5 animate-spin text-[#bbdae9]" />
+                            <span className="text-sm text-gray-600">Downloading...</span>
+                          </>
+                        ) : status === 'downloaded' ? (
+                          <>
+                            <div className="w-6 h-6 bg-[#bbdae9] rounded-full flex items-center justify-center">
+                              <Check className="w-4 h-4 text-white" strokeWidth={3} />
+                            </div>
+                            <span className="text-sm text-gray-600">Download complete!</span>
+                          </>
+                        ) : null}
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <>
-                    <h3 className="text-2xl md:text-4xl font-normal mb-3 md:mb-4 tracking-tight text-center">
+                    <h3 className="text-2xl md:text-3xl font-normal mb-3 tracking-tight text-center text-[#1a1a1a]">
                       {title}
                     </h3>
-                    <p className="text-[var(--muted-foreground)] mb-6 md:mb-10 text-center text-base md:text-lg leading-relaxed">
+                    <p className="text-gray-600 mb-6 text-center text-base leading-relaxed">
                       {subtitle}
                     </p>
 
-                    {/* Email CTA */}
-                    {ctaType === 'email' && (
-                      <form onSubmit={handleEmailSubmit} className="space-y-3 md:space-y-4">
-                        <input
-                          type="email"
-                          placeholder="Your email address"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          required
-                          className="w-full px-5 py-3.5 md:py-5 text-base md:text-lg bg-[var(--cream)] border-0 rounded-full focus:outline-none focus:ring-2 focus:ring-[var(--primary)] placeholder:text-[var(--muted-foreground)]"
-                        />
+                    {/* Form based on CTA type */}
+                    {ctaType !== 'none' && ctaType !== 'download' && (
+                      <form onSubmit={handleFormSubmit} className="space-y-3">
+                        {/* Both: Phone + Email (phone as primary, stacked on mobile, side-by-side on desktop) */}
+                        {ctaType === 'both' && (
+                          <div className="space-y-3 md:space-y-0 md:flex md:gap-3">
+                            <div className="flex-1">
+                              <PhoneInput
+                                value={phone}
+                                onChange={setPhone}
+                                placeholder="Phone number"
+                              />
+                            </div>
+                            <div className="flex-1">
+                              <input
+                                type="email"
+                                placeholder="Email (optional)"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                className="w-full px-5 py-4 text-base bg-[#f5f5f0] border-0 rounded-full focus:outline-none focus:ring-2 focus:ring-[#bbdae9] placeholder:text-gray-400"
+                              />
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Email only */}
+                        {ctaType === 'email' && (
+                          <input
+                            type="email"
+                            placeholder="Your email address"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                            className="w-full px-5 py-4 text-base bg-[#f5f5f0] border-0 rounded-full focus:outline-none focus:ring-2 focus:ring-[#bbdae9] placeholder:text-gray-400"
+                          />
+                        )}
+
+                        {/* SMS only */}
+                        {ctaType === 'sms' && (
+                          <PhoneInput
+                            value={phone}
+                            onChange={setPhone}
+                            placeholder="Your phone number"
+                          />
+                        )}
+
                         {status === 'error' && (
                           <p className="text-sm text-red-500 text-center">
                             Something went wrong. Please try again.
                           </p>
                         )}
+
                         <button
                           type="submit"
                           disabled={status === 'loading'}
-                          className="w-full flex items-center justify-center gap-2 px-6 py-3.5 md:py-5 bg-[var(--primary)] text-white rounded-full font-medium text-sm md:text-base hover:bg-[var(--primary)]/90 transition-colors disabled:opacity-50"
+                          className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-[#1a1a1a] text-white rounded-full font-medium text-base hover:bg-[#bbdae9] hover:text-[#1a1a1a] transition-colors disabled:opacity-50"
                         >
                           {status === 'loading' ? (
-                            <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                            <Loader2 className="w-5 h-5 animate-spin" />
                           ) : (
                             <>
                               {buttonText}
@@ -387,48 +461,32 @@ export function ExitPopup({
                             </>
                           )}
                         </button>
-                      </form>
-                    )}
 
-                    {/* SMS CTA */}
-                    {ctaType === 'sms' && (
-                      <form onSubmit={handlePhoneSubmit} className="space-y-3 md:space-y-4">
-                        <PhoneInput
-                          value={phone}
-                          onChange={setPhone}
-                          placeholder="Your phone number"
-                        />
-                        {status === 'error' && (
-                          <p className="text-sm text-red-500 text-center">
-                            Something went wrong. Please try again.
+                        {/* Download badge */}
+                        {downloadEnabled && downloadFileUrl && (
+                          <div className="flex justify-center pt-1">
+                            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#bbdae9]/20 border border-[#bbdae9]/40 rounded-full">
+                              <Download className="w-3.5 h-3.5 text-[#7ab8d4]" />
+                              <span className="text-xs text-gray-600">Download starts on submission</span>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* No spam text */}
+                        {noSpamText && (
+                          <p className="text-xs text-gray-500 text-center pt-2">
+                            {noSpamText}
                           </p>
                         )}
-                        <button
-                          type="submit"
-                          disabled={status === 'loading'}
-                          className="w-full flex items-center justify-center gap-2 px-6 py-3.5 md:py-5 bg-[var(--primary)] text-white rounded-full font-medium text-sm md:text-base hover:bg-[var(--primary)]/90 transition-colors disabled:opacity-50"
-                        >
-                          {status === 'loading' ? (
-                            <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                          ) : (
-                            <>
-                              {buttonText}
-                              <ArrowRight className="w-4 h-4" />
-                            </>
-                          )}
-                        </button>
-                        <p className="text-xs text-[var(--muted-foreground)] text-center">
-                          By signing up, you agree to receive SMS messages. Message and data rates may apply.
-                        </p>
                       </form>
                     )}
 
-                    {/* Download CTA */}
+                    {/* Download CTA (no form) */}
                     {ctaType === 'download' && downloadFileUrl && (
-                      <div className="space-y-3 md:space-y-4">
+                      <div className="space-y-3">
                         <button
-                          onClick={handleDownload}
-                          className="w-full flex items-center justify-center gap-2 px-6 py-3.5 md:py-5 bg-[var(--primary)] text-white rounded-full font-medium text-sm md:text-base hover:bg-[var(--primary)]/90 transition-colors"
+                          onClick={handleDownloadOnly}
+                          className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-[#1a1a1a] text-white rounded-full font-medium text-base hover:bg-[#bbdae9] hover:text-[#1a1a1a] transition-colors"
                         >
                           <Download className="w-4 h-4" />
                           {buttonText || 'Download Now'}
@@ -441,23 +499,17 @@ export function ExitPopup({
                       <div className="text-center">
                         <button
                           onClick={handleClose}
-                          className="px-8 py-3 md:py-4 text-sm md:text-base font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
+                          className="px-8 py-3 text-base font-medium text-gray-500 hover:text-[#1a1a1a] transition-colors"
                         >
                           Continue browsing
                         </button>
                       </div>
                     )}
 
-                    {(ctaType === 'email' || ctaType === 'sms') && (
-                      <p className="text-xs md:text-sm text-[var(--muted-foreground)] mt-4 md:mt-6 text-center">
-                        No spam, ever. Unsubscribe anytime.
-                      </p>
-                    )}
-
                     {/* No thanks link */}
                     <button
                       onClick={handleClose}
-                      className="w-full mt-3 md:mt-4 text-center text-sm md:text-base text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
+                      className="w-full mt-4 text-center text-sm text-gray-500 hover:text-[#1a1a1a] transition-colors"
                     >
                       No thanks, I&apos;ll pay full price
                     </button>

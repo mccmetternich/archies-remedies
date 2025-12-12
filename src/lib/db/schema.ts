@@ -66,11 +66,13 @@ export const siteSettings = sqliteTable('site_settings', {
   welcomePopupDismissDays: integer('welcome_popup_dismiss_days').default(7), // days before showing again (legacy - used as fallback)
   welcomePopupSessionOnly: integer('welcome_popup_session_only', { mode: 'boolean' }).default(true), // show once per session only
   welcomePopupSessionExpiryHours: integer('welcome_popup_session_expiry_hours').default(24), // hours before showing again to same visitor
-  welcomePopupCtaType: text('welcome_popup_cta_type').default('email'), // 'email' | 'sms' | 'download' | 'none'
+  welcomePopupCtaType: text('welcome_popup_cta_type').default('email'), // 'email' | 'sms' | 'both' | 'none'
+  welcomePopupDownloadEnabled: integer('welcome_popup_download_enabled', { mode: 'boolean' }).default(false), // add-on to any CTA type
   welcomePopupDownloadUrl: text('welcome_popup_download_url'),
   welcomePopupDownloadName: text('welcome_popup_download_name'),
   welcomePopupSuccessTitle: text('welcome_popup_success_title').default("You're In!"),
   welcomePopupSuccessMessage: text('welcome_popup_success_message').default("Thanks for joining. We'll be in touch soon."),
+  welcomePopupNoSpamText: text('welcome_popup_no_spam_text').default('No spam, ever. Unsubscribe anytime.'),
 
   // Exit Intent Popup
   exitPopupEnabled: integer('exit_popup_enabled', { mode: 'boolean' }).default(false),
@@ -81,11 +83,13 @@ export const siteSettings = sqliteTable('site_settings', {
   exitPopupVideoUrl: text('exit_popup_video_url'),
   exitPopupMinTimeOnSite: integer('exit_popup_min_time_on_site').default(10), // seconds before exit popup can trigger
   exitPopupDismissDays: integer('exit_popup_dismiss_days').default(3), // days before showing again
-  exitPopupCtaType: text('exit_popup_cta_type').default('email'), // 'email' | 'sms' | 'download' | 'none'
+  exitPopupCtaType: text('exit_popup_cta_type').default('email'), // 'email' | 'sms' | 'both' | 'none'
+  exitPopupDownloadEnabled: integer('exit_popup_download_enabled', { mode: 'boolean' }).default(false), // add-on to any CTA type
   exitPopupDownloadUrl: text('exit_popup_download_url'),
   exitPopupDownloadName: text('exit_popup_download_name'),
   exitPopupSuccessTitle: text('exit_popup_success_title').default("You're In!"),
   exitPopupSuccessMessage: text('exit_popup_success_message').default("Thanks for subscribing. Check your inbox for your discount code."),
+  exitPopupNoSpamText: text('exit_popup_no_spam_text').default('No spam, ever. Unsubscribe anytime.'),
   exitPopupDelayAfterWelcome: integer('exit_popup_delay_after_welcome').default(30), // seconds to wait after welcome popup before allowing exit popup
 
   // Legacy fields (for backwards compatibility)

@@ -252,8 +252,8 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                   <div className="relative z-50 w-full bg-white shadow-[0_20px_40px_rgba(0,0,0,0.15)]">
                     {/* Shelf container with generous padding - pb-[30px] for whitespace below tiles */}
                     <div className="container pt-8 pb-[30px]">
-                      {/* Content grid - bottom aligned so Clean Formulas aligns with product tiles */}
-                      <div className="grid lg:grid-cols-12 gap-8 items-end">
+                      {/* Content grid - center aligned so marketing tile sits in vertical middle */}
+                      <div className="grid lg:grid-cols-12 gap-8 items-center">
                         {/* Product tiles - 2 columns */}
                         <div className="lg:col-span-8">
                           <div className="grid md:grid-cols-2 gap-6">
@@ -439,14 +439,14 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                           </div>
                         </div>
 
-                        {/* Marketing Tile (Clean Formulas) - Compact tile, moved up 60px from bottom */}
-                        <div className="lg:col-span-4 relative mb-[60px]">
+                        {/* Marketing Tile (Clean Formulas) - Centered vertically in the dropdown */}
+                        <div className="lg:col-span-4 relative">
                           {/* Rotating Badge */}
-                          {(globalNav?.marketingTileRotatingBadgeEnabled || globalNav?.cleanFormulasBadgeEnabled) &&
-                           (globalNav?.marketingTileRotatingBadgeUrl || globalNav?.cleanFormulasBadgeUrl) && (
+                          {globalNav?.marketingTileRotatingBadgeEnabled &&
+                           globalNav?.marketingTileRotatingBadgeUrl && (
                             <div className="absolute -top-4 -right-4 w-20 h-20 z-10">
                               <Image
-                                src={globalNav.marketingTileRotatingBadgeUrl || globalNav.cleanFormulasBadgeUrl || ''}
+                                src={globalNav.marketingTileRotatingBadgeUrl}
                                 alt=""
                                 width={80}
                                 height={80}
@@ -466,14 +466,14 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                             </div>
 
                             {/* CTA Button for Marketing Tile */}
-                            {(globalNav?.marketingTileCtaEnabled || globalNav?.cleanFormulasCtaEnabled) &&
-                             (globalNav?.marketingTileCtaText || globalNav?.cleanFormulasCtaText) &&
-                             (globalNav?.marketingTileCtaUrl || globalNav?.cleanFormulasCtaUrl) && (
+                            {globalNav?.marketingTileCtaEnabled &&
+                             globalNav?.marketingTileCtaText &&
+                             globalNav?.marketingTileCtaUrl && (
                               <Link
-                                href={globalNav.marketingTileCtaUrl || globalNav.cleanFormulasCtaUrl || ''}
+                                href={globalNav.marketingTileCtaUrl}
                                 className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--foreground)] text-white rounded-full text-sm font-medium hover:bg-black transition-colors mb-4"
                               >
-                                {globalNav.marketingTileCtaText || globalNav.cleanFormulasCtaText}
+                                {globalNav.marketingTileCtaText}
                                 <ArrowRight className="w-3 h-3" />
                               </Link>
                             )}
@@ -590,14 +590,29 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                           onClick={() => setIsOpen(false)}
                           className="flex items-center gap-4 p-4 rounded-xl bg-[var(--cream)] hover:bg-[var(--sand)] transition-colors"
                         >
-                          <div className="w-14 h-14 rounded-lg bg-white overflow-hidden">
-                            <Image
-                              src={globalNav?.tile1ImageUrl || tile1Product.heroImageUrl || PRODUCT_IMAGES['eye-drops']}
-                              alt={tile1Product.name}
-                              width={56}
-                              height={56}
-                              className="w-full h-full object-cover"
-                            />
+                          <div className="w-14 h-14 rounded-lg bg-white overflow-hidden relative">
+                            {(() => {
+                              const mediaUrl = globalNav?.tile1ImageUrl || tile1Product.heroImageUrl || PRODUCT_IMAGES['eye-drops'];
+                              const isVideo = mediaUrl?.match(/\.(mp4|webm|mov)$/i);
+                              return isVideo ? (
+                                <video
+                                  src={mediaUrl}
+                                  autoPlay
+                                  loop
+                                  muted
+                                  playsInline
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <Image
+                                  src={mediaUrl}
+                                  alt={tile1Product.name}
+                                  width={56}
+                                  height={56}
+                                  className="w-full h-full object-cover"
+                                />
+                              );
+                            })()}
                           </div>
                           <div className="flex-1">
                             <p className="font-medium">{globalNav?.tile1Title || tile1Product.name}</p>
@@ -612,14 +627,29 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                           onClick={() => setIsOpen(false)}
                           className="flex items-center gap-4 p-4 rounded-xl bg-[var(--cream)] hover:bg-[var(--sand)] transition-colors"
                         >
-                          <div className="w-14 h-14 rounded-lg bg-white overflow-hidden">
-                            <Image
-                              src={globalNav?.tile2ImageUrl || tile2Product.heroImageUrl || PRODUCT_IMAGES['eye-wipes']}
-                              alt={tile2Product.name}
-                              width={56}
-                              height={56}
-                              className="w-full h-full object-cover"
-                            />
+                          <div className="w-14 h-14 rounded-lg bg-white overflow-hidden relative">
+                            {(() => {
+                              const mediaUrl = globalNav?.tile2ImageUrl || tile2Product.heroImageUrl || PRODUCT_IMAGES['eye-wipes'];
+                              const isVideo = mediaUrl?.match(/\.(mp4|webm|mov)$/i);
+                              return isVideo ? (
+                                <video
+                                  src={mediaUrl}
+                                  autoPlay
+                                  loop
+                                  muted
+                                  playsInline
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <Image
+                                  src={mediaUrl}
+                                  alt={tile2Product.name}
+                                  width={56}
+                                  height={56}
+                                  className="w-full h-full object-cover"
+                                />
+                              );
+                            })()}
                           </div>
                           <div className="flex-1">
                             <p className="font-medium">{globalNav?.tile2Title || tile2Product.name}</p>
