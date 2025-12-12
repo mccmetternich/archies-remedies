@@ -21,6 +21,8 @@ interface WelcomePopupProps {
   ctaType?: 'email' | 'sms' | 'download' | 'none';
   downloadFileUrl?: string | null;
   downloadFileName?: string | null;
+  successTitle?: string;
+  successMessage?: string;
 }
 
 export function WelcomePopup({
@@ -36,6 +38,8 @@ export function WelcomePopup({
   ctaType = 'email',
   downloadFileUrl,
   downloadFileName,
+  successTitle = "You're In!",
+  successMessage,
 }: WelcomePopupProps) {
   const {
     canShowWelcomePopup,
@@ -147,15 +151,15 @@ export function WelcomePopup({
             className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm"
           />
 
-          {/* Modal */}
+          {/* Modal - Bigger on desktop, compact on mobile */}
           <motion.div
             initial={{ opacity: 0, scale: 0.96, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 20 }}
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-[92%] max-w-md max-h-[90vh] overflow-y-auto"
+            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-[92%] max-w-md md:max-w-xl max-h-[90vh] overflow-y-auto"
           >
-            <div className="bg-white rounded-3xl overflow-hidden shadow-2xl">
+            <div className="bg-white rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl">
               {/* Close button */}
               <button
                 onClick={handleClose}
@@ -165,13 +169,13 @@ export function WelcomePopup({
                 <X className="w-4 h-4" />
               </button>
 
-              {/* Video or Image */}
+              {/* Video or Image - Taller on desktop */}
               {videoUrl && showVideo ? (
                 <div className="relative aspect-video bg-black">
                   <VideoPlayer url={videoUrl} autoPlay />
                 </div>
               ) : (
-                <div className="relative h-48 bg-gradient-to-br from-[var(--primary-light)] via-[var(--cream)] to-[var(--primary)]">
+                <div className="relative h-40 md:h-56 bg-gradient-to-br from-[var(--primary-light)] via-[var(--cream)] to-[var(--primary)]">
                   {imageUrl ? (
                     <Image
                       src={imageUrl}
@@ -217,14 +221,14 @@ export function WelcomePopup({
                 </div>
               )}
 
-              {/* Content */}
-              <div className="p-8">
+              {/* Content - More padding on desktop */}
+              <div className="p-6 md:p-10">
                 {status === 'success' ? (
-                  <div className="py-4">
-                    <div className="flex items-center justify-center gap-3 mb-5">
-                      <div className="w-11 h-11 bg-[#bbdae9] rounded-full flex items-center justify-center flex-shrink-0">
+                  <div className="py-4 md:py-8">
+                    <div className="flex items-center justify-center gap-3 mb-4 md:mb-6">
+                      <div className="w-11 h-11 md:w-14 md:h-14 bg-[#bbdae9] rounded-full flex items-center justify-center flex-shrink-0">
                         <svg
-                          className="w-5 h-5 text-[#1a1a1a]"
+                          className="w-5 h-5 md:w-7 md:h-7 text-[#1a1a1a]"
                           viewBox="0 0 24 24"
                           fill="none"
                           stroke="currentColor"
@@ -235,34 +239,38 @@ export function WelcomePopup({
                           <path d="M5 13l4 4L19 7" />
                         </svg>
                       </div>
-                      <h3 className="text-2xl font-normal tracking-tight">Welcome!</h3>
+                      <h3 className="text-2xl md:text-4xl font-normal tracking-tight">{successTitle}</h3>
                     </div>
-                    <p className="text-[var(--muted-foreground)] text-center">
-                      {ctaType === 'email' && 'Check your email for your discount code.'}
-                      {ctaType === 'sms' && 'Check your phone for your discount code.'}
-                      {ctaType === 'download' && 'Your download should start automatically.'}
-                      {ctaType === 'none' && 'Thank you!'}
+                    <p className="text-[var(--muted-foreground)] text-center text-base md:text-lg leading-relaxed">
+                      {successMessage || (
+                        <>
+                          {ctaType === 'email' && 'Check your email for your discount code.'}
+                          {ctaType === 'sms' && 'Check your phone for your discount code.'}
+                          {ctaType === 'download' && 'Your download should start automatically.'}
+                          {ctaType === 'none' && 'Thank you!'}
+                        </>
+                      )}
                     </p>
                   </div>
                 ) : (
                   <>
-                    <h3 className="text-2xl md:text-3xl font-normal mb-3 tracking-tight text-center">
+                    <h3 className="text-2xl md:text-4xl font-normal mb-3 md:mb-4 tracking-tight text-center">
                       {title}
                     </h3>
-                    <p className="text-[var(--muted-foreground)] mb-8 text-center leading-relaxed">
+                    <p className="text-[var(--muted-foreground)] mb-6 md:mb-10 text-center text-base md:text-lg leading-relaxed">
                       {subtitle}
                     </p>
 
                     {/* Email CTA */}
                     {ctaType === 'email' && (
-                      <form onSubmit={handleEmailSubmit} className="space-y-4">
+                      <form onSubmit={handleEmailSubmit} className="space-y-3 md:space-y-4">
                         <input
                           type="email"
                           placeholder="Your email address"
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           required
-                          className="w-full px-5 py-4 text-base bg-[var(--cream)] border-0 rounded-full focus:outline-none focus:ring-2 focus:ring-[var(--primary)] placeholder:text-[var(--muted-foreground)]"
+                          className="w-full px-5 py-3.5 md:py-5 text-base md:text-lg bg-[var(--cream)] border-0 rounded-full focus:outline-none focus:ring-2 focus:ring-[var(--primary)] placeholder:text-[var(--muted-foreground)]"
                         />
                         {status === 'error' && (
                           <p className="text-sm text-red-500 text-center">
@@ -272,7 +280,7 @@ export function WelcomePopup({
                         <button
                           type="submit"
                           disabled={status === 'loading'}
-                          className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-[var(--foreground)] text-white rounded-full font-medium text-sm hover:bg-black transition-colors disabled:opacity-50"
+                          className="w-full flex items-center justify-center gap-2 px-6 py-3.5 md:py-5 bg-[var(--foreground)] text-white rounded-full font-medium text-sm md:text-base hover:bg-black transition-colors disabled:opacity-50"
                         >
                           {status === 'loading' ? (
                             <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -288,7 +296,7 @@ export function WelcomePopup({
 
                     {/* SMS CTA */}
                     {ctaType === 'sms' && (
-                      <form onSubmit={handlePhoneSubmit} className="space-y-4">
+                      <form onSubmit={handlePhoneSubmit} className="space-y-3 md:space-y-4">
                         <PhoneInput
                           value={phone}
                           onChange={setPhone}
@@ -302,7 +310,7 @@ export function WelcomePopup({
                         <button
                           type="submit"
                           disabled={status === 'loading'}
-                          className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-[var(--foreground)] text-white rounded-full font-medium text-sm hover:bg-black transition-colors disabled:opacity-50"
+                          className="w-full flex items-center justify-center gap-2 px-6 py-3.5 md:py-5 bg-[var(--foreground)] text-white rounded-full font-medium text-sm md:text-base hover:bg-black transition-colors disabled:opacity-50"
                         >
                           {status === 'loading' ? (
                             <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -321,10 +329,10 @@ export function WelcomePopup({
 
                     {/* Download CTA */}
                     {ctaType === 'download' && downloadFileUrl && (
-                      <div className="space-y-4">
+                      <div className="space-y-3 md:space-y-4">
                         <button
                           onClick={handleDownload}
-                          className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-[var(--foreground)] text-white rounded-full font-medium text-sm hover:bg-black transition-colors"
+                          className="w-full flex items-center justify-center gap-2 px-6 py-3.5 md:py-5 bg-[var(--foreground)] text-white rounded-full font-medium text-sm md:text-base hover:bg-black transition-colors"
                         >
                           <Download className="w-4 h-4" />
                           {buttonText || 'Download Now'}
@@ -337,7 +345,7 @@ export function WelcomePopup({
                       <div className="text-center">
                         <button
                           onClick={handleClose}
-                          className="px-8 py-3 text-sm font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
+                          className="px-8 py-3 md:py-4 text-sm md:text-base font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
                         >
                           Continue browsing
                         </button>
@@ -345,7 +353,7 @@ export function WelcomePopup({
                     )}
 
                     {(ctaType === 'email' || ctaType === 'sms') && (
-                      <p className="text-xs text-[var(--muted-foreground)] mt-6 text-center">
+                      <p className="text-xs md:text-sm text-[var(--muted-foreground)] mt-4 md:mt-6 text-center">
                         No spam, ever. Unsubscribe anytime.
                       </p>
                     )}

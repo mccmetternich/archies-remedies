@@ -10,7 +10,7 @@ import { TestimonialsSection } from '@/components/home/testimonials-section';
 import { MissionSection } from '@/components/home/mission-section';
 import { VideoTestimonials } from '@/components/home/video-testimonials';
 import { InstagramFeed } from '@/components/home/instagram-feed';
-import { EmailPopup } from '@/components/home/email-popup';
+import { SitePopups } from '@/components/popups';
 import { ScrollingTextBar } from '@/components/ui/scrolling-text-bar';
 
 export const revalidate = 60; // Revalidate every minute
@@ -183,14 +183,39 @@ export default async function HomePage() {
         amazonIconUrl={data.settings?.amazonIconUrl}
       />
 
-      {/* Email Popup */}
-      <EmailPopup
-        enabled={data.settings?.emailPopupEnabled ?? true}
-        title={data.settings?.emailPopupTitle ?? undefined}
-        subtitle={data.settings?.emailPopupSubtitle ?? undefined}
-        buttonText={data.settings?.emailPopupButtonText ?? undefined}
-        imageUrl={data.settings?.emailPopupImageUrl}
-        delay={5000}
+      {/* Site Popups - Welcome, Exit, and Custom */}
+      <SitePopups
+        currentPage="/"
+        settings={{
+          // Welcome popup
+          welcomePopupEnabled: data.settings?.welcomePopupEnabled ?? data.settings?.emailPopupEnabled ?? false,
+          welcomePopupTitle: data.settings?.welcomePopupTitle ?? data.settings?.emailPopupTitle,
+          welcomePopupSubtitle: data.settings?.welcomePopupSubtitle ?? data.settings?.emailPopupSubtitle,
+          welcomePopupButtonText: data.settings?.welcomePopupButtonText ?? data.settings?.emailPopupButtonText,
+          welcomePopupImageUrl: data.settings?.welcomePopupImageUrl ?? data.settings?.emailPopupImageUrl,
+          welcomePopupVideoUrl: data.settings?.welcomePopupVideoUrl,
+          welcomePopupDelay: data.settings?.welcomePopupDelay ?? 5000,
+          welcomePopupDismissDays: data.settings?.welcomePopupDismissDays ?? 7,
+          welcomePopupCtaType: data.settings?.welcomePopupCtaType ?? 'email',
+          welcomePopupDownloadUrl: data.settings?.welcomePopupDownloadUrl,
+          welcomePopupDownloadName: data.settings?.welcomePopupDownloadName,
+          welcomePopupSuccessTitle: data.settings?.welcomePopupSuccessTitle,
+          welcomePopupSuccessMessage: data.settings?.welcomePopupSuccessMessage,
+          // Exit popup
+          exitPopupEnabled: data.settings?.exitPopupEnabled ?? false,
+          exitPopupTitle: data.settings?.exitPopupTitle,
+          exitPopupSubtitle: data.settings?.exitPopupSubtitle,
+          exitPopupButtonText: data.settings?.exitPopupButtonText,
+          exitPopupImageUrl: data.settings?.exitPopupImageUrl,
+          exitPopupVideoUrl: data.settings?.exitPopupVideoUrl,
+          exitPopupDismissDays: data.settings?.exitPopupDismissDays ?? 7,
+          exitPopupCtaType: data.settings?.exitPopupCtaType ?? 'email',
+          exitPopupDownloadUrl: data.settings?.exitPopupDownloadUrl,
+          exitPopupDownloadName: data.settings?.exitPopupDownloadName,
+          exitPopupSuccessTitle: data.settings?.exitPopupSuccessTitle,
+          exitPopupSuccessMessage: data.settings?.exitPopupSuccessMessage,
+          exitPopupDelayAfterWelcome: data.settings?.exitPopupDelayAfterWelcome ?? 30,
+        }}
       />
     </>
   );

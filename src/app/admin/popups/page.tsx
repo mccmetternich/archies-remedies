@@ -7,7 +7,6 @@ import Link from 'next/link';
 import {
   Save,
   Loader2,
-  Upload,
   Check,
   X,
   Clock,
@@ -26,8 +25,13 @@ import {
   BarChart3,
   Target,
   Play,
+  Mail,
+  Phone,
+  Download,
+  FileText,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { MediaPickerButton } from '@/components/admin/media-picker';
 
 interface PopupSettings {
   // Welcome Popup
@@ -36,16 +40,29 @@ interface PopupSettings {
   welcomePopupSubtitle: string | null;
   welcomePopupButtonText: string | null;
   welcomePopupImageUrl: string | null;
+  welcomePopupVideoUrl: string | null;
   welcomePopupDelay: number | null;
   welcomePopupDismissDays: number | null;
+  welcomePopupCtaType: string | null;
+  welcomePopupDownloadUrl: string | null;
+  welcomePopupDownloadName: string | null;
+  welcomePopupSuccessTitle: string | null;
+  welcomePopupSuccessMessage: string | null;
   // Exit Popup
   exitPopupEnabled: boolean | null;
   exitPopupTitle: string | null;
   exitPopupSubtitle: string | null;
   exitPopupButtonText: string | null;
   exitPopupImageUrl: string | null;
+  exitPopupVideoUrl: string | null;
   exitPopupMinTimeOnSite: number | null;
   exitPopupDismissDays: number | null;
+  exitPopupCtaType: string | null;
+  exitPopupDownloadUrl: string | null;
+  exitPopupDownloadName: string | null;
+  exitPopupSuccessTitle: string | null;
+  exitPopupSuccessMessage: string | null;
+  exitPopupDelayAfterWelcome: number | null;
   // Legacy (for migration)
   emailPopupEnabled: boolean | null;
   emailPopupTitle: string | null;
@@ -73,6 +90,14 @@ interface CustomPopup {
 }
 
 type PopupType = 'welcome' | 'exit';
+type CtaType = 'email' | 'sms' | 'download' | 'none';
+
+const CTA_OPTIONS: { value: CtaType; label: string; icon: React.ElementType; description: string }[] = [
+  { value: 'email', label: 'Email', icon: Mail, description: 'Capture email address' },
+  { value: 'sms', label: 'SMS', icon: Phone, description: 'Capture phone number' },
+  { value: 'download', label: 'Download', icon: Download, description: 'Offer file download' },
+  { value: 'none', label: 'Info Only', icon: FileText, description: 'No form, just content' },
+];
 
 export default function PopupsPage() {
   const [settings, setSettings] = useState<PopupSettings | null>(null);
@@ -82,6 +107,7 @@ export default function PopupsPage() {
   const [saved, setSaved] = useState(false);
   const [activeTab, setActiveTab] = useState<PopupType>('welcome');
   const [previewDevice, setPreviewDevice] = useState<'desktop' | 'mobile'>('desktop');
+  const [previewState, setPreviewState] = useState<'form' | 'success'>('form');
   const [customPopups, setCustomPopups] = useState<CustomPopup[]>([]);
   const [loadingCustomPopups, setLoadingCustomPopups] = useState(true);
 
@@ -142,15 +168,28 @@ export default function PopupsPage() {
         welcomePopupSubtitle: data.welcomePopupSubtitle ?? data.emailPopupSubtitle,
         welcomePopupButtonText: data.welcomePopupButtonText ?? data.emailPopupButtonText ?? 'Subscribe',
         welcomePopupImageUrl: data.welcomePopupImageUrl ?? data.emailPopupImageUrl,
+        welcomePopupVideoUrl: data.welcomePopupVideoUrl ?? null,
         welcomePopupDelay: data.welcomePopupDelay ?? 3,
         welcomePopupDismissDays: data.welcomePopupDismissDays ?? 7,
+        welcomePopupCtaType: data.welcomePopupCtaType ?? 'email',
+        welcomePopupDownloadUrl: data.welcomePopupDownloadUrl ?? null,
+        welcomePopupDownloadName: data.welcomePopupDownloadName ?? null,
+        welcomePopupSuccessTitle: data.welcomePopupSuccessTitle ?? "You're In!",
+        welcomePopupSuccessMessage: data.welcomePopupSuccessMessage ?? "Thanks for joining. We'll be in touch soon.",
         exitPopupEnabled: data.exitPopupEnabled ?? false,
         exitPopupTitle: data.exitPopupTitle ?? 'Wait! Before You Go...',
         exitPopupSubtitle: data.exitPopupSubtitle ?? 'Get 10% off your first order when you sign up for our newsletter.',
         exitPopupButtonText: data.exitPopupButtonText ?? 'Get My Discount',
         exitPopupImageUrl: data.exitPopupImageUrl,
+        exitPopupVideoUrl: data.exitPopupVideoUrl ?? null,
         exitPopupMinTimeOnSite: data.exitPopupMinTimeOnSite ?? 10,
         exitPopupDismissDays: data.exitPopupDismissDays ?? 3,
+        exitPopupCtaType: data.exitPopupCtaType ?? 'email',
+        exitPopupDownloadUrl: data.exitPopupDownloadUrl ?? null,
+        exitPopupDownloadName: data.exitPopupDownloadName ?? null,
+        exitPopupSuccessTitle: data.exitPopupSuccessTitle ?? "You're In!",
+        exitPopupSuccessMessage: data.exitPopupSuccessMessage ?? "Thanks for subscribing. Check your inbox for your discount code.",
+        exitPopupDelayAfterWelcome: data.exitPopupDelayAfterWelcome ?? 30,
         // Keep legacy for backwards compat
         emailPopupEnabled: data.emailPopupEnabled,
         emailPopupTitle: data.emailPopupTitle,
@@ -188,7 +227,7 @@ export default function PopupsPage() {
     }
   };
 
-  const updateField = (field: keyof PopupSettings, value: string | boolean | number) => {
+  const updateField = (field: keyof PopupSettings, value: string | boolean | number | null) => {
     if (!settings) return;
     setSettings({ ...settings, [field]: value });
   };
@@ -216,6 +255,15 @@ export default function PopupsPage() {
   const currentSubtitle = isWelcome ? settings.welcomePopupSubtitle : settings.exitPopupSubtitle;
   const currentButtonText = isWelcome ? settings.welcomePopupButtonText : settings.exitPopupButtonText;
   const currentImageUrl = isWelcome ? settings.welcomePopupImageUrl : settings.exitPopupImageUrl;
+  const currentVideoUrl = isWelcome ? settings.welcomePopupVideoUrl : settings.exitPopupVideoUrl;
+  const currentCtaType = (isWelcome ? settings.welcomePopupCtaType : settings.exitPopupCtaType) as CtaType || 'email';
+  const currentSuccessTitle = isWelcome ? settings.welcomePopupSuccessTitle : settings.exitPopupSuccessTitle;
+  const currentSuccessMessage = isWelcome ? settings.welcomePopupSuccessMessage : settings.exitPopupSuccessMessage;
+  const currentDownloadUrl = isWelcome ? settings.welcomePopupDownloadUrl : settings.exitPopupDownloadUrl;
+  const currentDownloadName = isWelcome ? settings.welcomePopupDownloadName : settings.exitPopupDownloadName;
+
+  // Check if current media is video
+  const hasVideo = currentVideoUrl && currentVideoUrl.match(/\.(mp4|webm|mov)$/i);
 
   return (
     <div className="space-y-6">
@@ -234,7 +282,7 @@ export default function PopupsPage() {
             className={cn(
               'inline-flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-all',
               saved
-                ? 'bg-green-500 text-[var(--admin-text-primary)]'
+                ? 'bg-green-500 text-white'
                 : 'bg-[var(--primary)] text-[var(--admin-button-text)] hover:bg-[var(--primary-dark)]',
               saving && 'opacity-50 cursor-not-allowed'
             )}
@@ -453,62 +501,156 @@ export default function PopupsPage() {
                   />
                 </div>
 
+                {/* Media - Image or Video */}
+                <div className="space-y-4">
+                  <MediaPickerButton
+                    label="Popup Image"
+                    value={currentImageUrl}
+                    onChange={(url) => updateField(
+                      isWelcome ? 'welcomePopupImageUrl' : 'exitPopupImageUrl',
+                      url || null
+                    )}
+                    helpText="Square image recommended, min 400x400px"
+                    folder="popups"
+                  />
+
+                  <MediaPickerButton
+                    label="Popup Video (optional)"
+                    value={currentVideoUrl}
+                    onChange={(url) => updateField(
+                      isWelcome ? 'welcomePopupVideoUrl' : 'exitPopupVideoUrl',
+                      url || null
+                    )}
+                    helpText="MP4/WebM video. Will replace image when set."
+                    folder="popups"
+                    acceptVideo={true}
+                  />
+                </div>
+              </div>
+
+              {/* CTA Type Selection */}
+              <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6 space-y-5">
+                <h3 className="font-medium text-[var(--admin-text-primary)] flex items-center gap-2">
+                  <MousePointerClick className="w-4 h-4 text-[var(--primary)]" />
+                  Call to Action
+                </h3>
+
+                <div className="grid grid-cols-2 gap-3">
+                  {CTA_OPTIONS.map((option) => {
+                    const Icon = option.icon;
+                    const isSelected = currentCtaType === option.value;
+                    return (
+                      <button
+                        key={option.value}
+                        onClick={() => updateField(
+                          isWelcome ? 'welcomePopupCtaType' : 'exitPopupCtaType',
+                          option.value
+                        )}
+                        className={cn(
+                          'p-4 rounded-xl border-2 text-left transition-all',
+                          isSelected
+                            ? 'border-[var(--primary)] bg-[var(--primary)]/10'
+                            : 'border-[var(--admin-border-light)] hover:border-[var(--admin-divider)]'
+                        )}
+                      >
+                        <div className="flex items-center gap-3 mb-2">
+                          <Icon className={cn(
+                            'w-5 h-5',
+                            isSelected ? 'text-[var(--primary)]' : 'text-[var(--admin-text-muted)]'
+                          )} />
+                          <span className={cn(
+                            'font-medium',
+                            isSelected ? 'text-[var(--admin-text-primary)]' : 'text-[var(--admin-text-secondary)]'
+                          )}>
+                            {option.label}
+                          </span>
+                        </div>
+                        <p className="text-xs text-[var(--admin-text-muted)]">{option.description}</p>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Button Text */}
+                {currentCtaType !== 'none' && (
+                  <div>
+                    <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Button Text</label>
+                    <input
+                      type="text"
+                      value={currentButtonText || ''}
+                      onChange={(e) => updateField(
+                        isWelcome ? 'welcomePopupButtonText' : 'exitPopupButtonText',
+                        e.target.value
+                      )}
+                      placeholder={isWelcome ? 'Subscribe' : 'Get My Discount'}
+                      className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border-light)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+                    />
+                  </div>
+                )}
+
+                {/* Download File Settings */}
+                {currentCtaType === 'download' && (
+                  <div className="space-y-4 pt-4 border-t border-[var(--admin-border-light)]">
+                    <MediaPickerButton
+                      label="Download File"
+                      value={currentDownloadUrl}
+                      onChange={(url) => updateField(
+                        isWelcome ? 'welcomePopupDownloadUrl' : 'exitPopupDownloadUrl',
+                        url || null
+                      )}
+                      helpText="PDF, image, or other file to offer"
+                      folder="downloads"
+                    />
+                    <div>
+                      <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Display File Name</label>
+                      <input
+                        type="text"
+                        value={currentDownloadName || ''}
+                        onChange={(e) => updateField(
+                          isWelcome ? 'welcomePopupDownloadName' : 'exitPopupDownloadName',
+                          e.target.value
+                        )}
+                        placeholder="e.g., Free Eye Care Guide.pdf"
+                        className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border-light)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Success State Settings */}
+              <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6 space-y-5">
+                <h3 className="font-medium text-[var(--admin-text-primary)] flex items-center gap-2">
+                  <Check className="w-4 h-4 text-green-400" />
+                  Confirmation State
+                </h3>
+
                 <div>
-                  <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Button Text</label>
+                  <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Success Title</label>
                   <input
                     type="text"
-                    value={currentButtonText || ''}
+                    value={currentSuccessTitle || ''}
                     onChange={(e) => updateField(
-                      isWelcome ? 'welcomePopupButtonText' : 'exitPopupButtonText',
+                      isWelcome ? 'welcomePopupSuccessTitle' : 'exitPopupSuccessTitle',
                       e.target.value
                     )}
-                    placeholder={isWelcome ? 'Subscribe' : 'Get My Discount'}
+                    placeholder="You're In!"
                     className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border-light)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Popup Image (optional)</label>
-                  <div className="flex items-start gap-4">
-                    <div className="w-24 h-24 rounded-xl bg-[var(--admin-input)] border border-[var(--admin-border-light)] overflow-hidden flex items-center justify-center relative group">
-                      {currentImageUrl ? (
-                        <>
-                          <Image
-                            src={currentImageUrl}
-                            alt="Popup image"
-                            fill
-                            className="object-cover"
-                          />
-                          <button
-                            onClick={() => updateField(
-                              isWelcome ? 'welcomePopupImageUrl' : 'exitPopupImageUrl',
-                              ''
-                            )}
-                            className="absolute top-1 right-1 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                          >
-                            <X className="w-3 h-3 text-[var(--admin-text-primary)]" />
-                          </button>
-                        </>
-                      ) : (
-                        <Upload className="w-6 h-6 text-[var(--admin-text-muted)]" />
-                      )}
-                    </div>
-                    <div className="flex-1">
-                      <input
-                        type="url"
-                        value={currentImageUrl || ''}
-                        onChange={(e) => updateField(
-                          isWelcome ? 'welcomePopupImageUrl' : 'exitPopupImageUrl',
-                          e.target.value
-                        )}
-                        placeholder="https://..."
-                        className="w-full px-4 py-2.5 bg-[var(--admin-input)] border border-[var(--admin-border-light)] rounded-lg text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors text-sm"
-                      />
-                      <p className="text-xs text-[var(--admin-text-muted)] mt-2">
-                        Square image recommended, min 200x200px
-                      </p>
-                    </div>
-                  </div>
+                  <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Success Message</label>
+                  <textarea
+                    value={currentSuccessMessage || ''}
+                    onChange={(e) => updateField(
+                      isWelcome ? 'welcomePopupSuccessMessage' : 'exitPopupSuccessMessage',
+                      e.target.value
+                    )}
+                    placeholder="Thanks for joining. We'll be in touch soon."
+                    rows={2}
+                    className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border-light)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors resize-none"
+                  />
                 </div>
               </div>
 
@@ -569,14 +711,29 @@ export default function PopupsPage() {
                         className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border-light)] rounded-xl text-[var(--admin-text-primary)] focus:outline-none focus:border-[var(--primary)] transition-colors"
                       />
                       <p className="text-xs text-[var(--admin-text-muted)] mt-2">
-                        Visitor must be on the site for at least this long before exit popup can trigger.
-                        {settings.welcomePopupEnabled && (
-                          <span className="text-orange-400 block mt-1">
-                            This prevents overlap with the welcome popup (showing after {settings.welcomePopupDelay}s).
-                          </span>
-                        )}
+                        Visitor must be on the site for at least this long before exit popup can trigger
                       </p>
                     </div>
+
+                    {settings.welcomePopupEnabled && (
+                      <div>
+                        <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
+                          Delay After Welcome Popup (seconds)
+                        </label>
+                        <input
+                          type="number"
+                          min={0}
+                          max={300}
+                          value={settings.exitPopupDelayAfterWelcome ?? 30}
+                          onChange={(e) => updateField('exitPopupDelayAfterWelcome', parseInt(e.target.value) || 30)}
+                          className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border-light)] rounded-xl text-[var(--admin-text-primary)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+                        />
+                        <p className="text-xs text-[var(--admin-text-muted)] mt-2">
+                          Wait this long after welcome popup before allowing exit popup to show
+                        </p>
+                      </div>
+                    )}
+
                     <div>
                       <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
                         Days Before Showing Again
@@ -603,16 +760,10 @@ export default function PopupsPage() {
                   <div className="flex items-start gap-3">
                     <Clock className="w-5 h-5 text-orange-400 shrink-0 mt-0.5" />
                     <div>
-                      <p className="text-sm font-medium text-orange-400">Overlap Prevention</p>
+                      <p className="text-sm font-medium text-orange-400">Overlap Prevention Active</p>
                       <p className="text-sm text-[var(--admin-text-secondary)] mt-1">
-                        Both popups are enabled. The exit popup requires a minimum of {settings.exitPopupMinTimeOnSite}s
-                        on site, which should be longer than the welcome popup delay ({settings.welcomePopupDelay}s)
-                        to prevent them from conflicting.
-                        {(settings.exitPopupMinTimeOnSite ?? 10) <= (settings.welcomePopupDelay ?? 3) && (
-                          <span className="text-orange-400 block mt-1 font-medium">
-                            Warning: Consider increasing the exit popup minimum time.
-                          </span>
-                        )}
+                        Exit popup will wait {settings.exitPopupDelayAfterWelcome}s after welcome popup before it can trigger.
+                        If user submits the welcome popup, exit popup will be suppressed entirely.
                       </p>
                     </div>
                   </div>
@@ -626,29 +777,57 @@ export default function PopupsPage() {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="font-medium text-[var(--admin-text-primary)]">Preview</h2>
-            <div className="flex gap-1 p-1 bg-[var(--admin-input)] rounded-lg">
-              <button
-                onClick={() => setPreviewDevice('desktop')}
-                className={cn(
-                  'p-2 rounded-lg transition-colors',
-                  previewDevice === 'desktop'
-                    ? 'bg-[var(--primary)] text-[var(--admin-button-text)]'
-                    : 'text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)]'
-                )}
-              >
-                <Monitor className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => setPreviewDevice('mobile')}
-                className={cn(
-                  'p-2 rounded-lg transition-colors',
-                  previewDevice === 'mobile'
-                    ? 'bg-[var(--primary)] text-[var(--admin-button-text)]'
-                    : 'text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)]'
-                )}
-              >
-                <Smartphone className="w-4 h-4" />
-              </button>
+            <div className="flex items-center gap-2">
+              {/* Preview State Toggle */}
+              <div className="flex gap-1 p-1 bg-[var(--admin-input)] rounded-lg">
+                <button
+                  onClick={() => setPreviewState('form')}
+                  className={cn(
+                    'px-3 py-1.5 rounded-md text-xs font-medium transition-colors',
+                    previewState === 'form'
+                      ? 'bg-[var(--primary)] text-[var(--admin-button-text)]'
+                      : 'text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)]'
+                  )}
+                >
+                  Form
+                </button>
+                <button
+                  onClick={() => setPreviewState('success')}
+                  className={cn(
+                    'px-3 py-1.5 rounded-md text-xs font-medium transition-colors',
+                    previewState === 'success'
+                      ? 'bg-[var(--primary)] text-[var(--admin-button-text)]'
+                      : 'text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)]'
+                  )}
+                >
+                  Success
+                </button>
+              </div>
+              {/* Device Toggle */}
+              <div className="flex gap-1 p-1 bg-[var(--admin-input)] rounded-lg">
+                <button
+                  onClick={() => setPreviewDevice('desktop')}
+                  className={cn(
+                    'p-2 rounded-lg transition-colors',
+                    previewDevice === 'desktop'
+                      ? 'bg-[var(--primary)] text-[var(--admin-button-text)]'
+                      : 'text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)]'
+                  )}
+                >
+                  <Monitor className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setPreviewDevice('mobile')}
+                  className={cn(
+                    'p-2 rounded-lg transition-colors',
+                    previewDevice === 'mobile'
+                      ? 'bg-[var(--primary)] text-[var(--admin-button-text)]'
+                      : 'text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)]'
+                  )}
+                >
+                  <Smartphone className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           </div>
 
@@ -661,53 +840,138 @@ export default function PopupsPage() {
               )}
             >
               {/* Popup Preview */}
-              <div className="bg-white rounded-2xl shadow-2xl overflow-hidden relative">
-                {/* Image */}
-                {currentImageUrl && (
-                  <div className="relative h-40 bg-[var(--secondary)]">
-                    <Image
-                      src={currentImageUrl}
-                      alt="Popup preview"
-                      fill
-                      className="object-cover"
-                    />
+              <div className={cn(
+                'bg-white rounded-3xl shadow-2xl overflow-hidden relative',
+                previewDevice === 'mobile' && 'rounded-2xl'
+              )}>
+                {/* Media */}
+                {(hasVideo || currentImageUrl) && (
+                  <div className={cn(
+                    'relative bg-[#f5f5f0]',
+                    previewDevice === 'desktop' ? 'h-48' : 'h-36'
+                  )}>
+                    {hasVideo ? (
+                      <video
+                        src={currentVideoUrl || ''}
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        className="w-full h-full object-cover"
+                      />
+                    ) : currentImageUrl ? (
+                      <Image
+                        src={currentImageUrl}
+                        alt="Popup preview"
+                        fill
+                        className="object-cover"
+                      />
+                    ) : null}
                   </div>
                 )}
 
                 {/* Content */}
-                <div className="p-6 text-center">
-                  <h3 className="text-xl font-medium text-gray-900 mb-2">
-                    {currentTitle || (isWelcome ? 'Join Our Community' : 'Wait! Before You Go...')}
-                  </h3>
-                  <p className="text-sm text-[var(--admin-text-muted)] mb-6">
-                    {currentSubtitle || 'Get 10% off your first order when you sign up for our newsletter.'}
-                  </p>
+                <div className={cn(
+                  'text-center',
+                  previewDevice === 'desktop' ? 'p-8' : 'p-5'
+                )}>
+                  <AnimatePresence mode="wait">
+                    {previewState === 'form' ? (
+                      <motion.div
+                        key="form"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                      >
+                        <h3 className={cn(
+                          'font-semibold text-gray-900 mb-2',
+                          previewDevice === 'desktop' ? 'text-2xl' : 'text-xl'
+                        )}>
+                          {currentTitle || (isWelcome ? 'Join Our Community' : 'Wait! Before You Go...')}
+                        </h3>
+                        <p className={cn(
+                          'text-gray-600 mb-6',
+                          previewDevice === 'desktop' ? 'text-base' : 'text-sm'
+                        )}>
+                          {currentSubtitle || 'Get 10% off your first order when you sign up for our newsletter.'}
+                        </p>
 
-                  {/* Email Input */}
-                  <div className="space-y-3">
-                    <input
-                      type="email"
-                      placeholder="Enter your email"
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl text-gray-900 placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)]"
-                      disabled
-                    />
-                    <button className={cn(
-                      'w-full px-4 py-3 rounded-xl font-medium',
-                      isWelcome
-                        ? 'bg-[var(--primary)] text-gray-900'
-                        : 'bg-orange-500 text-[var(--admin-text-primary)]'
-                    )}>
-                      {currentButtonText || (isWelcome ? 'Subscribe' : 'Get My Discount')}
-                    </button>
-                  </div>
+                        {/* Form based on CTA type */}
+                        {currentCtaType !== 'none' && (
+                          <div className="space-y-3">
+                            {currentCtaType === 'email' && (
+                              <input
+                                type="email"
+                                placeholder="Enter your email"
+                                className="w-full px-5 py-3.5 border border-gray-200 rounded-full text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[var(--primary)] text-center"
+                                disabled
+                              />
+                            )}
+                            {currentCtaType === 'sms' && (
+                              <input
+                                type="tel"
+                                placeholder="Enter your phone number"
+                                className="w-full px-5 py-3.5 border border-gray-200 rounded-full text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[var(--primary)] text-center"
+                                disabled
+                              />
+                            )}
+                            {currentCtaType === 'download' && currentDownloadName && (
+                              <div className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 rounded-full text-sm text-gray-600">
+                                <Download className="w-4 h-4" />
+                                {currentDownloadName}
+                              </div>
+                            )}
+                            <button className={cn(
+                              'w-full py-3.5 rounded-full font-semibold transition-colors',
+                              isWelcome
+                                ? 'bg-[#1a1a1a] text-white hover:bg-black'
+                                : 'bg-orange-500 text-white hover:bg-orange-600'
+                            )}>
+                              {currentButtonText || (isWelcome ? 'Subscribe' : 'Get My Discount')}
+                            </button>
+                          </div>
+                        )}
 
-                  <p className="text-xs text-[var(--admin-text-secondary)] mt-4">
-                    No spam. Unsubscribe anytime.
-                  </p>
+                        <p className="text-xs text-gray-400 mt-4">
+                          No spam. Unsubscribe anytime.
+                        </p>
+                      </motion.div>
+                    ) : (
+                      <motion.div
+                        key="success"
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.9 }}
+                        className="py-4"
+                      >
+                        <div className={cn(
+                          'mx-auto mb-4 rounded-full bg-green-100 flex items-center justify-center',
+                          previewDevice === 'desktop' ? 'w-16 h-16' : 'w-12 h-12'
+                        )}>
+                          <Check className={cn(
+                            'text-green-600',
+                            previewDevice === 'desktop' ? 'w-8 h-8' : 'w-6 h-6'
+                          )} />
+                        </div>
+                        <h3 className={cn(
+                          'font-semibold text-gray-900 mb-2',
+                          previewDevice === 'desktop' ? 'text-2xl' : 'text-xl'
+                        )}>
+                          {currentSuccessTitle || "You're In!"}
+                        </h3>
+                        <p className={cn(
+                          'text-gray-600',
+                          previewDevice === 'desktop' ? 'text-base' : 'text-sm'
+                        )}>
+                          {currentSuccessMessage || "Thanks for joining. We'll be in touch soon."}
+                        </p>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
 
                 {/* Close button */}
-                <button className="absolute top-3 right-3 w-8 h-8 bg-black/10 rounded-full flex items-center justify-center text-[var(--admin-text-muted)] hover:bg-black/20 transition-colors">
+                <button className="absolute top-3 right-3 w-8 h-8 bg-black/10 rounded-full flex items-center justify-center text-gray-500 hover:bg-black/20 transition-colors">
                   <X className="w-4 h-4" />
                 </button>
 
@@ -715,8 +979,8 @@ export default function PopupsPage() {
                 <div className={cn(
                   'absolute top-3 left-3 px-2.5 py-1 rounded-full text-xs font-medium',
                   isWelcome
-                    ? 'bg-green-500/90 text-[var(--admin-text-primary)]'
-                    : 'bg-orange-500/90 text-[var(--admin-text-primary)]'
+                    ? 'bg-green-500/90 text-white'
+                    : 'bg-orange-500/90 text-white'
                 )}>
                   {isWelcome ? 'Welcome' : 'Exit Intent'}
                 </div>
@@ -750,7 +1014,7 @@ export default function PopupsPage() {
           <div>
             <h2 className="text-xl font-medium text-[var(--admin-text-primary)]">Custom Popups</h2>
             <p className="text-sm text-[var(--admin-text-secondary)] mt-1">
-              Page-specific popups with advanced features
+              Page-specific popups with advanced targeting and triggers
             </p>
           </div>
           <Link

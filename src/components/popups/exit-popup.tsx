@@ -20,9 +20,14 @@ interface ExitPopupProps {
   ctaType?: 'email' | 'sms' | 'download' | 'none';
   downloadFileUrl?: string | null;
   downloadFileName?: string | null;
+  successTitle?: string;
+  successMessage?: string;
   // Exit intent sensitivity
   sensitivity?: number; // Pixels from top of viewport to trigger
   delayBeforeEnabled?: number; // MS before exit intent detection starts
+  // Delay after welcome popup (in seconds)
+  delayAfterWelcome?: number;
+  welcomeEnabled?: boolean;
 }
 
 export function ExitPopup({
@@ -37,8 +42,12 @@ export function ExitPopup({
   ctaType = 'email',
   downloadFileUrl,
   downloadFileName,
+  successTitle = "You're In!",
+  successMessage,
   sensitivity = 20,
   delayBeforeEnabled = 5000,
+  delayAfterWelcome = 30,
+  welcomeEnabled = false,
 }: ExitPopupProps) {
   const {
     canShowExitPopup,
@@ -59,17 +68,56 @@ export function ExitPopup({
   const [showVideo, setShowVideo] = useState(false);
   const [exitDetectionEnabled, setExitDetectionEnabled] = useState(false);
   const [hasTriggered, setHasTriggered] = useState(false);
+  const [welcomeDelayComplete, setWelcomeDelayComplete] = useState(!welcomeEnabled);
 
-  // Enable exit detection after delay
+  // Check if we need to wait after welcome popup
   useEffect(() => {
-    if (!enabled) return;
+    if (!welcomeEnabled || !enabled) {
+      setWelcomeDelayComplete(true);
+      return;
+    }
+
+    // Get welcome dismissed timestamp
+    const welcomeDismissedAt = localStorage.getItem('archies-welcome-dismissed-at');
+    if (!welcomeDismissedAt) {
+      // Welcome hasn't been dismissed yet, wait for it
+      const checkInterval = setInterval(() => {
+        const dismissed = localStorage.getItem('archies-welcome-dismissed-at');
+        if (dismissed) {
+          const elapsed = (Date.now() - parseInt(dismissed, 10)) / 1000;
+          if (elapsed >= delayAfterWelcome) {
+            setWelcomeDelayComplete(true);
+            clearInterval(checkInterval);
+          }
+        }
+      }, 1000);
+      return () => clearInterval(checkInterval);
+    }
+
+    // Welcome was already dismissed, check if enough time has passed
+    const elapsed = (Date.now() - parseInt(welcomeDismissedAt, 10)) / 1000;
+    if (elapsed >= delayAfterWelcome) {
+      setWelcomeDelayComplete(true);
+    } else {
+      // Wait for remaining time
+      const remainingMs = (delayAfterWelcome - elapsed) * 1000;
+      const timer = setTimeout(() => {
+        setWelcomeDelayComplete(true);
+      }, remainingMs);
+      return () => clearTimeout(timer);
+    }
+  }, [welcomeEnabled, delayAfterWelcome, enabled]);
+
+  // Enable exit detection after delay (only if welcome delay is complete)
+  useEffect(() => {
+    if (!enabled || !welcomeDelayComplete) return;
 
     const timer = setTimeout(() => {
       setExitDetectionEnabled(true);
     }, delayBeforeEnabled);
 
     return () => clearTimeout(timer);
-  }, [enabled, delayBeforeEnabled]);
+  }, [enabled, delayBeforeEnabled, welcomeDelayComplete]);
 
   // Exit intent detection
   const handleMouseLeave = useCallback(
@@ -198,15 +246,15 @@ export function ExitPopup({
             className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm"
           />
 
-          {/* Modal - slightly different styling for exit intent */}
+          {/* Modal - Bigger on desktop, compact on mobile, attention-grabbing border */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9, y: -50 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: -50 }}
             transition={{ type: 'spring', damping: 25, stiffness: 350 }}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-[92%] max-w-md max-h-[90vh] overflow-y-auto"
+            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-[92%] max-w-md md:max-w-xl max-h-[90vh] overflow-y-auto"
           >
-            <div className="bg-white rounded-3xl overflow-hidden shadow-2xl border-2 border-[var(--primary)]">
+            <div className="bg-white rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl border-2 border-[var(--primary)]">
               {/* Close button */}
               <button
                 onClick={handleClose}
@@ -216,13 +264,13 @@ export function ExitPopup({
                 <X className="w-4 h-4" />
               </button>
 
-              {/* Video or Image */}
+              {/* Video or Image - Taller on desktop */}
               {videoUrl && showVideo ? (
                 <div className="relative aspect-video bg-black">
                   <VideoPlayer url={videoUrl} autoPlay />
                 </div>
               ) : (
-                <div className="relative h-48 bg-gradient-to-br from-orange-100 via-[var(--cream)] to-orange-200">
+                <div className="relative h-40 md:h-56 bg-gradient-to-br from-orange-100 via-[var(--cream)] to-orange-200">
                   {imageUrl ? (
                     <Image
                       src={imageUrl}
@@ -269,14 +317,14 @@ export function ExitPopup({
                 </div>
               )}
 
-              {/* Content */}
-              <div className="p-8">
+              {/* Content - More padding on desktop */}
+              <div className="p-6 md:p-10">
                 {status === 'success' ? (
-                  <div className="py-4">
-                    <div className="flex items-center justify-center gap-3 mb-5">
-                      <div className="w-11 h-11 bg-[#bbdae9] rounded-full flex items-center justify-center flex-shrink-0">
+                  <div className="py-4 md:py-8">
+                    <div className="flex items-center justify-center gap-3 mb-4 md:mb-6">
+                      <div className="w-11 h-11 md:w-14 md:h-14 bg-[#bbdae9] rounded-full flex items-center justify-center flex-shrink-0">
                         <svg
-                          className="w-5 h-5 text-[#1a1a1a]"
+                          className="w-5 h-5 md:w-7 md:h-7 text-[#1a1a1a]"
                           viewBox="0 0 24 24"
                           fill="none"
                           stroke="currentColor"
@@ -287,34 +335,38 @@ export function ExitPopup({
                           <path d="M5 13l4 4L19 7" />
                         </svg>
                       </div>
-                      <h3 className="text-2xl font-normal tracking-tight">You&apos;re In!</h3>
+                      <h3 className="text-2xl md:text-4xl font-normal tracking-tight">{successTitle}</h3>
                     </div>
-                    <p className="text-[var(--muted-foreground)] text-center">
-                      {ctaType === 'email' && 'Check your email for your special discount.'}
-                      {ctaType === 'sms' && 'Check your phone for your special discount.'}
-                      {ctaType === 'download' && 'Your download should start automatically.'}
-                      {ctaType === 'none' && 'Thank you for staying!'}
+                    <p className="text-[var(--muted-foreground)] text-center text-base md:text-lg leading-relaxed">
+                      {successMessage || (
+                        <>
+                          {ctaType === 'email' && 'Check your email for your special discount.'}
+                          {ctaType === 'sms' && 'Check your phone for your special discount.'}
+                          {ctaType === 'download' && 'Your download should start automatically.'}
+                          {ctaType === 'none' && 'Thank you for staying!'}
+                        </>
+                      )}
                     </p>
                   </div>
                 ) : (
                   <>
-                    <h3 className="text-2xl md:text-3xl font-normal mb-3 tracking-tight text-center">
+                    <h3 className="text-2xl md:text-4xl font-normal mb-3 md:mb-4 tracking-tight text-center">
                       {title}
                     </h3>
-                    <p className="text-[var(--muted-foreground)] mb-8 text-center leading-relaxed">
+                    <p className="text-[var(--muted-foreground)] mb-6 md:mb-10 text-center text-base md:text-lg leading-relaxed">
                       {subtitle}
                     </p>
 
                     {/* Email CTA */}
                     {ctaType === 'email' && (
-                      <form onSubmit={handleEmailSubmit} className="space-y-4">
+                      <form onSubmit={handleEmailSubmit} className="space-y-3 md:space-y-4">
                         <input
                           type="email"
                           placeholder="Your email address"
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           required
-                          className="w-full px-5 py-4 text-base bg-[var(--cream)] border-0 rounded-full focus:outline-none focus:ring-2 focus:ring-[var(--primary)] placeholder:text-[var(--muted-foreground)]"
+                          className="w-full px-5 py-3.5 md:py-5 text-base md:text-lg bg-[var(--cream)] border-0 rounded-full focus:outline-none focus:ring-2 focus:ring-[var(--primary)] placeholder:text-[var(--muted-foreground)]"
                         />
                         {status === 'error' && (
                           <p className="text-sm text-red-500 text-center">
@@ -324,7 +376,7 @@ export function ExitPopup({
                         <button
                           type="submit"
                           disabled={status === 'loading'}
-                          className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-[var(--primary)] text-white rounded-full font-medium text-sm hover:bg-[var(--primary)]/90 transition-colors disabled:opacity-50"
+                          className="w-full flex items-center justify-center gap-2 px-6 py-3.5 md:py-5 bg-[var(--primary)] text-white rounded-full font-medium text-sm md:text-base hover:bg-[var(--primary)]/90 transition-colors disabled:opacity-50"
                         >
                           {status === 'loading' ? (
                             <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -340,7 +392,7 @@ export function ExitPopup({
 
                     {/* SMS CTA */}
                     {ctaType === 'sms' && (
-                      <form onSubmit={handlePhoneSubmit} className="space-y-4">
+                      <form onSubmit={handlePhoneSubmit} className="space-y-3 md:space-y-4">
                         <PhoneInput
                           value={phone}
                           onChange={setPhone}
@@ -354,7 +406,7 @@ export function ExitPopup({
                         <button
                           type="submit"
                           disabled={status === 'loading'}
-                          className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-[var(--primary)] text-white rounded-full font-medium text-sm hover:bg-[var(--primary)]/90 transition-colors disabled:opacity-50"
+                          className="w-full flex items-center justify-center gap-2 px-6 py-3.5 md:py-5 bg-[var(--primary)] text-white rounded-full font-medium text-sm md:text-base hover:bg-[var(--primary)]/90 transition-colors disabled:opacity-50"
                         >
                           {status === 'loading' ? (
                             <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -373,10 +425,10 @@ export function ExitPopup({
 
                     {/* Download CTA */}
                     {ctaType === 'download' && downloadFileUrl && (
-                      <div className="space-y-4">
+                      <div className="space-y-3 md:space-y-4">
                         <button
                           onClick={handleDownload}
-                          className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-[var(--primary)] text-white rounded-full font-medium text-sm hover:bg-[var(--primary)]/90 transition-colors"
+                          className="w-full flex items-center justify-center gap-2 px-6 py-3.5 md:py-5 bg-[var(--primary)] text-white rounded-full font-medium text-sm md:text-base hover:bg-[var(--primary)]/90 transition-colors"
                         >
                           <Download className="w-4 h-4" />
                           {buttonText || 'Download Now'}
@@ -389,7 +441,7 @@ export function ExitPopup({
                       <div className="text-center">
                         <button
                           onClick={handleClose}
-                          className="px-8 py-3 text-sm font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
+                          className="px-8 py-3 md:py-4 text-sm md:text-base font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
                         >
                           Continue browsing
                         </button>
@@ -397,7 +449,7 @@ export function ExitPopup({
                     )}
 
                     {(ctaType === 'email' || ctaType === 'sms') && (
-                      <p className="text-xs text-[var(--muted-foreground)] mt-6 text-center">
+                      <p className="text-xs md:text-sm text-[var(--muted-foreground)] mt-4 md:mt-6 text-center">
                         No spam, ever. Unsubscribe anytime.
                       </p>
                     )}
@@ -405,7 +457,7 @@ export function ExitPopup({
                     {/* No thanks link */}
                     <button
                       onClick={handleClose}
-                      className="w-full mt-4 text-center text-sm text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
+                      className="w-full mt-3 md:mt-4 text-center text-sm md:text-base text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
                     >
                       No thanks, I&apos;ll pay full price
                     </button>

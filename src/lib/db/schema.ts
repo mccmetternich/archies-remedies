@@ -61,8 +61,14 @@ export const siteSettings = sqliteTable('site_settings', {
   welcomePopupSubtitle: text('welcome_popup_subtitle'),
   welcomePopupButtonText: text('welcome_popup_button_text').default('Subscribe'),
   welcomePopupImageUrl: text('welcome_popup_image_url'),
+  welcomePopupVideoUrl: text('welcome_popup_video_url'),
   welcomePopupDelay: integer('welcome_popup_delay').default(3), // seconds before showing
   welcomePopupDismissDays: integer('welcome_popup_dismiss_days').default(7), // days before showing again
+  welcomePopupCtaType: text('welcome_popup_cta_type').default('email'), // 'email' | 'sms' | 'download' | 'none'
+  welcomePopupDownloadUrl: text('welcome_popup_download_url'),
+  welcomePopupDownloadName: text('welcome_popup_download_name'),
+  welcomePopupSuccessTitle: text('welcome_popup_success_title').default("You're In!"),
+  welcomePopupSuccessMessage: text('welcome_popup_success_message').default("Thanks for joining. We'll be in touch soon."),
 
   // Exit Intent Popup
   exitPopupEnabled: integer('exit_popup_enabled', { mode: 'boolean' }).default(false),
@@ -70,8 +76,15 @@ export const siteSettings = sqliteTable('site_settings', {
   exitPopupSubtitle: text('exit_popup_subtitle'),
   exitPopupButtonText: text('exit_popup_button_text').default('Get My Discount'),
   exitPopupImageUrl: text('exit_popup_image_url'),
+  exitPopupVideoUrl: text('exit_popup_video_url'),
   exitPopupMinTimeOnSite: integer('exit_popup_min_time_on_site').default(10), // seconds before exit popup can trigger
   exitPopupDismissDays: integer('exit_popup_dismiss_days').default(3), // days before showing again
+  exitPopupCtaType: text('exit_popup_cta_type').default('email'), // 'email' | 'sms' | 'download' | 'none'
+  exitPopupDownloadUrl: text('exit_popup_download_url'),
+  exitPopupDownloadName: text('exit_popup_download_name'),
+  exitPopupSuccessTitle: text('exit_popup_success_title').default("You're In!"),
+  exitPopupSuccessMessage: text('exit_popup_success_message').default("Thanks for subscribing. Check your inbox for your discount code."),
+  exitPopupDelayAfterWelcome: integer('exit_popup_delay_after_welcome').default(30), // seconds to wait after welcome popup before allowing exit popup
 
   // Legacy fields (for backwards compatibility)
   emailPopupEnabled: integer('email_popup_enabled', { mode: 'boolean' }).default(true),
