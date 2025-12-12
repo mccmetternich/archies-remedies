@@ -42,8 +42,18 @@ interface PopupSettings {
   welcomePopupTitle: string | null;
   welcomePopupSubtitle: string | null;
   welcomePopupButtonText: string | null;
-  welcomePopupImageUrl: string | null;
-  welcomePopupVideoUrl: string | null;
+  welcomePopupImageUrl: string | null; // Legacy
+  welcomePopupVideoUrl: string | null; // Legacy
+  // Form state media (desktop/mobile)
+  welcomePopupFormDesktopImageUrl: string | null;
+  welcomePopupFormDesktopVideoUrl: string | null;
+  welcomePopupFormMobileImageUrl: string | null;
+  welcomePopupFormMobileVideoUrl: string | null;
+  // Success state media (desktop/mobile)
+  welcomePopupSuccessDesktopImageUrl: string | null;
+  welcomePopupSuccessDesktopVideoUrl: string | null;
+  welcomePopupSuccessMobileImageUrl: string | null;
+  welcomePopupSuccessMobileVideoUrl: string | null;
   welcomePopupDelay: number | null;
   welcomePopupDismissDays: number | null;
   welcomePopupSessionOnly: boolean | null;
@@ -76,8 +86,18 @@ interface PopupSettings {
   exitPopupTitle: string | null;
   exitPopupSubtitle: string | null;
   exitPopupButtonText: string | null;
-  exitPopupImageUrl: string | null;
-  exitPopupVideoUrl: string | null;
+  exitPopupImageUrl: string | null; // Legacy
+  exitPopupVideoUrl: string | null; // Legacy
+  // Form state media (desktop/mobile)
+  exitPopupFormDesktopImageUrl: string | null;
+  exitPopupFormDesktopVideoUrl: string | null;
+  exitPopupFormMobileImageUrl: string | null;
+  exitPopupFormMobileVideoUrl: string | null;
+  // Success state media (desktop/mobile)
+  exitPopupSuccessDesktopImageUrl: string | null;
+  exitPopupSuccessDesktopVideoUrl: string | null;
+  exitPopupSuccessMobileImageUrl: string | null;
+  exitPopupSuccessMobileVideoUrl: string | null;
   exitPopupMinTimeOnSite: number | null;
   exitPopupDismissDays: number | null;
   exitPopupCtaType: string | null;
@@ -143,6 +163,7 @@ export default function PopupsPage() {
   const [activeTab, setActiveTab] = useState<TabType>('welcome');
   const [previewDevice, setPreviewDevice] = useState<'desktop' | 'mobile'>('desktop');
   const [previewState, setPreviewState] = useState<'form' | 'success'>('form');
+  const [mediaSubTab, setMediaSubTab] = useState<'form' | 'success'>('form');
   const [customPopups, setCustomPopups] = useState<CustomPopup[]>([]);
   const [loadingCustomPopups, setLoadingCustomPopups] = useState(true);
 
@@ -204,6 +225,16 @@ export default function PopupsPage() {
         welcomePopupButtonText: data.welcomePopupButtonText ?? 'Subscribe',
         welcomePopupImageUrl: data.welcomePopupImageUrl ?? null,
         welcomePopupVideoUrl: data.welcomePopupVideoUrl ?? null,
+        // Form state media (desktop/mobile)
+        welcomePopupFormDesktopImageUrl: data.welcomePopupFormDesktopImageUrl ?? null,
+        welcomePopupFormDesktopVideoUrl: data.welcomePopupFormDesktopVideoUrl ?? null,
+        welcomePopupFormMobileImageUrl: data.welcomePopupFormMobileImageUrl ?? null,
+        welcomePopupFormMobileVideoUrl: data.welcomePopupFormMobileVideoUrl ?? null,
+        // Success state media (desktop/mobile)
+        welcomePopupSuccessDesktopImageUrl: data.welcomePopupSuccessDesktopImageUrl ?? null,
+        welcomePopupSuccessDesktopVideoUrl: data.welcomePopupSuccessDesktopVideoUrl ?? null,
+        welcomePopupSuccessMobileImageUrl: data.welcomePopupSuccessMobileImageUrl ?? null,
+        welcomePopupSuccessMobileVideoUrl: data.welcomePopupSuccessMobileVideoUrl ?? null,
         welcomePopupDelay: data.welcomePopupDelay ?? 3,
         welcomePopupDismissDays: data.welcomePopupDismissDays ?? 7,
         welcomePopupSessionOnly: data.welcomePopupSessionOnly ?? true,
@@ -238,6 +269,16 @@ export default function PopupsPage() {
         exitPopupButtonText: data.exitPopupButtonText ?? 'Get My Discount',
         exitPopupImageUrl: data.exitPopupImageUrl ?? null,
         exitPopupVideoUrl: data.exitPopupVideoUrl ?? null,
+        // Form state media (desktop/mobile)
+        exitPopupFormDesktopImageUrl: data.exitPopupFormDesktopImageUrl ?? null,
+        exitPopupFormDesktopVideoUrl: data.exitPopupFormDesktopVideoUrl ?? null,
+        exitPopupFormMobileImageUrl: data.exitPopupFormMobileImageUrl ?? null,
+        exitPopupFormMobileVideoUrl: data.exitPopupFormMobileVideoUrl ?? null,
+        // Success state media (desktop/mobile)
+        exitPopupSuccessDesktopImageUrl: data.exitPopupSuccessDesktopImageUrl ?? null,
+        exitPopupSuccessDesktopVideoUrl: data.exitPopupSuccessDesktopVideoUrl ?? null,
+        exitPopupSuccessMobileImageUrl: data.exitPopupSuccessMobileImageUrl ?? null,
+        exitPopupSuccessMobileVideoUrl: data.exitPopupSuccessMobileVideoUrl ?? null,
         exitPopupMinTimeOnSite: data.exitPopupMinTimeOnSite ?? 10,
         exitPopupDismissDays: data.exitPopupDismissDays ?? 3,
         exitPopupCtaType: data.exitPopupCtaType ?? 'both',
@@ -357,6 +398,10 @@ export default function PopupsPage() {
   const currentSuccessLink2Text = isWelcome ? settings.welcomePopupSuccessLink2Text : settings.exitPopupSuccessLink2Text;
   const currentSuccessLink2Url = isWelcome ? settings.welcomePopupSuccessLink2Url : settings.exitPopupSuccessLink2Url;
 
+  // Rotating badges
+  const currentFormBadgeUrl = isWelcome ? settings.welcomePopupFormBadgeUrl : settings.exitPopupFormBadgeUrl;
+  const currentSuccessBadgeUrl = isWelcome ? settings.welcomePopupSuccessBadgeUrl : settings.exitPopupSuccessBadgeUrl;
+
   // Check if media is video - check both file extension and Cloudinary video resource type
   const hasVideo = currentVideoUrl && (
     currentVideoUrl.match(/\.(mp4|webm|mov)(\?|$)/i) ||
@@ -437,7 +482,7 @@ export default function PopupsPage() {
           )}
         >
           <LogOut className="w-4 h-4" />
-          Exit Intent
+          Exit Popup
           <span className={cn(
             'px-2 py-0.5 text-xs rounded-full',
             settings.exitPopupEnabled
@@ -637,30 +682,158 @@ export default function PopupsPage() {
                 </div>
               </div>
 
-              {/* Media Upload */}
+              {/* Media Upload - Tabbed by State */}
               <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6 space-y-4">
-                <h3 className="font-medium text-[var(--admin-text-primary)]">Media</h3>
-                <MediaPickerButton
-                  label="Image or Video"
-                  value={currentVideoUrl || currentImageUrl}
-                  onChange={(url) => {
-                    // Check if URL is a video - check both file extension and Cloudinary video path
-                    const isVideoUrl = url && (
-                      url.match(/\.(mp4|webm|mov)(\?|$)/i) ||
-                      url.includes('/video/upload/')
-                    );
-                    if (isVideoUrl) {
-                      updateField(isWelcome ? 'welcomePopupVideoUrl' : 'exitPopupVideoUrl', url);
-                      updateField(isWelcome ? 'welcomePopupImageUrl' : 'exitPopupImageUrl', null);
-                    } else {
-                      updateField(isWelcome ? 'welcomePopupImageUrl' : 'exitPopupImageUrl', url);
-                      updateField(isWelcome ? 'welcomePopupVideoUrl' : 'exitPopupVideoUrl', null);
-                    }
-                  }}
-                  helpText="Upload an image or video for the popup header"
-                  folder="popups"
-                  acceptVideo={true}
-                />
+                <div className="flex items-center justify-between">
+                  <h3 className="font-medium text-[var(--admin-text-primary)]">Media</h3>
+                  {/* Sub-tabs for Form/Success */}
+                  <div className="flex bg-[var(--admin-bg)] rounded-lg p-1">
+                    <button
+                      onClick={() => setMediaSubTab('form')}
+                      className={cn(
+                        'px-3 py-1.5 text-sm font-medium rounded-md transition-colors',
+                        mediaSubTab === 'form'
+                          ? 'bg-[var(--admin-card)] text-[var(--admin-text-primary)] shadow-sm'
+                          : 'text-[var(--admin-text-muted)] hover:text-[var(--admin-text-secondary)]'
+                      )}
+                    >
+                      Form State
+                    </button>
+                    <button
+                      onClick={() => setMediaSubTab('success')}
+                      className={cn(
+                        'px-3 py-1.5 text-sm font-medium rounded-md transition-colors',
+                        mediaSubTab === 'success'
+                          ? 'bg-[var(--admin-card)] text-[var(--admin-text-primary)] shadow-sm'
+                          : 'text-[var(--admin-text-muted)] hover:text-[var(--admin-text-secondary)]'
+                      )}
+                    >
+                      Success State
+                    </button>
+                  </div>
+                </div>
+
+                {mediaSubTab === 'form' ? (
+                  <div className="space-y-4">
+                    <p className="text-xs text-[var(--admin-text-muted)]">Media shown while the signup form is displayed</p>
+
+                    {/* Desktop Media */}
+                    <div className="p-4 bg-[var(--admin-bg)] rounded-xl space-y-3">
+                      <div className="flex items-center gap-2">
+                        <Monitor className="w-4 h-4 text-[var(--admin-text-muted)]" />
+                        <span className="text-sm font-medium text-[var(--admin-text-secondary)]">Desktop</span>
+                      </div>
+                      <MediaPickerButton
+                        label="Image or Video"
+                        value={isWelcome
+                          ? (settings.welcomePopupFormDesktopVideoUrl || settings.welcomePopupFormDesktopImageUrl || settings.welcomePopupVideoUrl || settings.welcomePopupImageUrl)
+                          : (settings.exitPopupFormDesktopVideoUrl || settings.exitPopupFormDesktopImageUrl || settings.exitPopupVideoUrl || settings.exitPopupImageUrl)
+                        }
+                        onChange={(url) => {
+                          const isVideoUrl = url && (url.match(/\.(mp4|webm|mov)(\?|$)/i) || url.includes('/video/upload/'));
+                          if (isVideoUrl) {
+                            updateField(isWelcome ? 'welcomePopupFormDesktopVideoUrl' : 'exitPopupFormDesktopVideoUrl', url);
+                            updateField(isWelcome ? 'welcomePopupFormDesktopImageUrl' : 'exitPopupFormDesktopImageUrl', null);
+                          } else {
+                            updateField(isWelcome ? 'welcomePopupFormDesktopImageUrl' : 'exitPopupFormDesktopImageUrl', url);
+                            updateField(isWelcome ? 'welcomePopupFormDesktopVideoUrl' : 'exitPopupFormDesktopVideoUrl', null);
+                          }
+                        }}
+                        helpText="Recommended: landscape orientation"
+                        folder="popups"
+                        acceptVideo={true}
+                      />
+                    </div>
+
+                    {/* Mobile Media */}
+                    <div className="p-4 bg-[var(--admin-bg)] rounded-xl space-y-3">
+                      <div className="flex items-center gap-2">
+                        <Smartphone className="w-4 h-4 text-[var(--admin-text-muted)]" />
+                        <span className="text-sm font-medium text-[var(--admin-text-secondary)]">Mobile</span>
+                      </div>
+                      <MediaPickerButton
+                        label="Image or Video"
+                        value={isWelcome
+                          ? (settings.welcomePopupFormMobileVideoUrl || settings.welcomePopupFormMobileImageUrl)
+                          : (settings.exitPopupFormMobileVideoUrl || settings.exitPopupFormMobileImageUrl)
+                        }
+                        onChange={(url) => {
+                          const isVideoUrl = url && (url.match(/\.(mp4|webm|mov)(\?|$)/i) || url.includes('/video/upload/'));
+                          if (isVideoUrl) {
+                            updateField(isWelcome ? 'welcomePopupFormMobileVideoUrl' : 'exitPopupFormMobileVideoUrl', url);
+                            updateField(isWelcome ? 'welcomePopupFormMobileImageUrl' : 'exitPopupFormMobileImageUrl', null);
+                          } else {
+                            updateField(isWelcome ? 'welcomePopupFormMobileImageUrl' : 'exitPopupFormMobileImageUrl', url);
+                            updateField(isWelcome ? 'welcomePopupFormMobileVideoUrl' : 'exitPopupFormMobileVideoUrl', null);
+                          }
+                        }}
+                        helpText="Optional: uses desktop if not set"
+                        folder="popups"
+                        acceptVideo={true}
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <p className="text-xs text-[var(--admin-text-muted)]">Media shown after successful form submission</p>
+
+                    {/* Desktop Media */}
+                    <div className="p-4 bg-[var(--admin-bg)] rounded-xl space-y-3">
+                      <div className="flex items-center gap-2">
+                        <Monitor className="w-4 h-4 text-[var(--admin-text-muted)]" />
+                        <span className="text-sm font-medium text-[var(--admin-text-secondary)]">Desktop</span>
+                      </div>
+                      <MediaPickerButton
+                        label="Image or Video"
+                        value={isWelcome
+                          ? (settings.welcomePopupSuccessDesktopVideoUrl || settings.welcomePopupSuccessDesktopImageUrl)
+                          : (settings.exitPopupSuccessDesktopVideoUrl || settings.exitPopupSuccessDesktopImageUrl)
+                        }
+                        onChange={(url) => {
+                          const isVideoUrl = url && (url.match(/\.(mp4|webm|mov)(\?|$)/i) || url.includes('/video/upload/'));
+                          if (isVideoUrl) {
+                            updateField(isWelcome ? 'welcomePopupSuccessDesktopVideoUrl' : 'exitPopupSuccessDesktopVideoUrl', url);
+                            updateField(isWelcome ? 'welcomePopupSuccessDesktopImageUrl' : 'exitPopupSuccessDesktopImageUrl', null);
+                          } else {
+                            updateField(isWelcome ? 'welcomePopupSuccessDesktopImageUrl' : 'exitPopupSuccessDesktopImageUrl', url);
+                            updateField(isWelcome ? 'welcomePopupSuccessDesktopVideoUrl' : 'exitPopupSuccessDesktopVideoUrl', null);
+                          }
+                        }}
+                        helpText="Optional: uses form state media if not set"
+                        folder="popups"
+                        acceptVideo={true}
+                      />
+                    </div>
+
+                    {/* Mobile Media */}
+                    <div className="p-4 bg-[var(--admin-bg)] rounded-xl space-y-3">
+                      <div className="flex items-center gap-2">
+                        <Smartphone className="w-4 h-4 text-[var(--admin-text-muted)]" />
+                        <span className="text-sm font-medium text-[var(--admin-text-secondary)]">Mobile</span>
+                      </div>
+                      <MediaPickerButton
+                        label="Image or Video"
+                        value={isWelcome
+                          ? (settings.welcomePopupSuccessMobileVideoUrl || settings.welcomePopupSuccessMobileImageUrl)
+                          : (settings.exitPopupSuccessMobileVideoUrl || settings.exitPopupSuccessMobileImageUrl)
+                        }
+                        onChange={(url) => {
+                          const isVideoUrl = url && (url.match(/\.(mp4|webm|mov)(\?|$)/i) || url.includes('/video/upload/'));
+                          if (isVideoUrl) {
+                            updateField(isWelcome ? 'welcomePopupSuccessMobileVideoUrl' : 'exitPopupSuccessMobileVideoUrl', url);
+                            updateField(isWelcome ? 'welcomePopupSuccessMobileImageUrl' : 'exitPopupSuccessMobileImageUrl', null);
+                          } else {
+                            updateField(isWelcome ? 'welcomePopupSuccessMobileImageUrl' : 'exitPopupSuccessMobileImageUrl', url);
+                            updateField(isWelcome ? 'welcomePopupSuccessMobileVideoUrl' : 'exitPopupSuccessMobileVideoUrl', null);
+                          }
+                        }}
+                        helpText="Optional: uses desktop success if not set"
+                        folder="popups"
+                        acceptVideo={true}
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Content */}
@@ -1271,10 +1444,8 @@ export default function PopupsPage() {
                       {/* Testimonial Bubble - Mobile */}
                       {currentTestimonialEnabled && currentTestimonialEnabledMobile && currentTestimonialQuote && (
                         <div className="absolute bottom-3 left-3 right-3">
-                          <div className="relative bg-white/98 backdrop-blur-md rounded-xl px-3 py-2.5 shadow-lg ring-1 ring-black/[0.03]">
-                            {/* Subtle accent line */}
-                            <div className="absolute left-0 top-2.5 bottom-2.5 w-[2px] bg-gradient-to-b from-[#bbdae9] to-[#bbdae9]/40 rounded-full" />
-                            <div className="flex items-center gap-2.5 pl-1.5">
+                          <div className="bg-white/98 backdrop-blur-md rounded-xl px-3 py-2.5 shadow-lg ring-1 ring-black/[0.03]">
+                            <div className="flex items-center gap-2.5">
                               {currentTestimonialAvatarUrl ? (
                                 <Image
                                   src={currentTestimonialAvatarUrl}
@@ -1446,10 +1617,8 @@ export default function PopupsPage() {
                       {/* Testimonial Bubble - Desktop */}
                       {currentTestimonialEnabled && currentTestimonialEnabledDesktop && currentTestimonialQuote && (
                         <div className="absolute bottom-4 left-4 right-4">
-                          <div className="relative bg-white/98 backdrop-blur-md rounded-2xl px-4 py-3 shadow-lg ring-1 ring-black/[0.03]">
-                            {/* Subtle accent line */}
-                            <div className="absolute left-0 top-3 bottom-3 w-[3px] bg-gradient-to-b from-[#bbdae9] to-[#bbdae9]/40 rounded-full" />
-                            <div className="flex items-center gap-3.5 pl-2">
+                          <div className="bg-white/98 backdrop-blur-md rounded-2xl px-4 py-3 shadow-lg ring-1 ring-black/[0.03]">
+                            <div className="flex items-center gap-3.5">
                               {currentTestimonialAvatarUrl ? (
                                 <Image
                                   src={currentTestimonialAvatarUrl}
@@ -1488,7 +1657,34 @@ export default function PopupsPage() {
                     </div>
 
                     {/* Content Section - Right side */}
-                    <div className="w-1/2 p-8 flex flex-col justify-center">
+                    <div className="relative w-1/2 p-8 flex flex-col justify-center">
+                      {/* Rotating Badge - Desktop only */}
+                      {previewState === 'success' ? (
+                        currentSuccessBadgeUrl && (
+                          <div className="absolute -top-4 -right-4 w-[70px] h-[70px] z-10 animate-spin-slow">
+                            <Image
+                              src={currentSuccessBadgeUrl}
+                              alt="Badge"
+                              width={70}
+                              height={70}
+                              className="w-full h-full object-contain"
+                            />
+                          </div>
+                        )
+                      ) : (
+                        currentFormBadgeUrl && (
+                          <div className="absolute -top-4 -right-4 w-[70px] h-[70px] z-10 animate-spin-slow">
+                            <Image
+                              src={currentFormBadgeUrl}
+                              alt="Badge"
+                              width={70}
+                              height={70}
+                              className="w-full h-full object-contain"
+                            />
+                          </div>
+                        )
+                      )}
+
                       {previewState === 'success' ? (
                         <div className="text-center py-4">
                           <div className="flex items-center justify-center gap-3 mb-4">

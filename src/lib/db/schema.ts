@@ -60,8 +60,18 @@ export const siteSettings = sqliteTable('site_settings', {
   welcomePopupTitle: text('welcome_popup_title').default('Join Our Community'),
   welcomePopupSubtitle: text('welcome_popup_subtitle'),
   welcomePopupButtonText: text('welcome_popup_button_text').default('Subscribe'),
-  welcomePopupImageUrl: text('welcome_popup_image_url'),
-  welcomePopupVideoUrl: text('welcome_popup_video_url'),
+  welcomePopupImageUrl: text('welcome_popup_image_url'), // Legacy - for backwards compatibility
+  welcomePopupVideoUrl: text('welcome_popup_video_url'), // Legacy - for backwards compatibility
+  // Form state media (desktop/mobile)
+  welcomePopupFormDesktopImageUrl: text('welcome_popup_form_desktop_image_url'),
+  welcomePopupFormDesktopVideoUrl: text('welcome_popup_form_desktop_video_url'),
+  welcomePopupFormMobileImageUrl: text('welcome_popup_form_mobile_image_url'),
+  welcomePopupFormMobileVideoUrl: text('welcome_popup_form_mobile_video_url'),
+  // Success state media (desktop/mobile)
+  welcomePopupSuccessDesktopImageUrl: text('welcome_popup_success_desktop_image_url'),
+  welcomePopupSuccessDesktopVideoUrl: text('welcome_popup_success_desktop_video_url'),
+  welcomePopupSuccessMobileImageUrl: text('welcome_popup_success_mobile_image_url'),
+  welcomePopupSuccessMobileVideoUrl: text('welcome_popup_success_mobile_video_url'),
   welcomePopupDelay: integer('welcome_popup_delay').default(3), // seconds before showing
   welcomePopupDismissDays: integer('welcome_popup_dismiss_days').default(7), // days before showing again (legacy - used as fallback)
   welcomePopupSessionOnly: integer('welcome_popup_session_only', { mode: 'boolean' }).default(true), // show once per session only
@@ -96,8 +106,18 @@ export const siteSettings = sqliteTable('site_settings', {
   exitPopupTitle: text('exit_popup_title').default('Wait! Before You Go...'),
   exitPopupSubtitle: text('exit_popup_subtitle'),
   exitPopupButtonText: text('exit_popup_button_text').default('Get My Discount'),
-  exitPopupImageUrl: text('exit_popup_image_url'),
-  exitPopupVideoUrl: text('exit_popup_video_url'),
+  exitPopupImageUrl: text('exit_popup_image_url'), // Legacy - for backwards compatibility
+  exitPopupVideoUrl: text('exit_popup_video_url'), // Legacy - for backwards compatibility
+  // Form state media (desktop/mobile)
+  exitPopupFormDesktopImageUrl: text('exit_popup_form_desktop_image_url'),
+  exitPopupFormDesktopVideoUrl: text('exit_popup_form_desktop_video_url'),
+  exitPopupFormMobileImageUrl: text('exit_popup_form_mobile_image_url'),
+  exitPopupFormMobileVideoUrl: text('exit_popup_form_mobile_video_url'),
+  // Success state media (desktop/mobile)
+  exitPopupSuccessDesktopImageUrl: text('exit_popup_success_desktop_image_url'),
+  exitPopupSuccessDesktopVideoUrl: text('exit_popup_success_desktop_video_url'),
+  exitPopupSuccessMobileImageUrl: text('exit_popup_success_mobile_image_url'),
+  exitPopupSuccessMobileVideoUrl: text('exit_popup_success_mobile_video_url'),
   exitPopupMinTimeOnSite: integer('exit_popup_min_time_on_site').default(10), // seconds before exit popup can trigger
   exitPopupDismissDays: integer('exit_popup_dismiss_days').default(3), // days before showing again
   exitPopupCtaType: text('exit_popup_cta_type').default('email'), // 'email' | 'sms' | 'both' | 'none'
