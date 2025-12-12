@@ -174,7 +174,12 @@ export default function PopupEditorPage({ params }: { params: Promise<{ id: stri
   };
 
   const handleInputChange = (field: keyof CustomPopup, value: unknown) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    console.log('[PopupEditor] handleInputChange:', field, value);
+    setFormData((prev) => {
+      const newState = { ...prev, [field]: value };
+      console.log('[PopupEditor] New formData:', field, '=', newState[field]);
+      return newState;
+    });
     setHasChanges(true);
   };
 
