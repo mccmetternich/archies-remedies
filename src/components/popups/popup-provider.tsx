@@ -288,6 +288,9 @@ export function PopupProvider({ children, currentPage = '/', currentProductId }:
         setPopupSubmitted();
         return true;
       }
+      // Log the error response
+      const errorData = await res.json().catch(() => ({}));
+      console.error('Popup email submit failed:', res.status, errorData);
       return false;
     } catch (error) {
       console.error('Failed to submit email:', error);
@@ -319,6 +322,9 @@ export function PopupProvider({ children, currentPage = '/', currentProductId }:
         setPopupSubmitted();
         return true;
       }
+      // Log the error response
+      const errorData = await res.json().catch(() => ({}));
+      console.error('Popup phone submit failed:', res.status, errorData);
       return false;
     } catch (error) {
       console.error('Failed to submit phone:', error);

@@ -455,7 +455,7 @@ export function WelcomePopup({
                               onBlur={handleBlur}
                               placeholder={contactType === 'email' ? 'Enter your email' : 'Enter Phone #'}
                               autoComplete={contactType === 'email' ? 'email' : 'tel'}
-                              className={`w-full pl-14 pr-5 py-4 text-base bg-[#f5f5f0] rounded-full focus:outline-none focus:ring-2 focus:ring-[#bbdae9] placeholder:text-gray-400 ${
+                              className={`w-full pl-20 pr-5 py-4 text-base bg-[#f5f5f0] rounded-full focus:outline-none focus:ring-2 focus:ring-[#bbdae9] placeholder:text-gray-400 ${
                                 validationError ? 'ring-2 ring-[#bbdae9]' : ''
                               }`}
                               style={{ fontSize: '16px' }}
