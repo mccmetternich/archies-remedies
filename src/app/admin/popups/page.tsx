@@ -1600,7 +1600,7 @@ export default function PopupsPage() {
                                   <input
                                     type="tel"
                                     placeholder="Enter Phone #"
-                                    className="w-full pl-20 pr-5 py-4 text-base bg-[#f5f5f0] border-0 rounded-full placeholder:text-gray-400"
+                                    className="w-full pl-20 pr-5 py-4 text-base bg-[#f5f5f0] border border-gray-300 rounded-full placeholder:text-gray-400"
                                     readOnly
                                   />
                                 </div>
@@ -1608,14 +1608,14 @@ export default function PopupsPage() {
                                 <input
                                   type="email"
                                   placeholder="Your email address"
-                                  className="w-full px-5 py-4 text-base bg-[#f5f5f0] border-0 rounded-full placeholder:text-gray-400"
+                                  className="w-full px-5 py-4 text-base bg-[#f5f5f0] border border-gray-300 rounded-full placeholder:text-gray-400"
                                   readOnly
                                 />
                               ) : currentCtaType === 'sms' && (
                                 <input
                                   type="tel"
                                   placeholder="Phone number"
-                                  className="w-full px-5 py-4 text-base bg-[#f5f5f0] border-0 rounded-full placeholder:text-gray-400"
+                                  className="w-full px-5 py-4 text-base bg-[#f5f5f0] border border-gray-300 rounded-full placeholder:text-gray-400"
                                   readOnly
                                 />
                               )}
@@ -1778,7 +1778,7 @@ export default function PopupsPage() {
                                   <input
                                     type="tel"
                                     placeholder="Enter Phone #"
-                                    className="w-full pl-20 pr-5 py-4 text-base bg-[#f5f5f0] border-0 rounded-full placeholder:text-gray-400"
+                                    className="w-full pl-20 pr-5 py-4 text-base bg-[#f5f5f0] border border-gray-300 rounded-full placeholder:text-gray-400"
                                     readOnly
                                   />
                                 </div>
@@ -1786,14 +1786,14 @@ export default function PopupsPage() {
                                 <input
                                   type="email"
                                   placeholder="Your email address"
-                                  className="w-full px-5 py-4 text-base bg-[#f5f5f0] border-0 rounded-full placeholder:text-gray-400"
+                                  className="w-full px-5 py-4 text-base bg-[#f5f5f0] border border-gray-300 rounded-full placeholder:text-gray-400"
                                   readOnly
                                 />
                               ) : currentCtaType === 'sms' && (
                                 <input
                                   type="tel"
                                   placeholder="Phone number"
-                                  className="w-full px-5 py-4 text-base bg-[#f5f5f0] border-0 rounded-full placeholder:text-gray-400"
+                                  className="w-full px-5 py-4 text-base bg-[#f5f5f0] border border-gray-300 rounded-full placeholder:text-gray-400"
                                   readOnly
                                 />
                               )}

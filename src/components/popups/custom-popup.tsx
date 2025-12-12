@@ -454,8 +454,8 @@ export function CustomPopup({ popup, enabled = true }: CustomPopupProps) {
                               onBlur={handleBlur}
                               placeholder={contactType === 'email' ? 'Enter your email' : 'Enter Phone #'}
                               autoComplete={contactType === 'email' ? 'email' : 'tel'}
-                              className={`w-full pl-20 pr-5 py-4 text-base bg-[#f5f5f0] rounded-full focus:outline-none focus:ring-2 focus:ring-[#bbdae9] placeholder:text-gray-400 ${
-                                validationError ? 'ring-2 ring-[#bbdae9]' : ''
+                              className={`w-full pl-20 pr-5 py-4 text-base bg-[#f5f5f0] border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[#bbdae9] focus:border-[#bbdae9] placeholder:text-gray-400 ${
+                                validationError ? 'ring-2 ring-[#bbdae9] border-[#bbdae9]' : ''
                               }`}
                               style={{ fontSize: '16px' }}
                             />
@@ -476,8 +476,8 @@ export function CustomPopup({ popup, enabled = true }: CustomPopupProps) {
                               const error = validateEmail(contactValue);
                               setValidationError(error || '');
                             }}
-                            className={`w-full px-5 py-4 text-base bg-[#f5f5f0] border-0 rounded-full focus:outline-none focus:ring-2 focus:ring-[#bbdae9] placeholder:text-gray-400 ${
-                              validationError ? 'ring-2 ring-[#bbdae9]' : ''
+                            className={`w-full px-5 py-4 text-base bg-[#f5f5f0] border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[#bbdae9] focus:border-[#bbdae9] placeholder:text-gray-400 ${
+                              validationError ? 'ring-2 ring-[#bbdae9] border-[#bbdae9]' : ''
                             }`}
                             style={{ fontSize: '16px' }}
                           />
@@ -499,8 +499,8 @@ export function CustomPopup({ popup, enabled = true }: CustomPopupProps) {
                               setValidationError(error || '');
                             }}
                             autoComplete="tel"
-                            className={`w-full px-5 py-4 text-base bg-[#f5f5f0] border-0 rounded-full focus:outline-none focus:ring-2 focus:ring-[#bbdae9] placeholder:text-gray-400 ${
-                              validationError ? 'ring-2 ring-[#bbdae9]' : ''
+                            className={`w-full px-5 py-4 text-base bg-[#f5f5f0] border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[#bbdae9] focus:border-[#bbdae9] placeholder:text-gray-400 ${
+                              validationError ? 'ring-2 ring-[#bbdae9] border-[#bbdae9]' : ''
                             }`}
                             style={{ fontSize: '16px' }}
                           />
