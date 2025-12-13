@@ -280,7 +280,7 @@ export function PopupProvider({ children, currentPage = '/', currentProductId }:
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          popupId,
+          ...(popupId && { popupId }),
           popupType,
           ctaType: 'email',
           email,
@@ -314,7 +314,7 @@ export function PopupProvider({ children, currentPage = '/', currentProductId }:
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          popupId,
+          ...(popupId && { popupId }),
           popupType,
           ctaType: 'sms',
           phone,
