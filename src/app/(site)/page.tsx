@@ -16,10 +16,37 @@ import { unstable_cache } from 'next/cache';
 
 export const revalidate = 60; // Revalidate every minute
 
+// Widget type from pages.widgets JSON
+interface PageWidget {
+  id: string;
+  type: string;
+  title?: string;
+  subtitle?: string;
+  isVisible: boolean;
+  config?: Record<string, unknown>;
+}
+
 // Cached homepage data for better performance
 const getCachedPageData = unstable_cache(
   async () => {
     const [settings] = await db.select().from(siteSettings).limit(1);
+
+    // Get homepage page record with widgets
+    const [homePage] = await db
+      .select({ widgets: pages.widgets })
+      .from(pages)
+      .where(eq(pages.slug, 'home'))
+      .limit(1);
+
+    // Parse widgets JSON
+    let pageWidgets: PageWidget[] = [];
+    if (homePage?.widgets) {
+      try {
+        pageWidgets = JSON.parse(homePage.widgets);
+      } catch {
+        pageWidgets = [];
+      }
+    }
 
     const slides = await db
       .select()
@@ -68,6 +95,7 @@ const getCachedPageData = unstable_cache(
 
     return {
       settings,
+      pageWidgets,
       slides,
       products: productList,
       testimonials: testimonialList,
@@ -89,6 +117,77 @@ export default async function HomePage() {
   await checkPageDraft('home');
 
   const data = await getPageData();
+
+  // Render widgets in order they appear in the widgets array
+  // This allows drag-drop reordering to work
+  const renderWidget = (widget: PageWidget) => {
+    if (!widget.isVisible) return null;
+
+    const config = widget.config || {};
+
+    switch (widget.type) {
+      case 'hero_carousel':
+        return <HeroCarousel key={widget.id} slides={data.slides} />;
+
+      case 'marquee':
+        const marqueeText = (config.text as string) || '';
+        if (!marqueeText) return null;
+        return (
+          <ScrollingTextBar
+            key={widget.id}
+            text={marqueeText}
+            size={(config.size as 'small' | 'medium' | 'large' | 'xl' | 'xxl') || 'xl'}
+            speed={(config.speed as 'slow' | 'normal' | 'fast') || 'slow'}
+            stylePreset={(config.style as 'baby-blue' | 'dark' | 'light') || 'dark'}
+          />
+        );
+
+      case 'product_grid':
+        return (
+          <ProductTiles
+            key={widget.id}
+            products={data.products}
+            title={(config.title as string) || 'Shop Our Collection'}
+            subtitle={(config.subtitle as string) || 'Clean, effective eye care made without the questionable ingredients.'}
+          />
+        );
+
+      case 'mission':
+        return <MissionSection key={widget.id} />;
+
+      case 'testimonials':
+        return (
+          <TestimonialsSection
+            key={widget.id}
+            testimonials={data.testimonials}
+            title={(config.title as string) || 'What Our Customers Say'}
+            subtitle={(config.subtitle as string) || 'Join thousands of happy customers who trust Archie\'s for their eye care needs.'}
+          />
+        );
+
+      case 'video_testimonials':
+        return (
+          <VideoTestimonials
+            key={widget.id}
+            videos={data.videos}
+            title={(config.title as string) || 'Real Stories, Real Results'}
+            subtitle={(config.subtitle as string) || 'Hear from our community'}
+          />
+        );
+
+      case 'instagram':
+        return (
+          <InstagramFeed
+            key={widget.id}
+            posts={data.instagramPosts}
+            instagramUrl={data.settings?.instagramUrl}
+          />
+        );
+
+      default:
+        return null;
+    }
+  };
 
   return (
     <>
@@ -157,48 +256,8 @@ export default async function HomePage() {
       />
 
       <main>
-        {/* Hero Carousel */}
-        <HeroCarousel slides={data.slides} />
-
-        {/* Scrolling Text Bar - Configurable from admin */}
-        {data.settings?.marqueeEnabled !== false && data.settings?.marqueeText && (
-          <ScrollingTextBar
-            text={data.settings.marqueeText}
-            size={(data.settings.marqueeSize as 'small' | 'medium' | 'large' | 'xl' | 'xxl') || 'xl'}
-            speed={(data.settings.marqueeSpeed as 'slow' | 'normal' | 'fast') || 'slow'}
-            stylePreset={(data.settings.marqueeStyle as 'baby-blue' | 'dark' | 'light') || 'dark'}
-          />
-        )}
-
-        {/* Product Tiles */}
-        <ProductTiles
-          products={data.products}
-          title="Shop Our Collection"
-          subtitle="Clean, effective eye care made without the questionable ingredients."
-        />
-
-        {/* Mission Section */}
-        <MissionSection />
-
-        {/* Testimonials */}
-        <TestimonialsSection
-          testimonials={data.testimonials}
-          title="What Our Customers Say"
-          subtitle="Join thousands of happy customers who trust Archie's for their eye care needs."
-        />
-
-        {/* Video Testimonials */}
-        <VideoTestimonials
-          videos={data.videos}
-          title="Real Stories, Real Results"
-          subtitle="Hear from our community"
-        />
-
-        {/* Instagram Feed */}
-        <InstagramFeed
-          posts={data.instagramPosts}
-          instagramUrl={data.settings?.instagramUrl}
-        />
+        {/* Render widgets in the order they appear in the page config */}
+        {data.pageWidgets.map(renderWidget)}
       </main>
 
       <Footer
