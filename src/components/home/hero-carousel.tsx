@@ -35,30 +35,17 @@ interface HeroCarouselProps {
 
 export function HeroCarousel({ slides, isPaused = false }: HeroCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isHovered, setIsHovered] = useState(false);
-  const [debouncedHovered, setDebouncedHovered] = useState(false);
 
   const nextSlide = useCallback(() => {
     setCurrentIndex((prev) => (prev + 1) % slides.length);
   }, [slides.length]);
 
-  // Debounce hover state to prevent flickering when mouse briefly leaves
+  // Auto-advance - only pause when parent says paused (e.g., nav open)
   useEffect(() => {
-    if (isHovered) {
-      setDebouncedHovered(true);
-    } else {
-      // Small delay before resuming auto-advance
-      const timer = setTimeout(() => setDebouncedHovered(false), 300);
-      return () => clearTimeout(timer);
-    }
-  }, [isHovered]);
-
-  // Auto-advance - pause when hovered OR when parent says paused
-  useEffect(() => {
-    if (debouncedHovered || isPaused || slides.length <= 1) return;
+    if (isPaused || slides.length <= 1) return;
     const timer = setInterval(nextSlide, 7000);
     return () => clearInterval(timer);
-  }, [nextSlide, debouncedHovered, isPaused, slides.length]);
+  }, [nextSlide, isPaused, slides.length]);
 
   if (!slides || slides.length === 0) {
     return (
@@ -188,8 +175,6 @@ export function HeroCarousel({ slides, isPaused = false }: HeroCarouselProps) {
           ? "min-h-[600px] lg:min-h-[700px]"
           : "h-[90vh] min-h-[700px] max-h-[950px]"
       )}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
     >
       {/* Background for full-width layout */}
       {!isTwoColumn && (

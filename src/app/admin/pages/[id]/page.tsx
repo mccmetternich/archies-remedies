@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useEffect, use } from 'react';
+import React, { useState, useEffect, use, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { motion, Reorder, AnimatePresence } from 'framer-motion';
+import { motion, Reorder, AnimatePresence, useDragControls } from 'framer-motion';
 import {
   ArrowLeft,
   Save,
@@ -14,16 +14,12 @@ import {
   Plus,
   GripVertical,
   Trash2,
-  Settings,
   ChevronDown,
   ChevronUp,
   Check,
-  Search,
   ExternalLink,
   Monitor,
   Smartphone,
-  LayoutGrid,
-  Columns,
   PanelLeftClose,
   LayoutPanelLeft,
 } from 'lucide-react';
@@ -33,8 +29,6 @@ import { MediaPickerButton } from '@/components/admin/media-picker';
 import {
   WIDGET_CATEGORIES as CENTRALIZED_CATEGORIES,
   WIDGET_TYPES,
-  getWidgetByType,
-  getWidgetDisplayName,
   getDefaultConfig,
 } from '@/lib/widget-library';
 import { DevicePreviewToggle, type DeviceType } from '@/components/admin/widget-editor/device-preview';
@@ -130,6 +124,479 @@ function getPageDisplayName(slug: string, title: string): string {
   return title || slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
 }
 
+// Draggable Widget Row Component
+function DraggableWidgetRow({
+  widget,
+  index,
+  isExpanded,
+  onToggleExpand,
+  onDelete,
+  onUpdate,
+  previewDevice,
+  products,
+  heroSlides,
+  heroSlidesLoading,
+  onHeroSlidesChange,
+}: {
+  widget: PageWidget;
+  index: number;
+  isExpanded: boolean;
+  onToggleExpand: () => void;
+  onDelete: () => void;
+  onUpdate: (updates: Partial<PageWidget>) => void;
+  previewDevice: DeviceType;
+  products: Product[];
+  heroSlides: HeroSlide[];
+  heroSlidesLoading: boolean;
+  onHeroSlidesChange: (slides: HeroSlide[]) => void;
+}) {
+  const Icon = ALL_WIDGETS.find((w) => w.type === widget.type)?.icon || FileText;
+  const widgetLabel = ALL_WIDGETS.find((w) => w.type === widget.type)?.label || widget.type;
+  const widgetDescription = ALL_WIDGETS.find((w) => w.type === widget.type)?.description || '';
+  const dragControls = useDragControls();
+
+  return (
+    <Reorder.Item
+      value={widget}
+      dragListener={false}
+      dragControls={dragControls}
+      className="bg-[var(--admin-input)]"
+    >
+      <div
+        className={cn(
+          'flex items-center gap-4 p-4 transition-colors',
+          isExpanded ? 'bg-[var(--admin-sidebar)]' : 'hover:bg-[var(--admin-sidebar)]'
+        )}
+      >
+        {/* Drag Handle */}
+        <div
+          className="cursor-grab active:cursor-grabbing touch-none"
+          onPointerDown={(e) => dragControls.start(e)}
+        >
+          <GripVertical className="w-4 h-4 text-[var(--admin-text-muted)]" />
+        </div>
+
+        {/* Index */}
+        <span className="text-xs text-[var(--admin-text-muted)] font-mono w-5">
+          {index + 1}
+        </span>
+
+        {/* Icon */}
+        <div className="w-10 h-10 rounded-lg bg-[var(--primary)]/10 flex items-center justify-center">
+          <Icon className="w-5 h-5 text-[var(--primary)]" />
+        </div>
+
+        {/* Title & Description */}
+        <div
+          className="flex-1 min-w-0 cursor-pointer"
+          onClick={onToggleExpand}
+        >
+          <h4 className="font-medium text-[var(--admin-text-primary)] truncate">
+            {widget.title || widgetLabel}
+          </h4>
+          <p className="text-xs text-[var(--admin-text-muted)]">
+            {widget.subtitle || widgetDescription}
+          </p>
+        </div>
+
+        {/* Item Count Badge */}
+        {widget.count !== undefined && (
+          <span className="px-2.5 py-1 text-xs font-medium rounded-full bg-[var(--admin-hover)] text-[var(--admin-text-muted)]">
+            {widget.activeCount !== undefined ? `${widget.activeCount}/${widget.count}` : widget.count} items
+          </span>
+        )}
+
+        {/* Controls */}
+        <div className="flex items-center gap-1">
+          {/* Desktop visibility */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              const cfg = (widget.config || {}) as Record<string, unknown>;
+              onUpdate({
+                config: { ...cfg, showOnDesktop: cfg.showOnDesktop !== false ? false : true }
+              });
+            }}
+            className={cn(
+              'p-1.5 rounded-lg transition-colors',
+              (widget.config as Record<string, unknown>)?.showOnDesktop !== false
+                ? 'text-[var(--admin-text-muted)] hover:bg-[var(--admin-hover)]'
+                : 'text-amber-500 bg-amber-500/10'
+            )}
+            title="Toggle desktop visibility"
+          >
+            <Monitor className="w-4 h-4" />
+          </button>
+          {/* Mobile visibility */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              const cfg = (widget.config || {}) as Record<string, unknown>;
+              onUpdate({
+                config: { ...cfg, showOnMobile: cfg.showOnMobile !== false ? false : true }
+              });
+            }}
+            className={cn(
+              'p-1.5 rounded-lg transition-colors',
+              (widget.config as Record<string, unknown>)?.showOnMobile !== false
+                ? 'text-[var(--admin-text-muted)] hover:bg-[var(--admin-hover)]'
+                : 'text-amber-500 bg-amber-500/10'
+            )}
+            title="Toggle mobile visibility"
+          >
+            <Smartphone className="w-4 h-4" />
+          </button>
+          {/* Widget visibility */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onUpdate({ isVisible: !widget.isVisible });
+            }}
+            className={cn(
+              'p-1.5 rounded-lg transition-colors',
+              widget.isVisible
+                ? 'text-[var(--admin-text-muted)] hover:bg-[var(--admin-hover)]'
+                : 'text-amber-500 bg-amber-500/10'
+            )}
+            title={widget.isVisible ? 'Hide' : 'Show'}
+          >
+            {widget.isVisible ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+          </button>
+          {/* Expand/Collapse */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleExpand();
+            }}
+            className="p-1.5 rounded-lg hover:bg-[var(--admin-hover)] transition-colors text-[var(--admin-text-secondary)]"
+          >
+            {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          </button>
+          {/* Delete */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete();
+            }}
+            className="p-1.5 rounded-lg hover:bg-red-500/10 text-red-400 transition-colors"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+
+      {/* Expanded Widget Config Panel */}
+      <AnimatePresence>
+        {isExpanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden"
+          >
+            <div className="border-t border-[var(--admin-border)] bg-[var(--admin-bg)] p-4">
+              {widget.type === 'hero_carousel' ? (
+                heroSlidesLoading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <Loader2 className="w-6 h-6 animate-spin text-[var(--admin-text-muted)]" />
+                  </div>
+                ) : (
+                  <HeroCarouselConfig
+                    slides={heroSlides}
+                    products={products}
+                    onSlidesChange={onHeroSlidesChange}
+                    previewDevice={previewDevice}
+                  />
+                )
+              ) : (
+                <WidgetConfigPanel
+                  widget={widget}
+                  onUpdate={onUpdate}
+                />
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </Reorder.Item>
+  );
+}
+
+// Generic Widget Config Panel for non-hero widgets
+function WidgetConfigPanel({
+  widget,
+  onUpdate,
+}: {
+  widget: PageWidget;
+  onUpdate: (updates: Partial<PageWidget>) => void;
+}) {
+  const config = (widget.config || {}) as Record<string, unknown>;
+
+  return (
+    <div className="space-y-4">
+      {/* Title & Subtitle - Common for most widgets */}
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
+            Title
+          </label>
+          <input
+            value={widget.title || ''}
+            onChange={(e) => onUpdate({ title: e.target.value })}
+            placeholder="Widget title"
+            className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
+            Subtitle
+          </label>
+          <input
+            value={widget.subtitle || ''}
+            onChange={(e) => onUpdate({ subtitle: e.target.value })}
+            placeholder="Widget subtitle"
+            className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+          />
+        </div>
+      </div>
+
+      {/* Text/Quote content */}
+      {(widget.type === 'text' || widget.type === 'quote' || widget.type === 'mission') && (
+        <div>
+          <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
+            Content
+          </label>
+          <textarea
+            value={widget.content || ''}
+            onChange={(e) => onUpdate({ content: e.target.value })}
+            placeholder="Enter content..."
+            rows={4}
+            className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors resize-none"
+          />
+        </div>
+      )}
+
+      {/* Image widgets */}
+      {(widget.type === 'image' || widget.type === 'hero' || widget.type === 'image_text') && (
+        <MediaPickerButton
+          label="Widget Image"
+          value={(config.imageUrl as string) || null}
+          onChange={(url) =>
+            onUpdate({
+              config: { ...config, imageUrl: url || '' },
+            })
+          }
+          helpText="Image for this widget"
+          folder="widgets"
+        />
+      )}
+
+      {/* Video widget */}
+      {widget.type === 'video' && (
+        <MediaPickerButton
+          label="Video"
+          value={(config.videoUrl as string) || null}
+          onChange={(url) =>
+            onUpdate({
+              config: { ...config, videoUrl: url || '' },
+            })
+          }
+          helpText="Upload MP4/WebM or paste a Vimeo/YouTube URL"
+          folder="widgets"
+          acceptVideo={true}
+        />
+      )}
+
+      {/* CTA / Newsletter widgets */}
+      {(widget.type === 'cta' || widget.type === 'newsletter') && (
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
+              Button Text
+            </label>
+            <input
+              value={(config.buttonText as string) || ''}
+              onChange={(e) =>
+                onUpdate({
+                  config: { ...config, buttonText: e.target.value },
+                })
+              }
+              placeholder="Shop Now"
+              className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
+              Button URL
+            </label>
+            <input
+              value={(config.buttonUrl as string) || ''}
+              onChange={(e) =>
+                onUpdate({
+                  config: { ...config, buttonUrl: e.target.value },
+                })
+              }
+              placeholder="/products"
+              className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Image + Text layout */}
+      {widget.type === 'image_text' && (
+        <div>
+          <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
+            Layout
+          </label>
+          <select
+            value={(config.layout as string) || 'image-left'}
+            onChange={(e) =>
+              onUpdate({
+                config: { ...config, layout: e.target.value },
+              })
+            }
+            className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+          >
+            <option value="image-left">Image Left</option>
+            <option value="image-right">Image Right</option>
+          </select>
+        </div>
+      )}
+
+      {/* Marquee widget */}
+      {widget.type === 'marquee' && (
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
+              Marquee Text
+            </label>
+            <input
+              value={(config.text as string) || ''}
+              onChange={(e) =>
+                onUpdate({
+                  config: { ...config, text: e.target.value },
+                })
+              }
+              placeholder="Free shipping on orders $50+ ★"
+              className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+            />
+          </div>
+          <div className="grid grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
+                Speed
+              </label>
+              <select
+                value={(config.speed as string) || 'slow'}
+                onChange={(e) =>
+                  onUpdate({
+                    config: { ...config, speed: e.target.value },
+                  })
+                }
+                className="w-full px-3 py-2 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)]"
+              >
+                <option value="slow">Slow</option>
+                <option value="normal">Normal</option>
+                <option value="fast">Fast</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
+                Size
+              </label>
+              <select
+                value={(config.size as string) || 'xl'}
+                onChange={(e) =>
+                  onUpdate({
+                    config: { ...config, size: e.target.value },
+                  })
+                }
+                className="w-full px-3 py-2 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)]"
+              >
+                <option value="small">Small</option>
+                <option value="medium">Medium</option>
+                <option value="large">Large</option>
+                <option value="xl">XL</option>
+                <option value="xxl">XXL</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
+                Style
+              </label>
+              <select
+                value={(config.style as string) || 'dark'}
+                onChange={(e) =>
+                  onUpdate({
+                    config: { ...config, style: e.target.value },
+                  })
+                }
+                className="w-full px-3 py-2 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)]"
+              >
+                <option value="dark">Dark</option>
+                <option value="light">Light</option>
+                <option value="baby-blue">Baby Blue</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Testimonials widget placeholder */}
+      {widget.type === 'testimonials' && (
+        <div className="text-sm text-[var(--admin-text-muted)] py-4 text-center">
+          Configure testimonial display options. Individual testimonials are managed in the{' '}
+          <Link href="/admin/testimonials" className="text-[var(--primary)] hover:underline">
+            Testimonials section
+          </Link>.
+        </div>
+      )}
+
+      {/* Video Testimonials widget placeholder */}
+      {widget.type === 'video_testimonials' && (
+        <div className="text-sm text-[var(--admin-text-muted)] py-4 text-center">
+          Configure video testimonial display options. Individual videos are managed in the{' '}
+          <Link href="/admin/video-testimonials" className="text-[var(--primary)] hover:underline">
+            Video Testimonials section
+          </Link>.
+        </div>
+      )}
+
+      {/* FAQs widget placeholder */}
+      {widget.type === 'faqs' && (
+        <div className="text-sm text-[var(--admin-text-muted)] py-4 text-center">
+          Configure FAQ display options. Individual FAQs are managed in the{' '}
+          <Link href="/admin/faqs" className="text-[var(--primary)] hover:underline">
+            FAQs section
+          </Link>.
+        </div>
+      )}
+
+      {/* Instagram widget placeholder */}
+      {widget.type === 'instagram' && (
+        <div className="text-sm text-[var(--admin-text-muted)] py-4 text-center">
+          Configure Instagram feed display. Individual posts are managed in the{' '}
+          <Link href="/admin/instagram" className="text-[var(--primary)] hover:underline">
+            Instagram section
+          </Link>.
+        </div>
+      )}
+
+      {/* Product Grid widget placeholder */}
+      {widget.type === 'product_grid' && (
+        <div className="text-sm text-[var(--admin-text-muted)] py-4 text-center">
+          Configure product grid display. Products are managed in the{' '}
+          <Link href="/admin/products" className="text-[var(--primary)] hover:underline">
+            Products section
+          </Link>.
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function PageEditorPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
@@ -160,7 +627,6 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
   const [expandedWidget, setExpandedWidget] = useState<string | null>(null);
   const [expandedCategory, setExpandedCategory] = useState<string | null>('Hero');
   const [isHomepage, setIsHomepage] = useState(false);
-  const [homepageWidgets, setHomepageWidgets] = useState<PageWidget[]>([]);
 
   // Device preview state
   const [previewDevice, setPreviewDevice] = useState<DeviceType>('desktop');
@@ -173,6 +639,9 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
   const [heroSlides, setHeroSlides] = useState<HeroSlide[]>([]);
   const [originalHeroSlides, setOriginalHeroSlides] = useState<HeroSlide[]>([]);
   const [heroSlidesLoading, setHeroSlidesLoading] = useState(false);
+
+  // Drag state for library widgets
+  const [draggedWidgetType, setDraggedWidgetType] = useState<string | null>(null);
 
   // Track unsaved changes
   const hasChanges = originalPage && (
@@ -198,16 +667,21 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
       setIsHomepage(isHomepageSlug);
 
       if (isHomepageSlug) {
+        // For homepage, load widgets from dedicated tables
         const homepageRes = await fetch(`/api/admin/pages/${id}/homepage-widgets`);
         const homepageData = await homepageRes.json();
         if (homepageData.widgets) {
-          setHomepageWidgets(homepageData.widgets);
+          // Convert homepage widgets to editable format
+          const editableWidgets = homepageData.widgets.map((w: PageWidget) => ({
+            ...w,
+            config: w.config || getDefaultConfig(w.type),
+          }));
+          setWidgets(editableWidgets);
+          setOriginalWidgets(editableWidgets);
         }
         fetchProducts();
         fetchHeroSlides();
-      }
-
-      if (data.widgets) {
+      } else if (data.widgets) {
         try {
           const parsedWidgets = JSON.parse(data.widgets);
           setWidgets(parsedWidgets);
@@ -299,10 +773,10 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
     }
   };
 
-  const handleAddWidget = (type: string) => {
+  const handleAddWidget = (type: string, atIndex?: number) => {
     const widgetDef = ALL_WIDGETS.find((w) => w.type === type);
     const newWidget: PageWidget = {
-      id: `widget-${Date.now()}`,
+      id: `widget-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       type,
       title: widgetDef?.label || '',
       subtitle: '',
@@ -310,8 +784,14 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
       config: getDefaultConfig(type),
       isVisible: true,
     };
-    setWidgets([...widgets, newWidget]);
-    setExpandedWidget(newWidget.id);
+
+    if (atIndex !== undefined) {
+      const newWidgets = [...widgets];
+      newWidgets.splice(atIndex, 0, newWidget);
+      setWidgets(newWidgets);
+    } else {
+      setWidgets([...widgets, newWidget]);
+    }
   };
 
   const handleUpdateWidget = (widgetId: string, updates: Partial<PageWidget>) => {
@@ -342,19 +822,18 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
     setWidgets(newOrder);
   };
 
-  const getWidgetIcon = (type: string) => {
-    const widget = ALL_WIDGETS.find((w) => w.type === type);
-    return widget?.icon || FileText;
+  // Handle drop from library
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const widgetType = e.dataTransfer.getData('widget-type');
+    if (widgetType) {
+      handleAddWidget(widgetType);
+    }
+    setDraggedWidgetType(null);
   };
 
-  const getWidgetLabel = (type: string) => {
-    const widget = ALL_WIDGETS.find((w) => w.type === type);
-    return widget?.label || type;
-  };
-
-  const getWidgetDescription = (type: string) => {
-    const widget = ALL_WIDGETS.find((w) => w.type === type);
-    return widget?.description || '';
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
   };
 
   if (loading) {
@@ -366,7 +845,6 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
   }
 
   const pageDisplayName = getPageDisplayName(page.slug, page.title);
-  const activeWidgets = isHomepage ? homepageWidgets : widgets;
 
   return (
     <div className="min-h-screen">
@@ -631,7 +1109,11 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
         </div>
 
         {/* Center - Widget List */}
-        <div className="flex-1 min-w-0">
+        <div
+          className="flex-1 min-w-0"
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
+        >
           <div className="p-6">
             {/* Widget List Header */}
             <div className="flex items-center justify-between mb-4">
@@ -640,495 +1122,49 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
                   Page Content
                 </h2>
                 <span className="px-2 py-0.5 text-xs font-medium bg-[var(--admin-hover)] text-[var(--admin-text-muted)] rounded-full">
-                  {activeWidgets.length} widgets
+                  {widgets.length} widgets
                 </span>
               </div>
               <DevicePreviewToggle device={previewDevice} onChange={setPreviewDevice} />
             </div>
 
             {/* Widget List */}
-            <div className="bg-[var(--admin-input)] rounded-xl border border-[var(--admin-border)]">
-              {isHomepage && homepageWidgets.length > 0 ? (
-                <div className="divide-y divide-[var(--admin-border)]">
-                  {homepageWidgets.map((widget, index) => {
-                    const Icon = getWidgetIcon(widget.type);
-                    const isExpanded = expandedWidget === widget.id;
-                    const isHeroCarousel = widget.type === 'hero_carousel';
-
-                    return (
-                      <div key={widget.id}>
-                        <div
-                          className={cn(
-                            'flex items-center gap-4 p-4 transition-colors cursor-pointer',
-                            isExpanded ? 'bg-[var(--admin-sidebar)]' : 'hover:bg-[var(--admin-sidebar)]'
-                          )}
-                          onClick={() => {
-                            if (isHeroCarousel) {
-                              setExpandedWidget(isExpanded ? null : widget.id);
-                            }
-                          }}
-                        >
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs text-[var(--admin-text-muted)] font-mono w-5">
-                              {index + 1}
-                            </span>
-                          </div>
-
-                          <div className="w-10 h-10 rounded-lg bg-[var(--primary)]/10 flex items-center justify-center">
-                            <Icon className="w-5 h-5 text-[var(--primary)]" />
-                          </div>
-
-                          <div className="flex-1 min-w-0">
-                            <h4 className="font-medium text-[var(--admin-text-primary)]">
-                              {widget.title}
-                            </h4>
-                            <p className="text-xs text-[var(--admin-text-muted)]">
-                              {widget.subtitle}
-                            </p>
-                          </div>
-
-                          {/* Desktop/Mobile visibility toggles */}
-                          <div className="flex items-center gap-1">
-                            <button
-                              onClick={(e) => e.stopPropagation()}
-                              className="p-1.5 rounded-lg text-[var(--admin-text-muted)] hover:bg-[var(--admin-hover)]"
-                              title="Toggle desktop visibility"
-                            >
-                              <Monitor className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={(e) => e.stopPropagation()}
-                              className="p-1.5 rounded-lg text-[var(--admin-text-muted)] hover:bg-[var(--admin-hover)]"
-                              title="Toggle mobile visibility"
-                            >
-                              <Smartphone className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={(e) => e.stopPropagation()}
-                              className="p-1.5 rounded-lg text-[var(--admin-text-muted)] hover:bg-[var(--admin-hover)]"
-                              title={widget.isVisible ? 'Hide widget' : 'Show widget'}
-                            >
-                              {widget.isVisible !== false ? (
-                                <Eye className="w-4 h-4" />
-                              ) : (
-                                <EyeOff className="w-4 h-4" />
-                              )}
-                            </button>
-                          </div>
-
-                          <div className="flex items-center gap-2">
-                            {widget.count !== undefined && (
-                              <span className="px-2.5 py-1 text-xs font-medium rounded-full bg-[var(--admin-hover)] text-[var(--admin-text-muted)]">
-                                {widget.count} items
-                              </span>
-                            )}
-                            {isHeroCarousel ? (
-                              <button className="p-2 rounded-lg hover:bg-[var(--admin-input)] transition-colors text-[var(--admin-text-secondary)]">
-                                {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                              </button>
-                            ) : (
-                              <Link
-                                href={widget.editUrl || '#'}
-                                onClick={(e) => e.stopPropagation()}
-                                className="p-2 rounded-lg hover:bg-[var(--admin-input)] transition-colors text-[var(--admin-text-muted)] hover:text-[var(--primary)]"
-                              >
-                                <ExternalLink className="w-4 h-4" />
-                              </Link>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Inline Hero Carousel Editor */}
-                        <AnimatePresence>
-                          {isExpanded && isHeroCarousel && (
-                            <motion.div
-                              initial={{ height: 0, opacity: 0 }}
-                              animate={{ height: 'auto', opacity: 1 }}
-                              exit={{ height: 0, opacity: 0 }}
-                              transition={{ duration: 0.2 }}
-                              className="overflow-hidden"
-                            >
-                              <div className="border-t border-[var(--admin-border)] bg-[var(--admin-bg)] p-4">
-                                {heroSlidesLoading ? (
-                                  <div className="flex items-center justify-center py-12">
-                                    <Loader2 className="w-6 h-6 animate-spin text-[var(--admin-text-muted)]" />
-                                  </div>
-                                ) : (
-                                  <HeroCarouselConfig
-                                    slides={heroSlides}
-                                    products={products}
-                                    onSlidesChange={handleUpdateHeroSlides}
-                                    previewDevice={previewDevice}
-                                  />
-                                )}
-                              </div>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </div>
-                    );
-                  })}
-                </div>
-              ) : widgets.length > 0 ? (
+            <div className={cn(
+              'bg-[var(--admin-input)] rounded-xl border border-[var(--admin-border)] transition-all',
+              draggedWidgetType && 'ring-2 ring-[var(--primary)] ring-opacity-50'
+            )}>
+              {widgets.length > 0 ? (
                 <Reorder.Group
                   axis="y"
                   values={widgets}
                   onReorder={handleReorderWidgets}
                   className="divide-y divide-[var(--admin-border)]"
                 >
-                  {widgets.map((widget, index) => {
-                    const Icon = getWidgetIcon(widget.type);
-                    const isExpanded = expandedWidget === widget.id;
-
-                    return (
-                      <Reorder.Item
-                        key={widget.id}
-                        value={widget}
-                        className="bg-[var(--admin-input)]"
-                      >
-                        <div
-                          className={cn(
-                            'p-4 flex items-center gap-4 cursor-grab active:cursor-grabbing transition-colors',
-                            isExpanded ? 'bg-[var(--admin-sidebar)]' : 'hover:bg-[var(--admin-sidebar)]'
-                          )}
-                        >
-                          <div className="flex items-center gap-2">
-                            <GripVertical className="w-4 h-4 text-[var(--admin-text-muted)]" />
-                            <span className="text-xs text-[var(--admin-text-muted)] font-mono w-5">
-                              {index + 1}
-                            </span>
-                          </div>
-
-                          <div className="w-10 h-10 rounded-lg bg-[var(--primary)]/10 flex items-center justify-center">
-                            <Icon className="w-5 h-5 text-[var(--primary)]" />
-                          </div>
-
-                          <div
-                            className="flex-1 min-w-0 cursor-pointer"
-                            onClick={() => setExpandedWidget(isExpanded ? null : widget.id)}
-                          >
-                            <h4 className="font-medium text-[var(--admin-text-primary)] truncate">
-                              {widget.title || getWidgetLabel(widget.type)}
-                            </h4>
-                            <p className="text-xs text-[var(--admin-text-muted)]">
-                              {getWidgetDescription(widget.type)}
-                            </p>
-                          </div>
-
-                          <div className="flex items-center gap-1">
-                            {/* Desktop visibility */}
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                const cfg = (widget.config || {}) as Record<string, unknown>;
-                                handleUpdateWidget(widget.id, {
-                                  config: { ...cfg, showOnDesktop: cfg.showOnDesktop !== false ? false : true }
-                                });
-                              }}
-                              className={cn(
-                                'p-1.5 rounded-lg transition-colors',
-                                (widget.config as Record<string, unknown>)?.showOnDesktop !== false
-                                  ? 'text-[var(--admin-text-muted)] hover:bg-[var(--admin-hover)]'
-                                  : 'text-amber-500 bg-amber-500/10'
-                              )}
-                              title="Toggle desktop visibility"
-                            >
-                              <Monitor className="w-4 h-4" />
-                            </button>
-                            {/* Mobile visibility */}
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                const cfg = (widget.config || {}) as Record<string, unknown>;
-                                handleUpdateWidget(widget.id, {
-                                  config: { ...cfg, showOnMobile: cfg.showOnMobile !== false ? false : true }
-                                });
-                              }}
-                              className={cn(
-                                'p-1.5 rounded-lg transition-colors',
-                                (widget.config as Record<string, unknown>)?.showOnMobile !== false
-                                  ? 'text-[var(--admin-text-muted)] hover:bg-[var(--admin-hover)]'
-                                  : 'text-amber-500 bg-amber-500/10'
-                              )}
-                              title="Toggle mobile visibility"
-                            >
-                              <Smartphone className="w-4 h-4" />
-                            </button>
-                            {/* Widget visibility */}
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleUpdateWidget(widget.id, { isVisible: !widget.isVisible });
-                              }}
-                              className={cn(
-                                'p-1.5 rounded-lg transition-colors',
-                                widget.isVisible
-                                  ? 'text-[var(--admin-text-muted)] hover:bg-[var(--admin-hover)]'
-                                  : 'text-amber-500 bg-amber-500/10'
-                              )}
-                              title={widget.isVisible ? 'Hide' : 'Show'}
-                            >
-                              {widget.isVisible ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-                            </button>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setExpandedWidget(isExpanded ? null : widget.id);
-                              }}
-                              className="p-1.5 rounded-lg hover:bg-[var(--admin-hover)] transition-colors text-[var(--admin-text-secondary)]"
-                            >
-                              {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                            </button>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDeleteWidget(widget.id);
-                              }}
-                              className="p-1.5 rounded-lg hover:bg-red-500/10 text-red-400 transition-colors"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </div>
-                        </div>
-
-                        {/* Expanded Widget Editor */}
-                        <AnimatePresence>
-                          {isExpanded && (
-                            <motion.div
-                              initial={{ height: 0, opacity: 0 }}
-                              animate={{ height: 'auto', opacity: 1 }}
-                              exit={{ height: 0, opacity: 0 }}
-                              transition={{ duration: 0.2 }}
-                              className="overflow-hidden"
-                            >
-                              <div className="px-4 pb-4 pt-2 bg-[var(--admin-sidebar)] border-t border-[var(--admin-border)]">
-                                <div className="space-y-4">
-                                  <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                      <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
-                                        Title
-                                      </label>
-                                      <input
-                                        value={widget.title || ''}
-                                        onChange={(e) =>
-                                          handleUpdateWidget(widget.id, { title: e.target.value })
-                                        }
-                                        placeholder="Widget title"
-                                        className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
-                                      />
-                                    </div>
-                                    <div>
-                                      <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
-                                        Subtitle
-                                      </label>
-                                      <input
-                                        value={widget.subtitle || ''}
-                                        onChange={(e) =>
-                                          handleUpdateWidget(widget.id, { subtitle: e.target.value })
-                                        }
-                                        placeholder="Widget subtitle"
-                                        className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
-                                      />
-                                    </div>
-                                  </div>
-
-                                  {(widget.type === 'text' || widget.type === 'quote') && (
-                                    <div>
-                                      <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
-                                        Content
-                                      </label>
-                                      <textarea
-                                        value={widget.content || ''}
-                                        onChange={(e) =>
-                                          handleUpdateWidget(widget.id, { content: e.target.value })
-                                        }
-                                        placeholder="Enter content..."
-                                        rows={4}
-                                        className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors resize-none"
-                                      />
-                                    </div>
-                                  )}
-
-                                  {(widget.type === 'image' || widget.type === 'hero' || widget.type === 'image_text') && (
-                                    <MediaPickerButton
-                                      label="Widget Image"
-                                      value={(widget.config as Record<string, string>)?.imageUrl || null}
-                                      onChange={(url) =>
-                                        handleUpdateWidget(widget.id, {
-                                          config: { ...widget.config, imageUrl: url || '' },
-                                        })
-                                      }
-                                      helpText="Image for this widget"
-                                      folder="widgets"
-                                    />
-                                  )}
-
-                                  {widget.type === 'video' && (
-                                    <MediaPickerButton
-                                      label="Video"
-                                      value={(widget.config as Record<string, string>)?.videoUrl || null}
-                                      onChange={(url) =>
-                                        handleUpdateWidget(widget.id, {
-                                          config: { ...widget.config, videoUrl: url || '' },
-                                        })
-                                      }
-                                      helpText="Upload MP4/WebM or paste a Vimeo/YouTube URL"
-                                      folder="widgets"
-                                      acceptVideo={true}
-                                    />
-                                  )}
-
-                                  {(widget.type === 'cta' || widget.type === 'newsletter') && (
-                                    <div className="grid grid-cols-2 gap-4">
-                                      <div>
-                                        <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
-                                          Button Text
-                                        </label>
-                                        <input
-                                          value={(widget.config as Record<string, string>)?.buttonText || ''}
-                                          onChange={(e) =>
-                                            handleUpdateWidget(widget.id, {
-                                              config: { ...widget.config, buttonText: e.target.value },
-                                            })
-                                          }
-                                          placeholder="Shop Now"
-                                          className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
-                                        />
-                                      </div>
-                                      <div>
-                                        <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
-                                          Button URL
-                                        </label>
-                                        <input
-                                          value={(widget.config as Record<string, string>)?.buttonUrl || ''}
-                                          onChange={(e) =>
-                                            handleUpdateWidget(widget.id, {
-                                              config: { ...widget.config, buttonUrl: e.target.value },
-                                            })
-                                          }
-                                          placeholder="/products"
-                                          className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
-                                        />
-                                      </div>
-                                    </div>
-                                  )}
-
-                                  {widget.type === 'image_text' && (
-                                    <div>
-                                      <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
-                                        Layout
-                                      </label>
-                                      <select
-                                        value={(widget.config as Record<string, string>)?.layout || 'image-left'}
-                                        onChange={(e) =>
-                                          handleUpdateWidget(widget.id, {
-                                            config: { ...widget.config, layout: e.target.value },
-                                          })
-                                        }
-                                        className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] focus:outline-none focus:border-[var(--primary)] transition-colors"
-                                      >
-                                        <option value="image-left">Image Left</option>
-                                        <option value="image-right">Image Right</option>
-                                      </select>
-                                    </div>
-                                  )}
-
-                                  {widget.type === 'marquee' && (
-                                    <div className="space-y-4">
-                                      <div>
-                                        <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
-                                          Marquee Text
-                                        </label>
-                                        <input
-                                          value={(widget.config as Record<string, string>)?.text || ''}
-                                          onChange={(e) =>
-                                            handleUpdateWidget(widget.id, {
-                                              config: { ...widget.config, text: e.target.value },
-                                            })
-                                          }
-                                          placeholder="Free shipping on orders $50+ ★"
-                                          className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
-                                        />
-                                      </div>
-                                      <div className="grid grid-cols-3 gap-4">
-                                        <div>
-                                          <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
-                                            Speed
-                                          </label>
-                                          <select
-                                            value={(widget.config as Record<string, string>)?.speed || 'slow'}
-                                            onChange={(e) =>
-                                              handleUpdateWidget(widget.id, {
-                                                config: { ...widget.config, speed: e.target.value },
-                                              })
-                                            }
-                                            className="w-full px-3 py-2 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)]"
-                                          >
-                                            <option value="slow">Slow</option>
-                                            <option value="normal">Normal</option>
-                                            <option value="fast">Fast</option>
-                                          </select>
-                                        </div>
-                                        <div>
-                                          <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
-                                            Size
-                                          </label>
-                                          <select
-                                            value={(widget.config as Record<string, string>)?.size || 'xl'}
-                                            onChange={(e) =>
-                                              handleUpdateWidget(widget.id, {
-                                                config: { ...widget.config, size: e.target.value },
-                                              })
-                                            }
-                                            className="w-full px-3 py-2 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)]"
-                                          >
-                                            <option value="small">Small</option>
-                                            <option value="medium">Medium</option>
-                                            <option value="large">Large</option>
-                                            <option value="xl">XL</option>
-                                            <option value="xxl">XXL</option>
-                                          </select>
-                                        </div>
-                                        <div>
-                                          <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
-                                            Style
-                                          </label>
-                                          <select
-                                            value={(widget.config as Record<string, string>)?.style || 'dark'}
-                                            onChange={(e) =>
-                                              handleUpdateWidget(widget.id, {
-                                                config: { ...widget.config, style: e.target.value },
-                                              })
-                                            }
-                                            className="w-full px-3 py-2 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)]"
-                                          >
-                                            <option value="dark">Dark</option>
-                                            <option value="light">Light</option>
-                                            <option value="baby-blue">Baby Blue</option>
-                                          </select>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </Reorder.Item>
-                    );
-                  })}
+                  {widgets.map((widget, index) => (
+                    <DraggableWidgetRow
+                      key={widget.id}
+                      widget={widget}
+                      index={index}
+                      isExpanded={expandedWidget === widget.id}
+                      onToggleExpand={() => setExpandedWidget(expandedWidget === widget.id ? null : widget.id)}
+                      onDelete={() => handleDeleteWidget(widget.id)}
+                      onUpdate={(updates) => handleUpdateWidget(widget.id, updates)}
+                      previewDevice={previewDevice}
+                      products={products}
+                      heroSlides={heroSlides}
+                      heroSlidesLoading={heroSlidesLoading}
+                      onHeroSlidesChange={handleUpdateHeroSlides}
+                    />
+                  ))}
                 </Reorder.Group>
               ) : (
                 <div className="py-16 text-center">
                   <Layout className="w-16 h-16 mx-auto mb-4 text-[var(--admin-text-muted)]" />
                   <h3 className="font-medium text-lg text-[var(--admin-text-primary)] mb-2">
-                    {isHomepage ? 'Loading homepage widgets...' : 'No widgets yet'}
+                    No widgets yet
                   </h3>
                   <p className="text-sm text-[var(--admin-text-muted)] mb-4 max-w-xs mx-auto">
-                    {isHomepage
-                      ? 'Homepage widgets are managed in their dedicated sections'
-                      : 'Add widgets from the library on the right to build your page'}
+                    Drag widgets from the library on the right, or click to add them to your page
                   </p>
                 </div>
               )}
@@ -1142,7 +1178,7 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
             <div className="p-4 border-b border-[var(--admin-border)]">
               <h3 className="font-medium text-[var(--admin-text-primary)]">Widget Library</h3>
               <p className="text-xs text-[var(--admin-text-muted)] mt-1">
-                Click to add widgets to your page
+                Drag or click to add widgets
               </p>
             </div>
 
@@ -1183,16 +1219,16 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
                           {category.widgets.map((widget) => {
                             const Icon = widget.icon;
                             return (
-                              <button
+                              <div
                                 key={widget.type}
+                                draggable
+                                onDragStart={(e) => {
+                                  e.dataTransfer.setData('widget-type', widget.type);
+                                  setDraggedWidgetType(widget.type);
+                                }}
+                                onDragEnd={() => setDraggedWidgetType(null)}
                                 onClick={() => handleAddWidget(widget.type)}
-                                disabled={isHomepage}
-                                className={cn(
-                                  'w-full p-3 rounded-lg border border-transparent transition-all text-left group',
-                                  isHomepage
-                                    ? 'opacity-50 cursor-not-allowed'
-                                    : 'hover:border-[var(--primary)]/50 hover:bg-[var(--primary)]/5'
-                                )}
+                                className="w-full p-3 rounded-lg border border-transparent transition-all text-left group cursor-grab active:cursor-grabbing hover:border-[var(--primary)]/50 hover:bg-[var(--primary)]/5"
                               >
                                 <div className="flex items-start gap-3">
                                   <div className="w-8 h-8 rounded-lg bg-[var(--admin-input)] group-hover:bg-[var(--primary)]/10 flex items-center justify-center flex-shrink-0 transition-colors">
@@ -1203,16 +1239,14 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
                                       <span className="text-sm font-medium text-[var(--admin-text-primary)]">
                                         {widget.label}
                                       </span>
-                                      {!isHomepage && (
-                                        <Plus className="w-4 h-4 text-[var(--admin-text-muted)] opacity-0 group-hover:opacity-100 transition-opacity" />
-                                      )}
+                                      <Plus className="w-4 h-4 text-[var(--admin-text-muted)] opacity-0 group-hover:opacity-100 transition-opacity" />
                                     </div>
                                     <p className="text-xs text-[var(--admin-text-muted)] mt-0.5 line-clamp-1">
                                       {widget.description}
                                     </p>
                                   </div>
                                 </div>
-                              </button>
+                              </div>
                             );
                           })}
                         </div>
@@ -1222,14 +1256,6 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
                 </div>
               ))}
             </div>
-
-            {isHomepage && (
-              <div className="p-4 border-t border-[var(--admin-border)] bg-amber-500/5">
-                <p className="text-xs text-amber-600">
-                  Homepage widgets are managed globally. Click on a widget above to edit its content.
-                </p>
-              </div>
-            )}
           </div>
         </div>
       </div>

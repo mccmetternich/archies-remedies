@@ -18,15 +18,15 @@ interface DevicePreviewToggleProps {
  */
 export function DevicePreviewToggle({ device, onChange, className }: DevicePreviewToggleProps) {
   return (
-    <div className={cn('flex bg-[var(--admin-hover)] rounded-lg p-1', className)}>
+    <div className={cn('flex bg-[var(--admin-input)] rounded-lg p-1 border border-[var(--admin-border)]', className)}>
       <button
         type="button"
         onClick={() => onChange('desktop')}
         className={cn(
           'flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all',
           device === 'desktop'
-            ? 'bg-white text-[var(--admin-text-primary)] shadow-sm'
-            : 'text-[var(--admin-text-muted)] hover:text-[var(--admin-text-secondary)]'
+            ? 'bg-[var(--primary)] text-[#1a1a1a]'
+            : 'text-[var(--admin-text-muted)] hover:text-[var(--admin-text-secondary)] hover:bg-[var(--admin-hover)]'
         )}
       >
         <Monitor className="w-4 h-4" />
@@ -38,8 +38,8 @@ export function DevicePreviewToggle({ device, onChange, className }: DevicePrevi
         className={cn(
           'flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all',
           device === 'mobile'
-            ? 'bg-white text-[var(--admin-text-primary)] shadow-sm'
-            : 'text-[var(--admin-text-muted)] hover:text-[var(--admin-text-secondary)]'
+            ? 'bg-[var(--primary)] text-[#1a1a1a]'
+            : 'text-[var(--admin-text-muted)] hover:text-[var(--admin-text-secondary)] hover:bg-[var(--admin-hover)]'
         )}
       >
         <Smartphone className="w-4 h-4" />
