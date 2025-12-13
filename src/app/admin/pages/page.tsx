@@ -28,6 +28,7 @@ interface Page {
   slug: string;
   title: string;
   pageType: string | null;
+  productId: string | null;
   isActive: boolean | null;
   showInNav: boolean | null;
   navOrder: number | null;
@@ -113,9 +114,9 @@ export default function PagesListPage() {
   });
   const [selectedItem, setSelectedItem] = useState<{ type: 'page' | 'product'; id: string } | null>(null);
 
-  // Get selected page or product
+  // Get selected page or product page
   const selectedPage = selectedItem?.type === 'page' ? pages.find(p => p.id === selectedItem.id) : null;
-  const selectedProduct = selectedItem?.type === 'product' ? products.find(p => p.id === selectedItem.id) : null;
+  const selectedProductPage = selectedItem?.type === 'product' ? pages.find(p => p.id === selectedItem.id && p.pageType === 'product') : null;
 
   useEffect(() => {
     Promise.all([fetchPages(), fetchProducts(), fetchSiteSettings()]);
@@ -262,10 +263,14 @@ export default function PagesListPage() {
   };
 
   // Categorize pages
+  // Product pages (pageType === 'product')
+  const productPages = pages.filter((p) => p.pageType === 'product');
+  // Non-product pages
+  const nonProductPages = pages.filter((p) => p.pageType !== 'product');
   // Homepage gets its own special treatment - always first in main nav
-  const homePage = pages.find((p) => p.slug === 'home');
-  // Main navigation pages: showInNav=true OR is homepage
-  const mainNavPages = pages
+  const homePage = nonProductPages.find((p) => p.slug === 'home');
+  // Main navigation pages: showInNav=true OR is homepage (excluding product pages)
+  const mainNavPages = nonProductPages
     .filter((p) => p.showInNav || p.slug === 'home')
     .sort((a, b) => {
       // Home page always first
@@ -275,9 +280,9 @@ export default function PagesListPage() {
       return (a.navOrder || 999) - (b.navOrder || 999);
     });
   // Footer/legal pages (include FAQ here)
-  const footerPages = pages.filter((p) => ['about', 'terms', 'privacy', 'shipping', 'returns', 'contact', 'faq'].includes(p.slug) && !p.showInNav);
-  // Other pages: not in main nav and not in footer
-  const otherPages = pages.filter((p) => !mainNavPages.includes(p) && !footerPages.includes(p));
+  const footerPages = nonProductPages.filter((p) => ['about', 'terms', 'privacy', 'shipping', 'returns', 'contact', 'faq'].includes(p.slug) && !p.showInNav);
+  // Other pages: not in main nav, not in footer, and not product pages
+  const otherPages = nonProductPages.filter((p) => !mainNavPages.includes(p) && !footerPages.includes(p));
 
   if (loading) {
     return (
@@ -443,9 +448,13 @@ export default function PagesListPage() {
   );
   };
 
-  const ProductRow = ({ product, onToggle, onDelete }: { product: Product; onToggle: () => void; onDelete: () => void }) => {
-    const effectivelyLive = isEffectivelyLive(product.isActive);
-    const isSelected = selectedItem?.type === 'product' && selectedItem.id === product.id;
+  // ProductPageRow - for product pages (pageType === 'product')
+  // Navigates to page editor for below-fold widgets, with a link to product admin
+  const ProductPageRow = ({ page, onToggle, onDelete }: { page: Page; onToggle: () => void; onDelete: () => void }) => {
+    const effectivelyLive = isEffectivelyLive(page.isActive);
+    const isSelected = selectedItem?.type === 'product' && selectedItem.id === page.id;
+    // Extract product slug from page slug (e.g., "products/eye-drops" -> "eye-drops")
+    const productSlug = page.slug.replace('products/', '');
 
     return (
     <div
@@ -454,12 +463,12 @@ export default function PagesListPage() {
         isSelected && "bg-[var(--primary)]/10 sm:bg-transparent"
       )}
       onClick={(e) => {
-        // On mobile, first tap selects; on desktop, navigate
+        // On mobile, first tap selects; on desktop, navigate to page editor
         if (window.innerWidth < 640) {
           e.preventDefault();
-          setSelectedItem(isSelected ? null : { type: 'product', id: product.id });
+          setSelectedItem(isSelected ? null : { type: 'product', id: page.id });
         } else {
-          window.location.href = `/admin/products/${product.id}`;
+          window.location.href = `/admin/pages/${page.id}`;
         }
       }}
     >
@@ -470,18 +479,30 @@ export default function PagesListPage() {
         <div className="min-w-0">
           <div className="flex items-center gap-2">
             <h3 className="font-medium text-[var(--admin-text-primary)] group-hover:text-[var(--primary)] transition-colors truncate text-sm sm:text-base">
-              {product.name}
+              {page.title}
             </h3>
             {/* Mobile status badge */}
             <div className="sm:hidden">
               <StatusBadge isLive={effectivelyLive} size="sm" />
             </div>
           </div>
-          <p className="text-xs sm:text-sm text-[var(--admin-text-muted)] truncate">/products/{product.slug}</p>
+          <p className="text-xs sm:text-sm text-[var(--admin-text-muted)] truncate">/{page.slug}</p>
         </div>
       </div>
 
       <div className="hidden sm:flex items-center gap-4" onClick={(e) => e.preventDefault()}>
+        {/* Edit Product Details Link */}
+        {page.productId && (
+          <Link
+            href={`/admin/products/${page.productId}`}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-[var(--admin-text-secondary)] hover:text-[var(--primary)] hover:bg-[var(--primary)]/10 transition-colors"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Edit className="w-3.5 h-3.5" />
+            <span>Edit Product</span>
+          </Link>
+        )}
+
         {/* Draft/Live Toggle Switch */}
         <div className="flex items-center gap-2">
           <span className={cn(
@@ -526,8 +547,8 @@ export default function PagesListPage() {
           onClick={async (e) => {
             e.preventDefault();
             e.stopPropagation();
-            const baseUrl = `/products/${product.slug}`;
-            // Generate preview token if product is not effectively live
+            const baseUrl = `/${page.slug}`;
+            // Generate preview token if page is not effectively live
             if (!effectivelyLive) {
               try {
                 const res = await fetch('/api/admin/preview', { method: 'POST' });
@@ -691,7 +712,7 @@ export default function PagesListPage() {
               <Package className="w-5 h-5 text-blue-400" />
             </div>
             <div>
-              <p className="text-2xl font-semibold text-[var(--admin-text-primary)]">{products.length}</p>
+              <p className="text-2xl font-semibold text-[var(--admin-text-primary)]">{productPages.length}</p>
               <p className="text-sm text-[var(--admin-text-muted)]">Products</p>
             </div>
           </div>
@@ -749,24 +770,24 @@ export default function PagesListPage() {
         <Section
           title="Product Pages"
           icon={Package}
-          count={products.length}
+          count={productPages.length}
           expanded={expandedSections.products}
           onToggle={() => toggleSection('products')}
           actionHref="/admin/products/new"
           actionLabel="New Product"
         >
-          {products.length > 0 ? (
-            products.map((product) => (
-              <ProductRow
-                key={product.id}
-                product={product}
-                onToggle={() => toggleProductStatus(product)}
-                onDelete={() => handleDeleteProduct(product)}
+          {productPages.length > 0 ? (
+            productPages.map((page) => (
+              <ProductPageRow
+                key={page.id}
+                page={page}
+                onToggle={() => togglePageStatus(page)}
+                onDelete={() => setDeleteModal({ isOpen: true, page })}
               />
             ))
           ) : (
             <div className="p-8 text-center">
-              <p className="text-[var(--admin-text-muted)] text-sm mb-4">No products yet</p>
+              <p className="text-[var(--admin-text-muted)] text-sm mb-4">No product pages yet</p>
               <Link
                 href="/admin/products/new"
                 className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--admin-input)] text-[var(--admin-text-secondary)] rounded-lg text-sm hover:bg-[var(--admin-hover)] transition-colors"
@@ -877,34 +898,41 @@ export default function PagesListPage() {
         ] : []}
       />
 
-      {/* Mobile Action Bar - Products */}
+      {/* Mobile Action Bar - Product Pages */}
       <MobileActionBar
-        isOpen={!!selectedProduct}
+        isOpen={!!selectedProductPage}
         onClose={() => setSelectedItem(null)}
-        title={selectedProduct?.name}
-        actions={selectedProduct ? [
+        title={selectedProductPage?.title}
+        actions={selectedProductPage ? [
           {
-            label: 'Edit Product',
-            icon: <Package className="w-5 h-5" />,
+            label: 'Edit Page Content',
+            icon: <Layout className="w-5 h-5" />,
             onClick: () => {
-              window.location.href = `/admin/products/${selectedProduct.id}`;
+              window.location.href = `/admin/pages/${selectedProductPage.id}`;
             },
             variant: 'primary',
           },
-          {
-            label: isEffectivelyLive(selectedProduct.isActive) ? 'Set to Draft' : 'Set to Live',
-            icon: isEffectivelyLive(selectedProduct.isActive) ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />,
+          ...(selectedProductPage.productId ? [{
+            label: 'Edit Product Details',
+            icon: <Package className="w-5 h-5" />,
             onClick: () => {
-              toggleProductStatus(selectedProduct);
+              window.location.href = `/admin/products/${selectedProductPage.productId}`;
+            },
+          }] : []),
+          {
+            label: isEffectivelyLive(selectedProductPage.isActive) ? 'Set to Draft' : 'Set to Live',
+            icon: isEffectivelyLive(selectedProductPage.isActive) ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />,
+            onClick: () => {
+              togglePageStatus(selectedProductPage);
               setSelectedItem(null);
             },
             disabled: siteInDraftMode,
           },
           {
-            label: isEffectivelyLive(selectedProduct.isActive) ? 'View Live' : 'View Draft',
+            label: isEffectivelyLive(selectedProductPage.isActive) ? 'View Live' : 'View Draft',
             icon: <ExternalLink className="w-5 h-5" />,
             onClick: () => {
-              handlePreviewProduct(selectedProduct);
+              handlePreviewPage(selectedProductPage);
               setSelectedItem(null);
             },
           },
@@ -912,7 +940,7 @@ export default function PagesListPage() {
             label: 'Delete',
             icon: <Trash2 className="w-5 h-5" />,
             onClick: () => {
-              handleDeleteProduct(selectedProduct);
+              setDeleteModal({ isOpen: true, page: selectedProductPage });
               setSelectedItem(null);
             },
             variant: 'danger',

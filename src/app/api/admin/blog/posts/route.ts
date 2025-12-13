@@ -1,17 +1,25 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { blogPosts, blogTags, blogPostTags } from '@/lib/db/schema';
-import { desc, eq, inArray } from 'drizzle-orm';
+import { asc, desc, eq, inArray } from 'drizzle-orm';
 import { nanoid } from 'nanoid';
 import { requireAuth } from '@/lib/api-auth';
 
 // GET /api/admin/blog/posts - List all posts
-export async function GET() {
+export async function GET(request: Request) {
   const auth = await requireAuth();
   if (!auth.authenticated) return auth.response;
 
   try {
-    const posts = await db.select().from(blogPosts).orderBy(desc(blogPosts.createdAt));
+    // Parse query params
+    const { searchParams } = new URL(request.url);
+    const includeAll = searchParams.get('includeAll') === 'true';
+
+    // Order by sortOrder first (if set), then by createdAt
+    const posts = await db.select().from(blogPosts).orderBy(
+      asc(blogPosts.sortOrder),
+      desc(blogPosts.createdAt)
+    );
 
     // Batch fetch all tags for all posts in ONE query (fixes N+1)
     const postIds = posts.map(p => p.id);
@@ -50,7 +58,7 @@ export async function GET() {
       tags: tagsByPostId.get(post.id) || [],
     }));
 
-    return NextResponse.json(postsWithTags);
+    return NextResponse.json({ posts: postsWithTags });
   } catch (error) {
     console.error('Failed to fetch blog posts:', error);
     return NextResponse.json({ error: 'Failed to fetch posts' }, { status: 500 });

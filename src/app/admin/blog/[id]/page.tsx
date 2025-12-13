@@ -20,9 +20,13 @@ import {
   X,
   ExternalLink,
   Trash2,
+  Plus,
+  Heart,
+  BarChart3,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { MediaPickerButton } from '@/components/admin/media-picker';
+import { RichTextEditor } from '@/components/admin/rich-text-editor';
 
 interface BlogPost {
   id: string;
@@ -40,6 +44,9 @@ interface BlogPost {
   metaTitle: string | null;
   metaDescription: string | null;
   readingTime: number | null;
+  viewCount: number | null;
+  heartCount: number | null;
+  sortOrder: number | null;
   createdAt: string | null;
   updatedAt: string | null;
   tags?: BlogTag[];
@@ -81,10 +88,16 @@ export default function BlogPostEditorPage({ params }: { params: Promise<{ id: s
     metaTitle: null,
     metaDescription: null,
     readingTime: 5,
+    viewCount: null,
+    heartCount: null,
+    sortOrder: 0,
     createdAt: null,
     updatedAt: null,
     tags: [],
   });
+
+  // State for inline tag creation
+  const [creatingTag, setCreatingTag] = useState(false);
 
   const [originalPost, setOriginalPost] = useState<BlogPost | null>(null);
 
@@ -190,6 +203,39 @@ export default function BlogPostEditorPage({ params }: { params: Promise<{ id: s
     }));
   };
 
+  const handleCreateTag = async (name: string) => {
+    setCreatingTag(true);
+    try {
+      const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+      const res = await fetch('/api/admin/blog/tags', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, slug, color: '#bbdae9' }),
+      });
+      if (res.ok) {
+        const newTag = await res.json();
+        setAllTags((prev) => [...prev, newTag]);
+        handleAddTag(newTag);
+      }
+    } catch (error) {
+      console.error('Failed to create tag:', error);
+    } finally {
+      setCreatingTag(false);
+      setTagSearch('');
+      setShowTagSearch(false);
+    }
+  };
+
+  // Auto-populate slug from title
+  const handleTitleChange = (newTitle: string) => {
+    setPost((prev) => {
+      const newSlug = isNew || !prev.slug
+        ? newTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+        : prev.slug;
+      return { ...prev, title: newTitle, slug: newSlug };
+    });
+  };
+
   const filteredTags = allTags.filter(
     (tag) =>
       tag.name.toLowerCase().includes(tagSearch.toLowerCase()) &&
@@ -222,7 +268,7 @@ export default function BlogPostEditorPage({ params }: { params: Promise<{ id: s
           </Link>
           <div>
             <h1 className="text-xl font-medium text-[var(--admin-text-primary)]">
-              {isNew ? 'New Blog Post' : 'Edit Post'}
+              {isNew ? 'New Blog Post' : post.title || 'Untitled Post'}
             </h1>
             <p className="text-sm text-[var(--admin-text-muted)]">
               {post.status === 'published' ? 'Published' : 'Draft'}
@@ -260,16 +306,31 @@ export default function BlogPostEditorPage({ params }: { params: Promise<{ id: s
             )}
           </button>
 
-          {/* Preview */}
-          {!isNew && (
-            <a
-              href={`/blog/${post.slug}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-2 rounded-lg text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)] hover:bg-[var(--admin-input)] transition-colors"
-            >
-              <ExternalLink className="w-5 h-5" />
-            </a>
+          {/* View Live / View Draft buttons */}
+          {!isNew && post.slug && (
+            <>
+              {post.status === 'published' ? (
+                <a
+                  href={`/blog/${post.slug}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-[var(--admin-card)] border border-[var(--admin-border-light)] text-[var(--admin-text-primary)] hover:bg-[var(--admin-hover)] transition-colors"
+                >
+                  <Eye className="w-4 h-4" />
+                  View Live
+                </a>
+              ) : (
+                <a
+                  href={`/blog/${post.slug}?preview=true`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-[var(--admin-card)] border border-[var(--admin-border-light)] text-[var(--admin-text-secondary)] hover:bg-[var(--admin-hover)] transition-colors"
+                >
+                  <EyeOff className="w-4 h-4" />
+                  View Draft
+                </a>
+              )}
+            </>
           )}
 
           {/* Save Button */}
@@ -365,7 +426,7 @@ export default function BlogPostEditorPage({ params }: { params: Promise<{ id: s
               <input
                 type="text"
                 value={post.title}
-                onChange={(e) => setPost((prev) => ({ ...prev, title: e.target.value }))}
+                onChange={(e) => handleTitleChange(e.target.value)}
                 placeholder="Post title..."
                 className="w-full text-2xl font-medium bg-transparent text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none"
               />
@@ -383,19 +444,15 @@ export default function BlogPostEditorPage({ params }: { params: Promise<{ id: s
               />
             </div>
 
-            {/* Content */}
+            {/* Content - Rich Text Editor */}
             <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6">
               <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-3">Content</label>
-              <textarea
+              <RichTextEditor
                 value={post.content || ''}
-                onChange={(e) => setPost((prev) => ({ ...prev, content: e.target.value }))}
+                onChange={(content) => setPost((prev) => ({ ...prev, content }))}
                 placeholder="Write your blog post content here..."
-                rows={20}
-                className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border-light)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors resize-none font-mono text-sm"
+                minHeight="400px"
               />
-              <p className="text-xs text-[var(--admin-text-muted)] mt-2">
-                Supports Markdown formatting
-              </p>
             </div>
           </div>
 
@@ -441,7 +498,7 @@ export default function BlogPostEditorPage({ params }: { params: Promise<{ id: s
                 </div>
               )}
 
-              {/* Tag Search */}
+              {/* Tag Search with Inline Creation */}
               <div className="relative">
                 <button
                   onClick={() => setShowTagSearch(!showTagSearch)}
@@ -452,22 +509,39 @@ export default function BlogPostEditorPage({ params }: { params: Promise<{ id: s
                 </button>
 
                 {showTagSearch && (
-                  <div className="absolute top-full left-0 right-0 mt-2 bg-[var(--admin-input)] border border-[var(--admin-border-light)] rounded-xl shadow-xl z-10 overflow-hidden">
+                  <div className="absolute top-full left-0 right-0 mt-2 bg-[var(--admin-card)] border border-[var(--admin-border-light)] rounded-xl shadow-xl z-10 overflow-hidden">
                     <input
                       type="text"
                       value={tagSearch}
                       onChange={(e) => setTagSearch(e.target.value)}
-                      placeholder="Search tags..."
-                      className="w-full px-4 py-3 bg-transparent text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none border-b border-[var(--admin-border-light)]"
+                      placeholder="Search or create a tag..."
+                      className="w-full px-4 py-3 bg-[var(--admin-input)] text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none border-b border-[var(--admin-border-light)]"
                       autoFocus
                     />
                     <div className="max-h-48 overflow-y-auto">
+                      {/* Create New Tag Option */}
+                      {tagSearch.trim() && !allTags.some(t => t.name.toLowerCase() === tagSearch.trim().toLowerCase()) && (
+                        <button
+                          onClick={() => handleCreateTag(tagSearch.trim())}
+                          disabled={creatingTag}
+                          className="w-full px-4 py-2.5 text-left hover:bg-[var(--admin-input)] transition-colors flex items-center gap-2 border-b border-[var(--admin-border-light)]"
+                        >
+                          {creatingTag ? (
+                            <Loader2 className="w-4 h-4 animate-spin text-[var(--primary)]" />
+                          ) : (
+                            <Plus className="w-4 h-4 text-[var(--primary)]" />
+                          )}
+                          <span className="text-sm text-[var(--admin-text-primary)]">
+                            Create &ldquo;{tagSearch.trim()}&rdquo;
+                          </span>
+                        </button>
+                      )}
                       {filteredTags.length > 0 ? (
                         filteredTags.map((tag) => (
                           <button
                             key={tag.id}
                             onClick={() => handleAddTag(tag)}
-                            className="w-full px-4 py-2.5 text-left hover:bg-[var(--admin-border-light)] transition-colors flex items-center gap-2"
+                            className="w-full px-4 py-2.5 text-left hover:bg-[var(--admin-input)] transition-colors flex items-center gap-2"
                           >
                             <span
                               className="w-3 h-3 rounded-full"
@@ -476,15 +550,36 @@ export default function BlogPostEditorPage({ params }: { params: Promise<{ id: s
                             <span className="text-sm text-[var(--admin-text-primary)]">{tag.name}</span>
                           </button>
                         ))
-                      ) : (
+                      ) : !tagSearch.trim() ? (
                         <div className="px-4 py-3 text-sm text-[var(--admin-text-muted)]">
-                          No tags found
+                          Type to search or create a tag
                         </div>
-                      )}
+                      ) : null}
                     </div>
                   </div>
                 )}
               </div>
+
+              {/* Quick-Apply Tags - Show available tags */}
+              {allTags.length > 0 && !showTagSearch && (
+                <div className="mt-3 pt-3 border-t border-[var(--admin-border-light)]">
+                  <p className="text-xs text-[var(--admin-text-muted)] mb-2">Quick add:</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {allTags
+                      .filter(tag => !post.tags?.find(t => t.id === tag.id))
+                      .slice(0, 6)
+                      .map(tag => (
+                        <button
+                          key={tag.id}
+                          onClick={() => handleAddTag(tag)}
+                          className="px-2.5 py-1 text-xs rounded-full border border-[var(--admin-border-light)] text-[var(--admin-text-secondary)] hover:border-[var(--primary)] hover:text-[var(--admin-text-primary)] transition-colors"
+                        >
+                          {tag.name}
+                        </button>
+                      ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Featured Toggle */}
@@ -577,6 +672,56 @@ export default function BlogPostEditorPage({ params }: { params: Promise<{ id: s
             <p className="text-xs text-[var(--admin-text-muted)] mt-2">
               Auto-calculated based on content, but you can override it
             </p>
+          </div>
+
+          {/* Vanity Metrics */}
+          <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6">
+            <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-3">
+              Social Proof (Optional)
+            </label>
+            <p className="text-xs text-[var(--admin-text-muted)] mb-4">
+              Add engagement metrics to display on the article page. Leave empty to hide.
+            </p>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="flex items-center gap-2 text-sm text-[var(--admin-text-secondary)] mb-2">
+                  <BarChart3 className="w-4 h-4" />
+                  Views
+                </label>
+                <input
+                  type="number"
+                  value={post.viewCount || ''}
+                  onChange={(e) =>
+                    setPost((prev) => ({
+                      ...prev,
+                      viewCount: e.target.value ? parseInt(e.target.value) : null,
+                    }))
+                  }
+                  min={0}
+                  placeholder="e.g., 1200"
+                  className="w-full px-4 py-2.5 bg-[var(--admin-input)] border border-[var(--admin-border-light)] rounded-lg text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+                />
+              </div>
+              <div>
+                <label className="flex items-center gap-2 text-sm text-[var(--admin-text-secondary)] mb-2">
+                  <Heart className="w-4 h-4" />
+                  Hearts
+                </label>
+                <input
+                  type="number"
+                  value={post.heartCount || ''}
+                  onChange={(e) =>
+                    setPost((prev) => ({
+                      ...prev,
+                      heartCount: e.target.value ? parseInt(e.target.value) : null,
+                    }))
+                  }
+                  min={0}
+                  placeholder="e.g., 89"
+                  className="w-full px-4 py-2.5 bg-[var(--admin-input)] border border-[var(--admin-border-light)] rounded-lg text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+                />
+              </div>
+            </div>
           </div>
         </div>
       )}

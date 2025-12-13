@@ -1,22 +1,28 @@
 import { db } from '@/lib/db';
 import { blogPosts, blogTags, blogPostTags } from '@/lib/db/schema';
-import { eq, and, ne, desc } from 'drizzle-orm';
+import { eq, and, ne, desc, or } from 'drizzle-orm';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { Clock, Calendar, ArrowLeft, ArrowRight, Share2, Twitter, Facebook, Linkedin } from 'lucide-react';
+import { Clock, Calendar, ArrowLeft, ArrowRight, Share2, Twitter, Facebook, Linkedin, Eye, Heart } from 'lucide-react';
 import { Metadata } from 'next';
 
 export const dynamic = 'force-dynamic';
 
 interface Props {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ preview?: string }>;
 }
 
-async function getPostBySlug(slug: string) {
+async function getPostBySlug(slug: string, preview: boolean = false) {
+  // If preview mode, get any post regardless of status
+  const condition = preview
+    ? eq(blogPosts.slug, slug)
+    : and(eq(blogPosts.slug, slug), eq(blogPosts.status, 'published'));
+
   const [post] = await db
     .select()
     .from(blogPosts)
-    .where(and(eq(blogPosts.slug, slug), eq(blogPosts.status, 'published')));
+    .where(condition);
 
   if (!post) return null;
 
@@ -33,6 +39,17 @@ async function getPostBySlug(slug: string) {
     .where(eq(blogPostTags.postId, post.id));
 
   return { ...post, tags: postTags };
+}
+
+// Helper to format numbers (e.g., 1200 -> 1.2K)
+function formatNumber(num: number): string {
+  if (num >= 1000000) {
+    return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+  }
+  if (num >= 1000) {
+    return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+  }
+  return num.toString();
 }
 
 async function getRelatedPosts(postId: string, tagIds: string[]) {
@@ -68,11 +85,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-// Simple markdown to HTML converter
+// Simple markdown/HTML content renderer
 function renderContent(content: string | null) {
   if (!content) return '';
 
-  // Convert markdown to basic HTML
+  // Check if content is already HTML (from rich text editor)
+  const isHtml = content.includes('<') && content.includes('>');
+
+  if (isHtml) {
+    // Content is already HTML from rich text editor
+    // Just add our custom blockquote styling classes if needed
+    return content;
+  }
+
+  // Convert markdown to basic HTML for backwards compatibility
   let html = content
     // Headers
     .replace(/^### (.*$)/gim, '<h3 class="text-xl font-serif text-gray-900 mt-8 mb-4">$1</h3>')
@@ -86,8 +112,8 @@ function renderContent(content: string | null) {
     .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-[var(--primary)] underline hover:no-underline">$1</a>')
     // Unordered lists
     .replace(/^\- (.*$)/gim, '<li class="ml-4 list-disc">$1</li>')
-    // Blockquotes
-    .replace(/^> (.*$)/gim, '<blockquote class="border-l-4 border-[var(--primary)] pl-4 my-6 italic text-gray-600">$1</blockquote>')
+    // Blockquotes - styled as XXL text
+    .replace(/^> (.*$)/gim, '<blockquote>$1</blockquote>')
     // Line breaks
     .replace(/\n\n/g, '</p><p class="mb-4 text-gray-700 leading-relaxed">')
     .replace(/\n/g, '<br />');
@@ -103,9 +129,12 @@ function renderContent(content: string | null) {
   return html;
 }
 
-export default async function BlogPostPage({ params }: Props) {
+export default async function BlogPostPage({ params, searchParams }: Props) {
   const { slug } = await params;
-  const post = await getPostBySlug(slug);
+  const { preview } = await searchParams;
+  const isPreview = preview === 'true';
+
+  const post = await getPostBySlug(slug, isPreview);
 
   if (!post) {
     notFound();
@@ -113,6 +142,9 @@ export default async function BlogPostPage({ params }: Props) {
 
   const relatedPosts = await getRelatedPosts(post.id, post.tags?.map((t) => t.id) || []);
   const shareUrl = `https://archiesremedies.com/blog/${post.slug}`;
+
+  // Check if we should show vanity metrics
+  const showVanityMetrics = post.viewCount || post.heartCount;
 
   return (
     <main className="min-h-screen bg-white">
@@ -194,6 +226,22 @@ export default async function BlogPostPage({ params }: Props) {
                 <Clock className="w-4 h-4" />
                 {post.readingTime || 5} min read
               </span>
+              {showVanityMetrics && (
+                <>
+                  {post.viewCount && post.viewCount > 0 && (
+                    <span className="flex items-center gap-1.5">
+                      <Eye className="w-4 h-4" />
+                      {formatNumber(post.viewCount)} views
+                    </span>
+                  )}
+                  {post.heartCount && post.heartCount > 0 && (
+                    <span className="flex items-center gap-1.5">
+                      <Heart className="w-4 h-4" />
+                      {formatNumber(post.heartCount)}
+                    </span>
+                  )}
+                </>
+              )}
             </div>
 
             {/* Share */}
@@ -239,7 +287,7 @@ export default async function BlogPostPage({ params }: Props) {
           )}
 
           <div
-            className="prose prose-lg max-w-none"
+            className="prose prose-lg max-w-none [&_blockquote]:text-2xl [&_blockquote]:md:text-3xl [&_blockquote]:font-medium [&_blockquote]:leading-relaxed [&_blockquote]:border-l-4 [&_blockquote]:border-[var(--primary)] [&_blockquote]:pl-6 [&_blockquote]:py-4 [&_blockquote]:my-8 [&_blockquote]:bg-[var(--secondary)] [&_blockquote]:rounded-r-xl [&_blockquote]:italic [&_blockquote]:not-italic [&_blockquote_p]:m-0"
             dangerouslySetInnerHTML={{ __html: renderContent(post.content) }}
           />
         </div>

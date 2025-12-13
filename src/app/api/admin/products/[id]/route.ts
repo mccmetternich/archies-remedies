@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { products, productVariants, productBenefits } from '@/lib/db/schema';
+import { products, productVariants, productBenefits, pages } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { generateId } from '@/lib/utils';
 import { requireAuth } from '@/lib/api-auth';
@@ -103,6 +103,17 @@ export async function PUT(
       }
     }
 
+    // Update linked page (if it exists) to sync slug and title
+    await db
+      .update(pages)
+      .set({
+        slug: `products/${product.slug}`,
+        title: product.name,
+        isActive: product.isActive ?? true,
+        updatedAt: new Date().toISOString(),
+      })
+      .where(eq(pages.productId, id));
+
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Failed to update product:', error);
@@ -129,6 +140,17 @@ export async function PATCH(
         updatedAt: new Date().toISOString(),
       })
       .where(eq(products.id, id));
+
+    // Sync isActive to linked page if changed
+    if (body.isActive !== undefined) {
+      await db
+        .update(pages)
+        .set({
+          isActive: body.isActive,
+          updatedAt: new Date().toISOString(),
+        })
+        .where(eq(pages.productId, id));
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {

@@ -71,6 +71,8 @@ interface HeroCarouselConfigProps {
   products: Product[];
   previewDevice: DeviceType;
   maxSlides?: number;
+  autoAdvanceInterval?: number;
+  onAutoAdvanceIntervalChange?: (interval: number) => void;
 }
 
 /**
@@ -83,6 +85,8 @@ export function HeroCarouselConfig({
   products,
   previewDevice,
   maxSlides = 3,
+  autoAdvanceInterval = 5,
+  onAutoAdvanceIntervalChange,
 }: HeroCarouselConfigProps) {
   const [expandedSlide, setExpandedSlide] = useState<string | null>(
     slides.length === 1 ? slides[0]?.id : null
@@ -161,6 +165,35 @@ export function HeroCarouselConfig({
 
   return (
     <div className="space-y-4">
+      {/* Slide Timing Control - at top of widget config */}
+      {slides.length > 1 && onAutoAdvanceIntervalChange && (
+        <div className="bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h4 className="text-sm font-medium text-[var(--admin-text-primary)]">Auto-Advance Timing</h4>
+              <p className="text-xs text-[var(--admin-text-muted)]">Time before switching to next slide</p>
+            </div>
+            <div className="flex items-center gap-2">
+              {[3, 4, 5, 6].map((seconds) => (
+                <button
+                  key={seconds}
+                  type="button"
+                  onClick={() => onAutoAdvanceIntervalChange(seconds)}
+                  className={cn(
+                    'px-3 py-1.5 rounded-lg text-sm font-medium transition-colors',
+                    autoAdvanceInterval === seconds
+                      ? 'bg-[var(--primary)] text-[var(--admin-button-text)]'
+                      : 'bg-[var(--admin-hover)] text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)]'
+                  )}
+                >
+                  {seconds}s
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Slide List */}
       <Reorder.Group axis="y" values={slides} onReorder={reorderSlides} className="space-y-3">
         {slides.map((slide, index) => {
@@ -273,9 +306,13 @@ function SlideCard({
           <GripVertical className="w-4 h-4" />
         </div>
 
-        {/* Thumbnail */}
+        {/* Thumbnail - prioritize video indicator if video is set */}
         <div className="w-16 h-10 rounded-lg overflow-hidden bg-[var(--admin-hover)] flex-shrink-0">
-          {slide.imageUrl ? (
+          {slide.videoUrl ? (
+            <div className="w-full h-full flex items-center justify-center bg-[var(--admin-input)]">
+              <Play className="w-5 h-5 text-[var(--primary)]" />
+            </div>
+          ) : slide.imageUrl ? (
             <Image
               src={slide.imageUrl}
               alt={slide.title || 'Slide'}
@@ -283,10 +320,6 @@ function SlideCard({
               height={40}
               className="w-full h-full object-cover"
             />
-          ) : slide.videoUrl ? (
-            <div className="w-full h-full flex items-center justify-center">
-              <Play className="w-4 h-4 text-[var(--admin-text-muted)]" />
-            </div>
           ) : (
             <div className="w-full h-full flex items-center justify-center">
               <ImageIcon className="w-4 h-4 text-[var(--admin-text-muted)]" />
@@ -477,7 +510,7 @@ function SlideCard({
                 </p>
               </section>
 
-              {/* Title & Body */}
+              {/* Title & Subtitle */}
               <section>
                 <h4 className="text-sm font-medium text-[var(--admin-text-primary)] mb-3">Content</h4>
                 <div className="space-y-3">
@@ -499,16 +532,6 @@ function SlideCard({
                       onChange={(e) => onUpdate({ subtitle: e.target.value || null })}
                       placeholder="Optional subtitle..."
                       className="w-full px-3 py-2 text-sm bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)] placeholder:text-[var(--admin-text-muted)] focus:outline-none focus:border-[var(--primary)]"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs text-[var(--admin-text-muted)] mb-1">Body Copy</label>
-                    <textarea
-                      value={slide.bodyText || ''}
-                      onChange={(e) => onUpdate({ bodyText: e.target.value || null })}
-                      placeholder="Optional body text..."
-                      rows={2}
-                      className="w-full px-3 py-2 text-sm bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)] placeholder:text-[var(--admin-text-muted)] focus:outline-none focus:border-[var(--primary)] resize-none"
                     />
                   </div>
                 </div>
@@ -640,13 +663,10 @@ function SlideCard({
                     <textarea
                       value={slide.testimonialText || ''}
                       onChange={(e) => onUpdate({ testimonialText: e.target.value || null })}
-                      placeholder="Customer testimonial quote (no quotation marks needed)..."
+                      placeholder="Customer testimonial quote..."
                       rows={2}
                       className="w-full px-3 py-2 text-sm bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)] placeholder:text-[var(--admin-text-muted)] focus:outline-none focus:border-[var(--primary)] resize-none"
                     />
-                    <p className="mt-1 text-xs text-amber-600">
-                      Quotation marks are added automatically - don&apos;t include them here
-                    </p>
                   </div>
 
                   <div className="grid grid-cols-3 gap-3">

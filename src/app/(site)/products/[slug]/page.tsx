@@ -8,6 +8,7 @@ import {
   reviewKeywords,
   productCertifications,
   videoTestimonials,
+  pages,
 } from '@/lib/db/schema';
 import { eq, desc, and } from 'drizzle-orm';
 import { notFound } from 'next/navigation';
@@ -15,6 +16,7 @@ import { checkProductDraft, hasPreviewAccess } from '@/lib/draft-mode';
 import { Metadata } from 'next';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
+import { SitePopups } from '@/components/popups';
 import { PDPGallery } from '@/components/product/pdp-gallery';
 import { PDPBuyBox } from '@/components/product/pdp-buy-box';
 import { PDPReviews } from '@/components/product/pdp-reviews';
@@ -24,6 +26,9 @@ import { CertificationTrio } from '@/components/widgets/certification-trio';
 import { VideoTestimonialsGrid } from '@/components/widgets/video-testimonials-grid';
 import { InstagramFeed } from '@/components/home/instagram-feed';
 import { getHeaderProps, getFooterProps } from '@/lib/get-header-props';
+import { getPopupSettings } from '@/lib/get-popup-settings';
+import { getWidgetData } from '@/lib/get-widget-data';
+import { WidgetRenderer, type PageWidget } from '@/components/widgets/widget-renderer';
 
 export const revalidate = 60;
 
@@ -100,6 +105,17 @@ async function getVideos() {
   return videos;
 }
 
+// Get linked page for below-fold widgets
+async function getLinkedPage(productId: string) {
+  const [page] = await db
+    .select()
+    .from(pages)
+    .where(eq(pages.productId, productId))
+    .limit(1);
+
+  return page;
+}
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const product = await getProduct(slug);
@@ -129,15 +145,44 @@ export default async function ProductPage({ params }: PageProps) {
   // Check if user has preview access to show draft products
   const previewAccess = await hasPreviewAccess();
 
-  const [product, headerProps, videos] = await Promise.all([
+  const [productData, headerProps, videos] = await Promise.all([
     getProduct(slug, previewAccess),
     getHeaderProps(),
     getVideos(),
   ]);
 
-  if (!product) {
+  if (!productData) {
     notFound();
   }
+
+  const product = productData;
+
+  // Fetch linked page for below-fold widgets
+  const linkedPage = await getLinkedPage(product.id);
+
+  // Parse below-fold widgets
+  let belowFoldWidgets: PageWidget[] = [];
+  if (linkedPage?.widgets) {
+    try {
+      belowFoldWidgets = JSON.parse(linkedPage.widgets);
+    } catch {
+      belowFoldWidgets = [];
+    }
+  }
+
+  // Get visible widget types
+  const visibleWidgetTypes = belowFoldWidgets
+    .filter((w) => w.isVisible)
+    .map((w) => w.type);
+
+  // Fetch widget data for below-fold widgets
+  const widgetData = await getWidgetData(visibleWidgetTypes);
+
+  // Add instagramUrl from settings
+  const widgetDataWithSettings = {
+    ...widgetData,
+    instagramUrl: headerProps.settings?.instagramUrl,
+  };
 
   const positiveBenefits = product.benefits.filter((b) => b.isPositive);
   const negativeBenefits = product.benefits.filter((b) => !b.isPositive);
@@ -202,8 +247,8 @@ export default async function ProductPage({ params }: PageProps) {
         <MarqueeBar
           text="Ophthalmologist Tested • Preservative Free • Clean Formula • Made in USA"
           speed="medium"
-          backgroundColor="var(--primary)"
-          textColor="var(--foreground)"
+          size="large"
+          theme="baby-blue"
         />
 
         {/* Benefits Widget */}
@@ -239,14 +284,27 @@ export default async function ProductPage({ params }: PageProps) {
           productName={product.name}
         />
 
-        {/* Instagram Feed */}
-        <InstagramFeed
-          posts={[]}
-          instagramUrl={headerProps.settings?.instagramUrl}
-        />
+        {/* Below-Fold Widgets from CMS */}
+        {belowFoldWidgets.length > 0 && (
+          <WidgetRenderer widgets={belowFoldWidgets} data={widgetDataWithSettings} />
+        )}
+
+        {/* Fallback Instagram Feed if no widgets configured */}
+        {belowFoldWidgets.length === 0 && (
+          <InstagramFeed
+            posts={[]}
+            instagramUrl={headerProps.settings?.instagramUrl}
+          />
+        )}
       </main>
 
       <Footer {...getFooterProps(headerProps.settings)} />
+
+      {/* Site Popups */}
+      <SitePopups
+        currentPage={`/products/${slug}`}
+        settings={getPopupSettings(headerProps.settings)}
+      />
     </>
   );
 }

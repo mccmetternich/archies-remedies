@@ -120,7 +120,7 @@ export default function BlogAdminPage() {
       ]);
       const postsData = await postsRes.json();
       const tagsData = await tagsRes.json();
-      setPosts(postsData);
+      setPosts(postsData.posts || []);
       setTags(tagsData);
     } catch (error) {
       console.error('Failed to fetch blog data:', error);
@@ -204,7 +204,7 @@ export default function BlogAdminPage() {
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           <Link
             href="/admin/blog/tags"
-            className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-[var(--admin-card)] border border-[var(--admin-border)] text-[var(--admin-text-primary)] rounded-lg font-medium hover:bg-[var(--admin-hover)] transition-colors text-sm"
+            className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-white/10 border border-white/20 text-white rounded-lg font-medium hover:bg-white/20 transition-colors text-sm"
           >
             <Tag className="w-4 h-4" />
             <span className="hidden sm:inline">Manage Tags</span>

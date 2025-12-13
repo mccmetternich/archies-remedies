@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { products, productVariants, productBenefits } from '@/lib/db/schema';
+import { products, productVariants, productBenefits, pages } from '@/lib/db/schema';
 import { generateId } from '@/lib/utils';
 import { requireAuth } from '@/lib/api-auth';
 
@@ -72,7 +72,20 @@ export async function POST(request: Request) {
       }
     }
 
-    return NextResponse.json({ id: productId, success: true });
+    // Auto-create linked page for below-fold widget management
+    const pageId = generateId();
+    await db.insert(pages).values({
+      id: pageId,
+      slug: `products/${product.slug}`,
+      title: product.name,
+      pageType: 'product',
+      productId: productId,
+      widgets: '[]',
+      isActive: product.isActive ?? true,
+      showInNav: false,
+    });
+
+    return NextResponse.json({ id: productId, pageId, success: true });
   } catch (error) {
     console.error('Failed to create product:', error);
     return NextResponse.json({ error: 'Failed to create product' }, { status: 500 });

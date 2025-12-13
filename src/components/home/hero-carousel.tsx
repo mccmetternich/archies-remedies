@@ -18,6 +18,9 @@ interface HeroSlide {
   secondaryButtonType: string | null; // 'page', 'anchor', 'external'
   secondaryAnchorTarget: string | null;
   imageUrl: string;
+  videoUrl?: string | null;
+  mobileImageUrl?: string | null;
+  mobileVideoUrl?: string | null;
   testimonialText: string | null;
   testimonialAuthor: string | null;
   testimonialAvatarUrl: string | null;
@@ -25,15 +28,13 @@ interface HeroSlide {
   textColor?: string | null; // 'dark', 'light'
 }
 
-// Default avatar if none provided
-const DEFAULT_AVATAR = 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face';
-
 interface HeroCarouselProps {
   slides: HeroSlide[];
   isPaused?: boolean; // Allow parent to pause carousel (e.g., when nav is open)
+  autoAdvanceInterval?: number; // Seconds between slides (default 5)
 }
 
-export function HeroCarousel({ slides, isPaused = false }: HeroCarouselProps) {
+export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5 }: HeroCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const nextSlide = useCallback(() => {
@@ -43,9 +44,9 @@ export function HeroCarousel({ slides, isPaused = false }: HeroCarouselProps) {
   // Auto-advance - only pause when parent says paused (e.g., nav open)
   useEffect(() => {
     if (isPaused || slides.length <= 1) return;
-    const timer = setInterval(nextSlide, 7000);
+    const timer = setInterval(nextSlide, autoAdvanceInterval * 1000);
     return () => clearInterval(timer);
-  }, [nextSlide, isPaused, slides.length]);
+  }, [nextSlide, isPaused, slides.length, autoAdvanceInterval]);
 
   if (!slides || slides.length === 0) {
     return (
@@ -71,7 +72,7 @@ export function HeroCarousel({ slides, isPaused = false }: HeroCarouselProps) {
   const isTwoColumn = layout === 'two-column' || layout === 'two-column-reversed';
   const isReversed = layout === 'two-column-reversed';
 
-  // Text content component (shared between layouts)
+  // Text content component (shared between layouts) - 1.5x scaled up
   const TextContent = () => (
     <AnimatePresence mode="wait">
       <motion.div
@@ -82,85 +83,85 @@ export function HeroCarousel({ slides, isPaused = false }: HeroCarouselProps) {
         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
         style={{ willChange: 'opacity, transform' }}
       >
-        {/* Stars and Verified Reviews - Above title */}
+        {/* Stars and Verified Reviews - Above title (1.5x scaled) */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1, duration: 0.6 }}
-          className="flex items-center gap-3 mb-6"
+          className="flex items-center gap-4 mb-8"
         >
-          <div className="flex">
+          <div className="flex gap-0.5">
             {[1, 2, 3, 4, 5].map((i) => (
               <Star key={i} className={cn(
-                "w-4 h-4",
+                "w-6 h-6",
                 isLightText ? "fill-white text-white" : "fill-[var(--primary)] text-[var(--primary)]"
               )} />
             ))}
           </div>
-          <span className={cn("text-sm font-medium", isLightText ? "text-white" : "text-[var(--foreground)]")}>4.9</span>
-          <span className={cn("text-sm", isLightText ? "text-white/80" : "text-[var(--muted-foreground)]")}>2,500+ Verified Reviews</span>
+          <span className={cn("text-lg font-semibold", isLightText ? "text-white" : "text-[var(--foreground)]")}>4.9</span>
+          <span className={cn("text-lg", isLightText ? "text-white/80" : "text-[var(--muted-foreground)]")}>2,500+ Verified Reviews</span>
         </motion.div>
 
-        {/* Title - Editorial typography */}
+        {/* Title - Editorial typography (1.5x scaled) */}
         <motion.h1
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.8 }}
           className={cn(
-            "text-[clamp(2.5rem,5vw,4.5rem)] font-normal leading-[1.05] tracking-[-0.03em] mb-6",
+            "text-[clamp(3rem,7vw,6rem)] font-normal leading-[1.02] tracking-[-0.03em] mb-8 max-w-2xl",
             isLightText ? "text-white" : "text-[var(--foreground)]"
           )}
         >
           {slide.title || 'Instant Relief,\nClean Formula'}
         </motion.h1>
 
-        {/* Subtitle */}
+        {/* Subtitle (1.5x scaled) */}
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.6 }}
           className={cn(
-            "text-lg md:text-xl mb-10 leading-relaxed max-w-md",
+            "text-xl md:text-2xl mb-12 leading-relaxed max-w-lg",
             isLightText ? "text-white/90" : "text-[var(--muted-foreground)]"
           )}
         >
           {slide.subtitle || 'Preservative-free eye drops crafted for sensitive eyes. Feel the difference of truly clean ingredients.'}
         </motion.p>
 
-        {/* CTA - Buttons with hover states */}
+        {/* CTA - Buttons with hover states (1.5x scaled) */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, duration: 0.6 }}
-          className="flex flex-wrap items-center gap-4"
+          className="flex flex-wrap items-center gap-5"
         >
           {/* Primary button */}
           {slide.buttonUrl && (
             <Link
               href={slide.buttonUrl}
               className={cn(
-                "group inline-flex items-center gap-3 px-6 py-4 rounded-full text-base font-semibold transition-all duration-300",
+                "group inline-flex items-center gap-4 px-8 py-5 rounded-full text-lg font-semibold transition-all duration-300",
                 isLightText
                   ? "bg-white text-[#1a1a1a] hover:bg-white/90"
                   : "cta-button-primary cta-button-primary-lg"
               )}
             >
               {slide.buttonText || 'Shop Now'}
-              <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+              <ArrowRight className="w-6 h-6 transition-transform group-hover:translate-x-1" />
             </Link>
           )}
           {/* Secondary button - hidden on mobile */}
           <Link
             href={slide.secondaryButtonUrl || '/about'}
             className={cn(
-              "hidden md:inline-flex group items-center gap-3 px-6 py-4 rounded-full text-base font-semibold border-2 transition-all duration-300",
+              "hidden md:inline-flex group items-center gap-4 px-8 py-5 rounded-full text-lg font-semibold border-2 transition-all duration-300",
               isLightText
                 ? "border-white/40 text-white hover:bg-white/10 hover:border-white/60"
                 : "border-[#1a1a1a]/20 bg-white text-[#1a1a1a] hover:bg-[#f5f5f5] hover:border-[#1a1a1a]/40"
             )}
           >
             {slide.secondaryButtonText || 'Learn More'}
-            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+            <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
           </Link>
         </motion.div>
       </motion.div>
@@ -184,7 +185,17 @@ export function HeroCarousel({ slides, isPaused = false }: HeroCarouselProps) {
             className="absolute inset-0"
             style={{ willChange: 'opacity' }}
           >
-            {slide.imageUrl ? (
+            {/* Video or Image background */}
+            {slide.videoUrl ? (
+              <video
+                src={slide.videoUrl}
+                autoPlay
+                muted
+                loop
+                playsInline
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+            ) : slide.imageUrl ? (
               <Image
                 src={slide.imageUrl}
                 alt={slide.title || 'Hero image'}
@@ -193,9 +204,7 @@ export function HeroCarousel({ slides, isPaused = false }: HeroCarouselProps) {
                 priority
                 sizes="100vw"
               />
-            ) : (
-              <div className="absolute inset-0 bg-gradient-to-br from-[var(--cream)] via-white to-[var(--primary-light)]" />
-            )}
+            ) : null}
 
             {/* Clickable overlay - links entire hero to primary button URL */}
             {slide.buttonUrl && (
@@ -206,37 +215,37 @@ export function HeroCarousel({ slides, isPaused = false }: HeroCarouselProps) {
               />
             )}
 
-            {/* Testimonial card - centered at bottom of image (full-width layout) */}
-            {slide.testimonialText && (
+            {/* Testimonial card - positioned in bottom-center of right virtual column (full-width layout) */}
+            {slide.testimonialText && slide.testimonialAvatarUrl && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 10 }}
                 transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}
-                className="hidden lg:flex absolute bottom-20 left-1/2 -translate-x-1/2 z-20 w-full max-w-sm justify-center pointer-events-auto"
+                className="hidden lg:flex absolute bottom-24 right-[12.5%] z-20 w-full max-w-md justify-center pointer-events-auto"
               >
-                <div className="bg-white/95 backdrop-blur-sm px-4 py-3 rounded-xl shadow-xl border border-white/20">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full overflow-hidden bg-[var(--sand)] flex-shrink-0">
+                <div className="bg-white/95 backdrop-blur-sm px-5 py-4 rounded-2xl shadow-xl border border-white/20">
+                  <div className="flex items-center gap-4">
+                    <div className="w-14 h-14 rounded-full overflow-hidden bg-[var(--sand)] flex-shrink-0">
                       <Image
-                        src={slide.testimonialAvatarUrl || DEFAULT_AVATAR}
+                        src={slide.testimonialAvatarUrl}
                         alt={slide.testimonialAuthor || 'Customer'}
-                        width={40}
-                        height={40}
+                        width={56}
+                        height={56}
                         className="w-full h-full object-cover"
                       />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-0.5">
-                        <span className="font-medium text-sm text-[var(--foreground)]">{slide.testimonialAuthor || 'Verified Buyer'}</span>
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="font-semibold text-base text-[var(--foreground)]">{slide.testimonialAuthor || 'Verified Buyer'}</span>
                         <div className="flex gap-0.5">
                           {[1, 2, 3, 4, 5].map((i) => (
-                            <Star key={i} className="w-3 h-3 fill-[var(--primary)] text-[var(--primary)]" />
+                            <Star key={i} className="w-4 h-4 fill-[var(--primary)] text-[var(--primary)]" />
                           ))}
                         </div>
                       </div>
-                      <p className="text-sm text-[var(--muted-foreground)] leading-snug line-clamp-2">
-                        &ldquo;{slide.testimonialText}&rdquo;
+                      <p className="text-base text-[var(--muted-foreground)] leading-snug line-clamp-2">
+                        {slide.testimonialText}
                       </p>
                     </div>
                   </div>
@@ -254,18 +263,58 @@ export function HeroCarousel({ slides, isPaused = false }: HeroCarouselProps) {
 
       {/* Content */}
       {isTwoColumn ? (
-        // Two-column layout
+        // Two-column layout - increased gap, full-width media
         <div className="container relative z-20 h-full">
           <div className={cn(
-            "grid lg:grid-cols-2 gap-8 lg:gap-16 h-full items-center py-12 lg:py-0",
+            "grid lg:grid-cols-2 gap-12 lg:gap-24 h-full items-center py-12 lg:py-0",
             isReversed && "lg:[&>*:first-child]:order-2 lg:[&>*:last-child]:order-1"
           )}>
-            {/* Text content */}
-            <div className="max-w-xl py-8 lg:py-16">
-              <TextContent />
+            {/* Text content with testimonial at bottom */}
+            <div className="flex flex-col justify-center h-full py-8 lg:py-16">
+              <div className="max-w-xl">
+                <TextContent />
+              </div>
+
+              {/* Testimonial card - at bottom of content column (two-column layout) */}
+              {slide.testimonialText && slide.testimonialAvatarUrl && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
+                  transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: 0.5 }}
+                  className="mt-12 max-w-md pointer-events-auto"
+                >
+                  <div className="bg-white/95 backdrop-blur-sm px-5 py-4 rounded-2xl shadow-xl border border-black/5">
+                    <div className="flex items-center gap-4">
+                      <div className="w-14 h-14 rounded-full overflow-hidden bg-[var(--sand)] flex-shrink-0">
+                        <Image
+                          src={slide.testimonialAvatarUrl}
+                          alt={slide.testimonialAuthor || 'Customer'}
+                          width={56}
+                          height={56}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="font-semibold text-base text-[var(--foreground)]">{slide.testimonialAuthor || 'Verified Buyer'}</span>
+                          <div className="flex gap-0.5">
+                            {[1, 2, 3, 4, 5].map((i) => (
+                              <Star key={i} className="w-4 h-4 fill-[var(--primary)] text-[var(--primary)]" />
+                            ))}
+                          </div>
+                        </div>
+                        <p className="text-base text-[var(--muted-foreground)] leading-snug line-clamp-2">
+                          {slide.testimonialText}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
             </div>
 
-            {/* Image */}
+            {/* Media - Full width in column, supports video */}
             <AnimatePresence mode="sync">
               <motion.div
                 key={`image-${currentIndex}`}
@@ -273,9 +322,19 @@ export function HeroCarousel({ slides, isPaused = false }: HeroCarouselProps) {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: isReversed ? 30 : -30 }}
                 transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                className="relative h-[350px] lg:h-[500px] rounded-2xl overflow-hidden"
+                className="relative h-full min-h-[400px] lg:min-h-0 overflow-hidden"
               >
-                {slide.imageUrl ? (
+                {/* Video or Image */}
+                {slide.videoUrl ? (
+                  <video
+                    src={slide.videoUrl}
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                ) : slide.imageUrl ? (
                   <Image
                     src={slide.imageUrl}
                     alt={slide.title || 'Hero image'}
@@ -284,9 +343,7 @@ export function HeroCarousel({ slides, isPaused = false }: HeroCarouselProps) {
                     priority
                     sizes="(max-width: 1024px) 100vw, 50vw"
                   />
-                ) : (
-                  <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)] to-[var(--primary-light)]" />
-                )}
+                ) : null}
 
                 {/* Clickable overlay for two-column */}
                 {slide.buttonUrl && (
@@ -295,44 +352,6 @@ export function HeroCarousel({ slides, isPaused = false }: HeroCarouselProps) {
                     className="absolute inset-0 z-10"
                     aria-label={slide.buttonText || 'Shop Now'}
                   />
-                )}
-
-                {/* Testimonial card - centered at bottom of media column (two-column layout) */}
-                {slide.testimonialText && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
-                    transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}
-                    className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 w-[calc(100%-2rem)] max-w-sm pointer-events-auto"
-                  >
-                    <div className="bg-white/95 backdrop-blur-sm px-4 py-3 rounded-xl shadow-xl border border-white/20">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full overflow-hidden bg-[var(--sand)] flex-shrink-0">
-                          <Image
-                            src={slide.testimonialAvatarUrl || DEFAULT_AVATAR}
-                            alt={slide.testimonialAuthor || 'Customer'}
-                            width={40}
-                            height={40}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-0.5">
-                            <span className="font-medium text-sm text-[var(--foreground)]">{slide.testimonialAuthor || 'Verified Buyer'}</span>
-                            <div className="flex gap-0.5">
-                              {[1, 2, 3, 4, 5].map((i) => (
-                                <Star key={i} className="w-3 h-3 fill-[var(--primary)] text-[var(--primary)]" />
-                              ))}
-                            </div>
-                          </div>
-                          <p className="text-sm text-[var(--muted-foreground)] leading-snug line-clamp-2">
-                            &ldquo;{slide.testimonialText}&rdquo;
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </motion.div>
                 )}
               </motion.div>
             </AnimatePresence>

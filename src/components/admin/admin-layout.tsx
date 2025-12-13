@@ -46,6 +46,7 @@ interface NavItem {
   icon: React.ElementType;
   exact?: boolean;
   badge?: number;
+  children?: { href: string; label: string }[];
 }
 
 // Hard-coded colors that CANNOT be overridden
@@ -139,7 +140,15 @@ function AdminLayoutInner({ children, unreadMessages = 0 }: AdminLayoutProps) {
         { href: '/admin/navigation', label: 'Navigation', icon: Navigation },
         { href: '/admin/pages', label: 'Pages', icon: FileText },
         { href: '/admin/products', label: 'Products', icon: Package },
-        { href: '/admin/blog', label: 'Blog', icon: PenSquare },
+        {
+          href: '/admin/blog',
+          label: 'Blog',
+          icon: PenSquare,
+          children: [
+            { href: '/admin/blog/settings', label: 'Blog Settings' },
+            { href: '/admin/blog', label: 'Posts' },
+          ]
+        },
       ],
     },
     {
@@ -287,42 +296,91 @@ function AdminLayoutInner({ children, unreadMessages = 0 }: AdminLayoutProps) {
                 <div className="space-y-1">
                   {section.items.map((item) => {
                     const active = isActive(item.href, item.exact);
+                    const hasChildren = item.children && item.children.length > 0;
+                    const isChildActive = hasChildren && item.children!.some(child => pathname === child.href || (child.href !== '/admin/blog' && pathname.startsWith(child.href)));
+                    const showChildren = hasChildren && (active || isChildActive || pathname.startsWith(item.href));
+
                     return (
-                      <Link
-                        key={item.href}
-                        href={item.href}
-                        onClick={() => setSidebarOpen(false)}
-                        className={cn(
-                          'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-150 group',
-                          active
-                            ? 'bg-[var(--primary)] font-medium'
-                            : 'hover:bg-[var(--admin-hover)]'
+                      <div key={item.href}>
+                        <Link
+                          href={hasChildren ? item.children![0].href : item.href}
+                          onClick={() => setSidebarOpen(false)}
+                          className={cn(
+                            'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-150 group',
+                            (active && !hasChildren) || (hasChildren && isChildActive)
+                              ? 'bg-[var(--primary)] font-medium'
+                              : 'hover:bg-[var(--admin-hover)]'
+                          )}
+                          style={{
+                            color: ((active && !hasChildren) || (hasChildren && isChildActive)) ? 'var(--admin-button-text)' : NAV_COLORS.textSecondary
+                          }}
+                          onMouseEnter={(e) => {
+                            if (!((active && !hasChildren) || (hasChildren && isChildActive))) {
+                              e.currentTarget.style.color = NAV_COLORS.textPrimary;
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            if (!((active && !hasChildren) || (hasChildren && isChildActive))) {
+                              e.currentTarget.style.color = NAV_COLORS.textSecondary;
+                            }
+                          }}
+                        >
+                          <item.icon
+                            className="w-4 h-4"
+                            style={{ color: ((active && !hasChildren) || (hasChildren && isChildActive)) ? 'var(--admin-button-text)' : NAV_COLORS.iconColor }}
+                          />
+                          <span className="flex-1">{item.label}</span>
+                          {item.badge !== undefined && item.badge > 0 && (
+                            <span className="min-w-[20px] h-5 px-1.5 text-xs font-medium rounded-full bg-[#bbdae9] text-[#1a1a1a] flex items-center justify-center">
+                              {item.badge}
+                            </span>
+                          )}
+                          {hasChildren && (
+                            <ChevronRight
+                              className={cn('w-4 h-4 transition-transform', showChildren && 'rotate-90')}
+                              style={{ color: NAV_COLORS.textMuted }}
+                            />
+                          )}
+                        </Link>
+                        {/* Sub-items */}
+                        {showChildren && (
+                          <div className="ml-7 mt-1 space-y-1 border-l border-[var(--admin-border)] pl-3">
+                            {item.children!.map((child) => {
+                              const childActive = child.href === '/admin/blog'
+                                ? pathname === '/admin/blog'
+                                : pathname === child.href || pathname.startsWith(child.href + '/');
+                              return (
+                                <Link
+                                  key={child.href}
+                                  href={child.href}
+                                  onClick={() => setSidebarOpen(false)}
+                                  className={cn(
+                                    'block px-3 py-2 rounded-lg text-sm transition-colors',
+                                    childActive
+                                      ? 'bg-[var(--admin-hover)] font-medium'
+                                      : 'hover:bg-[var(--admin-hover)]'
+                                  )}
+                                  style={{
+                                    color: childActive ? NAV_COLORS.textPrimary : NAV_COLORS.textSecondary
+                                  }}
+                                  onMouseEnter={(e) => {
+                                    if (!childActive) {
+                                      e.currentTarget.style.color = NAV_COLORS.textPrimary;
+                                    }
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    if (!childActive) {
+                                      e.currentTarget.style.color = NAV_COLORS.textSecondary;
+                                    }
+                                  }}
+                                >
+                                  {child.label}
+                                </Link>
+                              );
+                            })}
+                          </div>
                         )}
-                        style={{
-                          color: active ? 'var(--admin-button-text)' : NAV_COLORS.textSecondary
-                        }}
-                        onMouseEnter={(e) => {
-                          if (!active) {
-                            e.currentTarget.style.color = NAV_COLORS.textPrimary;
-                          }
-                        }}
-                        onMouseLeave={(e) => {
-                          if (!active) {
-                            e.currentTarget.style.color = NAV_COLORS.textSecondary;
-                          }
-                        }}
-                      >
-                        <item.icon
-                          className="w-4 h-4"
-                          style={{ color: active ? 'var(--admin-button-text)' : NAV_COLORS.iconColor }}
-                        />
-                        <span className="flex-1">{item.label}</span>
-                        {item.badge !== undefined && item.badge > 0 && (
-                          <span className="min-w-[20px] h-5 px-1.5 text-xs font-medium rounded-full bg-[#bbdae9] text-[#1a1a1a] flex items-center justify-center">
-                            {item.badge}
-                          </span>
-                        )}
-                      </Link>
+                      </div>
                     );
                   })}
                 </div>

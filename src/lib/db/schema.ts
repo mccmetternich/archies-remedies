@@ -249,6 +249,10 @@ export const siteSettings = sqliteTable('site_settings', {
   footerTermsUrl: text('footer_terms_url').default('/terms'),
   footerTermsLabel: text('footer_terms_label').default('Terms of Service'),
 
+  // Footer - Theme and Branding
+  footerTheme: text('footer_theme').default('dark'), // 'dark' | 'light'
+  footerLogoUrl: text('footer_logo_url'), // Logo in main footer section
+
   // Social Stats (for consistent social proof across the site)
   totalReviews: integer('total_reviews').default(2900),
   totalCustomers: integer('total_customers').default(10000),
@@ -498,6 +502,9 @@ export const pages = sqliteTable('pages', {
   navShowOnDesktop: integer('nav_show_on_desktop', { mode: 'boolean' }).default(true), // Show on desktop
   navShowOnMobile: integer('nav_show_on_mobile', { mode: 'boolean' }).default(true), // Show on mobile
 
+  // Link to products table for product pages (below-fold widget management)
+  productId: text('product_id').references(() => products.id, { onDelete: 'cascade' }),
+
   createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
   updatedAt: text('updated_at').default(sql`CURRENT_TIMESTAMP`),
 });
@@ -673,6 +680,26 @@ export const blogPosts = sqliteTable('blog_posts', {
 
   // Reading time estimate (in minutes)
   readingTime: integer('reading_time').default(5),
+
+  // Vanity metrics (optional social proof)
+  viewCount: integer('view_count'),
+  heartCount: integer('heart_count'),
+
+  // Sort order for custom ordering in admin
+  sortOrder: integer('sort_order').default(0),
+
+  createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: text('updated_at').default(sql`CURRENT_TIMESTAMP`),
+});
+
+// Blog Settings (single row for blog-level configuration)
+export const blogSettings = sqliteTable('blog_settings', {
+  id: text('id').primaryKey(),
+  blogName: text('blog_name').default('Blog'),
+  blogSlug: text('blog_slug').default('blog'),
+  pageTitle: text('page_title'),
+  gridLayout: text('grid_layout').default('masonry'), // masonry, grid, list
+  widgets: text('widgets'), // JSON array of widget configs for below-grid content
 
   createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
   updatedAt: text('updated_at').default(sql`CURRENT_TIMESTAMP`),

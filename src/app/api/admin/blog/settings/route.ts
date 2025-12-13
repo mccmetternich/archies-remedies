@@ -1,0 +1,101 @@
+import { NextResponse } from 'next/server';
+import { db } from '@/lib/db';
+import { blogSettings } from '@/lib/db/schema';
+import { eq } from 'drizzle-orm';
+
+export async function GET() {
+  try {
+    const [settings] = await db
+      .select()
+      .from(blogSettings)
+      .limit(1);
+
+    if (!settings) {
+      // Return default settings if none exist
+      return NextResponse.json({
+        id: 'default',
+        blogName: 'Blog',
+        blogSlug: 'blog',
+        pageTitle: 'Blog',
+        gridLayout: 'masonry',
+        widgets: null,
+      });
+    }
+
+    return NextResponse.json(settings);
+  } catch (error) {
+    console.error('Error fetching blog settings:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch blog settings' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PUT(request: Request) {
+  try {
+    const body = await request.json();
+    const { blogName, blogSlug, pageTitle, gridLayout, widgets } = body;
+
+    // Check if settings exist
+    const [existing] = await db
+      .select()
+      .from(blogSettings)
+      .limit(1);
+
+    const updatedAt = new Date().toISOString();
+
+    if (existing) {
+      // Update existing settings
+      await db
+        .update(blogSettings)
+        .set({
+          blogName,
+          blogSlug,
+          pageTitle,
+          gridLayout,
+          widgets,
+          updatedAt,
+        })
+        .where(eq(blogSettings.id, existing.id));
+
+      return NextResponse.json({
+        ...existing,
+        blogName,
+        blogSlug,
+        pageTitle,
+        gridLayout,
+        widgets,
+        updatedAt,
+      });
+    } else {
+      // Create new settings
+      const id = 'default';
+      await db.insert(blogSettings).values({
+        id,
+        blogName,
+        blogSlug,
+        pageTitle,
+        gridLayout,
+        widgets,
+        updatedAt,
+      });
+
+      return NextResponse.json({
+        id,
+        blogName,
+        blogSlug,
+        pageTitle,
+        gridLayout,
+        widgets,
+        updatedAt,
+      });
+    }
+  } catch (error) {
+    console.error('Error updating blog settings:', error);
+    return NextResponse.json(
+      { error: 'Failed to update blog settings' },
+      { status: 500 }
+    );
+  }
+}

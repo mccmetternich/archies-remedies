@@ -33,6 +33,8 @@ interface FooterProps {
   facebookIconUrl?: string | null;
   tiktokIconUrl?: string | null;
   amazonIconUrl?: string | null;
+  // CMS: Theme
+  footerTheme?: 'dark' | 'light';
   // CMS: Site name for copyright
   siteName?: string | null;
   // CMS: Email signup section
@@ -71,6 +73,7 @@ export function Footer({
   facebookIconUrl,
   tiktokIconUrl,
   amazonIconUrl,
+  footerTheme = 'dark',
   siteName = "Archie's Remedies",
   emailSignupEnabled = true,
   emailSignupTitle = "Join the Archie's Community",
@@ -126,25 +129,29 @@ export function Footer({
     setOpenSection(openSection === section ? null : section);
   };
 
+  // Theme-based styles (must be before renderCertIcon)
+  const isDark = footerTheme === 'dark';
+
   // Helper to render certification icon
+  const certIconClass = isDark ? 'text-white/80' : 'text-gray-600';
   const renderCertIcon = (cert: Certification) => {
     if (cert.iconUrl) {
       return <Image src={cert.iconUrl} alt={cert.label} width={16} height={16} className="w-4 h-4 object-contain" />;
     }
     switch (cert.icon) {
       case 'droplet':
-        return <Droplet className="w-4 h-4 text-white/80" />;
+        return <Droplet className={cn('w-4 h-4', certIconClass)} />;
       case 'flag':
-        return <Flag className="w-4 h-4 text-white/80" />;
+        return <Flag className={cn('w-4 h-4', certIconClass)} />;
       case 'rabbit':
         return (
-          <svg className="w-4 h-4 text-white/80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+          <svg className={cn('w-4 h-4', certIconClass)} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
             <path d="M12 4c-2 0-3.5 1-4.5 2.5S6 9.5 6 11c0 2 1 3.5 2 4.5s2 2 2 3.5v1h4v-1c0-1.5 1-2.5 2-3.5s2-2.5 2-4.5c0-1.5-.5-3-1.5-4.5S14 4 12 4z" />
             <path d="M10 8.5c-.5-.5-1.5-.5-2.5.5M14 8.5c.5-.5 1.5-.5 2.5.5" />
           </svg>
         );
       default:
-        return <Droplet className="w-4 h-4 text-white/80" />;
+        return <Droplet className={cn('w-4 h-4', certIconClass)} />;
     }
   };
 
@@ -170,8 +177,17 @@ export function Footer({
     { id: '2', label: 'FAQs', url: '/faq', column: 'Support' },
   ];
 
+  // Remaining theme-based styles
+  const bgClass = isDark ? 'bg-[#1a1a1a]' : 'bg-gray-50';
+  const textClass = isDark ? 'text-white' : 'text-gray-900';
+  const textMutedClass = isDark ? 'text-white/60' : 'text-gray-600';
+  const textFadedClass = isDark ? 'text-white/40' : 'text-gray-400';
+  const borderClass = isDark ? 'border-white/10' : 'border-gray-200';
+  const borderAccentClass = isDark ? 'border-white/30' : 'border-gray-300';
+  const logoFilter = isDark ? 'brightness-0 invert' : '';
+
   return (
-    <footer className="bg-[#1a1a1a] text-white">
+    <footer className={cn(bgClass, textClass)}>
       {/* ROW 1: Community Invitation - Full Width with wider spread */}
       {emailSignupEnabled && (
         <div className="py-20 md:py-24">
@@ -189,29 +205,29 @@ export function Footer({
                   <h3 className="text-sm font-semibold tracking-[0.15em] uppercase mb-4">
                     {emailSignupTitle}
                   </h3>
-                  <p className="text-white/60 text-sm leading-relaxed">
+                  <p className={cn('text-sm leading-relaxed', textMutedClass)}>
                     {emailSignupSubtitle}
                   </p>
                 </div>
 
                 {/* Input Group - Right - anchored to right edge */}
                 <form onSubmit={handleSubscribe} className="flex-1 lg:max-w-md">
-                  <div className="flex items-center gap-4 border-b border-white/30 pb-3 group focus-within:border-white transition-colors">
+                  <div className={cn('flex items-center gap-4 border-b pb-3 group transition-colors', borderAccentClass, isDark ? 'focus-within:border-white' : 'focus-within:border-gray-900')}>
                     <input
                       type="email"
                       placeholder={emailSignupPlaceholder || 'Enter your email'}
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="flex-1 bg-transparent text-white placeholder:text-white/40 text-base focus:outline-none"
+                      className={cn('flex-1 bg-transparent text-base focus:outline-none', isDark ? 'text-white placeholder:text-white/40' : 'text-gray-900 placeholder:text-gray-400')}
                       required
                     />
                     <button
                       type="submit"
                       disabled={status === 'loading'}
-                      className="flex items-center gap-2 text-sm font-medium tracking-wide uppercase text-white hover:text-white/70 transition-colors disabled:opacity-50"
+                      className={cn('flex items-center gap-2 text-sm font-medium tracking-wide uppercase transition-colors disabled:opacity-50', isDark ? 'text-white hover:text-white/70' : 'text-gray-900 hover:text-gray-600')}
                     >
                       {status === 'loading' ? (
-                        <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        <span className={cn('w-4 h-4 border-2 rounded-full animate-spin', isDark ? 'border-white/30 border-t-white' : 'border-gray-300 border-t-gray-900')} />
                       ) : (
                         <>
                           {emailSignupButtonText}
@@ -233,7 +249,7 @@ export function Footer({
       {/* Separator */}
       {emailSignupEnabled && (
         <div className="container">
-          <div className="h-px bg-white/10" />
+          <div className={cn('h-px', borderClass)} />
         </div>
       )}
 
@@ -250,7 +266,7 @@ export function Footer({
                   alt="Archie's Remedies"
                   width={180}
                   height={45}
-                  className="h-8 w-auto mb-8 brightness-0 invert"
+                  className={cn('h-8 w-auto mb-8', logoFilter)}
                 />
               ) : (
                 <span className="text-xl font-medium block mb-8 tracking-tight">
@@ -265,7 +281,7 @@ export function Footer({
                     href={instagramUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-[18px] h-[18px] flex items-center justify-center text-white/60 hover:text-white transition-colors"
+                    className={cn('w-[18px] h-[18px] flex items-center justify-center transition-colors', textMutedClass, isDark ? 'hover:text-white' : 'hover:text-gray-900')}
                     aria-label="Instagram"
                   >
                     {instagramIconUrl ? (
@@ -280,7 +296,7 @@ export function Footer({
                     href={tiktokUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-[18px] h-[18px] flex items-center justify-center text-white/60 hover:text-white transition-colors"
+                    className={cn('w-[18px] h-[18px] flex items-center justify-center transition-colors', textMutedClass, isDark ? 'hover:text-white' : 'hover:text-gray-900')}
                     aria-label="TikTok"
                   >
                     {tiktokIconUrl ? (
@@ -297,7 +313,7 @@ export function Footer({
                     href={facebookUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-[18px] h-[18px] flex items-center justify-center text-white/60 hover:text-white transition-colors"
+                    className={cn('w-[18px] h-[18px] flex items-center justify-center transition-colors', textMutedClass, isDark ? 'hover:text-white' : 'hover:text-gray-900')}
                     aria-label="Facebook"
                   >
                     {facebookIconUrl ? (
@@ -312,7 +328,7 @@ export function Footer({
                     href={amazonStoreUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-[18px] h-[18px] flex items-center justify-center text-white/60 hover:text-white transition-colors"
+                    className={cn('w-[18px] h-[18px] flex items-center justify-center transition-colors', textMutedClass, isDark ? 'hover:text-white' : 'hover:text-gray-900')}
                     aria-label="Amazon Store"
                   >
                     {amazonIconUrl ? (
@@ -332,7 +348,7 @@ export function Footer({
 
             {/* Column 2: Shop */}
             <div className="col-span-2 lg:col-span-2">
-              <h4 className="text-xs font-bold tracking-[0.15em] uppercase mb-6 text-white">
+              <h4 className="text-xs font-bold tracking-[0.15em] uppercase mb-6">
                 {column1Title}
               </h4>
               <ul className="space-y-4">
@@ -343,13 +359,13 @@ export function Footer({
                         href={link.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-sm text-white/60 hover:text-white transition-colors leading-relaxed inline-flex items-center gap-1 border-b border-transparent hover:border-white pb-0.5"
+                        className={cn('text-sm transition-colors leading-relaxed inline-flex items-center gap-1 border-b border-transparent pb-0.5', textMutedClass, isDark ? 'hover:text-white hover:border-white' : 'hover:text-gray-900 hover:border-gray-900')}
                       >
                         {link.label}
                         <ArrowRight className="w-3 h-3" />
                       </a>
                     ) : (
-                      <Link href={link.url} className="text-sm text-white/60 hover:text-white transition-colors leading-relaxed border-b border-transparent hover:border-white pb-0.5">
+                      <Link href={link.url} className={cn('text-sm transition-colors leading-relaxed border-b border-transparent pb-0.5', textMutedClass, isDark ? 'hover:text-white hover:border-white' : 'hover:text-gray-900 hover:border-gray-900')}>
                         {link.label}
                       </Link>
                     )}
@@ -361,7 +377,7 @@ export function Footer({
                       href={amazonStoreUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sm text-white/60 hover:text-white transition-colors leading-relaxed inline-flex items-center gap-1 border-b border-transparent hover:border-white pb-0.5"
+                      className={cn('text-sm transition-colors leading-relaxed inline-flex items-center gap-1 border-b border-transparent pb-0.5', textMutedClass, isDark ? 'hover:text-white hover:border-white' : 'hover:text-gray-900 hover:border-gray-900')}
                     >
                       Shop on Amazon
                       <ArrowRight className="w-3 h-3" />
@@ -373,7 +389,7 @@ export function Footer({
 
             {/* Column 3: Learn */}
             <div className="col-span-2">
-              <h4 className="text-xs font-bold tracking-[0.15em] uppercase mb-6 text-white">
+              <h4 className="text-xs font-bold tracking-[0.15em] uppercase mb-6">
                 {column2Title}
               </h4>
               <ul className="space-y-4">
@@ -384,13 +400,13 @@ export function Footer({
                         href={link.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-sm text-white/60 hover:text-white transition-colors leading-relaxed inline-flex items-center gap-1 border-b border-transparent hover:border-white pb-0.5"
+                        className={cn('text-sm transition-colors leading-relaxed inline-flex items-center gap-1 border-b border-transparent pb-0.5', textMutedClass, isDark ? 'hover:text-white hover:border-white' : 'hover:text-gray-900 hover:border-gray-900')}
                       >
                         {link.label}
                         <ArrowRight className="w-3 h-3" />
                       </a>
                     ) : (
-                      <Link href={link.url} className="text-sm text-white/60 hover:text-white transition-colors leading-relaxed border-b border-transparent hover:border-white pb-0.5">
+                      <Link href={link.url} className={cn('text-sm transition-colors leading-relaxed border-b border-transparent pb-0.5', textMutedClass, isDark ? 'hover:text-white hover:border-white' : 'hover:text-gray-900 hover:border-gray-900')}>
                         {link.label}
                       </Link>
                     )}
@@ -401,7 +417,7 @@ export function Footer({
 
             {/* Column 4: Support */}
             <div className="col-span-2">
-              <h4 className="text-xs font-bold tracking-[0.15em] uppercase mb-6 text-white">
+              <h4 className="text-xs font-bold tracking-[0.15em] uppercase mb-6">
                 {column3Title}
               </h4>
               <ul className="space-y-4">
@@ -412,13 +428,13 @@ export function Footer({
                         href={link.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-sm text-white/60 hover:text-white transition-colors leading-relaxed inline-flex items-center gap-1 border-b border-transparent hover:border-white pb-0.5"
+                        className={cn('text-sm transition-colors leading-relaxed inline-flex items-center gap-1 border-b border-transparent pb-0.5', textMutedClass, isDark ? 'hover:text-white hover:border-white' : 'hover:text-gray-900 hover:border-gray-900')}
                       >
                         {link.label}
                         <ArrowRight className="w-3 h-3" />
                       </a>
                     ) : (
-                      <Link href={link.url} className="text-sm text-white/60 hover:text-white transition-colors leading-relaxed border-b border-transparent hover:border-white pb-0.5">
+                      <Link href={link.url} className={cn('text-sm transition-colors leading-relaxed border-b border-transparent pb-0.5', textMutedClass, isDark ? 'hover:text-white hover:border-white' : 'hover:text-gray-900 hover:border-gray-900')}>
                         {link.label}
                       </Link>
                     )}
@@ -429,16 +445,16 @@ export function Footer({
 
             {/* Column 5: Certifications - Icons Only - left aligned */}
             <div className="col-span-3 lg:col-span-2">
-              <h4 className="text-xs font-bold tracking-[0.15em] uppercase mb-6 text-white">
+              <h4 className="text-xs font-bold tracking-[0.15em] uppercase mb-6">
                 {column4Title}
               </h4>
               <div className="flex gap-5">
                 {displayCertifications.map((cert, index) => (
                   <div key={index} className="flex flex-col items-start gap-2">
-                    <div className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center">
+                    <div className={cn('w-10 h-10 rounded-full border flex items-center justify-center', borderAccentClass)}>
                       {renderCertIcon(cert)}
                     </div>
-                    <span className="text-[10px] text-white/50 uppercase tracking-wide">{cert.label}</span>
+                    <span className={cn('text-[10px] uppercase tracking-wide', textFadedClass)}>{cert.label}</span>
                   </div>
                 ))}
               </div>
@@ -455,7 +471,7 @@ export function Footer({
                   alt="Archie's Remedies"
                   width={150}
                   height={38}
-                  className="h-7 w-auto mb-6 brightness-0 invert"
+                  className={cn('h-7 w-auto mb-6', logoFilter)}
                 />
               ) : (
                 <span className="text-lg font-medium block mb-6 tracking-tight">
@@ -470,7 +486,7 @@ export function Footer({
                     href={instagramUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-5 h-5 flex items-center justify-center text-white/60 hover:text-white transition-colors"
+                    className={cn('w-5 h-5 flex items-center justify-center transition-colors', textMutedClass, isDark ? 'hover:text-white' : 'hover:text-gray-900')}
                     aria-label="Instagram"
                   >
                     {instagramIconUrl ? (
@@ -485,7 +501,7 @@ export function Footer({
                     href={tiktokUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-5 h-5 flex items-center justify-center text-white/60 hover:text-white transition-colors"
+                    className={cn('w-5 h-5 flex items-center justify-center transition-colors', textMutedClass, isDark ? 'hover:text-white' : 'hover:text-gray-900')}
                     aria-label="TikTok"
                   >
                     {tiktokIconUrl ? (
@@ -502,7 +518,7 @@ export function Footer({
                     href={facebookUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-5 h-5 flex items-center justify-center text-white/60 hover:text-white transition-colors"
+                    className={cn('w-5 h-5 flex items-center justify-center transition-colors', textMutedClass, isDark ? 'hover:text-white' : 'hover:text-gray-900')}
                     aria-label="Facebook"
                   >
                     {facebookIconUrl ? (
@@ -517,7 +533,7 @@ export function Footer({
                     href={amazonStoreUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-5 h-5 flex items-center justify-center text-white/60 hover:text-white transition-colors"
+                    className={cn('w-5 h-5 flex items-center justify-center transition-colors', textMutedClass, isDark ? 'hover:text-white' : 'hover:text-gray-900')}
                     aria-label="Amazon Store"
                   >
                     {amazonIconUrl ? (
@@ -537,16 +553,17 @@ export function Footer({
               title={column1Title || 'Shop'}
               isOpen={openSection === 'shop'}
               onToggle={() => toggleSection('shop')}
+              isDark={isDark}
             >
               <ul className="space-y-4 pb-4">
                 {shopLinks.map((link) => (
                   <li key={link.id}>
                     {link.isExternal ? (
-                      <a href={link.url} target="_blank" rel="noopener noreferrer" className="text-sm text-white/60 inline-flex items-center gap-1">
+                      <a href={link.url} target="_blank" rel="noopener noreferrer" className={cn('text-sm inline-flex items-center gap-1', textMutedClass)}>
                         {link.label} <ArrowRight className="w-3 h-3" />
                       </a>
                     ) : (
-                      <Link href={link.url} className="text-sm text-white/60">
+                      <Link href={link.url} className={cn('text-sm', textMutedClass)}>
                         {link.label}
                       </Link>
                     )}
@@ -554,7 +571,7 @@ export function Footer({
                 ))}
                 {amazonStoreUrl && !shopLinks.find(l => l.url.includes('amazon')) && (
                   <li>
-                    <a href={amazonStoreUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-white/60 inline-flex items-center gap-1">
+                    <a href={amazonStoreUrl} target="_blank" rel="noopener noreferrer" className={cn('text-sm inline-flex items-center gap-1', textMutedClass)}>
                       Shop on Amazon <ArrowRight className="w-3 h-3" />
                     </a>
                   </li>
@@ -567,16 +584,17 @@ export function Footer({
               title={column2Title || 'Learn'}
               isOpen={openSection === 'learn'}
               onToggle={() => toggleSection('learn')}
+              isDark={isDark}
             >
               <ul className="space-y-4 pb-4">
                 {learnLinks.map((link) => (
                   <li key={link.id}>
                     {link.isExternal ? (
-                      <a href={link.url} target="_blank" rel="noopener noreferrer" className="text-sm text-white/60 inline-flex items-center gap-1">
+                      <a href={link.url} target="_blank" rel="noopener noreferrer" className={cn('text-sm inline-flex items-center gap-1', textMutedClass)}>
                         {link.label} <ArrowRight className="w-3 h-3" />
                       </a>
                     ) : (
-                      <Link href={link.url} className="text-sm text-white/60">
+                      <Link href={link.url} className={cn('text-sm', textMutedClass)}>
                         {link.label}
                       </Link>
                     )}
@@ -590,16 +608,17 @@ export function Footer({
               title={column3Title || 'Support'}
               isOpen={openSection === 'support'}
               onToggle={() => toggleSection('support')}
+              isDark={isDark}
             >
               <ul className="space-y-4 pb-4">
                 {supportLinks.map((link) => (
                   <li key={link.id}>
                     {link.isExternal ? (
-                      <a href={link.url} target="_blank" rel="noopener noreferrer" className="text-sm text-white/60 inline-flex items-center gap-1">
+                      <a href={link.url} target="_blank" rel="noopener noreferrer" className={cn('text-sm inline-flex items-center gap-1', textMutedClass)}>
                         {link.label} <ArrowRight className="w-3 h-3" />
                       </a>
                     ) : (
-                      <Link href={link.url} className="text-sm text-white/60">
+                      <Link href={link.url} className={cn('text-sm', textMutedClass)}>
                         {link.label}
                       </Link>
                     )}
@@ -609,14 +628,14 @@ export function Footer({
             </MobileAccordion>
 
             {/* Certifications - Mobile */}
-            <div className="pt-8 border-t border-white/10">
+            <div className={cn('pt-8 border-t', borderClass)}>
               <div className="flex justify-center gap-8">
                 {displayCertifications.map((cert, index) => (
                   <div key={index} className="flex flex-col items-center gap-2">
-                    <div className="w-9 h-9 rounded-full border border-white/30 flex items-center justify-center">
+                    <div className={cn('w-9 h-9 rounded-full border flex items-center justify-center', borderAccentClass)}>
                       {renderCertIcon(cert)}
                     </div>
-                    <span className="text-[9px] text-white/50 uppercase tracking-wide">{cert.label}</span>
+                    <span className={cn('text-[9px] uppercase tracking-wide', textFadedClass)}>{cert.label}</span>
                   </div>
                 ))}
               </div>
@@ -634,7 +653,7 @@ export function Footer({
               alt=""
               width={2400}
               height={500}
-              className="w-[108vw] max-w-none object-contain opacity-15 brightness-0 invert"
+              className={cn('w-[108vw] max-w-none object-contain opacity-15', logoFilter)}
               style={{ marginLeft: '-4vw', marginRight: '-4vw' }}
               priority={false}
             />
@@ -644,7 +663,7 @@ export function Footer({
 
       {/* Separator */}
       <div className="container">
-        <div className="h-px bg-white/10" />
+        <div className={cn('h-px', borderClass)} />
       </div>
 
       {/* ROW 3: Legal Basement */}
@@ -652,18 +671,18 @@ export function Footer({
         <div className="container">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             {/* Legal Links - Left */}
-            <div className="flex items-center gap-4 text-[11px] uppercase tracking-wide text-white/40">
-              <Link href={privacyUrl || '/privacy'} className="hover:text-white/60 transition-colors border-b border-transparent hover:border-white/60 pb-0.5">
+            <div className={cn('flex items-center gap-4 text-[11px] uppercase tracking-wide', textFadedClass)}>
+              <Link href={privacyUrl || '/privacy'} className={cn('transition-colors border-b border-transparent pb-0.5', isDark ? 'hover:text-white/60 hover:border-white/60' : 'hover:text-gray-600 hover:border-gray-600')}>
                 {privacyLabel}
               </Link>
               <span>•</span>
-              <Link href={termsUrl || '/terms'} className="hover:text-white/60 transition-colors border-b border-transparent hover:border-white/60 pb-0.5">
+              <Link href={termsUrl || '/terms'} className={cn('transition-colors border-b border-transparent pb-0.5', isDark ? 'hover:text-white/60 hover:border-white/60' : 'hover:text-gray-600 hover:border-gray-600')}>
                 {termsLabel}
               </Link>
             </div>
 
             {/* Copyright - Right */}
-            <p className="text-[11px] uppercase tracking-wide text-white/40">
+            <p className={cn('text-[11px] uppercase tracking-wide', textFadedClass)}>
               © {new Date().getFullYear()} {siteName}
             </p>
           </div>
@@ -678,22 +697,24 @@ interface MobileAccordionProps {
   title: string;
   isOpen: boolean;
   onToggle: () => void;
+  isDark?: boolean;
   children: React.ReactNode;
 }
 
-function MobileAccordion({ title, isOpen, onToggle, children }: MobileAccordionProps) {
+function MobileAccordion({ title, isOpen, onToggle, isDark = true, children }: MobileAccordionProps) {
   return (
-    <div className="border-t border-white/10">
+    <div className={cn('border-t', isDark ? 'border-white/10' : 'border-gray-200')}>
       <button
         onClick={onToggle}
         className="w-full flex items-center justify-between py-5 text-left"
       >
-        <span className="text-xs font-bold tracking-[0.15em] uppercase text-white">
+        <span className={cn('text-xs font-bold tracking-[0.15em] uppercase', isDark ? 'text-white' : 'text-gray-900')}>
           {title}
         </span>
         <ChevronDown
           className={cn(
-            'w-4 h-4 text-white/60 transition-transform duration-200',
+            'w-4 h-4 transition-transform duration-200',
+            isDark ? 'text-white/60' : 'text-gray-500',
             isOpen && 'rotate-180'
           )}
         />

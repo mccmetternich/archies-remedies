@@ -4,7 +4,7 @@ import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-import { Save, Loader2, Check, Palette, Share2, Code, ExternalLink, Navigation, Menu, Megaphone, Construction, Eye, Copy, Trash2, Mail, Phone, ChevronDown, ArrowRight } from 'lucide-react';
+import { Save, Loader2, Check, Palette, Share2, Code, ExternalLink, Construction, Eye, Copy, Trash2, Mail, Phone, ChevronDown, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { MediaPickerButton } from '@/components/admin/media-picker';
 
@@ -51,7 +51,6 @@ interface SiteSettings {
 const tabs = [
   { id: 'general', label: 'General', icon: Share2 },
   { id: 'appearance', label: 'Appearance', icon: Palette },
-  { id: 'navigation', label: 'Navigation', icon: Navigation },
   { id: 'tracking', label: 'Tracking', icon: Code },
   { id: 'coming-soon', label: 'Coming Soon', icon: Construction },
 ];
@@ -626,53 +625,6 @@ function SettingsPageContent() {
                 folder="branding"
               />
             </div>
-          </motion.div>
-        )}
-
-        {activeTab === 'navigation' && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-6"
-          >
-            <div className="p-4 bg-[var(--primary)]/10 border border-[var(--primary)]/20 rounded-xl">
-              <p className="text-sm text-[var(--primary)]">
-                Configure your site header, footer, and announcement bar navigation.
-              </p>
-            </div>
-
-            {/* Link to full navigation editor */}
-            <a
-              href="/admin/navigation"
-              className="block p-6 bg-[var(--admin-bg)] rounded-xl border border-[var(--admin-border)] hover:border-[var(--primary)] transition-colors group"
-            >
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-[var(--primary)]/20 flex items-center justify-center">
-                  <Menu className="w-6 h-6 text-[var(--primary)]" />
-                </div>
-                <div className="flex-1">
-                  <p className="font-medium text-[var(--admin-text-primary)] group-hover:text-[var(--primary)] transition-colors">Header & Footer Navigation</p>
-                  <p className="text-sm text-[var(--admin-text-muted)]">Manage header nav items and footer links</p>
-                </div>
-                <ExternalLink className="w-5 h-5 text-[var(--admin-text-muted)] group-hover:text-[var(--primary)] transition-colors" />
-              </div>
-            </a>
-
-            <a
-              href="/admin/navigation"
-              className="block p-6 bg-[var(--admin-bg)] rounded-xl border border-[var(--admin-border)] hover:border-[var(--primary)] transition-colors group"
-            >
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-[var(--primary)]/20 flex items-center justify-center">
-                  <Megaphone className="w-6 h-6 text-[var(--primary)]" />
-                </div>
-                <div className="flex-1">
-                  <p className="font-medium text-[var(--admin-text-primary)] group-hover:text-[var(--primary)] transition-colors">Announcement Bar</p>
-                  <p className="text-sm text-[var(--admin-text-muted)]">Configure the promotional banner at the top of all pages</p>
-                </div>
-                <ExternalLink className="w-5 h-5 text-[var(--admin-text-muted)] group-hover:text-[var(--primary)] transition-colors" />
-              </div>
-            </a>
           </motion.div>
         )}
 

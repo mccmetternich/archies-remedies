@@ -118,6 +118,15 @@ export async function PATCH(
   }
 }
 
+// PUT /api/admin/blog/posts/[id] - Update a post (alternative to PATCH)
+export async function PUT(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  // Delegate to PATCH handler
+  return PATCH(request, { params });
+}
+
 // DELETE /api/admin/blog/posts/[id] - Delete a post
 export async function DELETE(
   request: Request,
