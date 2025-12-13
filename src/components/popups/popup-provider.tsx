@@ -88,6 +88,7 @@ export function PopupProvider({ children, currentPage = '/', currentProductId }:
   const [activePopup, setActivePopup] = useState<string | null>(null);
   const [customPopup, setCustomPopup] = useState<CustomPopup | null>(null);
   const [customDismissals, setCustomDismissals] = useState<Record<string, number>>({});
+  const [isHydrated, setIsHydrated] = useState(false);
 
   // Load state from localStorage on mount
   useEffect(() => {
@@ -99,6 +100,7 @@ export function PopupProvider({ children, currentPage = '/', currentProductId }:
     setHasSubmittedPopup(submitted || legacyDismissed);
     setWelcomeDismissedAt(welcomeAt ? parseInt(welcomeAt, 10) : (legacyDismissed ? Date.now() : null));
     setExitDismissedAt(exitAt ? parseInt(exitAt, 10) : null);
+    setIsHydrated(true);
   }, []);
 
   // Fetch applicable custom popup for current page
@@ -157,6 +159,9 @@ export function PopupProvider({ children, currentPage = '/', currentProductId }:
   const canShowWelcomePopup = useCallback((options?: { sessionOnly?: boolean; sessionExpiryHours?: number; dismissDays?: number }) => {
     const { sessionOnly = true, sessionExpiryHours = 24, dismissDays = 7 } = options || {};
 
+    // Don't show until localStorage state is loaded
+    if (!isHydrated) return false;
+
     // Don't show if already submitted
     if (hasSubmittedPopup) return false;
 
@@ -187,7 +192,7 @@ export function PopupProvider({ children, currentPage = '/', currentProductId }:
     }
 
     return true;
-  }, [hasSubmittedPopup, activePopup, welcomeDismissedAt]);
+  }, [isHydrated, hasSubmittedPopup, activePopup, welcomeDismissedAt]);
 
   const canShowExitPopup = useCallback((dismissDays = 7) => {
     // Don't show if user already submitted to any popup

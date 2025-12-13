@@ -177,8 +177,11 @@ export function WelcomePopup({
     if (status === 'error') setStatus('idle');
   };
 
+  // Track if we've already attempted to show the popup this session
+  const [hasAttemptedShow, setHasAttemptedShow] = useState(false);
+
   useEffect(() => {
-    if (!enabled) return;
+    if (!enabled || hasAttemptedShow) return;
 
     const timer = setTimeout(() => {
       if (canShowWelcomePopup({ sessionOnly, sessionExpiryHours, dismissDays })) {
@@ -186,10 +189,11 @@ export function WelcomePopup({
         setActivePopup('welcome');
         trackPopupView(null, 'welcome');
       }
+      setHasAttemptedShow(true);
     }, delay);
 
     return () => clearTimeout(timer);
-  }, [enabled, delay, dismissDays, sessionOnly, sessionExpiryHours, canShowWelcomePopup, setActivePopup, trackPopupView]);
+  }, [enabled, delay, dismissDays, sessionOnly, sessionExpiryHours, canShowWelcomePopup, setActivePopup, trackPopupView, hasAttemptedShow]);
 
   const handleClose = () => {
     setIsOpen(false);
@@ -363,7 +367,7 @@ export function WelcomePopup({
             style={{ willChange: 'opacity, transform' }}
             className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-[94%] max-w-md md:max-w-4xl max-h-[90vh] overflow-y-auto md:overflow-hidden"
           >
-            <div className="bg-white rounded-3xl overflow-hidden shadow-2xl md:flex md:min-h-[480px]">
+            <div className="bg-white rounded-3xl overflow-hidden shadow-2xl md:flex md:h-[480px]">
               {/* Close button */}
               <button
                 onClick={handleClose}
@@ -374,8 +378,8 @@ export function WelcomePopup({
               </button>
 
               {/* Media Section - Left side on desktop, top on mobile */}
-              <div className="relative md:w-1/2 md:min-h-full">
-                <div className="relative aspect-video md:aspect-auto md:absolute md:inset-0 w-full bg-gradient-to-br from-[#f5f0eb] via-white to-[#bbdae9]/30 overflow-hidden">
+              <div className="relative md:w-1/2 md:h-full md:flex-1">
+                <div className="relative aspect-[4/3] md:aspect-auto md:h-full w-full bg-gradient-to-br from-[#f5f0eb] via-white to-[#bbdae9]/30 overflow-hidden">
                   {/* Desktop Media */}
                   <div className="hidden md:block absolute inset-0">
                     {hasDesktopVideo && effectiveDesktopVideoUrl ? (
@@ -468,7 +472,7 @@ export function WelcomePopup({
                                     </div>
                                   </div>
                                   <p className="text-[13px] text-gray-600 leading-snug">
-                                    <span className="italic">{testimonialQuote}</span>
+                                    &ldquo;{testimonialQuote}&rdquo;
                                   </p>
                                 </div>
                               </div>
@@ -508,7 +512,7 @@ export function WelcomePopup({
                                     </div>
                                   </div>
                                   <p className="text-[11px] text-gray-600 leading-snug line-clamp-2">
-                                    <span className="italic">{testimonialQuote}</span>
+                                    &ldquo;{testimonialQuote}&rdquo;
                                   </p>
                                 </div>
                               </div>
