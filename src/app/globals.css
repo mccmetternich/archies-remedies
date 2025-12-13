@@ -455,7 +455,8 @@ input[type="button"]:disabled,
 }
 
 .hero-btn-dark:hover {
-  background-color: #333333 !important;
+  background-color: #bad9ea !important;
+  color: #1a1a1a !important;
 }
 
 .hero-btn-light {
@@ -464,7 +465,8 @@ input[type="button"]:disabled,
 }
 
 .hero-btn-light:hover {
-  background-color: rgba(255, 255, 255, 0.9) !important;
+  background-color: #bad9ea !important;
+  color: #1a1a1a !important;
 }
 
 .hero-btn-outline-dark {
@@ -902,4 +904,320 @@ input[type="button"]:disabled,
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   transform-style: preserve-3d;
+}
+
+/* =============================================
+   EDITORIAL BLOG DESIGN SYSTEM
+   High-fashion, minimal aesthetic with
+   Helvetica headers + Arial body
+   ============================================= */
+
+:root {
+  /* Editorial Font Families */
+  --font-editorial-header: Helvetica, "Helvetica Neue", Arial, sans-serif;
+  --font-editorial-body: Arial, "Helvetica Neue", sans-serif;
+
+  /* Blog-specific colors */
+  --blog-bg: #FFFFFF;
+  --blog-text: #000000;
+  --blog-body-text: #1a1a1a;
+  --blog-accent: #bad9ea;
+  --blog-divider: rgba(0, 0, 0, 0.1);
+
+  /* Editorial transitions */
+  --editorial-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --editorial-duration: 400ms;
+}
+
+/* =============================================
+   EDITORIAL TYPOGRAPHY
+   ============================================= */
+
+/* Header typography (Helvetica) - Tight, Heavy, Massive */
+.blog-header {
+  font-family: var(--font-editorial-header);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  color: var(--blog-text);
+}
+
+.blog-header-xl {
+  font-size: clamp(3rem, 8vw, 5rem);
+}
+
+.blog-header-lg {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+}
+
+.blog-header-md {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+}
+
+.blog-header-sm {
+  font-size: clamp(1.125rem, 2vw, 1.5rem);
+}
+
+/* Body typography (Arial) - Open and airy */
+.blog-body {
+  font-family: var(--font-editorial-body);
+  font-size: 1.125rem;
+  line-height: 1.6;
+  color: var(--blog-body-text);
+}
+
+/* Meta/utility typography - Uppercase, wide tracking */
+.blog-meta {
+  font-family: var(--font-editorial-body);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--blog-body-text);
+}
+
+/* =============================================
+   BLOG SKELETON LOADING (Shimmer Animation)
+   ============================================= */
+
+.blog-skeleton {
+  background: linear-gradient(
+    90deg,
+    #f0f0f0 0%,
+    #e0e0e0 20%,
+    #f0f0f0 40%,
+    #f0f0f0 100%
+  );
+  background-size: 200% 100%;
+  animation: blog-shimmer 1.5s ease-in-out infinite;
+  border-radius: 4px;
+}
+
+@keyframes blog-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Skeleton aspect ratios */
+.blog-skeleton-4-5 { aspect-ratio: 4 / 5; }
+.blog-skeleton-16-9 { aspect-ratio: 16 / 9; }
+.blog-skeleton-square { aspect-ratio: 1 / 1; }
+
+/* =============================================
+   BLOG LAYOUT UTILITIES
+   ============================================= */
+
+/* Tag pill styling */
+.blog-tag-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  font-family: var(--font-editorial-body);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-radius: 9999px;
+  background: var(--blog-bg);
+  border: 1px solid var(--blog-divider);
+  color: var(--blog-text);
+  transition: all var(--editorial-duration) var(--editorial-ease);
+  cursor: pointer;
+}
+
+.blog-tag-pill:hover {
+  background: var(--blog-accent);
+  border-color: var(--blog-accent);
+}
+
+.blog-tag-pill-active {
+  background: var(--blog-text);
+  color: var(--blog-bg);
+  border-color: var(--blog-text);
+}
+
+/* Blog divider */
+.blog-divider {
+  height: 1px;
+  background: var(--blog-divider);
+  width: 100%;
+}
+
+.blog-divider-black {
+  height: 1px;
+  background: var(--blog-text);
+  width: 100%;
+}
+
+/* =============================================
+   BLOG FORM ELEMENTS
+   ============================================= */
+
+/* Blog input styling - Border-bottom only, uppercase */
+.blog-input {
+  width: 100%;
+  padding: 1rem 0;
+  font-family: var(--font-editorial-body);
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--blog-text);
+  color: var(--blog-text);
+  transition: border-color var(--editorial-duration) var(--editorial-ease);
+}
+
+.blog-input:focus {
+  outline: none;
+  border-bottom-color: var(--blog-accent);
+}
+
+.blog-input::placeholder {
+  color: rgba(0, 0, 0, 0.4);
+}
+
+/* Blog button styling - Black bg, inverts on hover */
+.blog-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem 2rem;
+  font-family: var(--font-editorial-body);
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: var(--blog-text);
+  color: var(--blog-bg);
+  border: 2px solid var(--blog-text);
+  cursor: pointer;
+  transition: all var(--editorial-duration) var(--editorial-ease);
+}
+
+.blog-button:hover {
+  background: var(--blog-bg);
+  color: var(--blog-text);
+}
+
+/* =============================================
+   BLOG ARTICLE CONTENT STYLING
+   ============================================= */
+
+.blog-article-content {
+  font-family: var(--font-editorial-body);
+  font-size: 1.125rem;
+  line-height: 1.8;
+  color: var(--blog-body-text);
+}
+
+/* Drop cap on first paragraph */
+.blog-article-content > p:first-of-type::first-letter {
+  float: left;
+  font-family: var(--font-editorial-header);
+  font-size: 4.5rem;
+  font-weight: 700;
+  line-height: 0.8;
+  padding-right: 0.75rem;
+  padding-top: 0.25rem;
+  color: var(--blog-text);
+}
+
+.blog-article-content h2 {
+  font-family: var(--font-editorial-header);
+  font-size: clamp(1.75rem, 3vw, 2.25rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin-top: 3rem;
+  margin-bottom: 1.5rem;
+  color: var(--blog-text);
+}
+
+.blog-article-content h3 {
+  font-family: var(--font-editorial-header);
+  font-size: clamp(1.25rem, 2vw, 1.5rem);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  color: var(--blog-text);
+}
+
+.blog-article-content p {
+  margin-bottom: 1.75rem;
+}
+
+.blog-article-content a {
+  color: var(--blog-text);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1px;
+  transition: text-decoration-color var(--editorial-duration) var(--editorial-ease);
+}
+
+.blog-article-content a:hover {
+  text-decoration-color: var(--blog-accent);
+}
+
+/* Pull quote / Blockquote styling */
+.blog-article-content blockquote {
+  border-left: 4px solid var(--blog-accent);
+  padding-left: 1.5rem;
+  margin: 2.5rem 0;
+  font-family: var(--font-editorial-header);
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--blog-text);
+  font-style: normal;
+}
+
+.blog-article-content ul,
+.blog-article-content ol {
+  margin-bottom: 1.75rem;
+  padding-left: 1.5rem;
+}
+
+.blog-article-content li {
+  margin-bottom: 0.75rem;
+}
+
+/* In-content media breaks to 1000px */
+.blog-article-content img,
+.blog-article-content video,
+.blog-article-content figure {
+  width: calc(100% + 160px);
+  max-width: 1000px;
+  margin-left: -80px;
+  margin-top: 2.5rem;
+  margin-bottom: 2.5rem;
+}
+
+@media (max-width: 840px) {
+  .blog-article-content img,
+  .blog-article-content video,
+  .blog-article-content figure {
+    width: 100%;
+    margin-left: 0;
+  }
+}
+
+/* =============================================
+   BLOG RESPONSIVE OVERRIDES
+   ============================================= */
+
+@media (max-width: 1023px) {
+  /* Fluid typography scaling for mobile */
+  .blog-header-xl {
+    font-size: clamp(2.5rem, 10vw, 3.5rem);
+  }
+
+  .blog-header-lg {
+    font-size: clamp(1.75rem, 8vw, 2.5rem);
+  }
+
+  /* Drop cap smaller on mobile */
+  .blog-article-content > p:first-of-type::first-letter {
+    font-size: 3.5rem;
+  }
 }

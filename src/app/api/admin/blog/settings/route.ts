@@ -17,8 +17,10 @@ export async function GET() {
         blogName: 'Blog',
         blogSlug: 'blog',
         pageTitle: 'Blog',
+        pageSubtitle: '',
         gridLayout: 'masonry',
         widgets: null,
+        blogInDraftMode: true,
       });
     }
 
@@ -35,7 +37,7 @@ export async function GET() {
 export async function PUT(request: Request) {
   try {
     const body = await request.json();
-    const { blogName, blogSlug, pageTitle, gridLayout, widgets } = body;
+    const { blogName, blogSlug, pageTitle, pageSubtitle, gridLayout, widgets, blogInDraftMode } = body;
 
     // Check if settings exist
     const [existing] = await db
@@ -53,8 +55,10 @@ export async function PUT(request: Request) {
           blogName,
           blogSlug,
           pageTitle,
+          pageSubtitle,
           gridLayout,
           widgets,
+          blogInDraftMode,
           updatedAt,
         })
         .where(eq(blogSettings.id, existing.id));
@@ -64,8 +68,10 @@ export async function PUT(request: Request) {
         blogName,
         blogSlug,
         pageTitle,
+        pageSubtitle,
         gridLayout,
         widgets,
+        blogInDraftMode,
         updatedAt,
       });
     } else {
@@ -76,8 +82,10 @@ export async function PUT(request: Request) {
         blogName,
         blogSlug,
         pageTitle,
+        pageSubtitle,
         gridLayout,
         widgets,
+        blogInDraftMode,
         updatedAt,
       });
 
@@ -86,8 +94,10 @@ export async function PUT(request: Request) {
         blogName,
         blogSlug,
         pageTitle,
+        pageSubtitle,
         gridLayout,
         widgets,
+        blogInDraftMode,
         updatedAt,
       });
     }

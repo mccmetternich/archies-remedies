@@ -1,10 +1,12 @@
 import { db } from '@/lib/db';
 import { blogPosts, blogTags, blogPostTags } from '@/lib/db/schema';
-import { eq, and, ne, desc, or } from 'drizzle-orm';
+import { eq, and, ne, desc } from 'drizzle-orm';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { Clock, Calendar, ArrowLeft, ArrowRight, Share2, Twitter, Facebook, Linkedin, Eye, Heart } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Share2, Twitter, Facebook, Linkedin, Eye, Heart } from 'lucide-react';
 import { Metadata } from 'next';
+import { isVideoUrl, formatEditorialDate } from '@/lib/media-utils';
+import { MediaThumbnail } from '@/components/blog';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,7 +16,6 @@ interface Props {
 }
 
 async function getPostBySlug(slug: string, preview: boolean = false) {
-  // If preview mode, get any post regardless of status
   const condition = preview
     ? eq(blogPosts.slug, slug)
     : and(eq(blogPosts.slug, slug), eq(blogPosts.status, 'published'));
@@ -26,7 +27,6 @@ async function getPostBySlug(slug: string, preview: boolean = false) {
 
   if (!post) return null;
 
-  // Get tags for this post
   const postTags = await db
     .select({
       id: blogTags.id,
@@ -41,7 +41,6 @@ async function getPostBySlug(slug: string, preview: boolean = false) {
   return { ...post, tags: postTags };
 }
 
-// Helper to format numbers (e.g., 1200 -> 1.2K)
 function formatNumber(num: number): string {
   if (num >= 1000000) {
     return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
@@ -52,8 +51,7 @@ function formatNumber(num: number): string {
   return num.toString();
 }
 
-async function getRelatedPosts(postId: string, tagIds: string[]) {
-  // Get posts that share tags with this post
+async function getRelatedPosts(postId: string) {
   const relatedPosts = await db
     .select()
     .from(blogPosts)
@@ -89,41 +87,30 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 function renderContent(content: string | null) {
   if (!content) return '';
 
-  // Check if content is already HTML (from rich text editor)
   const isHtml = content.includes('<') && content.includes('>');
 
   if (isHtml) {
-    // Content is already HTML from rich text editor
-    // Just add our custom blockquote styling classes if needed
     return content;
   }
 
   // Convert markdown to basic HTML for backwards compatibility
   let html = content
-    // Headers
-    .replace(/^### (.*$)/gim, '<h3 class="text-xl font-serif text-gray-900 mt-8 mb-4">$1</h3>')
-    .replace(/^## (.*$)/gim, '<h2 class="text-2xl font-serif text-gray-900 mt-10 mb-4">$1</h2>')
-    .replace(/^# (.*$)/gim, '<h1 class="text-3xl font-serif text-gray-900 mt-12 mb-6">$1</h1>')
-    // Bold
-    .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold">$1</strong>')
-    // Italic
+    .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+    .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+    .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
     .replace(/\*(.*?)\*/g, '<em>$1</em>')
-    // Links
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-[var(--primary)] underline hover:no-underline">$1</a>')
-    // Unordered lists
-    .replace(/^\- (.*$)/gim, '<li class="ml-4 list-disc">$1</li>')
-    // Blockquotes - styled as XXL text
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
+    .replace(/^\- (.*$)/gim, '<li>$1</li>')
     .replace(/^> (.*$)/gim, '<blockquote>$1</blockquote>')
-    // Line breaks
-    .replace(/\n\n/g, '</p><p class="mb-4 text-gray-700 leading-relaxed">')
+    .replace(/\n\n/g, '</p><p>')
     .replace(/\n/g, '<br />');
 
-  // Wrap in paragraph tags
-  html = `<p class="mb-4 text-gray-700 leading-relaxed">${html}</p>`;
+  html = `<p>${html}</p>`;
 
   // Clean up list items
   html = html.replace(/<\/li><br \/><li/g, '</li><li');
-  html = html.replace(/<p class="mb-4 text-gray-700 leading-relaxed"><li/g, '<ul class="mb-4 space-y-2"><li');
+  html = html.replace(/<p><li/g, '<ul><li');
   html = html.replace(/<\/li><\/p>/g, '</li></ul>');
 
   return html;
@@ -140,181 +127,186 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
     notFound();
   }
 
-  const relatedPosts = await getRelatedPosts(post.id, post.tags?.map((t) => t.id) || []);
+  const relatedPosts = await getRelatedPosts(post.id);
   const shareUrl = `https://archiesremedies.com/blog/${post.slug}`;
-
-  // Check if we should show vanity metrics
   const showVanityMetrics = post.viewCount || post.heartCount;
+  const hasMedia = !!post.featuredImageUrl;
+  const isVideo = isVideoUrl(post.featuredImageUrl);
 
   return (
-    <main className="min-h-screen bg-white">
-      {/* Hero */}
-      {post.featuredImageUrl && (
-        <div className="relative h-[50vh] md:h-[60vh] bg-gray-100">
-          <img
-            src={post.featuredImageUrl}
-            alt={post.title}
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-        </div>
-      )}
-
-      {/* Content */}
-      <article className="relative">
-        {/* Header */}
-        <header
-          className={`max-w-3xl mx-auto px-4 ${
-            post.featuredImageUrl ? '-mt-32 relative z-10' : 'pt-16'
-          }`}
-        >
-          <div
-            className={`${
-              post.featuredImageUrl
-                ? 'bg-white rounded-2xl shadow-xl p-8 md:p-12'
-                : ''
-            }`}
-          >
-            {/* Back link */}
-            <Link
-              href="/blog"
-              className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900 transition-colors mb-6"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Back to Blog
-            </Link>
-
-            {/* Tags */}
-            {post.tags && post.tags.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-4">
-                {post.tags.map((tag) => (
-                  <Link
-                    key={tag.id}
-                    href={`/blog/tag/${tag.slug}`}
-                    className="px-3 py-1 rounded-full text-xs font-medium hover:opacity-80 transition-opacity"
-                    style={{
-                      backgroundColor: `${tag.color}20`,
-                      color: tag.color || '#333',
-                    }}
-                  >
-                    {tag.name}
-                  </Link>
-                ))}
+    <main className="min-h-screen bg-[var(--blog-bg)]">
+      {/* Split-Screen Hero - 90vh */}
+      <section className="min-h-[90vh] lg:h-[90vh]">
+        <div className="grid grid-cols-1 lg:grid-cols-2 h-full">
+          {/* Left: Full-bleed image/video */}
+          <div className="relative h-[50vh] lg:h-full overflow-hidden bg-[#f5f5f5]">
+            {hasMedia ? (
+              isVideo ? (
+                <video
+                  src={post.featuredImageUrl!}
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <img
+                  src={post.featuredImageUrl!}
+                  alt={post.title}
+                  className="w-full h-full object-cover"
+                />
+              )
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                <span className="blog-header text-[20vw] text-[#e0e0e0]">
+                  {post.title.charAt(0).toUpperCase()}
+                </span>
               </div>
             )}
+          </div>
 
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif text-gray-900 mb-6 leading-tight">
-              {post.title}
-            </h1>
+          {/* Right: Sticky title block with accent background */}
+          <div className="bg-[var(--blog-accent)] min-h-[50vh] lg:h-full lg:sticky lg:top-0 flex items-center justify-center p-8 lg:p-16">
+            <div className="max-w-lg w-full">
+              {/* Back link */}
+              <Link
+                href="/blog"
+                className="blog-meta inline-flex items-center gap-2 opacity-60 hover:opacity-100 transition-opacity mb-8"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Back to Journal
+              </Link>
 
-            {/* Meta */}
-            <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 mb-6">
-              {post.authorName && (
-                <span className="font-medium text-gray-900">{post.authorName}</span>
+              {/* Tags */}
+              {post.tags && post.tags.length > 0 && (
+                <div className="flex flex-wrap gap-2 mb-6">
+                  {post.tags.map((tag) => (
+                    <span key={tag.id} className="blog-meta opacity-60">
+                      {tag.name}
+                    </span>
+                  ))}
+                </div>
               )}
-              {post.publishedAt && (
-                <span className="flex items-center gap-1.5">
-                  <Calendar className="w-4 h-4" />
-                  {new Date(post.publishedAt).toLocaleDateString('en-US', {
-                    month: 'long',
-                    day: 'numeric',
-                    year: 'numeric',
-                  })}
+
+              {/* Title */}
+              <h1 className="blog-header blog-header-lg text-[var(--blog-text)]">
+                {post.title}
+              </h1>
+
+              {/* Meta */}
+              <div className="blog-meta mt-8 opacity-60 flex flex-wrap items-center gap-4">
+                {post.authorName && (
+                  <span>By {post.authorName}</span>
+                )}
+                {post.publishedAt && (
+                  <span>{formatEditorialDate(post.publishedAt)}</span>
+                )}
+                <span>{post.readingTime || 5} min read</span>
+                {showVanityMetrics && (
+                  <>
+                    {post.viewCount && post.viewCount > 0 && (
+                      <span className="flex items-center gap-1">
+                        <Eye className="w-3 h-3" />
+                        {formatNumber(post.viewCount)}
+                      </span>
+                    )}
+                    {post.heartCount && post.heartCount > 0 && (
+                      <span className="flex items-center gap-1">
+                        <Heart className="w-3 h-3" />
+                        {formatNumber(post.heartCount)}
+                      </span>
+                    )}
+                  </>
+                )}
+              </div>
+
+              {/* Share */}
+              <div className="flex items-center gap-3 mt-8 pt-8 border-t border-[var(--blog-divider)]">
+                <span className="blog-meta opacity-60 flex items-center gap-1.5">
+                  <Share2 className="w-4 h-4" />
+                  Share
                 </span>
-              )}
-              <span className="flex items-center gap-1.5">
-                <Clock className="w-4 h-4" />
-                {post.readingTime || 5} min read
-              </span>
-              {showVanityMetrics && (
-                <>
-                  {post.viewCount && post.viewCount > 0 && (
-                    <span className="flex items-center gap-1.5">
-                      <Eye className="w-4 h-4" />
-                      {formatNumber(post.viewCount)} views
-                    </span>
-                  )}
-                  {post.heartCount && post.heartCount > 0 && (
-                    <span className="flex items-center gap-1.5">
-                      <Heart className="w-4 h-4" />
-                      {formatNumber(post.heartCount)}
-                    </span>
-                  )}
-                </>
-              )}
-            </div>
-
-            {/* Share */}
-            <div className="flex items-center gap-3 pt-4 border-t border-gray-100">
-              <span className="text-sm text-gray-500 flex items-center gap-1.5">
-                <Share2 className="w-4 h-4" />
-                Share
-              </span>
-              <a
-                href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(post.title)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-2 rounded-full bg-gray-100 hover:bg-[var(--primary)]/20 text-gray-600 hover:text-[var(--primary)] transition-colors"
-              >
-                <Twitter className="w-4 h-4" />
-              </a>
-              <a
-                href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-2 rounded-full bg-gray-100 hover:bg-[var(--primary)]/20 text-gray-600 hover:text-[var(--primary)] transition-colors"
-              >
-                <Facebook className="w-4 h-4" />
-              </a>
-              <a
-                href={`https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(shareUrl)}&title=${encodeURIComponent(post.title)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-2 rounded-full bg-gray-100 hover:bg-[var(--primary)]/20 text-gray-600 hover:text-[var(--primary)] transition-colors"
-              >
-                <Linkedin className="w-4 h-4" />
-              </a>
+                <a
+                  href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(post.title)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-2 bg-[var(--blog-text)] text-[var(--blog-bg)] hover:bg-[var(--blog-bg)] hover:text-[var(--blog-text)] transition-colors duration-[400ms] ease-[cubic-bezier(0.4,0,0.2,1)]"
+                >
+                  <Twitter className="w-4 h-4" />
+                </a>
+                <a
+                  href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-2 bg-[var(--blog-text)] text-[var(--blog-bg)] hover:bg-[var(--blog-bg)] hover:text-[var(--blog-text)] transition-colors duration-[400ms] ease-[cubic-bezier(0.4,0,0.2,1)]"
+                >
+                  <Facebook className="w-4 h-4" />
+                </a>
+                <a
+                  href={`https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(shareUrl)}&title=${encodeURIComponent(post.title)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-2 bg-[var(--blog-text)] text-[var(--blog-bg)] hover:bg-[var(--blog-bg)] hover:text-[var(--blog-text)] transition-colors duration-[400ms] ease-[cubic-bezier(0.4,0,0.2,1)]"
+                >
+                  <Linkedin className="w-4 h-4" />
+                </a>
+              </div>
             </div>
           </div>
-        </header>
+        </div>
+      </section>
 
-        {/* Body */}
-        <div className="max-w-3xl mx-auto px-4 py-12">
+      {/* Article Body */}
+      <article className="py-16 lg:py-24">
+        <div className="max-w-[680px] mx-auto px-4">
+          {/* Excerpt/Lede */}
           {post.excerpt && (
-            <p className="text-xl text-gray-600 leading-relaxed mb-8 font-serif">
+            <p className="blog-body text-xl leading-relaxed mb-12 opacity-80">
               {post.excerpt}
             </p>
           )}
 
+          {/* Content with editorial styling */}
           <div
-            className="prose prose-lg max-w-none [&_blockquote]:text-2xl [&_blockquote]:md:text-3xl [&_blockquote]:font-medium [&_blockquote]:leading-relaxed [&_blockquote]:border-l-4 [&_blockquote]:border-[var(--primary)] [&_blockquote]:pl-6 [&_blockquote]:py-4 [&_blockquote]:my-8 [&_blockquote]:bg-[var(--secondary)] [&_blockquote]:rounded-r-xl [&_blockquote]:italic [&_blockquote]:not-italic [&_blockquote_p]:m-0"
+            className="blog-article-content"
             dangerouslySetInnerHTML={{ __html: renderContent(post.content) }}
           />
         </div>
+      </article>
 
-        {/* Author box */}
-        {post.authorName && (
-          <div className="max-w-3xl mx-auto px-4 py-8">
-            <div className="bg-[var(--secondary)] rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-center gap-6">
-              <div className="w-20 h-20 rounded-full bg-[var(--primary)]/20 flex items-center justify-center shrink-0">
-                <span className="text-2xl font-serif text-[var(--primary)]">
-                  {post.authorName.charAt(0)}
-                </span>
-              </div>
+      {/* Author box */}
+      {post.authorName && (
+        <section className="py-12 px-4">
+          <div className="max-w-[680px] mx-auto">
+            <div className="border-t border-b border-[var(--blog-divider)] py-12 flex flex-col md:flex-row items-center gap-6">
+              {post.authorAvatarUrl ? (
+                <img
+                  src={post.authorAvatarUrl}
+                  alt={post.authorName}
+                  className="w-20 h-20 rounded-full object-cover"
+                />
+              ) : (
+                <div className="w-20 h-20 rounded-full bg-[var(--blog-accent)] flex items-center justify-center shrink-0">
+                  <span className="blog-header text-2xl">
+                    {post.authorName.charAt(0)}
+                  </span>
+                </div>
+              )}
               <div className="text-center md:text-left">
-                <p className="text-sm text-gray-500 mb-1">Written by</p>
-                <p className="text-lg font-medium text-gray-900">{post.authorName}</p>
+                <p className="blog-meta opacity-60 mb-1">Written by</p>
+                <p className="blog-header text-xl">{post.authorName}</p>
               </div>
             </div>
           </div>
-        )}
-      </article>
+        </section>
+      )}
 
       {/* Related Posts */}
       {relatedPosts.length > 0 && (
-        <section className="bg-[var(--secondary)] py-16 px-4">
-          <div className="max-w-6xl mx-auto">
-            <h2 className="text-2xl font-serif text-gray-900 mb-8 text-center">
+        <section className="py-16 px-4 border-t border-[var(--blog-divider)]">
+          <div className="max-w-7xl mx-auto">
+            <h2 className="blog-header blog-header-md text-center mb-12">
               More from the Journal
             </h2>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -322,27 +314,21 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
                 <Link
                   key={relatedPost.id}
                   href={`/blog/${relatedPost.slug}`}
-                  className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all"
+                  className="group block"
                 >
-                  <div className="aspect-[4/3] relative overflow-hidden">
-                    {relatedPost.featuredImageUrl ? (
-                      <img
-                        src={relatedPost.featuredImageUrl}
-                        alt={relatedPost.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-[var(--primary)] to-[var(--primary)]/50 flex items-center justify-center">
-                        <span className="text-4xl">{relatedPost.title.charAt(0)}</span>
-                      </div>
-                    )}
+                  <div className="overflow-hidden">
+                    <MediaThumbnail
+                      url={relatedPost.featuredImageUrl}
+                      alt={relatedPost.title}
+                      aspectRatio="4-5"
+                      className="transform transition-transform duration-[400ms] ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:scale-[1.02]"
+                    />
                   </div>
-                  <div className="p-6">
-                    <h3 className="text-lg font-serif text-gray-900 mb-2 group-hover:text-[var(--primary)] transition-colors line-clamp-2">
+                  <div className="mt-6">
+                    <h3 className="blog-header blog-header-sm transition-colors duration-[400ms] ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:text-[var(--blog-accent)]">
                       {relatedPost.title}
                     </h3>
-                    <div className="flex items-center gap-2 text-xs text-gray-500">
-                      <Clock className="w-3.5 h-3.5" />
+                    <div className="blog-meta mt-3 opacity-50">
                       {relatedPost.readingTime || 5} min read
                     </div>
                   </div>
@@ -354,17 +340,17 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
       )}
 
       {/* CTA */}
-      <section className="py-16 px-4 bg-white">
+      <section className="py-24 px-4 bg-[var(--blog-accent)]">
         <div className="max-w-xl mx-auto text-center">
-          <h2 className="text-2xl font-serif text-gray-900 mb-4">
+          <h2 className="blog-header blog-header-md mb-4">
             Ready to feel your best?
           </h2>
-          <p className="text-gray-600 mb-6">
+          <p className="blog-body mb-8 opacity-80">
             Discover our collection of natural remedies designed to support your wellness journey.
           </p>
           <Link
             href="/products"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--primary)] text-gray-900 rounded-full font-medium hover:bg-[var(--primary)]/80 transition-colors"
+            className="blog-button inline-flex"
           >
             Shop Products
             <ArrowRight className="w-4 h-4" />

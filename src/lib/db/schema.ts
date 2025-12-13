@@ -702,8 +702,10 @@ export const blogSettings = sqliteTable('blog_settings', {
   blogName: text('blog_name').default('Blog'),
   blogSlug: text('blog_slug').default('blog'),
   pageTitle: text('page_title'),
+  pageSubtitle: text('page_subtitle'),
   gridLayout: text('grid_layout').default('masonry'), // masonry, grid, list
   widgets: text('widgets'), // JSON array of widget configs for below-grid content
+  blogInDraftMode: integer('blog_in_draft_mode', { mode: 'boolean' }).default(true),
 
   createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
   updatedAt: text('updated_at').default(sql`CURRENT_TIMESTAMP`),

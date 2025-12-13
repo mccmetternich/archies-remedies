@@ -7,6 +7,15 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+// Helper to detect if a URL is a video file
+function isVideoUrl(url: string | null | undefined): boolean {
+  if (!url) return false;
+  const videoExtensions = ['.mp4', '.webm', '.mov', '.avi', '.m4v', '.ogv', '.ogg'];
+  const lowerUrl = url.toLowerCase();
+  // Check for video extensions OR cloudinary video path
+  return videoExtensions.some(ext => lowerUrl.includes(ext)) || lowerUrl.includes('/video/upload/');
+}
+
 interface HeroSlide {
   id: string;
   title: string | null;
@@ -185,9 +194,10 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
             {/* Video or Image background */}
             {/* Full-width layout: image covers entire hero section */}
             {/* Recommended: 2400x1350px (16:9) or 2400x1600px for full-width hero */}
-            {slide.videoUrl ? (
+            {/* Check videoUrl first, then detect if imageUrl contains a video */}
+            {(slide.videoUrl || isVideoUrl(slide.imageUrl)) ? (
               <video
-                src={slide.videoUrl}
+                src={slide.videoUrl || slide.imageUrl}
                 autoPlay
                 muted
                 loop
@@ -277,16 +287,17 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
                 </div>
               </div>
 
-              {/* COMPARTMENT 2: Testimonial card - positioned absolutely at bottom with configurable gap */}
+              {/* COMPARTMENT 2: Testimonial card - positioned to align with the max-w-xl content above */}
+              {/* Uses same centering calculation: left-1/2 -translate-x-1/2 then offset to align with max-w-xl start */}
               {slide.testimonialText && slide.testimonialAvatarUrl && (
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 10 }}
                   transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: 0.5 }}
-                  className="absolute bottom-16 left-6 lg:left-12 right-6 lg:right-12 max-w-md pointer-events-auto"
+                  className="absolute bottom-16 left-1/2 -translate-x-1/2 w-full max-w-xl px-6 lg:px-0 pointer-events-auto"
                 >
-                  <div className="bg-white/95 backdrop-blur-sm px-5 py-4 rounded-2xl shadow-xl border border-black/5">
+                  <div className="bg-white/95 backdrop-blur-sm px-5 py-4 rounded-2xl shadow-xl border border-black/5 max-w-md">
                     <div className="flex items-center gap-4">
                       <div className="w-14 h-14 rounded-full overflow-hidden bg-[var(--sand)] flex-shrink-0">
                         <Image
@@ -332,9 +343,10 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
                 {/* Video or Image - full width of column */}
                 {/* object-cover: scales to fill container, crops overflow */}
                 {/* object-position: center centers the subject (default behavior) */}
-                {slide.videoUrl ? (
+                {/* Check videoUrl first, then detect if imageUrl contains a video */}
+                {(slide.videoUrl || isVideoUrl(slide.imageUrl)) ? (
                   <video
-                    src={slide.videoUrl}
+                    src={slide.videoUrl || slide.imageUrl}
                     autoPlay
                     muted
                     loop

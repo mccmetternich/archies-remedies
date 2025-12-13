@@ -379,7 +379,7 @@ function SettingsPageContent() {
                   aspectRatio="1/1"
                 />
               </div>
-              <div className="md:col-span-2 mt-6">
+              <div className="mt-6">
                 <MediaPickerButton
                   label="Massive Footer Logo"
                   value={settings.massiveFooterLogoUrl}
@@ -387,6 +387,54 @@ function SettingsPageContent() {
                   helpText="Full-width brand texture that spans the footer. Recommended: Large PNG with transparent background, at least 1920px wide."
                   folder="branding"
                 />
+              </div>
+
+              {/* Default Blog Author - part of Brand Assets */}
+              <div className="mt-6 pt-6 border-t border-[var(--admin-border)]">
+                <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Default Blog Author</label>
+                <p className="text-xs text-[var(--admin-text-muted)] mb-4">Used as the default author for new blog posts when no author is specified.</p>
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0">
+                    {settings.defaultBlogAuthorAvatarUrl ? (
+                      <div className="relative group">
+                        <img
+                          src={settings.defaultBlogAuthorAvatarUrl}
+                          alt="Default Author"
+                          className="w-16 h-16 rounded-full object-cover border-2 border-[var(--admin-border-light)]"
+                        />
+                        <button
+                          onClick={() => updateField('defaultBlogAuthorAvatarUrl', '')}
+                          className="absolute -top-1 -right-1 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="w-16 h-16 rounded-full bg-[var(--admin-input)] border-2 border-dashed border-[var(--admin-border-light)] flex items-center justify-center">
+                        <User className="w-6 h-6 text-[var(--admin-text-muted)]" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 space-y-3">
+                    <input
+                      type="text"
+                      value={settings.defaultBlogAuthorName || ''}
+                      onChange={(e) => updateField('defaultBlogAuthorName', e.target.value)}
+                      placeholder="Author Name"
+                      className="w-full px-4 py-2.5 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+                    />
+                    <MediaPickerButton
+                      label=""
+                      value={settings.defaultBlogAuthorAvatarUrl}
+                      onChange={(url) => updateField('defaultBlogAuthorAvatarUrl', url || '')}
+                      helpText=""
+                      folder="blog/authors"
+                      aspectRatio="1/1"
+                      buttonText="Upload Avatar"
+                      compact
+                    />
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -547,58 +595,6 @@ function SettingsPageContent() {
               </div>
             </div>
 
-            <div className="h-px bg-[var(--admin-hover)]" />
-
-            {/* Default Blog Author */}
-            <div>
-              <h3 className="text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Default Blog Author</h3>
-              <p className="text-xs text-[var(--admin-text-muted)] mb-4">Set a default author name and avatar for new blog posts. This is used when no author is specified.</p>
-              <div className="flex items-start gap-6">
-                {/* Author Avatar */}
-                <div className="flex-shrink-0">
-                  {settings.defaultBlogAuthorAvatarUrl ? (
-                    <div className="relative group">
-                      <img
-                        src={settings.defaultBlogAuthorAvatarUrl}
-                        alt="Default Author"
-                        className="w-20 h-20 rounded-full object-cover border-2 border-[var(--admin-border-light)]"
-                      />
-                      <button
-                        onClick={() => updateField('defaultBlogAuthorAvatarUrl', '')}
-                        className="absolute -top-1 -right-1 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <X className="w-3 h-3" />
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="w-20 h-20 rounded-full bg-[var(--admin-input)] border-2 border-dashed border-[var(--admin-border-light)] flex items-center justify-center">
-                      <User className="w-8 h-8 text-[var(--admin-text-muted)]" />
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex-1 space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Author Name</label>
-                    <input
-                      type="text"
-                      value={settings.defaultBlogAuthorName || ''}
-                      onChange={(e) => updateField('defaultBlogAuthorName', e.target.value)}
-                      placeholder="Archie's Remedies"
-                      className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
-                    />
-                  </div>
-                  <MediaPickerButton
-                    label="Author Avatar"
-                    value={settings.defaultBlogAuthorAvatarUrl}
-                    onChange={(url) => updateField('defaultBlogAuthorAvatarUrl', url || '')}
-                    helpText="Square image recommended (100x100px+)"
-                    folder="blog/authors"
-                    aspectRatio="1/1"
-                  />
-                </div>
-              </div>
-            </div>
           </motion.div>
         )}
 

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import {
   Plus,
@@ -27,6 +27,8 @@ import {
   CheckSquare,
   Square,
   FileText,
+  TrendingUp,
+  FileEdit,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -37,6 +39,7 @@ interface BlogPost {
   excerpt: string | null;
   featuredImageUrl: string | null;
   authorName: string | null;
+  authorAvatarUrl: string | null;
   status: string | null;
   publishedAt: string | null;
   isFeatured: boolean | null;
@@ -62,6 +65,7 @@ interface BlogSettings {
   pageSubtitle: string;
   gridLayout: 'masonry' | 'grid' | 'list';
   widgets: string | null;
+  blogInDraftMode: boolean;
 }
 
 const LAYOUT_OPTIONS = [
@@ -82,11 +86,16 @@ export default function BlogAdminPage() {
     pageSubtitle: '',
     gridLayout: 'masonry',
     widgets: null,
+    blogInDraftMode: true,
   });
+  const [originalSettings, setOriginalSettings] = useState<BlogSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [siteInDraftMode, setSiteInDraftMode] = useState(false);
+
+  // Track unsaved changes
+  const hasSettingsChanges = originalSettings && JSON.stringify(settings) !== JSON.stringify(originalSettings);
 
   // Posts tab state
   const [searchQuery, setSearchQuery] = useState('');
@@ -129,7 +138,9 @@ export default function BlogAdminPage() {
       if (settingsRes.ok) {
         const settingsData = await settingsRes.json();
         if (settingsData) {
-          setSettings(prev => ({ ...prev, ...settingsData }));
+          const mergedSettings = { ...settings, ...settingsData };
+          setSettings(mergedSettings);
+          setOriginalSettings(mergedSettings);
         }
       }
     } catch (error) {
@@ -148,6 +159,7 @@ export default function BlogAdminPage() {
         body: JSON.stringify(settings),
       });
       if (res.ok) {
+        setOriginalSettings(settings);
         setSaved(true);
         setTimeout(() => setSaved(false), 2000);
       }
@@ -155,6 +167,23 @@ export default function BlogAdminPage() {
       console.error('Failed to save settings:', error);
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleToggleBlogDraftMode = async () => {
+    const newDraftMode = !settings.blogInDraftMode;
+    setSettings({ ...settings, blogInDraftMode: newDraftMode });
+
+    try {
+      await fetch('/api/admin/blog/settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...settings, blogInDraftMode: newDraftMode }),
+      });
+      setOriginalSettings({ ...settings, blogInDraftMode: newDraftMode });
+    } catch (error) {
+      console.error('Failed to toggle blog draft mode:', error);
+      setSettings({ ...settings, blogInDraftMode: !newDraftMode });
     }
   };
 
@@ -323,30 +352,66 @@ export default function BlogAdminPage() {
     );
   }
 
+  // Determine if blog is effectively in draft mode (either blog-specific or site-wide)
+  const isBlogDraft = settings.blogInDraftMode || siteInDraftMode;
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-medium text-[var(--admin-text-primary)]">Blog</h1>
-          <p className="text-[var(--admin-text-secondary)] mt-1">
-            Configure blog settings and manage posts
-          </p>
+        <div className="flex items-center gap-4">
+          <div>
+            <h1 className="text-2xl font-medium text-[var(--admin-text-primary)]">Blog</h1>
+            <p className="text-[var(--admin-text-secondary)] mt-1">
+              Configure blog settings and manage posts
+            </p>
+          </div>
+
+          {/* Blog Draft/Live Toggle */}
+          <div className="flex items-center gap-2 pl-4 border-l border-[var(--admin-border)]">
+            <span className={cn(
+              "text-sm font-medium transition-colors",
+              isBlogDraft ? "text-orange-400" : "text-[var(--admin-text-muted)]"
+            )}>
+              Draft
+            </span>
+            <button
+              onClick={handleToggleBlogDraftMode}
+              className="relative inline-flex h-7 w-14 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--admin-bg)]"
+              style={{
+                backgroundColor: isBlogDraft ? '#f97316' : '#22c55e'
+              }}
+            >
+              <span
+                className={cn(
+                  "inline-block h-5 w-5 transform rounded-full bg-white transition-transform shadow-lg",
+                  isBlogDraft ? "translate-x-1" : "translate-x-8"
+                )}
+              />
+            </button>
+            <span className={cn(
+              "text-sm font-medium transition-colors",
+              !isBlogDraft ? "text-green-400" : "text-[var(--admin-text-muted)]"
+            )}>
+              Live
+            </span>
+          </div>
         </div>
+
         <div className="flex items-center gap-3">
           {/* View Live / View Draft */}
           <a
-            href={siteInDraftMode ? `/blog?preview=true` : '/blog'}
+            href={isBlogDraft ? `/blog?preview=true` : '/blog'}
             target="_blank"
             rel="noopener noreferrer"
             className={cn(
               'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors',
-              siteInDraftMode
-                ? 'bg-orange-500/20 text-orange-400 hover:bg-orange-500/30'
-                : 'bg-green-500/20 text-green-400 hover:bg-green-500/30'
+              isBlogDraft
+                ? 'bg-orange-500 text-white hover:bg-orange-600'
+                : 'bg-green-500 text-white hover:bg-green-600'
             )}
           >
-            {siteInDraftMode ? (
+            {isBlogDraft ? (
               <>
                 <Eye className="w-4 h-4" />
                 View Draft
@@ -359,7 +424,7 @@ export default function BlogAdminPage() {
             )}
           </a>
 
-          {activeTab === 'settings' && (
+          {activeTab === 'settings' && hasSettingsChanges && (
             <button
               onClick={handleSaveSettings}
               disabled={saving}
@@ -391,6 +456,18 @@ export default function BlogAdminPage() {
               New Post
             </Link>
           )}
+        </div>
+      </div>
+
+      {/* Stats Bar */}
+      <div className="flex items-center gap-6">
+        <div className="flex items-center gap-2 px-4 py-2 bg-green-500/10 rounded-lg">
+          <TrendingUp className="w-4 h-4 text-green-400" />
+          <span className="text-sm font-medium text-green-400">{publishedCount} Live Posts</span>
+        </div>
+        <div className="flex items-center gap-2 px-4 py-2 bg-orange-500/10 rounded-lg">
+          <FileEdit className="w-4 h-4 text-orange-400" />
+          <span className="text-sm font-medium text-orange-400">{draftCount} Drafts</span>
         </div>
       </div>
 
@@ -426,9 +503,9 @@ export default function BlogAdminPage() {
       {activeTab === 'settings' && (
         <div className="space-y-6">
           {/* Two Column Layout: Settings + Recent Posts */}
-          <div className="grid lg:grid-cols-3 gap-6">
-            {/* Left Column - Basic Settings + Grid Layout Combined */}
-            <div className="lg:col-span-2 bg-[var(--admin-card)] border border-[var(--admin-border)] rounded-xl p-6">
+          <div className="grid lg:grid-cols-2 gap-6">
+            {/* Left Column - Basic Settings */}
+            <div className="bg-[var(--admin-card)] border border-[var(--admin-border)] rounded-xl p-6">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-10 h-10 rounded-lg bg-[var(--primary)]/10 flex items-center justify-center">
                   <Settings className="w-5 h-5 text-[var(--primary)]" />
@@ -438,48 +515,47 @@ export default function BlogAdminPage() {
                     Basic Settings
                   </h2>
                   <p className="text-xs text-[var(--admin-text-muted)]">
-                    Blog name, URL, title, and layout configuration
+                    Blog name, URL, and page titles
                   </p>
                 </div>
               </div>
 
-              <div className="grid md:grid-cols-2 gap-6">
-                {/* Left: Text fields */}
-                <div className="space-y-5">
-                  <div>
-                    <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
-                      Blog Name
-                    </label>
+              <div className="space-y-5">
+                <div>
+                  <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
+                    Blog Name
+                  </label>
+                  <input
+                    type="text"
+                    value={settings.blogName}
+                    onChange={(e) => setSettings({ ...settings, blogName: e.target.value })}
+                    className="w-full px-4 py-2.5 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50"
+                    placeholder="Blog"
+                  />
+                  <p className="mt-1.5 text-xs text-[var(--admin-text-muted)]">
+                    Displayed in navigation and page headers
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
+                    URL Slug
+                  </label>
+                  <div className="flex items-center">
+                    <span className="px-3 py-2.5 bg-[var(--admin-input)] border border-r-0 border-[var(--admin-border)] rounded-l-lg text-[var(--admin-text-muted)] text-sm">
+                      /
+                    </span>
                     <input
                       type="text"
-                      value={settings.blogName}
-                      onChange={(e) => setSettings({ ...settings, blogName: e.target.value })}
-                      className="w-full px-4 py-2.5 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50"
-                      placeholder="Blog"
+                      value={settings.blogSlug}
+                      onChange={(e) => setSettings({ ...settings, blogSlug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '') })}
+                      className="flex-1 px-4 py-2.5 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-r-lg text-[var(--admin-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50"
+                      placeholder="blog"
                     />
-                    <p className="mt-1.5 text-xs text-[var(--admin-text-muted)]">
-                      Displayed in navigation and page headers
-                    </p>
                   </div>
+                </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
-                      URL Slug
-                    </label>
-                    <div className="flex items-center">
-                      <span className="px-3 py-2.5 bg-[var(--admin-input)] border border-r-0 border-[var(--admin-border)] rounded-l-lg text-[var(--admin-text-muted)] text-sm">
-                        /
-                      </span>
-                      <input
-                        type="text"
-                        value={settings.blogSlug}
-                        onChange={(e) => setSettings({ ...settings, blogSlug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '') })}
-                        className="flex-1 px-4 py-2.5 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-r-lg text-[var(--admin-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50"
-                        placeholder="blog"
-                      />
-                    </div>
-                  </div>
-
+                <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
                       Page Title
@@ -502,23 +578,23 @@ export default function BlogAdminPage() {
                       value={settings.pageSubtitle || ''}
                       onChange={(e) => setSettings({ ...settings, pageSubtitle: e.target.value })}
                       className="w-full px-4 py-2.5 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50"
-                      placeholder="Insights, tips, and stories from our team"
+                      placeholder="Insights & stories"
                     />
                   </div>
                 </div>
 
-                {/* Right: Grid Layout */}
-                <div>
+                {/* Blog Design - Stacked Layout Options */}
+                <div className="pt-4 border-t border-[var(--admin-border)]">
                   <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-3">
-                    Grid Layout
+                    Blog Design
                   </label>
-                  <div className="grid grid-cols-3 gap-3">
+                  <div className="space-y-2">
                     {LAYOUT_OPTIONS.map((option) => (
                       <button
                         key={option.value}
                         onClick={() => setSettings({ ...settings, gridLayout: option.value as BlogSettings['gridLayout'] })}
                         className={cn(
-                          'flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all',
+                          'w-full flex items-center gap-3 p-3 rounded-lg border-2 transition-all text-left',
                           settings.gridLayout === option.value
                             ? 'border-[var(--primary)] bg-[var(--primary)]/10'
                             : 'border-[var(--admin-border)] hover:border-[var(--admin-border-light)] bg-[var(--admin-input)]'
@@ -526,28 +602,33 @@ export default function BlogAdminPage() {
                       >
                         <option.icon
                           className={cn(
-                            'w-6 h-6',
+                            'w-5 h-5 shrink-0',
                             settings.gridLayout === option.value
                               ? 'text-[var(--primary)]'
                               : 'text-[var(--admin-text-secondary)]'
                           )}
                         />
-                        <span
-                          className={cn(
-                            'text-sm font-medium',
-                            settings.gridLayout === option.value
-                              ? 'text-[var(--primary)]'
-                              : 'text-[var(--admin-text-secondary)]'
-                          )}
-                        >
-                          {option.label}
-                        </span>
+                        <div className="flex-1">
+                          <span
+                            className={cn(
+                              'text-sm font-medium block',
+                              settings.gridLayout === option.value
+                                ? 'text-[var(--primary)]'
+                                : 'text-[var(--admin-text-primary)]'
+                            )}
+                          >
+                            {option.label}
+                          </span>
+                          <span className="text-xs text-[var(--admin-text-muted)]">
+                            {option.description}
+                          </span>
+                        </div>
+                        {settings.gridLayout === option.value && (
+                          <Check className="w-4 h-4 text-[var(--primary)] shrink-0" />
+                        )}
                       </button>
                     ))}
                   </div>
-                  <p className="mt-3 text-xs text-[var(--admin-text-muted)] text-center">
-                    {LAYOUT_OPTIONS.find(o => o.value === settings.gridLayout)?.description}
-                  </p>
                 </div>
               </div>
             </div>
@@ -560,7 +641,7 @@ export default function BlogAdminPage() {
                     Recent Posts
                   </h2>
                   <p className="text-xs text-[var(--admin-text-muted)]">
-                    {posts.length} total
+                    {posts.length} total &bull; {publishedCount} live &bull; {draftCount} drafts
                   </p>
                 </div>
                 <button
@@ -571,14 +652,13 @@ export default function BlogAdminPage() {
                 </button>
               </div>
 
-              <div className="divide-y divide-[var(--admin-border)] max-h-[400px] overflow-y-auto">
-                {posts.slice(0, 8).map((post) => (
-                  <Link
+              <div className="divide-y divide-[var(--admin-border)] max-h-[500px] overflow-y-auto">
+                {posts.slice(0, 10).map((post) => (
+                  <div
                     key={post.id}
-                    href={`/admin/blog/${post.id}`}
                     className="flex items-center gap-3 p-3 hover:bg-[var(--admin-hover)] transition-colors"
                   >
-                    <div className="w-10 h-10 rounded-lg overflow-hidden bg-[var(--admin-input)] shrink-0">
+                    <Link href={`/admin/blog/${post.id}`} className="w-12 h-12 rounded-lg overflow-hidden bg-[var(--admin-input)] shrink-0">
                       {post.featuredImageUrl ? (
                         <img
                           src={post.featuredImageUrl}
@@ -587,23 +667,59 @@ export default function BlogAdminPage() {
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
-                          <PenSquare className="w-4 h-4 text-[var(--admin-text-muted)]" />
+                          <PenSquare className="w-5 h-5 text-[var(--admin-text-muted)]" />
                         </div>
                       )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-[var(--admin-text-primary)] truncate">
-                        {post.title || 'Untitled'}
-                      </p>
+                    </Link>
+                    <Link href={`/admin/blog/${post.id}`} className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-medium text-[var(--admin-text-primary)] truncate">
+                          {post.title || 'Untitled'}
+                        </p>
+                        {post.isFeatured && (
+                          <Star className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400 shrink-0" />
+                        )}
+                      </div>
                       <p className="text-xs text-[var(--admin-text-muted)]">
-                        {post.status === 'published' ? 'Published' : 'Draft'}
+                        /{settings.blogSlug}/{post.slug}
                       </p>
+                    </Link>
+                    <div className="flex items-center gap-2 shrink-0">
+                      {/* Status toggle */}
+                      <button
+                        onClick={() => handleToggleStatus(post)}
+                        className={cn(
+                          'px-2.5 py-1 rounded-md text-xs font-medium transition-colors',
+                          post.status === 'published'
+                            ? 'bg-green-500/20 text-green-400 hover:bg-green-500/30'
+                            : 'bg-orange-500/20 text-orange-400 hover:bg-orange-500/30'
+                        )}
+                      >
+                        {post.status === 'published' ? 'Live' : 'Draft'}
+                      </button>
+                      {/* View link */}
+                      <a
+                        href={post.status === 'published' ? `/blog/${post.slug}` : `/blog/${post.slug}?preview=true`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-1.5 rounded-md text-[var(--admin-text-muted)] hover:text-[var(--admin-text-primary)] hover:bg-[var(--admin-input)] transition-colors"
+                        title={post.status === 'published' ? 'View Live' : 'Preview Draft'}
+                      >
+                        <ExternalLink className="w-3.5 h-3.5" />
+                      </a>
                     </div>
-                  </Link>
+                  </div>
                 ))}
                 {posts.length === 0 && (
                   <div className="p-6 text-center">
                     <p className="text-sm text-[var(--admin-text-muted)]">No posts yet</p>
+                    <Link
+                      href="/admin/blog/new"
+                      className="inline-flex items-center gap-2 mt-3 text-sm text-[var(--primary)] hover:underline"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Create First Post
+                    </Link>
                   </div>
                 )}
               </div>
@@ -612,30 +728,48 @@ export default function BlogAdminPage() {
 
           {/* Page Content / Widgets Section - Full Width */}
           <div className="bg-[var(--admin-card)] border border-[var(--admin-border)] rounded-xl p-6">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-6">
               <div>
                 <h2 className="text-lg font-medium text-[var(--admin-text-primary)]">
                   Page Content
                 </h2>
-                <p className="text-xs text-[var(--admin-text-muted)]">
+                <p className="text-sm text-[var(--admin-text-muted)] mt-1">
                   Add widgets to customize your blog page layout
                 </p>
               </div>
-              <Link
-                href="/admin/widgets"
-                className="text-sm text-[var(--primary)] hover:underline"
-              >
-                Browse Widget Library
-              </Link>
             </div>
-            <div className="border-2 border-dashed border-[var(--admin-border)] rounded-lg p-8 text-center">
-              <Plus className="w-8 h-8 mx-auto text-[var(--admin-text-muted)] mb-2" />
-              <p className="text-sm text-[var(--admin-text-muted)] mb-4">
-                Drag and drop widgets from the library to enhance your blog page
-              </p>
-              <p className="text-xs text-[var(--admin-text-muted)]">
-                Coming soon: Full widget management for blog pages
-              </p>
+            <div className="grid lg:grid-cols-3 gap-6">
+              {/* Widget Drop Zone */}
+              <div className="lg:col-span-2 border-2 border-dashed border-[var(--admin-border)] rounded-lg p-8 text-center min-h-[200px] flex flex-col items-center justify-center">
+                <Plus className="w-8 h-8 text-[var(--admin-text-muted)] mb-2" />
+                <p className="text-sm text-[var(--admin-text-muted)] mb-2">
+                  Drag and drop widgets from the library
+                </p>
+                <p className="text-xs text-[var(--admin-text-muted)]">
+                  Coming soon: Full widget management for blog pages
+                </p>
+              </div>
+              {/* Widget Library */}
+              <div className="bg-[var(--admin-input)] rounded-lg p-4">
+                <h3 className="text-sm font-medium text-[var(--admin-text-secondary)] mb-3">Widget Library</h3>
+                <div className="space-y-2">
+                  <div className="p-3 bg-[var(--admin-card)] rounded-lg border border-[var(--admin-border)] opacity-50 cursor-not-allowed">
+                    <p className="text-sm text-[var(--admin-text-primary)]">Newsletter Signup</p>
+                    <p className="text-xs text-[var(--admin-text-muted)]">Email capture form</p>
+                  </div>
+                  <div className="p-3 bg-[var(--admin-card)] rounded-lg border border-[var(--admin-border)] opacity-50 cursor-not-allowed">
+                    <p className="text-sm text-[var(--admin-text-primary)]">Featured Posts</p>
+                    <p className="text-xs text-[var(--admin-text-muted)]">Highlight top content</p>
+                  </div>
+                  <div className="p-3 bg-[var(--admin-card)] rounded-lg border border-[var(--admin-border)] opacity-50 cursor-not-allowed">
+                    <p className="text-sm text-[var(--admin-text-primary)]">Categories</p>
+                    <p className="text-xs text-[var(--admin-text-muted)]">Tag cloud or list</p>
+                  </div>
+                </div>
+                <p className="text-xs text-[var(--admin-text-muted)] mt-3 text-center">
+                  Widget library coming soon
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -765,13 +899,21 @@ export default function BlogAdminPage() {
                           {post.title || 'Untitled'}
                         </h3>
                         {post.isFeatured && (
-                          <Star className="w-4 h-4 text-yellow-400 fill-yellow-400 shrink-0" />
+                          <span className="px-1.5 py-0.5 bg-yellow-400/20 text-yellow-400 text-[10px] font-semibold uppercase tracking-wider rounded">
+                            Featured
+                          </span>
+                        )}
+                        {post.status === 'draft' && (
+                          <span className="px-1.5 py-0.5 bg-orange-500/20 text-orange-400 text-[10px] font-semibold uppercase tracking-wider rounded">
+                            Draft
+                          </span>
                         )}
                       </div>
                       <div className="flex items-center gap-3 text-xs text-[var(--admin-text-muted)]">
+                        <span>/{settings.blogSlug}/{post.slug}</span>
                         <span className="flex items-center gap-1">
                           <Clock className="w-3 h-3" />
-                          {post.readingTime || 5} min read
+                          {post.readingTime || 5} min
                         </span>
                         {post.publishedAt && (
                           <span className="flex items-center gap-1">

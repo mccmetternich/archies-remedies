@@ -11,11 +11,21 @@ import {
   Save,
   X,
   Image as ImageIcon,
+  Video,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { MediaPickerButton } from '@/components/admin/media-picker';
 import { InternalLinkSelector } from '@/components/admin/internal-link-selector';
+
+// Helper to detect if a URL is a video file
+function isVideoUrl(url: string | null | undefined): boolean {
+  if (!url) return false;
+  const videoExtensions = ['.mp4', '.webm', '.mov', '.avi', '.m4v', '.ogv', '.ogg'];
+  const lowerUrl = url.toLowerCase();
+  // Check for video extensions OR cloudinary video path
+  return videoExtensions.some(ext => lowerUrl.includes(ext)) || lowerUrl.includes('/video/upload/');
+}
 
 interface HeroSlide {
   id: string;
@@ -175,13 +185,27 @@ export default function HeroSlidesPage() {
               <GripVertical className="w-4 h-4 text-[var(--muted-foreground)]" />
 
               {/* Preview */}
-              <div className="w-24 h-16 rounded-lg bg-[var(--secondary)] flex items-center justify-center shrink-0 overflow-hidden">
+              <div className="w-24 h-16 rounded-lg bg-[var(--secondary)] flex items-center justify-center shrink-0 overflow-hidden relative">
                 {slide.imageUrl ? (
-                  <img
-                    src={slide.imageUrl}
-                    alt=""
-                    className="w-full h-full object-cover"
-                  />
+                  isVideoUrl(slide.imageUrl) ? (
+                    <>
+                      <video
+                        src={slide.imageUrl}
+                        className="w-full h-full object-cover"
+                        muted
+                        playsInline
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                        <Video className="w-5 h-5 text-white drop-shadow" />
+                      </div>
+                    </>
+                  ) : (
+                    <img
+                      src={slide.imageUrl}
+                      alt=""
+                      className="w-full h-full object-cover"
+                    />
+                  )
                 ) : (
                   <ImageIcon className="w-6 h-6 text-[var(--muted-foreground)]" />
                 )}

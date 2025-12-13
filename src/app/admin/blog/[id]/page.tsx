@@ -19,6 +19,7 @@ import {
   BarChart3,
   Search,
   User,
+  AlertCircle,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { MediaPickerButton } from '@/components/admin/media-picker';
@@ -281,6 +282,23 @@ export default function BlogPostEditorPage({ params }: { params: Promise<{ id: s
 
   return (
     <div className="space-y-6">
+      {/* Draft Mode Banner */}
+      {post.status === 'draft' && !isNew && (
+        <div className="bg-orange-500/10 border border-orange-500/30 rounded-xl p-4 flex items-center gap-3">
+          <AlertCircle className="w-5 h-5 text-orange-400 shrink-0" />
+          <div className="flex-1">
+            <p className="text-sm font-medium text-orange-400">This Post is in Draft Mode</p>
+            <p className="text-xs text-orange-400/80">You can preview the blog post in draft mode, but visitors cannot see it.</p>
+          </div>
+          <button
+            onClick={() => setPost((prev) => ({ ...prev, status: 'published' }))}
+            className="px-4 py-2 bg-orange-500 text-white rounded-lg text-sm font-medium hover:bg-orange-600 transition-colors"
+          >
+            Publish Now
+          </button>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
@@ -294,67 +312,64 @@ export default function BlogPostEditorPage({ params }: { params: Promise<{ id: s
             <h1 className="text-xl font-medium text-[var(--admin-text-primary)]">
               {isNew ? 'New Blog Post' : post.title || 'Untitled Post'}
             </h1>
-            <p className="text-sm text-[var(--admin-text-muted)]">
-              {post.status === 'published' ? 'Published' : 'Draft'}
-              {post.publishedAt && ` on ${new Date(post.publishedAt).toLocaleDateString()}`}
-            </p>
+            {!isNew && post.slug && (
+              <p className="text-sm text-[var(--admin-text-muted)]">
+                /blog/{post.slug}
+              </p>
+            )}
           </div>
         </div>
 
         <div className="flex items-center gap-3">
-          {/* Status Toggle */}
-          <button
-            onClick={() =>
-              setPost((prev) => ({
+          {/* Draft/Live Toggle */}
+          <div className="flex items-center gap-2">
+            <span className={cn(
+              "text-sm font-medium transition-colors",
+              post.status === 'draft' ? "text-orange-400" : "text-[var(--admin-text-muted)]"
+            )}>
+              Draft
+            </span>
+            <button
+              onClick={() => setPost((prev) => ({
                 ...prev,
                 status: prev.status === 'published' ? 'draft' : 'published',
-              }))
-            }
-            className={cn(
-              'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors',
-              post.status === 'published'
-                ? 'bg-green-500/10 text-green-400 hover:bg-green-500/20'
-                : 'bg-gray-500/10 text-[var(--admin-text-secondary)] hover:bg-gray-500/20'
-            )}
-          >
-            {post.status === 'published' ? (
-              <>
-                <Eye className="w-4 h-4" />
-                Published
-              </>
-            ) : (
-              <>
-                <EyeOff className="w-4 h-4" />
-                Draft
-              </>
-            )}
-          </button>
+              }))}
+              className="relative inline-flex h-7 w-14 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--admin-bg)]"
+              style={{
+                backgroundColor: post.status === 'draft' ? '#f97316' : '#22c55e'
+              }}
+            >
+              <span
+                className={cn(
+                  "inline-block h-5 w-5 transform rounded-full bg-white transition-transform shadow-lg",
+                  post.status === 'draft' ? "translate-x-1" : "translate-x-8"
+                )}
+              />
+            </button>
+            <span className={cn(
+              "text-sm font-medium transition-colors",
+              post.status === 'published' ? "text-green-400" : "text-[var(--admin-text-muted)]"
+            )}>
+              Live
+            </span>
+          </div>
 
           {/* View Live / View Draft buttons */}
           {!isNew && post.slug && (
-            <>
-              {post.status === 'published' ? (
-                <a
-                  href={`/blog/${post.slug}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-[var(--admin-card)] border border-[var(--admin-border-light)] text-[var(--admin-text-primary)] hover:bg-[var(--admin-hover)] transition-colors"
-                >
-                  <Eye className="w-4 h-4" />
-                  View Live
-                </a>
-              ) : (
-                <a
-                  href={`/blog/${post.slug}?preview=true`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-[var(--admin-card)] border border-[var(--admin-border-light)] text-[var(--admin-text-secondary)] hover:bg-[var(--admin-hover)] transition-colors"
-                >
-                  <EyeOff className="w-4 h-4" />
-                  View Draft
-                </a>
+            <a
+              href={post.status === 'published' ? `/blog/${post.slug}` : `/blog/${post.slug}?preview=true`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={cn(
+                'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors',
+                post.status === 'published'
+                  ? 'bg-green-500 text-white hover:bg-green-600'
+                  : 'bg-orange-500 text-white hover:bg-orange-600'
               )}
-            </>
+            >
+              <Eye className="w-4 h-4" />
+              {post.status === 'published' ? 'View Live' : 'View Draft'}
+            </a>
           )}
 
           {/* Save Button */}
@@ -365,7 +380,7 @@ export default function BlogPostEditorPage({ params }: { params: Promise<{ id: s
               className={cn(
                 'inline-flex items-center gap-2 px-5 py-2 rounded-lg font-medium transition-all',
                 saved
-                  ? 'bg-green-500 text-[var(--admin-text-primary)]'
+                  ? 'bg-green-500 text-white'
                   : 'bg-[var(--primary)] text-[var(--admin-button-text)] hover:bg-[var(--primary-dark)]',
                 (saving || !post.title) && 'opacity-50 cursor-not-allowed'
               )}
@@ -434,13 +449,13 @@ export default function BlogPostEditorPage({ params }: { params: Promise<{ id: s
           </div>
 
           {/* Content - Rich Text Editor - Fills remaining space */}
-          <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6 flex-1 min-h-[600px]">
+          <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6">
             <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--admin-text-muted)] mb-3">Content</label>
             <RichTextEditor
               value={post.content || ''}
               onChange={(content) => setPost((prev) => ({ ...prev, content }))}
               placeholder="Write your blog post content here..."
-              minHeight="calc(100% - 40px)"
+              minHeight="500px"
             />
           </div>
         </div>
