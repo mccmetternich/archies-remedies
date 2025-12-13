@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidateTag } from 'next/cache';
 import { db } from '@/lib/db';
 import { products, productVariants, productBenefits, pages } from '@/lib/db/schema';
 import { generateId } from '@/lib/utils';
@@ -84,6 +85,10 @@ export async function POST(request: Request) {
       isActive: product.isActive ?? true,
       showInNav: false,
     });
+
+    // Invalidate caches - products widget is on homepage
+    revalidateTag('homepage-data', 'max');
+    revalidateTag('page-data', 'max');
 
     return NextResponse.json({ id: productId, pageId, success: true });
   } catch (error) {

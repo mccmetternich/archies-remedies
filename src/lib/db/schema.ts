@@ -267,6 +267,10 @@ export const siteSettings = sqliteTable('site_settings', {
   marqueeSize: text('marquee_size').default('xl'), // 'sm', 'md', 'lg', 'xl'
   marqueeStyle: text('marquee_style').default('dark'), // 'dark', 'light', 'primary'
 
+  // Default Blog Author (used as fallback when post has no author set)
+  defaultBlogAuthorName: text('default_blog_author_name').default("Archie's Remedies"),
+  defaultBlogAuthorAvatarUrl: text('default_blog_author_avatar_url'),
+
   createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
   updatedAt: text('updated_at').default(sql`CURRENT_TIMESTAMP`),
 });

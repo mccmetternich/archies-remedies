@@ -33,6 +33,8 @@ interface MediaPickerButtonProps {
   aspectRatio?: string;
   folder?: string;
   acceptVideo?: boolean; // Allow video files (mp4, webm)
+  buttonText?: string; // Custom text for the upload button
+  compact?: boolean; // Compact mode with smaller buttons
 }
 
 // Maximum file size: 100MB
@@ -47,6 +49,8 @@ export function MediaPickerButton({
   aspectRatio = '1/1',
   folder,
   acceptVideo = false,
+  buttonText,
+  compact = false,
 }: MediaPickerButtonProps) {
   // Debug: log when rendering with label to identify which instance
   console.log('[MediaPickerButton] Rendering:', label, 'value:', value ? value.substring(0, 50) + '...' : value);
@@ -194,9 +198,66 @@ export function MediaPickerButton({
     }
   };
 
+  // Compact mode - just a button for avatar uploads
+  if (compact) {
+    return (
+      <div className="space-y-1">
+        {label && <label className="block text-sm font-medium text-[var(--admin-text-secondary)]">{label}</label>}
+        {helpText && <p className="text-xs text-[var(--admin-text-muted)]">{helpText}</p>}
+
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept={acceptTypes}
+          onChange={handleFileUpload}
+          className="hidden"
+        />
+
+        <button
+          onClick={() => fileInputRef.current?.click()}
+          disabled={uploading}
+          className="flex items-center gap-2 px-3 py-1.5 bg-[var(--admin-input)] text-[var(--admin-text-secondary)] rounded-lg text-xs hover:bg-[var(--admin-hover)] transition-colors disabled:opacity-50 border border-[var(--admin-border-light)]"
+        >
+          {uploading ? (
+            <Loader2 className="w-3 h-3 animate-spin" />
+          ) : (
+            <Upload className="w-3 h-3" />
+          )}
+          {buttonText || 'Upload'}
+        </button>
+
+        {/* Upload Status Messages */}
+        {uploadError && (
+          <div className="flex items-center gap-2 px-2 py-1 bg-red-500/10 border border-red-500/30 rounded text-xs text-red-400">
+            <X className="w-3 h-3 shrink-0" />
+            <span className="truncate">{uploadError}</span>
+          </div>
+        )}
+        {uploadSuccess && (
+          <div className="flex items-center gap-2 px-2 py-1 bg-green-500/10 border border-green-500/30 rounded text-xs text-green-400">
+            <Check className="w-3 h-3 shrink-0" />
+            <span>Done!</span>
+          </div>
+        )}
+
+        {/* Media Library Modal */}
+        {showModal && (
+          <MediaLibraryModal
+            isOpen={showModal}
+            onClose={() => setShowModal(false)}
+            onSelect={(url) => {
+              onChangeRef.current(url);
+              setShowModal(false);
+            }}
+          />
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-2">
-      <label className="block text-sm font-medium text-[var(--admin-text-secondary)]">{label}</label>
+      {label && <label className="block text-sm font-medium text-[var(--admin-text-secondary)]">{label}</label>}
       {helpText && <p className="text-xs text-[var(--admin-text-muted)]">{helpText}</p>}
 
       <div className="flex flex-col sm:flex-row gap-4">
@@ -220,7 +281,7 @@ export function MediaPickerButton({
               ) : (
                 <Image
                   src={value}
-                  alt={label}
+                  alt={label || 'Preview'}
                   fill
                   className="object-contain p-2"
                 />
@@ -265,7 +326,7 @@ export function MediaPickerButton({
               ) : (
                 <Upload className="w-4 h-4" />
               )}
-              Upload
+              {buttonText || 'Upload'}
             </button>
             <button
               onClick={() => setShowUrlInput(!showUrlInput)}

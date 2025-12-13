@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidateTag } from 'next/cache';
 import { db } from '@/lib/db';
 import { blogPosts, blogTags, blogPostTags } from '@/lib/db/schema';
 import { asc, desc, eq, inArray } from 'drizzle-orm';
@@ -113,6 +114,9 @@ export async function POST(request: Request) {
       }));
       await db.insert(blogPostTags).values(tagRelations);
     }
+
+    // Invalidate blog cache
+    revalidateTag('blog-data', 'max');
 
     return NextResponse.json(newPost, { status: 201 });
   } catch (error) {

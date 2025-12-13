@@ -140,15 +140,7 @@ function AdminLayoutInner({ children, unreadMessages = 0 }: AdminLayoutProps) {
         { href: '/admin/navigation', label: 'Navigation', icon: Navigation },
         { href: '/admin/pages', label: 'Pages', icon: FileText },
         { href: '/admin/products', label: 'Products', icon: Package },
-        {
-          href: '/admin/blog',
-          label: 'Blog',
-          icon: PenSquare,
-          children: [
-            { href: '/admin/blog/settings', label: 'Blog Settings' },
-            { href: '/admin/blog', label: 'Posts' },
-          ]
-        },
+        { href: '/admin/blog', label: 'Blog', icon: PenSquare },
       ],
     },
     {

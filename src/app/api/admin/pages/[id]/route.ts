@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidateTag } from 'next/cache';
 import { db } from '@/lib/db';
 import { pages } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
@@ -37,6 +38,9 @@ export async function PUT(
     const { id } = await params;
     const body = await request.json();
 
+    // Get page slug to determine which cache to invalidate
+    const [existingPage] = await db.select({ slug: pages.slug }).from(pages).where(eq(pages.id, id));
+
     await db
       .update(pages)
       .set({
@@ -57,6 +61,13 @@ export async function PUT(
       })
       .where(eq(pages.id, id));
 
+    // Invalidate caches - homepage and dynamic pages
+    if (existingPage?.slug === 'home' || body.slug === 'home') {
+      revalidateTag('homepage-data', 'max');
+    }
+    revalidateTag('page-data', 'max');
+    revalidateTag('dynamic-page-data', 'max');
+
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Failed to update page:', error);
@@ -75,6 +86,9 @@ export async function PATCH(
     const { id } = await params;
     const body = await request.json();
 
+    // Get page slug to determine which cache to invalidate
+    const [existingPage] = await db.select({ slug: pages.slug }).from(pages).where(eq(pages.id, id));
+
     await db
       .update(pages)
       .set({
@@ -82,6 +96,13 @@ export async function PATCH(
         updatedAt: new Date().toISOString(),
       })
       .where(eq(pages.id, id));
+
+    // Invalidate caches - homepage and dynamic pages
+    if (existingPage?.slug === 'home' || body.slug === 'home') {
+      revalidateTag('homepage-data', 'max');
+    }
+    revalidateTag('page-data', 'max');
+    revalidateTag('dynamic-page-data', 'max');
 
     return NextResponse.json({ success: true });
   } catch (error) {

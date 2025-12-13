@@ -4,7 +4,7 @@ import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-import { Save, Loader2, Check, Palette, Share2, Code, ExternalLink, Construction, Eye, Copy, Trash2, Mail, Phone, ChevronDown, ArrowRight } from 'lucide-react';
+import { Save, Loader2, Check, Palette, Share2, Code, ExternalLink, Construction, Eye, Copy, Trash2, Mail, Phone, ChevronDown, ArrowRight, User, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { MediaPickerButton } from '@/components/admin/media-picker';
 
@@ -46,6 +46,9 @@ interface SiteSettings {
   draftModeContactType: string | null;
   // Footer
   massiveFooterLogoUrl: string | null;
+  // Default Blog Author
+  defaultBlogAuthorName: string | null;
+  defaultBlogAuthorAvatarUrl: string | null;
 }
 
 const tabs = [
@@ -541,6 +544,59 @@ function SettingsPageContent() {
                   helpText="24x24px recommended"
                   folder="social"
                 />
+              </div>
+            </div>
+
+            <div className="h-px bg-[var(--admin-hover)]" />
+
+            {/* Default Blog Author */}
+            <div>
+              <h3 className="text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Default Blog Author</h3>
+              <p className="text-xs text-[var(--admin-text-muted)] mb-4">Set a default author name and avatar for new blog posts. This is used when no author is specified.</p>
+              <div className="flex items-start gap-6">
+                {/* Author Avatar */}
+                <div className="flex-shrink-0">
+                  {settings.defaultBlogAuthorAvatarUrl ? (
+                    <div className="relative group">
+                      <img
+                        src={settings.defaultBlogAuthorAvatarUrl}
+                        alt="Default Author"
+                        className="w-20 h-20 rounded-full object-cover border-2 border-[var(--admin-border-light)]"
+                      />
+                      <button
+                        onClick={() => updateField('defaultBlogAuthorAvatarUrl', '')}
+                        className="absolute -top-1 -right-1 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="w-20 h-20 rounded-full bg-[var(--admin-input)] border-2 border-dashed border-[var(--admin-border-light)] flex items-center justify-center">
+                      <User className="w-8 h-8 text-[var(--admin-text-muted)]" />
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex-1 space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Author Name</label>
+                    <input
+                      type="text"
+                      value={settings.defaultBlogAuthorName || ''}
+                      onChange={(e) => updateField('defaultBlogAuthorName', e.target.value)}
+                      placeholder="Archie's Remedies"
+                      className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+                    />
+                  </div>
+                  <MediaPickerButton
+                    label="Author Avatar"
+                    value={settings.defaultBlogAuthorAvatarUrl}
+                    onChange={(url) => updateField('defaultBlogAuthorAvatarUrl', url || '')}
+                    helpText="Square image recommended (100x100px+)"
+                    folder="blog/authors"
+                    aspectRatio="1/1"
+                  />
+                </div>
               </div>
             </div>
           </motion.div>

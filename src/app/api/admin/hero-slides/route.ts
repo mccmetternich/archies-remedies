@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidateTag } from 'next/cache';
 import { db } from '@/lib/db';
 import { heroSlides, products } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
@@ -91,6 +92,10 @@ export async function PUT(request: Request) {
         sortOrder: slide.sortOrder || 0,
       });
     }
+
+    // Invalidate caches - hero carousel is on homepage
+    revalidateTag('homepage-data', 'max');
+    revalidateTag('page-data', 'max');
 
     return NextResponse.json({ success: true });
   } catch (error) {

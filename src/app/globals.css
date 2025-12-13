@@ -468,14 +468,14 @@ input[type="button"]:disabled,
 }
 
 .hero-btn-outline-dark {
-  background-color: transparent !important;
-  border-color: rgba(26, 26, 26, 0.2) !important;
+  background-color: #ffffff !important;
+  border-color: rgba(26, 26, 26, 0.15) !important;
   color: #1a1a1a !important;
 }
 
 .hero-btn-outline-dark:hover {
-  background-color: rgba(26, 26, 26, 0.05) !important;
-  border-color: rgba(26, 26, 26, 0.4) !important;
+  background-color: #f5f5f5 !important;
+  border-color: rgba(26, 26, 26, 0.3) !important;
 }
 
 .hero-btn-outline-light {

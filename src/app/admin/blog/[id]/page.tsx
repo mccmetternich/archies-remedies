@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, use } from 'react';
+import React, { useState, useEffect, use, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -11,18 +11,14 @@ import {
   Eye,
   EyeOff,
   Star,
-  Calendar,
   Tag,
-  Image as ImageIcon,
-  FileText,
-  Settings,
-  Search,
   X,
-  ExternalLink,
   Trash2,
   Plus,
   Heart,
   BarChart3,
+  Search,
+  User,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { MediaPickerButton } from '@/components/admin/media-picker';
@@ -57,17 +53,18 @@ interface BlogTag {
   name: string;
   slug: string;
   color: string | null;
+  postCount?: number;
 }
 
 export default function BlogPostEditorPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
   const isNew = id === 'new';
+  const rightColumnRef = useRef<HTMLDivElement>(null);
 
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
-  const [activeTab, setActiveTab] = useState<'content' | 'settings' | 'seo'>('content');
   const [allTags, setAllTags] = useState<BlogTag[]>([]);
   const [showTagSearch, setShowTagSearch] = useState(false);
   const [tagSearch, setTagSearch] = useState('');
@@ -101,9 +98,28 @@ export default function BlogPostEditorPage({ params }: { params: Promise<{ id: s
 
   const [originalPost, setOriginalPost] = useState<BlogPost | null>(null);
 
+  // Fetch default author settings for new posts
+  const fetchDefaultAuthor = async () => {
+    try {
+      const res = await fetch('/api/admin/settings');
+      const settings = await res.json();
+      if (settings.defaultBlogAuthorName || settings.defaultBlogAuthorAvatarUrl) {
+        setPost((prev) => ({
+          ...prev,
+          authorName: settings.defaultBlogAuthorName || prev.authorName,
+          authorAvatarUrl: settings.defaultBlogAuthorAvatarUrl || prev.authorAvatarUrl,
+        }));
+      }
+    } catch (error) {
+      console.error('Failed to fetch default author settings:', error);
+    }
+  };
+
   useEffect(() => {
     fetchTags();
-    if (!isNew) {
+    if (isNew) {
+      fetchDefaultAuthor();
+    } else {
       fetchPost();
     }
   }, [id, isNew]);
@@ -169,11 +185,6 @@ export default function BlogPostEditorPage({ params }: { params: Promise<{ id: s
     }
   };
 
-  const handlePublish = async () => {
-    setPost((prev) => ({ ...prev, status: 'published' }));
-    await handleSave();
-  };
-
   const handleDeletePost = async () => {
     if (!confirm('Are you sure you want to delete this blog post? This action cannot be undone.')) return;
 
@@ -223,6 +234,19 @@ export default function BlogPostEditorPage({ params }: { params: Promise<{ id: s
       setCreatingTag(false);
       setTagSearch('');
       setShowTagSearch(false);
+    }
+  };
+
+  const handleTagKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && tagSearch.trim()) {
+      e.preventDefault();
+      // Check if exact match exists
+      const exactMatch = allTags.find(t => t.name.toLowerCase() === tagSearch.trim().toLowerCase());
+      if (exactMatch && !post.tags?.find(t => t.id === exactMatch.id)) {
+        handleAddTag(exactMatch);
+      } else if (!exactMatch) {
+        handleCreateTag(tagSearch.trim());
+      }
     }
   };
 
@@ -376,242 +400,335 @@ export default function BlogPostEditorPage({ params }: { params: Promise<{ id: s
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-1 p-1 bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] w-fit">
-        <button
-          onClick={() => setActiveTab('content')}
-          className={cn(
-            'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors',
-            activeTab === 'content'
-              ? 'bg-[var(--primary)] text-[var(--admin-button-text)]'
-              : 'text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)]'
-          )}
-        >
-          <FileText className="w-4 h-4" />
-          Content
-        </button>
-        <button
-          onClick={() => setActiveTab('settings')}
-          className={cn(
-            'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors',
-            activeTab === 'settings'
-              ? 'bg-[var(--primary)] text-[var(--admin-button-text)]'
-              : 'text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)]'
-          )}
-        >
-          <Settings className="w-4 h-4" />
-          Settings
-        </button>
-        <button
-          onClick={() => setActiveTab('seo')}
-          className={cn(
-            'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors',
-            activeTab === 'seo'
-              ? 'bg-[var(--primary)] text-[var(--admin-button-text)]'
-              : 'text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)]'
-          )}
-        >
-          <Search className="w-4 h-4" />
-          SEO
-        </button>
-      </div>
+      {/* Main Content - Two Column Layout */}
+      <div className="grid lg:grid-cols-3 gap-6">
+        {/* Left Column - Title, Excerpt, Content */}
+        <div className="lg:col-span-2 space-y-6 flex flex-col">
+          {/* Title */}
+          <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--admin-text-muted)] mb-3">Title</label>
+            <input
+              type="text"
+              value={post.title}
+              onChange={(e) => handleTitleChange(e.target.value)}
+              placeholder="Post title..."
+              className="w-full text-2xl font-medium bg-transparent text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none"
+            />
+          </div>
 
-      {/* Content Tab */}
-      {activeTab === 'content' && (
-        <div className="grid lg:grid-cols-3 gap-6">
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Title */}
-            <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6">
-              <input
-                type="text"
-                value={post.title}
-                onChange={(e) => handleTitleChange(e.target.value)}
-                placeholder="Post title..."
-                className="w-full text-2xl font-medium bg-transparent text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none"
-              />
-            </div>
+          {/* Excerpt */}
+          <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--admin-text-muted)] mb-3">
+              Preview Text / Excerpt
+            </label>
+            <p className="text-xs text-[var(--admin-text-muted)] mb-3">
+              Short summary shown in blog listings and social shares. If empty, the first paragraph of content is used.
+            </p>
+            <textarea
+              value={post.excerpt || ''}
+              onChange={(e) => setPost((prev) => ({ ...prev, excerpt: e.target.value }))}
+              placeholder="Write a short preview of your post..."
+              rows={3}
+              className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border-light)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors resize-none"
+            />
+          </div>
 
-            {/* Excerpt */}
-            <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6">
-              <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-3">Excerpt</label>
-              <textarea
-                value={post.excerpt || ''}
-                onChange={(e) => setPost((prev) => ({ ...prev, excerpt: e.target.value }))}
-                placeholder="Write a short preview of your post..."
-                rows={3}
-                className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border-light)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors resize-none"
-              />
-            </div>
+          {/* Content - Rich Text Editor - Fills remaining space */}
+          <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6 flex-1 min-h-[600px]">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--admin-text-muted)] mb-3">Content</label>
+            <RichTextEditor
+              value={post.content || ''}
+              onChange={(content) => setPost((prev) => ({ ...prev, content }))}
+              placeholder="Write your blog post content here..."
+              minHeight="calc(100% - 40px)"
+            />
+          </div>
+        </div>
 
-            {/* Content - Rich Text Editor */}
-            <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6">
-              <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-3">Content</label>
-              <RichTextEditor
-                value={post.content || ''}
-                onChange={(content) => setPost((prev) => ({ ...prev, content }))}
-                placeholder="Write your blog post content here..."
-                minHeight="400px"
-              />
+        {/* Right Column - Settings in order */}
+        <div className="space-y-6" ref={rightColumnRef}>
+          {/* 1. Author Section */}
+          <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--admin-text-muted)] mb-4">Author</label>
+
+            <div className="flex items-start gap-4">
+              {/* Author Avatar */}
+              <div className="flex-shrink-0">
+                {post.authorAvatarUrl ? (
+                  <div className="relative group">
+                    <img
+                      src={post.authorAvatarUrl}
+                      alt="Author"
+                      className="w-16 h-16 rounded-full object-cover border-2 border-[var(--admin-border-light)]"
+                    />
+                    <button
+                      onClick={() => setPost(prev => ({ ...prev, authorAvatarUrl: null }))}
+                      className="absolute -top-1 -right-1 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="w-16 h-16 rounded-full bg-[var(--admin-input)] border-2 border-dashed border-[var(--admin-border-light)] flex items-center justify-center">
+                    <User className="w-6 h-6 text-[var(--admin-text-muted)]" />
+                  </div>
+                )}
+              </div>
+
+              <div className="flex-1 space-y-3">
+                <input
+                  type="text"
+                  value={post.authorName || ''}
+                  onChange={(e) => setPost((prev) => ({ ...prev, authorName: e.target.value }))}
+                  placeholder="Author name"
+                  className="w-full px-3 py-2 bg-[var(--admin-input)] border border-[var(--admin-border-light)] rounded-lg text-sm text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+                />
+                <MediaPickerButton
+                  label=""
+                  value={post.authorAvatarUrl}
+                  onChange={(url) => setPost((prev) => ({ ...prev, authorAvatarUrl: url || null }))}
+                  helpText=""
+                  folder="blog/authors"
+                  aspectRatio="1/1"
+                  buttonText="Upload Avatar"
+                  compact
+                />
+              </div>
             </div>
           </div>
 
-          {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Featured Image */}
-            <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6">
-              <MediaPickerButton
-                label="Featured Image"
-                value={post.featuredImageUrl}
-                onChange={(url) => setPost((prev) => ({ ...prev, featuredImageUrl: url || null }))}
-                helpText="Main image displayed in blog listings and at top of post"
-                folder="blog"
-                aspectRatio="16/9"
-              />
+          {/* 2. Featured Image/Video */}
+          <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6">
+            <MediaPickerButton
+              label="Featured Image or Video"
+              value={post.featuredImageUrl}
+              onChange={(url) => setPost((prev) => ({ ...prev, featuredImageUrl: url || null }))}
+              helpText="Main visual displayed in blog listings and at top of post"
+              folder="blog"
+              aspectRatio="16/9"
+            />
+          </div>
+
+          {/* 3. Featured Post Toggle */}
+          <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6">
+            <label className="flex items-center justify-between cursor-pointer">
+              <div>
+                <p className="text-sm font-medium text-[var(--admin-text-secondary)]">Featured Post</p>
+                <p className="text-xs text-[var(--admin-text-muted)] mt-1">Show as full-width hero on blog page</p>
+              </div>
+              <button
+                onClick={() => setPost((prev) => ({ ...prev, isFeatured: !prev.isFeatured }))}
+                className={cn(
+                  'p-2 rounded-lg transition-colors',
+                  post.isFeatured
+                    ? 'text-yellow-400 bg-yellow-500/10'
+                    : 'text-[var(--admin-text-muted)] hover:text-yellow-400 hover:bg-yellow-500/10'
+                )}
+              >
+                <Star className={cn('w-5 h-5', post.isFeatured && 'fill-yellow-400')} />
+              </button>
+            </label>
+          </div>
+
+          {/* 4. Reading Time & Social Proof */}
+          <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6 space-y-4">
+            {/* Reading Time */}
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--admin-text-muted)] mb-2">Reading Time</label>
+              <div className="flex items-center gap-3">
+                <input
+                  type="number"
+                  value={post.readingTime || 5}
+                  onChange={(e) =>
+                    setPost((prev) => ({ ...prev, readingTime: parseInt(e.target.value) || 5 }))
+                  }
+                  min={1}
+                  className="w-20 px-3 py-2 bg-[var(--admin-input)] border border-[var(--admin-border-light)] rounded-lg text-sm text-[var(--admin-text-primary)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+                />
+                <span className="text-sm text-[var(--admin-text-secondary)]">minutes</span>
+              </div>
             </div>
 
-            {/* Tags */}
-            <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6">
-              <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-3">Tags</label>
-
-              {/* Selected Tags */}
-              {post.tags && post.tags.length > 0 && (
-                <div className="flex flex-wrap gap-2 mb-3">
-                  {post.tags.map((tag) => (
-                    <span
-                      key={tag.id}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium"
-                      style={{
-                        backgroundColor: `${tag.color}20`,
-                        color: tag.color || '#bbdae9',
-                      }}
-                    >
-                      {tag.name}
-                      <button
-                        onClick={() => handleRemoveTag(tag.id)}
-                        className="hover:opacity-70 transition-opacity"
-                      >
-                        <X className="w-3.5 h-3.5" />
-                      </button>
-                    </span>
-                  ))}
+            <div className="border-t border-[var(--admin-border-light)] pt-4">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--admin-text-muted)] mb-2">
+                Social Proof (Optional)
+              </label>
+              <p className="text-xs text-[var(--admin-text-muted)] mb-3">
+                Engagement metrics shown on article. Leave empty to hide.
+              </p>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="flex items-center gap-1.5 text-xs text-[var(--admin-text-secondary)] mb-1.5">
+                    <BarChart3 className="w-3.5 h-3.5" />
+                    Views
+                  </label>
+                  <input
+                    type="number"
+                    value={post.viewCount || ''}
+                    onChange={(e) =>
+                      setPost((prev) => ({
+                        ...prev,
+                        viewCount: e.target.value ? parseInt(e.target.value) : null,
+                      }))
+                    }
+                    min={0}
+                    placeholder="1200"
+                    className="w-full px-3 py-2 bg-[var(--admin-input)] border border-[var(--admin-border-light)] rounded-lg text-sm text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+                  />
                 </div>
-              )}
+                <div>
+                  <label className="flex items-center gap-1.5 text-xs text-[var(--admin-text-secondary)] mb-1.5">
+                    <Heart className="w-3.5 h-3.5" />
+                    Hearts
+                  </label>
+                  <input
+                    type="number"
+                    value={post.heartCount || ''}
+                    onChange={(e) =>
+                      setPost((prev) => ({
+                        ...prev,
+                        heartCount: e.target.value ? parseInt(e.target.value) : null,
+                      }))
+                    }
+                    min={0}
+                    placeholder="89"
+                    className="w-full px-3 py-2 bg-[var(--admin-input)] border border-[var(--admin-border-light)] rounded-lg text-sm text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
 
-              {/* Tag Search with Inline Creation */}
+          {/* 5. Tags */}
+          <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--admin-text-muted)] mb-3">Tags</label>
+
+            {/* Selected Tags */}
+            {post.tags && post.tags.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-3">
+                {post.tags.map((tag) => (
+                  <span
+                    key={tag.id}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium"
+                    style={{
+                      backgroundColor: `${tag.color}20`,
+                      color: tag.color || '#bbdae9',
+                    }}
+                  >
+                    {tag.name}
+                    <button
+                      onClick={() => handleRemoveTag(tag.id)}
+                      className="hover:opacity-70 transition-opacity"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+
+            {/* Tag Search with Inline Creation */}
+            <div className="relative">
               <div className="relative">
-                <button
-                  onClick={() => setShowTagSearch(!showTagSearch)}
-                  className="w-full px-4 py-2.5 bg-[var(--admin-input)] border border-[var(--admin-border-light)] rounded-lg text-[var(--admin-text-secondary)] text-left text-sm hover:border-[var(--primary)] transition-colors flex items-center gap-2"
-                >
-                  <Tag className="w-4 h-4" />
-                  Add tags...
-                </button>
+                <input
+                  type="text"
+                  value={tagSearch}
+                  onChange={(e) => {
+                    setTagSearch(e.target.value);
+                    setShowTagSearch(true);
+                  }}
+                  onFocus={() => setShowTagSearch(true)}
+                  onKeyDown={handleTagKeyDown}
+                  placeholder="Type to add tags... (Enter to create)"
+                  className="w-full px-4 py-2.5 pl-10 bg-[var(--admin-input)] border border-[var(--admin-border-light)] rounded-lg text-sm text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+                />
+                <Tag className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--admin-text-muted)]" />
+              </div>
 
-                {showTagSearch && (
-                  <div className="absolute top-full left-0 right-0 mt-2 bg-[var(--admin-card)] border border-[var(--admin-border-light)] rounded-xl shadow-xl z-10 overflow-hidden">
-                    <input
-                      type="text"
-                      value={tagSearch}
-                      onChange={(e) => setTagSearch(e.target.value)}
-                      placeholder="Search or create a tag..."
-                      className="w-full px-4 py-3 bg-[var(--admin-input)] text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none border-b border-[var(--admin-border-light)]"
-                      autoFocus
-                    />
-                    <div className="max-h-48 overflow-y-auto">
-                      {/* Create New Tag Option */}
-                      {tagSearch.trim() && !allTags.some(t => t.name.toLowerCase() === tagSearch.trim().toLowerCase()) && (
+              {showTagSearch && (tagSearch || filteredTags.length > 0) && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-[var(--admin-card)] border border-[var(--admin-border-light)] rounded-xl shadow-xl z-10 overflow-hidden">
+                  <div className="max-h-48 overflow-y-auto">
+                    {/* Create New Tag Option */}
+                    {tagSearch.trim() && !allTags.some(t => t.name.toLowerCase() === tagSearch.trim().toLowerCase()) && (
+                      <button
+                        onClick={() => handleCreateTag(tagSearch.trim())}
+                        disabled={creatingTag}
+                        className="w-full px-4 py-2.5 text-left hover:bg-[var(--admin-input)] transition-colors flex items-center gap-2 border-b border-[var(--admin-border-light)]"
+                      >
+                        {creatingTag ? (
+                          <Loader2 className="w-4 h-4 animate-spin text-[var(--primary)]" />
+                        ) : (
+                          <Plus className="w-4 h-4 text-[var(--primary)]" />
+                        )}
+                        <span className="text-sm text-[var(--admin-text-primary)]">
+                          Create &ldquo;{tagSearch.trim()}&rdquo;
+                        </span>
+                      </button>
+                    )}
+                    {filteredTags.length > 0 ? (
+                      filteredTags.map((tag) => (
                         <button
-                          onClick={() => handleCreateTag(tagSearch.trim())}
-                          disabled={creatingTag}
-                          className="w-full px-4 py-2.5 text-left hover:bg-[var(--admin-input)] transition-colors flex items-center gap-2 border-b border-[var(--admin-border-light)]"
+                          key={tag.id}
+                          onClick={() => handleAddTag(tag)}
+                          className="w-full px-4 py-2.5 text-left hover:bg-[var(--admin-input)] transition-colors flex items-center justify-between"
                         >
-                          {creatingTag ? (
-                            <Loader2 className="w-4 h-4 animate-spin text-[var(--primary)]" />
-                          ) : (
-                            <Plus className="w-4 h-4 text-[var(--primary)]" />
-                          )}
-                          <span className="text-sm text-[var(--admin-text-primary)]">
-                            Create &ldquo;{tagSearch.trim()}&rdquo;
-                          </span>
-                        </button>
-                      )}
-                      {filteredTags.length > 0 ? (
-                        filteredTags.map((tag) => (
-                          <button
-                            key={tag.id}
-                            onClick={() => handleAddTag(tag)}
-                            className="w-full px-4 py-2.5 text-left hover:bg-[var(--admin-input)] transition-colors flex items-center gap-2"
-                          >
+                          <div className="flex items-center gap-2">
                             <span
                               className="w-3 h-3 rounded-full"
                               style={{ backgroundColor: tag.color || '#bbdae9' }}
                             />
                             <span className="text-sm text-[var(--admin-text-primary)]">{tag.name}</span>
-                          </button>
-                        ))
-                      ) : !tagSearch.trim() ? (
-                        <div className="px-4 py-3 text-sm text-[var(--admin-text-muted)]">
-                          Type to search or create a tag
-                        </div>
-                      ) : null}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Quick-Apply Tags - Show available tags */}
-              {allTags.length > 0 && !showTagSearch && (
-                <div className="mt-3 pt-3 border-t border-[var(--admin-border-light)]">
-                  <p className="text-xs text-[var(--admin-text-muted)] mb-2">Quick add:</p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {allTags
-                      .filter(tag => !post.tags?.find(t => t.id === tag.id))
-                      .slice(0, 6)
-                      .map(tag => (
-                        <button
-                          key={tag.id}
-                          onClick={() => handleAddTag(tag)}
-                          className="px-2.5 py-1 text-xs rounded-full border border-[var(--admin-border-light)] text-[var(--admin-text-secondary)] hover:border-[var(--primary)] hover:text-[var(--admin-text-primary)] transition-colors"
-                        >
-                          {tag.name}
+                          </div>
+                          {tag.postCount !== undefined && (
+                            <span className="text-xs text-[var(--admin-text-muted)]">
+                              ({tag.postCount}) posts
+                            </span>
+                          )}
                         </button>
-                      ))}
+                      ))
+                    ) : !tagSearch.trim() ? (
+                      <div className="px-4 py-3 text-sm text-[var(--admin-text-muted)]">
+                        Type to search or create a tag
+                      </div>
+                    ) : null}
                   </div>
                 </div>
               )}
             </div>
 
-            {/* Featured Toggle */}
-            <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6">
-              <label className="flex items-center justify-between cursor-pointer">
-                <div>
-                  <p className="text-sm font-medium text-[var(--admin-text-secondary)]">Featured Post</p>
-                  <p className="text-xs text-[var(--admin-text-muted)] mt-1">Show as full-width hero on blog page</p>
+            {/* Quick-Apply Tags - Show available tags */}
+            {allTags.length > 0 && !showTagSearch && (
+              <div className="mt-3 pt-3 border-t border-[var(--admin-border-light)]">
+                <p className="text-xs text-[var(--admin-text-muted)] mb-2">Quick add:</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {allTags
+                    .filter(tag => !post.tags?.find(t => t.id === tag.id))
+                    .slice(0, 6)
+                    .map(tag => (
+                      <button
+                        key={tag.id}
+                        onClick={() => handleAddTag(tag)}
+                        className="px-2.5 py-1 text-xs rounded-full border border-[var(--admin-border-light)] text-[var(--admin-text-secondary)] hover:border-[var(--primary)] hover:text-[var(--admin-text-primary)] transition-colors"
+                      >
+                        {tag.name}
+                      </button>
+                    ))}
                 </div>
-                <button
-                  onClick={() => setPost((prev) => ({ ...prev, isFeatured: !prev.isFeatured }))}
-                  className={cn(
-                    'p-2 rounded-lg transition-colors',
-                    post.isFeatured
-                      ? 'text-yellow-400 bg-yellow-500/10'
-                      : 'text-[var(--admin-text-muted)] hover:text-yellow-400 hover:bg-yellow-500/10'
-                  )}
-                >
-                  <Star className={cn('w-5 h-5', post.isFeatured && 'fill-yellow-400')} />
-                </button>
-              </label>
-            </div>
-          </div>
-        </div>
-      )}
+              </div>
+            )}
 
-      {/* Settings Tab */}
-      {activeTab === 'settings' && (
-        <div className="max-w-2xl space-y-6">
-          {/* Slug */}
+            {/* Click outside to close */}
+            {showTagSearch && (
+              <div
+                className="fixed inset-0 z-0"
+                onClick={() => setShowTagSearch(false)}
+              />
+            )}
+          </div>
+
+          {/* 6. URL Slug */}
           <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6">
-            <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-3">URL Slug</label>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--admin-text-muted)] mb-3">URL Slug</label>
             <div className="flex items-center gap-2">
               <span className="text-[var(--admin-text-muted)] text-sm">/blog/</span>
               <input
@@ -619,27 +736,69 @@ export default function BlogPostEditorPage({ params }: { params: Promise<{ id: s
                 value={post.slug}
                 onChange={(e) => setPost((prev) => ({ ...prev, slug: e.target.value }))}
                 placeholder="post-slug"
-                className="flex-1 px-4 py-2.5 bg-[var(--admin-input)] border border-[var(--admin-border-light)] rounded-lg text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+                className="flex-1 px-3 py-2 bg-[var(--admin-input)] border border-[var(--admin-border-light)] rounded-lg text-sm text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
               />
             </div>
           </div>
 
-          {/* Author */}
-          <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6">
-            <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-3">Author</label>
-            <input
-              type="text"
-              value={post.authorName || ''}
-              onChange={(e) => setPost((prev) => ({ ...prev, authorName: e.target.value }))}
-              placeholder="Author name"
-              className="w-full px-4 py-2.5 bg-[var(--admin-input)] border border-[var(--admin-border-light)] rounded-lg text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
-            />
+          {/* 7. SEO */}
+          <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6 space-y-4">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--admin-text-muted)]">
+              <Search className="w-3.5 h-3.5 inline mr-1.5" />
+              SEO
+            </label>
+
+            {/* Meta Title */}
+            <div>
+              <label className="block text-sm text-[var(--admin-text-secondary)] mb-2">Meta Title</label>
+              <input
+                type="text"
+                value={post.metaTitle || ''}
+                onChange={(e) => setPost((prev) => ({ ...prev, metaTitle: e.target.value }))}
+                placeholder={post.title || 'SEO title'}
+                className="w-full px-3 py-2 bg-[var(--admin-input)] border border-[var(--admin-border-light)] rounded-lg text-sm text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+              />
+              <p className="text-xs text-[var(--admin-text-muted)] mt-1">
+                {(post.metaTitle || post.title || '').length}/60
+              </p>
+            </div>
+
+            {/* Meta Description */}
+            <div>
+              <label className="block text-sm text-[var(--admin-text-secondary)] mb-2">Meta Description</label>
+              <textarea
+                value={post.metaDescription || ''}
+                onChange={(e) => setPost((prev) => ({ ...prev, metaDescription: e.target.value }))}
+                placeholder={post.excerpt || 'SEO description'}
+                rows={3}
+                className="w-full px-3 py-2 bg-[var(--admin-input)] border border-[var(--admin-border-light)] rounded-lg text-sm text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors resize-none"
+              />
+              <p className="text-xs text-[var(--admin-text-muted)] mt-1">
+                {(post.metaDescription || post.excerpt || '').length}/160
+              </p>
+            </div>
+
+            {/* SEO Preview */}
+            <div className="border-t border-[var(--admin-border-light)] pt-4">
+              <label className="block text-xs text-[var(--admin-text-muted)] mb-2">Search Preview</label>
+              <div className="bg-white rounded-lg p-3 text-left">
+                <p className="text-blue-600 text-sm font-medium truncate">
+                  {post.metaTitle || post.title || 'Post Title'}
+                </p>
+                <p className="text-green-700 text-xs truncate">
+                  archiesremedies.com/blog/{post.slug || 'post-slug'}
+                </p>
+                <p className="text-gray-600 text-xs line-clamp-2 mt-0.5">
+                  {post.metaDescription || post.excerpt || 'Post description will appear here...'}
+                </p>
+              </div>
+            </div>
           </div>
 
-          {/* Publish Date */}
+          {/* Published Date (only for published posts) */}
           {post.status === 'published' && (
             <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6">
-              <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-3">Published Date</label>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--admin-text-muted)] mb-3">Published Date</label>
               <input
                 type="datetime-local"
                 value={post.publishedAt ? post.publishedAt.slice(0, 16) : ''}
@@ -649,133 +808,12 @@ export default function BlogPostEditorPage({ params }: { params: Promise<{ id: s
                     publishedAt: e.target.value ? new Date(e.target.value).toISOString() : null,
                   }))
                 }
-                className="w-full px-4 py-2.5 bg-[var(--admin-input)] border border-[var(--admin-border-light)] rounded-lg text-[var(--admin-text-primary)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+                className="w-full px-3 py-2 bg-[var(--admin-input)] border border-[var(--admin-border-light)] rounded-lg text-sm text-[var(--admin-text-primary)] focus:outline-none focus:border-[var(--primary)] transition-colors"
               />
             </div>
           )}
-
-          {/* Reading Time */}
-          <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6">
-            <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-3">Reading Time</label>
-            <div className="flex items-center gap-3">
-              <input
-                type="number"
-                value={post.readingTime || 5}
-                onChange={(e) =>
-                  setPost((prev) => ({ ...prev, readingTime: parseInt(e.target.value) || 5 }))
-                }
-                min={1}
-                className="w-24 px-4 py-2.5 bg-[var(--admin-input)] border border-[var(--admin-border-light)] rounded-lg text-[var(--admin-text-primary)] focus:outline-none focus:border-[var(--primary)] transition-colors"
-              />
-              <span className="text-[var(--admin-text-secondary)]">minutes</span>
-            </div>
-            <p className="text-xs text-[var(--admin-text-muted)] mt-2">
-              Auto-calculated based on content, but you can override it
-            </p>
-          </div>
-
-          {/* Vanity Metrics */}
-          <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6">
-            <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-3">
-              Social Proof (Optional)
-            </label>
-            <p className="text-xs text-[var(--admin-text-muted)] mb-4">
-              Add engagement metrics to display on the article page. Leave empty to hide.
-            </p>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="flex items-center gap-2 text-sm text-[var(--admin-text-secondary)] mb-2">
-                  <BarChart3 className="w-4 h-4" />
-                  Views
-                </label>
-                <input
-                  type="number"
-                  value={post.viewCount || ''}
-                  onChange={(e) =>
-                    setPost((prev) => ({
-                      ...prev,
-                      viewCount: e.target.value ? parseInt(e.target.value) : null,
-                    }))
-                  }
-                  min={0}
-                  placeholder="e.g., 1200"
-                  className="w-full px-4 py-2.5 bg-[var(--admin-input)] border border-[var(--admin-border-light)] rounded-lg text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
-                />
-              </div>
-              <div>
-                <label className="flex items-center gap-2 text-sm text-[var(--admin-text-secondary)] mb-2">
-                  <Heart className="w-4 h-4" />
-                  Hearts
-                </label>
-                <input
-                  type="number"
-                  value={post.heartCount || ''}
-                  onChange={(e) =>
-                    setPost((prev) => ({
-                      ...prev,
-                      heartCount: e.target.value ? parseInt(e.target.value) : null,
-                    }))
-                  }
-                  min={0}
-                  placeholder="e.g., 89"
-                  className="w-full px-4 py-2.5 bg-[var(--admin-input)] border border-[var(--admin-border-light)] rounded-lg text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
-                />
-              </div>
-            </div>
-          </div>
         </div>
-      )}
-
-      {/* SEO Tab */}
-      {activeTab === 'seo' && (
-        <div className="max-w-2xl space-y-6">
-          {/* Meta Title */}
-          <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6">
-            <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-3">Meta Title</label>
-            <input
-              type="text"
-              value={post.metaTitle || ''}
-              onChange={(e) => setPost((prev) => ({ ...prev, metaTitle: e.target.value }))}
-              placeholder={post.title || 'SEO title'}
-              className="w-full px-4 py-2.5 bg-[var(--admin-input)] border border-[var(--admin-border-light)] rounded-lg text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
-            />
-            <p className="text-xs text-[var(--admin-text-muted)] mt-2">
-              {(post.metaTitle || post.title || '').length}/60 characters
-            </p>
-          </div>
-
-          {/* Meta Description */}
-          <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6">
-            <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-3">Meta Description</label>
-            <textarea
-              value={post.metaDescription || ''}
-              onChange={(e) => setPost((prev) => ({ ...prev, metaDescription: e.target.value }))}
-              placeholder={post.excerpt || 'SEO description'}
-              rows={3}
-              className="w-full px-4 py-2.5 bg-[var(--admin-input)] border border-[var(--admin-border-light)] rounded-lg text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors resize-none"
-            />
-            <p className="text-xs text-[var(--admin-text-muted)] mt-2">
-              {(post.metaDescription || post.excerpt || '').length}/160 characters
-            </p>
-          </div>
-
-          {/* SEO Preview */}
-          <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6">
-            <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-3">Search Preview</label>
-            <div className="bg-white rounded-lg p-4">
-              <p className="text-blue-600 text-lg font-medium truncate">
-                {post.metaTitle || post.title || 'Post Title'}
-              </p>
-              <p className="text-green-700 text-sm truncate">
-                archiesremedies.com/blog/{post.slug || 'post-slug'}
-              </p>
-              <p className="text-[var(--admin-text-muted)] text-sm line-clamp-2 mt-1">
-                {post.metaDescription || post.excerpt || 'Post description will appear here...'}
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
+      </div>
     </div>
   );
 }

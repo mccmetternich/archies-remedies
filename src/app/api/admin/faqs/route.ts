@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidateTag } from 'next/cache';
 import { db } from '@/lib/db';
 import { faqs } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
@@ -43,6 +44,11 @@ export async function PUT(request: Request) {
         sortOrder: i,
       });
     }
+
+    // Invalidate caches - FAQs widget can be on any page
+    revalidateTag('homepage-data', 'max');
+    revalidateTag('page-data', 'max');
+    revalidateTag('dynamic-page-data', 'max');
 
     return NextResponse.json({ success: true });
   } catch (error) {

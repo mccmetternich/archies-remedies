@@ -268,50 +268,52 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
             "grid lg:grid-cols-2 h-full items-stretch",
             isReversed && "lg:[&>*:first-child]:order-2 lg:[&>*:last-child]:order-1"
           )}>
-            {/* Text content - vertically & horizontally centered, testimonial left-aligned below */}
-            <div className="flex flex-col justify-center h-full py-12 lg:py-16 px-6 lg:px-12">
-              {/* Main content block - centered vertically */}
-              <div className="w-full max-w-xl mx-auto">
-                <TextContent />
+            {/* Text column - split into two compartments */}
+            <div className="relative h-full px-6 lg:px-12">
+              {/* COMPARTMENT 1: Main content - vertically centered */}
+              <div className="flex items-center justify-center h-full py-12 lg:py-16">
+                <div className="w-full max-w-xl">
+                  <TextContent />
+                </div>
+              </div>
 
-                {/* Testimonial card - left-aligned, consistent gap below CTAs */}
-                {slide.testimonialText && slide.testimonialAvatarUrl && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
-                    transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: 0.5 }}
-                    className="mt-10 max-w-md pointer-events-auto"
-                  >
-                    <div className="bg-white/95 backdrop-blur-sm px-5 py-4 rounded-2xl shadow-xl border border-black/5">
-                      <div className="flex items-center gap-4">
-                        <div className="w-14 h-14 rounded-full overflow-hidden bg-[var(--sand)] flex-shrink-0">
-                          <Image
-                            src={slide.testimonialAvatarUrl}
-                            alt={slide.testimonialAuthor || 'Customer'}
-                            width={56}
-                            height={56}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="font-semibold text-base text-[var(--foreground)]">{slide.testimonialAuthor || 'Verified Buyer'}</span>
-                            <div className="flex gap-0.5">
-                              {[1, 2, 3, 4, 5].map((i) => (
-                                <Star key={i} className="w-4 h-4 fill-[var(--primary)] text-[var(--primary)]" />
-                              ))}
-                            </div>
+              {/* COMPARTMENT 2: Testimonial card - positioned absolutely at bottom with configurable gap */}
+              {slide.testimonialText && slide.testimonialAvatarUrl && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
+                  transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: 0.5 }}
+                  className="absolute bottom-16 left-6 lg:left-12 right-6 lg:right-12 max-w-md pointer-events-auto"
+                >
+                  <div className="bg-white/95 backdrop-blur-sm px-5 py-4 rounded-2xl shadow-xl border border-black/5">
+                    <div className="flex items-center gap-4">
+                      <div className="w-14 h-14 rounded-full overflow-hidden bg-[var(--sand)] flex-shrink-0">
+                        <Image
+                          src={slide.testimonialAvatarUrl}
+                          alt={slide.testimonialAuthor || 'Customer'}
+                          width={56}
+                          height={56}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="font-semibold text-base text-[var(--foreground)]">{slide.testimonialAuthor || 'Verified Buyer'}</span>
+                          <div className="flex gap-0.5">
+                            {[1, 2, 3, 4, 5].map((i) => (
+                              <Star key={i} className="w-4 h-4 fill-[var(--primary)] text-[var(--primary)]" />
+                            ))}
                           </div>
-                          <p className="text-base text-[var(--muted-foreground)] leading-snug line-clamp-2">
-                            {slide.testimonialText}
-                          </p>
                         </div>
+                        <p className="text-base text-[var(--muted-foreground)] leading-snug line-clamp-2">
+                          {slide.testimonialText}
+                        </p>
                       </div>
                     </div>
-                  </motion.div>
-                )}
-              </div>
+                  </div>
+                </motion.div>
+              )}
             </div>
 
             {/* Media - Full width of column, full height */}

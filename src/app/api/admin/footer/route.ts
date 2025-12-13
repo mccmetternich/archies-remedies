@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidateTag } from 'next/cache';
 import { db } from '@/lib/db';
 import { footerLinks, siteSettings, pages } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
@@ -231,6 +232,12 @@ export async function PUT(request: Request) {
         }
       }
     }
+
+    // Invalidate caches - footer is on all pages
+    revalidateTag('homepage-data', 'max');
+    revalidateTag('page-data', 'max');
+    revalidateTag('header-data', 'max');
+    revalidateTag('dynamic-page-data', 'max');
 
     return NextResponse.json({ success: true });
   } catch (error) {

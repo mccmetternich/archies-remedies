@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidateTag } from 'next/cache';
 import { db } from '@/lib/db';
 import { products, productVariants, productBenefits, pages } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
@@ -114,6 +115,10 @@ export async function PUT(
       })
       .where(eq(pages.productId, id));
 
+    // Invalidate caches - products widget is on homepage
+    revalidateTag('homepage-data', 'max');
+    revalidateTag('page-data', 'max');
+
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Failed to update product:', error);
@@ -152,6 +157,10 @@ export async function PATCH(
         .where(eq(pages.productId, id));
     }
 
+    // Invalidate caches - products widget is on homepage
+    revalidateTag('homepage-data', 'max');
+    revalidateTag('page-data', 'max');
+
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Failed to update product:', error);
@@ -171,6 +180,11 @@ export async function DELETE(
   try {
     // Variants and benefits will cascade delete due to foreign key
     await db.delete(products).where(eq(products.id, id));
+
+    // Invalidate caches - products widget is on homepage
+    revalidateTag('homepage-data', 'max');
+    revalidateTag('page-data', 'max');
+
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Failed to delete product:', error);

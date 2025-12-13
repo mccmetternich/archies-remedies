@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidateTag } from 'next/cache';
 import { db } from '@/lib/db';
 import { blogPosts, blogTags, blogPostTags } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
@@ -111,6 +112,9 @@ export async function PATCH(
       .innerJoin(blogTags, eq(blogPostTags.tagId, blogTags.id))
       .where(eq(blogPostTags.postId, id));
 
+    // Invalidate blog cache
+    revalidateTag('blog-data', 'max');
+
     return NextResponse.json({ ...updated, tags: postTags });
   } catch (error) {
     console.error('Failed to update blog post:', error);
@@ -140,6 +144,9 @@ export async function DELETE(
 
     // Tags will be deleted automatically due to CASCADE
     await db.delete(blogPosts).where(eq(blogPosts.id, id));
+
+    // Invalidate blog cache
+    revalidateTag('blog-data', 'max');
 
     return NextResponse.json({ success: true });
   } catch (error) {

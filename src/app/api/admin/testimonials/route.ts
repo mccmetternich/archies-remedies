@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidateTag } from 'next/cache';
 import { db } from '@/lib/db';
 import { testimonials } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
@@ -48,6 +49,10 @@ export async function PUT(request: Request) {
         sortOrder: i,
       });
     }
+
+    // Invalidate caches - testimonials widget is on homepage
+    revalidateTag('homepage-data', 'max');
+    revalidateTag('page-data', 'max');
 
     return NextResponse.json({ success: true });
   } catch (error) {
