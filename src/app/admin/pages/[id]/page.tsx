@@ -516,6 +516,7 @@ function WidgetConfigPanel({
                 <option value="large">Large</option>
                 <option value="xl">XL</option>
                 <option value="xxl">XXL (Gigantic)</option>
+                <option value="xxl2">XXL2 (Ultra)</option>
                 <option value="xxxl">XXXL (Massive)</option>
               </select>
             </div>
@@ -644,6 +645,7 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
 
   // Drag state for library widgets
   const [draggedWidgetType, setDraggedWidgetType] = useState<string | null>(null);
+  const [dropTargetIndex, setDropTargetIndex] = useState<number | null>(null);
 
   // Track unsaved changes
   const hasChanges = originalPage && (
@@ -837,17 +839,32 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
   };
 
   // Handle drop from library
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>, atIndex?: number) => {
     e.preventDefault();
+    e.stopPropagation();
     const widgetType = e.dataTransfer.getData('widget-type');
     if (widgetType) {
-      handleAddWidget(widgetType);
+      const insertIndex = atIndex !== undefined ? atIndex : dropTargetIndex !== null ? dropTargetIndex : widgets.length;
+      handleAddWidget(widgetType, insertIndex);
     }
     setDraggedWidgetType(null);
+    setDropTargetIndex(null);
   };
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
+  };
+
+  // Calculate drop position based on mouse Y position
+  const handleDragOverWidget = (e: React.DragEvent<HTMLDivElement>, index: number) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const rect = e.currentTarget.getBoundingClientRect();
+    const midY = rect.top + rect.height / 2;
+    const newIndex = e.clientY < midY ? index : index + 1;
+    if (newIndex !== dropTargetIndex) {
+      setDropTargetIndex(newIndex);
+    }
   };
 
   if (loading) {
@@ -1169,10 +1186,13 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
             </div>
 
             {/* Widget List */}
-            <div className={cn(
-              'bg-[var(--admin-input)] rounded-xl border border-[var(--admin-border)] transition-all',
-              draggedWidgetType && 'ring-2 ring-[var(--primary)] ring-opacity-50'
-            )}>
+            <div
+              className={cn(
+                'bg-[var(--admin-input)] rounded-xl border border-[var(--admin-border)] transition-all relative',
+                draggedWidgetType && 'ring-2 ring-[var(--primary)] ring-opacity-50'
+              )}
+              onDragLeave={() => setDropTargetIndex(null)}
+            >
               {widgets.length > 0 ? (
                 <Reorder.Group
                   axis="y"
@@ -1181,31 +1201,67 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
                   className="divide-y divide-[var(--admin-border)]"
                 >
                   {widgets.map((widget, index) => (
-                    <DraggableWidgetRow
+                    <div
                       key={widget.id}
-                      widget={widget}
-                      index={index}
-                      isExpanded={expandedWidget === widget.id}
-                      onToggleExpand={() => setExpandedWidget(expandedWidget === widget.id ? null : widget.id)}
-                      onDelete={() => handleDeleteWidget(widget.id)}
-                      onUpdate={(updates) => handleUpdateWidget(widget.id, updates)}
-                      previewDevice={previewDevice}
-                      products={products}
-                      heroSlides={heroSlides}
-                      heroSlidesLoading={heroSlidesLoading}
-                      onHeroSlidesChange={handleUpdateHeroSlides}
-                    />
+                      onDragOver={(e) => draggedWidgetType && handleDragOverWidget(e, index)}
+                      onDrop={(e) => handleDrop(e, dropTargetIndex ?? index)}
+                    >
+                      {/* Drop indicator before this widget */}
+                      {draggedWidgetType && dropTargetIndex === index && (
+                        <div className="h-1 bg-[var(--primary)] mx-4 rounded-full animate-pulse" />
+                      )}
+                      <DraggableWidgetRow
+                        widget={widget}
+                        index={index}
+                        isExpanded={expandedWidget === widget.id}
+                        onToggleExpand={() => setExpandedWidget(expandedWidget === widget.id ? null : widget.id)}
+                        onDelete={() => handleDeleteWidget(widget.id)}
+                        onUpdate={(updates) => handleUpdateWidget(widget.id, updates)}
+                        previewDevice={previewDevice}
+                        products={products}
+                        heroSlides={heroSlides}
+                        heroSlidesLoading={heroSlidesLoading}
+                        onHeroSlidesChange={handleUpdateHeroSlides}
+                      />
+                      {/* Drop indicator after last widget */}
+                      {draggedWidgetType && index === widgets.length - 1 && dropTargetIndex === widgets.length && (
+                        <div className="h-1 bg-[var(--primary)] mx-4 rounded-full animate-pulse" />
+                      )}
+                    </div>
                   ))}
                 </Reorder.Group>
               ) : (
-                <div className="py-16 text-center">
-                  <Layout className="w-16 h-16 mx-auto mb-4 text-[var(--admin-text-muted)]" />
-                  <h3 className="font-medium text-lg text-[var(--admin-text-primary)] mb-2">
-                    No widgets yet
-                  </h3>
-                  <p className="text-sm text-[var(--admin-text-muted)] mb-4 max-w-xs mx-auto">
-                    Drag widgets from the library on the right, or click to add them to your page
-                  </p>
+                <div
+                  className="py-16 text-center"
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setDropTargetIndex(0);
+                  }}
+                  onDrop={(e) => handleDrop(e, 0)}
+                >
+                  {draggedWidgetType ? (
+                    <>
+                      <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-[var(--primary)]/20 flex items-center justify-center">
+                        <Plus className="w-8 h-8 text-[var(--primary)]" />
+                      </div>
+                      <h3 className="font-medium text-lg text-[var(--primary)] mb-2">
+                        Drop here to add
+                      </h3>
+                      <p className="text-sm text-[var(--admin-text-muted)]">
+                        Release to add {ALL_WIDGETS.find(w => w.type === draggedWidgetType)?.label || 'widget'}
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <Layout className="w-16 h-16 mx-auto mb-4 text-[var(--admin-text-muted)]" />
+                      <h3 className="font-medium text-lg text-[var(--admin-text-primary)] mb-2">
+                        No widgets yet
+                      </h3>
+                      <p className="text-sm text-[var(--admin-text-muted)] mb-4 max-w-xs mx-auto">
+                        Drag widgets from the library on the right, or click to add them to your page
+                      </p>
+                    </>
+                  )}
                 </div>
               )}
             </div>
