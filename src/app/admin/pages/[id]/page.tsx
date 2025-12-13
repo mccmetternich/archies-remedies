@@ -171,12 +171,14 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
   // Homepage data state
   const [products, setProducts] = useState<Product[]>([]);
   const [heroSlides, setHeroSlides] = useState<HeroSlide[]>([]);
+  const [originalHeroSlides, setOriginalHeroSlides] = useState<HeroSlide[]>([]);
   const [heroSlidesLoading, setHeroSlidesLoading] = useState(false);
 
   // Track unsaved changes
   const hasChanges = originalPage && (
     JSON.stringify(page) !== JSON.stringify(originalPage) ||
-    JSON.stringify(widgets) !== JSON.stringify(originalWidgets)
+    JSON.stringify(widgets) !== JSON.stringify(originalWidgets) ||
+    JSON.stringify(heroSlides) !== JSON.stringify(originalHeroSlides)
   );
 
   useEffect(() => {
@@ -238,6 +240,7 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
       const res = await fetch('/api/admin/hero-slides');
       const data = await res.json();
       setHeroSlides(data);
+      setOriginalHeroSlides(data);
     } catch (error) {
       console.error('Failed to fetch hero slides:', error);
     } finally {
@@ -245,17 +248,9 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
     }
   };
 
-  const handleSaveHeroSlides = async (updatedSlides: HeroSlide[]) => {
-    try {
-      await fetch('/api/admin/hero-slides', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ slides: updatedSlides }),
-      });
-      setHeroSlides(updatedSlides);
-    } catch (error) {
-      console.error('Failed to save hero slides:', error);
-    }
+  // Update hero slides locally (no API call - saves on main Save button)
+  const handleUpdateHeroSlides = (updatedSlides: HeroSlide[]) => {
+    setHeroSlides(updatedSlides);
   };
 
   const handleSave = async () => {
@@ -275,11 +270,23 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
         const data = await res.json();
         router.push(`/admin/pages/${data.id}`);
       } else {
+        // Save page data
         await fetch(`/api/admin/pages/${id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
         });
+
+        // If homepage, also save hero slides
+        if (isHomepage && heroSlides.length > 0) {
+          await fetch('/api/admin/hero-slides', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ slides: heroSlides }),
+          });
+          setOriginalHeroSlides(heroSlides);
+        }
+
         setOriginalPage(page);
         setOriginalWidgets(widgets);
         setSaved(true);
@@ -750,7 +757,7 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
                                   <HeroCarouselConfig
                                     slides={heroSlides}
                                     products={products}
-                                    onSlidesChange={handleSaveHeroSlides}
+                                    onSlidesChange={handleUpdateHeroSlides}
                                     previewDevice={previewDevice}
                                   />
                                 )}
