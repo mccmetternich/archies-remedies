@@ -269,9 +269,9 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
             "grid lg:grid-cols-2 h-full items-stretch",
             isReversed && "lg:[&>*:first-child]:order-2 lg:[&>*:last-child]:order-1"
           )}>
-            {/* Text content with testimonial at bottom - moderate padding */}
-            <div className="flex flex-col justify-center h-full py-12 lg:py-16 px-6 lg:px-10 xl:px-12">
-              <div className="max-w-2xl">
+            {/* Text content with testimonial at bottom - centered in column */}
+            <div className="flex flex-col justify-center items-center h-full py-12 lg:py-16 px-6">
+              <div className="w-full max-w-xl">
                 <TextContent />
               </div>
 
@@ -282,7 +282,7 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 10 }}
                   transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: 0.5 }}
-                  className="mt-14 max-w-md pointer-events-auto"
+                  className="mt-10 w-full max-w-md pointer-events-auto"
                 >
                   <div className="bg-white/95 backdrop-blur-sm px-5 py-4 rounded-2xl shadow-xl border border-black/5">
                     <div className="flex items-center gap-4">
