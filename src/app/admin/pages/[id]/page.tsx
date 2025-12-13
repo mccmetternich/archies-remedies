@@ -206,9 +206,9 @@ function DraggableWidgetRow({
           </span>
         )}
 
-        {/* Controls */}
-        <div className="flex items-center gap-1">
-          {/* Desktop visibility - Green when on, Red when off */}
+        {/* Controls - Intuitive toggles with labels */}
+        <div className="flex items-center gap-2">
+          {/* Desktop visibility toggle */}
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -218,16 +218,17 @@ function DraggableWidgetRow({
               });
             }}
             className={cn(
-              'p-1.5 rounded-lg transition-colors',
+              'flex items-center gap-1.5 px-2 py-1 rounded-md text-xs font-medium transition-all',
               (widget.config as Record<string, unknown>)?.showOnDesktop !== false
-                ? 'text-green-500 bg-green-500/10 hover:bg-green-500/20'
-                : 'text-red-400 bg-red-500/10 hover:bg-red-500/20'
+                ? 'text-green-400 bg-green-500/10 hover:bg-green-500/20'
+                : 'text-[var(--admin-text-muted)] bg-[var(--admin-input)] hover:bg-[var(--admin-hover)]'
             )}
             title={(widget.config as Record<string, unknown>)?.showOnDesktop !== false ? 'Visible on desktop - click to hide' : 'Hidden on desktop - click to show'}
           >
-            <Monitor className="w-4 h-4" />
+            <Monitor className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Desktop</span>
           </button>
-          {/* Mobile visibility - Green when on, Red when off */}
+          {/* Mobile visibility toggle */}
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -237,48 +238,43 @@ function DraggableWidgetRow({
               });
             }}
             className={cn(
-              'p-1.5 rounded-lg transition-colors',
+              'flex items-center gap-1.5 px-2 py-1 rounded-md text-xs font-medium transition-all',
               (widget.config as Record<string, unknown>)?.showOnMobile !== false
-                ? 'text-green-500 bg-green-500/10 hover:bg-green-500/20'
-                : 'text-red-400 bg-red-500/10 hover:bg-red-500/20'
+                ? 'text-green-400 bg-green-500/10 hover:bg-green-500/20'
+                : 'text-[var(--admin-text-muted)] bg-[var(--admin-input)] hover:bg-[var(--admin-hover)]'
             )}
             title={(widget.config as Record<string, unknown>)?.showOnMobile !== false ? 'Visible on mobile - click to hide' : 'Hidden on mobile - click to show'}
           >
-            <Smartphone className="w-4 h-4" />
+            <Smartphone className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Mobile</span>
           </button>
-          {/* Widget visibility (draft/live) - Green when live, Amber when draft */}
+          {/* Widget visibility (draft/live) - Clear status indicator */}
           <button
             onClick={(e) => {
               e.stopPropagation();
               onUpdate({ isVisible: !widget.isVisible });
             }}
             className={cn(
-              'p-1.5 rounded-lg transition-colors',
+              'flex items-center gap-1.5 px-2 py-1 rounded-md text-xs font-medium transition-all',
               widget.isVisible
-                ? 'text-green-500 bg-green-500/10 hover:bg-green-500/20'
-                : 'text-amber-500 bg-amber-500/10 hover:bg-amber-500/20'
+                ? 'text-green-400 bg-green-500/10 hover:bg-green-500/20'
+                : 'text-amber-400 bg-amber-500/10 hover:bg-amber-500/20'
             )}
             title={widget.isVisible ? 'Live - click to set as draft' : 'Draft - click to publish'}
           >
-            {widget.isVisible ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+            {widget.isVisible ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+            <span className="hidden sm:inline">{widget.isVisible ? 'Live' : 'Draft'}</span>
           </button>
-          {/* Expand/Collapse */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggleExpand();
-            }}
-            className="p-1.5 rounded-lg hover:bg-[var(--admin-hover)] transition-colors text-[var(--admin-text-secondary)]"
-          >
-            {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-          </button>
-          {/* Delete */}
+          {/* Separator */}
+          <div className="w-px h-5 bg-[var(--admin-border)]" />
+          {/* Delete - Gray, subtle */}
           <button
             onClick={(e) => {
               e.stopPropagation();
               onDelete();
             }}
-            className="p-1.5 rounded-lg hover:bg-red-500/10 text-red-400 transition-colors"
+            className="p-1.5 rounded-md text-[var(--admin-text-muted)] hover:text-red-400 hover:bg-red-500/10 transition-colors"
+            title="Delete widget"
           >
             <Trash2 className="w-4 h-4" />
           </button>
@@ -606,6 +602,7 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [siteInDraftMode, setSiteInDraftMode] = useState(false);
   const [page, setPage] = useState<PageData>({
     id: '',
     slug: '',
@@ -641,6 +638,10 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
   const [originalHeroSlides, setOriginalHeroSlides] = useState<HeroSlide[]>([]);
   const [heroSlidesLoading, setHeroSlidesLoading] = useState(false);
 
+  // Computed: is this page effectively in draft mode?
+  // Page is "draft" if: site is in draft mode OR page.isActive is false
+  const isPageEffectivelyDraft = siteInDraftMode || !page.isActive;
+
   // Drag state for library widgets
   const [draggedWidgetType, setDraggedWidgetType] = useState<string | null>(null);
 
@@ -652,10 +653,22 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
   );
 
   useEffect(() => {
+    // Fetch site settings to know if site is in draft mode
+    fetchSiteSettings();
     if (!isNew) {
       fetchPage();
     }
   }, [id, isNew]);
+
+  const fetchSiteSettings = async () => {
+    try {
+      const res = await fetch('/api/admin/settings');
+      const data = await res.json();
+      setSiteInDraftMode(data.siteInDraftMode ?? false);
+    } catch (error) {
+      console.error('Failed to fetch site settings:', error);
+    }
+  };
 
   const fetchPage = async () => {
     try {
@@ -875,28 +888,48 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
           </div>
 
           <div className="flex items-center gap-3">
-            {/* Status Badge */}
+            {/* Status Badge - Shows effective status (site draft mode OR page inactive = Draft) */}
             <div className={cn(
               'flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium',
-              page.isActive
-                ? 'bg-green-500/10 text-green-400'
-                : 'bg-amber-500/10 text-amber-400'
+              isPageEffectivelyDraft
+                ? 'bg-amber-500/10 text-amber-400'
+                : 'bg-green-500/10 text-green-400'
             )}>
-              {page.isActive ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
-              {page.isActive ? 'Live' : 'Draft'}
+              {isPageEffectivelyDraft ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+              {isPageEffectivelyDraft ? 'Draft' : 'Live'}
+              {siteInDraftMode && page.isActive && (
+                <span className="text-[10px] opacity-70">(site draft)</span>
+              )}
             </div>
 
-            {/* Preview Link */}
+            {/* View Buttons - Show appropriate button based on status */}
             {!isNew && (
-              <a
-                href={page.slug === 'home' ? '/' : `/${page.slug}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-2 rounded-lg bg-[var(--admin-input)] text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)] transition-colors"
-                title="Preview page"
-              >
-                <ExternalLink className="w-4 h-4" />
-              </a>
+              <div className="flex items-center gap-1">
+                {/* View Live - only when page is actually live (site live + page active) */}
+                {!isPageEffectivelyDraft && (
+                  <a
+                    href={page.slug === 'home' ? '/' : `/${page.slug}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-500/10 text-green-400 hover:bg-green-500/20 transition-colors text-xs font-medium"
+                    title="View live page"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    View Live
+                  </a>
+                )}
+                {/* View Draft - always available, uses preview token for draft access */}
+                <a
+                  href={`${page.slug === 'home' ? '/' : `/${page.slug}`}?preview=true`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--admin-input)] text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)] hover:bg-[var(--admin-hover)] transition-colors text-xs font-medium"
+                  title="View draft preview"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  {isPageEffectivelyDraft ? 'Preview' : 'View Draft'}
+                </a>
+              </div>
             )}
 
             {/* Save Button */}
@@ -949,19 +982,25 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
         {/* Left Panel - Page Settings (Collapsible) */}
         <div className={cn(
           'border-r border-[var(--admin-border)] bg-[var(--admin-sidebar)] transition-all duration-300 flex-shrink-0',
-          settingsCollapsed ? 'w-12' : 'w-80'
+          settingsCollapsed ? 'w-14' : 'w-80'
         )}>
           <div className="sticky top-[73px] max-h-[calc(100vh-73px)] overflow-y-auto">
-            {/* Collapse Toggle */}
+            {/* Collapse Toggle - More prominent when collapsed */}
             <button
               onClick={() => setSettingsCollapsed(!settingsCollapsed)}
               className={cn(
-                'w-full flex items-center gap-3 px-3 py-4 border-b border-[var(--admin-border)] hover:bg-[var(--admin-hover)] transition-colors',
-                settingsCollapsed && 'justify-center'
+                'w-full flex items-center gap-3 px-3 py-4 border-b border-[var(--admin-border)] transition-all',
+                settingsCollapsed
+                  ? 'justify-center bg-[var(--primary)]/10 hover:bg-[var(--primary)]/20'
+                  : 'hover:bg-[var(--admin-hover)]'
               )}
+              title={settingsCollapsed ? 'Expand page settings' : 'Collapse panel'}
             >
               {settingsCollapsed ? (
-                <LayoutPanelLeft className="w-5 h-5 text-[var(--admin-text-muted)]" />
+                <div className="flex flex-col items-center gap-1">
+                  <LayoutPanelLeft className="w-5 h-5 text-[var(--primary)]" />
+                  <span className="text-[10px] font-medium text-[var(--primary)] tracking-wide">Settings</span>
+                </div>
               ) : (
                 <>
                   <PanelLeftClose className="w-5 h-5 text-[var(--admin-text-muted)]" />
