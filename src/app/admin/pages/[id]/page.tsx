@@ -17,13 +17,15 @@ import {
   Settings,
   ChevronDown,
   ChevronUp,
-  PanelRightOpen,
-  PanelRightClose,
   Check,
   Search,
   ExternalLink,
   Monitor,
   Smartphone,
+  LayoutGrid,
+  Columns,
+  PanelLeftClose,
+  LayoutPanelLeft,
 } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
@@ -46,7 +48,6 @@ interface PageWidget {
   content?: string;
   config?: Record<string, unknown>;
   isVisible: boolean;
-  // Homepage widget specific
   isHomepageWidget?: boolean;
   editUrl?: string;
   count?: number;
@@ -106,9 +107,11 @@ interface HeroSlide {
   showOnDesktop: boolean;
   showOnMobile: boolean;
   sortOrder: number;
+  layout: string | null;
+  textColor: string | null;
 }
 
-// Use centralized widget library - create compatible format for existing code
+// Create compatible format from centralized library
 const WIDGET_CATEGORIES = CENTRALIZED_CATEGORIES.map((cat) => ({
   name: cat.name,
   widgets: WIDGET_TYPES.filter((w) => w.category === cat.name).map((w) => ({
@@ -119,8 +122,13 @@ const WIDGET_CATEGORIES = CENTRALIZED_CATEGORIES.map((cat) => ({
   })),
 })).filter((cat) => cat.widgets.length > 0);
 
-// Flat list for lookup
 const ALL_WIDGETS = WIDGET_CATEGORIES.flatMap((cat) => cat.widgets);
+
+// Get readable page title
+function getPageDisplayName(slug: string, title: string): string {
+  if (slug === 'home' || slug === '') return 'Homepage';
+  return title || slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+}
 
 export default function PageEditorPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -130,7 +138,6 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
-  const [activeTab, setActiveTab] = useState<'settings' | 'content' | 'seo'>('settings');
   const [page, setPage] = useState<PageData>({
     id: '',
     slug: '',
@@ -151,13 +158,15 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
   const [widgets, setWidgets] = useState<PageWidget[]>([]);
   const [originalWidgets, setOriginalWidgets] = useState<PageWidget[]>([]);
   const [expandedWidget, setExpandedWidget] = useState<string | null>(null);
-  const [libraryOpen, setLibraryOpen] = useState(true);
-  const [expandedCategory, setExpandedCategory] = useState<string | null>('Content');
+  const [expandedCategory, setExpandedCategory] = useState<string | null>('Hero');
   const [isHomepage, setIsHomepage] = useState(false);
   const [homepageWidgets, setHomepageWidgets] = useState<PageWidget[]>([]);
 
   // Device preview state
   const [previewDevice, setPreviewDevice] = useState<DeviceType>('desktop');
+
+  // Settings panel collapsed state
+  const [settingsCollapsed, setSettingsCollapsed] = useState(true);
 
   // Homepage data state
   const [products, setProducts] = useState<Product[]>([]);
@@ -183,21 +192,16 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
       setPage(data);
       setOriginalPage(data);
 
-      // Check if this is the homepage
       const isHomepageSlug = data.slug === 'home' || data.slug === '';
       setIsHomepage(isHomepageSlug);
 
       if (isHomepageSlug) {
-        // Fetch homepage widgets from dedicated tables
         const homepageRes = await fetch(`/api/admin/pages/${id}/homepage-widgets`);
         const homepageData = await homepageRes.json();
         if (homepageData.widgets) {
           setHomepageWidgets(homepageData.widgets);
         }
-
-        // Fetch products for hero carousel product association
         fetchProducts();
-        // Fetch hero slides
         fetchHeroSlides();
       }
 
@@ -296,7 +300,7 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
       title: widgetDef?.label || '',
       subtitle: '',
       content: '',
-      config: {},
+      config: getDefaultConfig(type),
       isVisible: true,
     };
     setWidgets([...widgets, newWidget]);
@@ -354,342 +358,289 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
     );
   }
 
+  const pageDisplayName = getPageDisplayName(page.slug, page.title);
+  const activeWidgets = isHomepage ? homepageWidgets : widgets;
+
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Link
-            href="/admin/pages"
-            className="p-2 rounded-lg hover:bg-[var(--admin-input)] transition-colors text-[var(--admin-text-secondary)]"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </Link>
-          <div>
-            <h1 className="text-2xl font-medium text-[var(--admin-text-primary)]">
-              {isNew ? 'New Page' : page.title || 'Edit Page'}
-            </h1>
-            {!isNew && page.slug && (
-              <p className="text-[var(--admin-text-secondary)]">/{page.slug}</p>
+    <div className="min-h-screen">
+      {/* Header - Clean breadcrumb with page title */}
+      <div className="sticky top-0 z-40 bg-[var(--admin-bg)] border-b border-[var(--admin-border)] px-6 py-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Link
+              href="/admin/pages"
+              className="p-2 rounded-lg hover:bg-[var(--admin-input)] transition-colors text-[var(--admin-text-secondary)]"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Link>
+            <div>
+              {/* Readable Breadcrumb */}
+              <div className="flex items-center gap-2 text-sm text-[var(--admin-text-muted)]">
+                <span>Admin</span>
+                <span>/</span>
+                <span>Pages</span>
+                <span>/</span>
+                <span className="text-[var(--admin-text-primary)] font-medium">{pageDisplayName}</span>
+              </div>
+              {!isNew && page.slug && page.slug !== 'home' && (
+                <p className="text-xs text-[var(--admin-text-muted)] mt-0.5">/{page.slug}</p>
+              )}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            {/* Status Badge */}
+            <div className={cn(
+              'flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium',
+              page.isActive
+                ? 'bg-green-500/10 text-green-400'
+                : 'bg-amber-500/10 text-amber-400'
+            )}>
+              {page.isActive ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+              {page.isActive ? 'Live' : 'Draft'}
+            </div>
+
+            {/* Preview Link */}
+            {!isNew && (
+              <a
+                href={page.slug === 'home' ? '/' : `/${page.slug}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 rounded-lg bg-[var(--admin-input)] text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)] transition-colors"
+                title="Preview page"
+              >
+                <ExternalLink className="w-4 h-4" />
+              </a>
+            )}
+
+            {/* Save Button */}
+            {(hasChanges || isNew) && (
+              <button
+                onClick={handleSave}
+                disabled={saving}
+                className={cn(
+                  'inline-flex items-center gap-2 px-5 py-2 rounded-lg font-medium transition-all text-sm',
+                  saved
+                    ? 'bg-green-500 text-white'
+                    : 'bg-[var(--primary)] text-[var(--admin-button-text)] hover:bg-[var(--primary-dark)]',
+                  saving && 'opacity-50 cursor-not-allowed'
+                )}
+              >
+                {saving ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : saved ? (
+                  <>
+                    <Check className="w-4 h-4" />
+                    Saved!
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4" />
+                    {isNew ? 'Create Page' : 'Save'}
+                  </>
+                )}
+              </button>
+            )}
+
+            {!isNew && (
+              <button
+                onClick={handleDeletePage}
+                className="p-2 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors"
+                title="Delete Page"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
             )}
           </div>
         </div>
-        <div className="flex items-center gap-3">
-          {/* Device Preview Toggle */}
-          <DevicePreviewToggle device={previewDevice} onChange={setPreviewDevice} />
+      </div>
 
-          {/* Status Toggle */}
-          <button
-            onClick={() => setPage({ ...page, isActive: !page.isActive })}
-            className={cn(
-              'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors',
-              page.isActive
-                ? 'bg-green-500/10 text-green-400 hover:bg-green-500/20'
-                : 'bg-orange-500/10 text-orange-400 hover:bg-orange-500/20'
-            )}
-          >
-            {page.isActive ? (
-              <>
-                <Eye className="w-4 h-4" />
-                Live
-              </>
-            ) : (
-              <>
-                <EyeOff className="w-4 h-4" />
-                Draft
-              </>
-            )}
-          </button>
-
-          {/* Preview Link */}
-          {!isNew && (
-            <a
-              href={page.slug === 'home' ? '/' : `/${page.slug}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-2 rounded-lg bg-[var(--admin-input)] text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)] transition-colors"
-            >
-              <ExternalLink className="w-5 h-5" />
-            </a>
-          )}
-
-          {/* Save Button - Only show when changes exist */}
-          {(hasChanges || isNew) && (
+      {/* Main Content - Three Column Layout */}
+      <div className="flex">
+        {/* Left Panel - Page Settings (Collapsible) */}
+        <div className={cn(
+          'border-r border-[var(--admin-border)] bg-[var(--admin-sidebar)] transition-all duration-300 flex-shrink-0',
+          settingsCollapsed ? 'w-12' : 'w-80'
+        )}>
+          <div className="sticky top-[73px] max-h-[calc(100vh-73px)] overflow-y-auto">
+            {/* Collapse Toggle */}
             <button
-              onClick={handleSave}
-              disabled={saving}
+              onClick={() => setSettingsCollapsed(!settingsCollapsed)}
               className={cn(
-                'inline-flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-all',
-                saved
-                  ? 'bg-green-500 text-[var(--admin-text-primary)]'
-                  : 'bg-[var(--primary)] text-[var(--admin-button-text)] hover:bg-[var(--primary-dark)]',
-                saving && 'opacity-50 cursor-not-allowed'
+                'w-full flex items-center gap-3 px-3 py-4 border-b border-[var(--admin-border)] hover:bg-[var(--admin-hover)] transition-colors',
+                settingsCollapsed && 'justify-center'
               )}
             >
-              {saving ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Saving...
-                </>
-              ) : saved ? (
-                <>
-                  <Check className="w-4 h-4" />
-                  Saved!
-                </>
+              {settingsCollapsed ? (
+                <LayoutPanelLeft className="w-5 h-5 text-[var(--admin-text-muted)]" />
               ) : (
                 <>
-                  <Save className="w-4 h-4" />
-                  {isNew ? 'Create Page' : 'Save Changes'}
+                  <PanelLeftClose className="w-5 h-5 text-[var(--admin-text-muted)]" />
+                  <span className="font-medium text-[var(--admin-text-primary)]">Page Settings</span>
                 </>
               )}
             </button>
-          )}
-          {!isNew && (
-            <button
-              onClick={handleDeletePage}
-              className="p-2.5 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors"
-              title="Delete Page"
-            >
-              <Trash2 className="w-5 h-5" />
-            </button>
-          )}
-        </div>
-      </div>
 
-      {/* Tabs */}
-      <div className="flex gap-1 bg-[var(--admin-input)] rounded-xl p-1 border border-[var(--admin-border)]">
-        <button
-          onClick={() => setActiveTab('settings')}
-          className={cn(
-            'flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm transition-all',
-            activeTab === 'settings'
-              ? 'bg-[var(--primary)] text-[var(--admin-button-text)]'
-              : 'text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)] hover:bg-[var(--admin-input)]'
-          )}
-        >
-          <Settings className="w-4 h-4" />
-          Page Settings
-        </button>
-        <button
-          onClick={() => setActiveTab('content')}
-          className={cn(
-            'flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm transition-all',
-            activeTab === 'content'
-              ? 'bg-[var(--primary)] text-[var(--admin-button-text)]'
-              : 'text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)] hover:bg-[var(--admin-input)]'
-          )}
-        >
-          <Layout className="w-4 h-4" />
-          Page Content
-          <span className={cn(
-            'px-2 py-0.5 text-xs rounded-full',
-            activeTab === 'content' ? 'bg-[var(--admin-bg)]/20 text-[var(--admin-button-text)]' : 'bg-[var(--admin-hover)] text-[var(--admin-text-secondary)]'
-          )}>
-            {isHomepage ? homepageWidgets.length : widgets.length}
-          </span>
-        </button>
-        <button
-          onClick={() => setActiveTab('seo')}
-          className={cn(
-            'flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm transition-all',
-            activeTab === 'seo'
-              ? 'bg-[var(--primary)] text-[var(--admin-button-text)]'
-              : 'text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)] hover:bg-[var(--admin-input)]'
-          )}
-        >
-          <Search className="w-4 h-4" />
-          SEO
-        </button>
-      </div>
-
-      {/* Settings Tab */}
-      {activeTab === 'settings' && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 space-y-6">
-            {/* Basic Info */}
-            <div className="bg-[var(--admin-input)] rounded-xl border border-[var(--admin-border)] p-6 space-y-4">
-              <h3 className="font-medium text-[var(--admin-text-primary)]">Page Information</h3>
-
-              <div>
-                <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Page Title</label>
-                <input
-                  type="text"
-                  value={page.title}
-                  onChange={(e) => setPage({ ...page, title: e.target.value })}
-                  placeholder="About Us"
-                  className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">URL Slug</label>
-                <div className="flex items-center gap-2">
-                  <span className="text-[var(--admin-text-muted)]">/</span>
-                  <input
-                    type="text"
-                    value={page.slug}
-                    onChange={(e) =>
-                      setPage({
-                        ...page,
-                        slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'),
-                      })
-                    }
-                    placeholder="about-us"
-                    className="flex-1 px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Page Type</label>
-                <select
-                  value={page.pageType}
-                  onChange={(e) => setPage({ ...page, pageType: e.target.value })}
-                  className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] focus:outline-none focus:border-[var(--primary)] transition-colors"
-                >
-                  <option value="landing">Landing Page (With Widgets)</option>
-                  <option value="content">Content Page (Simple)</option>
-                </select>
-              </div>
-            </div>
-
-            {/* Hero Section */}
-            <div className="bg-[var(--admin-input)] rounded-xl border border-[var(--admin-border)] p-6 space-y-4">
-              <h3 className="font-medium text-[var(--admin-text-primary)]">Hero Section</h3>
-
-              <div>
-                <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Hero Title</label>
-                <input
-                  type="text"
-                  value={page.heroTitle || ''}
-                  onChange={(e) => setPage({ ...page, heroTitle: e.target.value })}
-                  placeholder="Welcome to Our Page"
-                  className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Hero Subtitle</label>
-                <input
-                  type="text"
-                  value={page.heroSubtitle || ''}
-                  onChange={(e) => setPage({ ...page, heroSubtitle: e.target.value })}
-                  placeholder="A brief description..."
-                  className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
-                />
-              </div>
-
-              <MediaPickerButton
-                label="Hero Background Image"
-                value={page.heroImageUrl}
-                onChange={(url) => setPage({ ...page, heroImageUrl: url || null })}
-                helpText="Background image for page hero section"
-                folder="pages"
-                acceptVideo={true}
-              />
-            </div>
-          </div>
-
-          {/* Sidebar */}
-          <div className="space-y-6">
-            <div className="bg-[var(--admin-input)] rounded-xl border border-[var(--admin-border)] p-6 space-y-4">
-              <h3 className="font-medium text-[var(--admin-text-primary)]">Navigation Settings</h3>
-
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-[var(--admin-text-secondary)]">Show in navigation</span>
-                <button
-                  onClick={() => setPage({ ...page, showInNav: !page.showInNav })}
-                  className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
-                  style={{
-                    backgroundColor: page.showInNav ? '#22c55e' : '#374151'
-                  }}
-                >
-                  <span
-                    className={cn(
-                      "inline-block h-4 w-4 transform rounded-full bg-white transition-transform",
-                      page.showInNav ? "translate-x-6" : "translate-x-1"
-                    )}
-                  />
-                </button>
-              </div>
-
-              {page.showInNav && (
-                <div>
-                  <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Nav Order</label>
-                  <input
-                    type="number"
-                    value={page.navOrder}
-                    onChange={(e) => setPage({ ...page, navOrder: parseInt(e.target.value) || 0 })}
-                    className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] focus:outline-none focus:border-[var(--primary)] transition-colors"
-                  />
-                </div>
-              )}
-            </div>
-
-            {/* Publishing Status */}
-            <div className="bg-[var(--admin-input)] rounded-xl border border-[var(--admin-border)] p-6 space-y-4">
-              <h3 className="font-medium text-[var(--admin-text-primary)]">Publishing</h3>
-
-              <div className={cn(
-                'p-4 rounded-xl border-2 transition-colors',
-                page.isActive
-                  ? 'bg-green-500/10 border-green-500/50'
-                  : 'bg-orange-500/10 border-orange-500/50'
-              )}>
-                <div className="flex items-center gap-3">
-                  {page.isActive ? (
-                    <Eye className="w-5 h-5 text-green-400" />
-                  ) : (
-                    <EyeOff className="w-5 h-5 text-orange-400" />
-                  )}
+            {!settingsCollapsed && (
+              <div className="p-4 space-y-6">
+                {/* Basic Info */}
+                <div className="space-y-4">
                   <div>
-                    <p className="font-medium text-[var(--admin-text-primary)]">
-                      {page.isActive ? 'Published' : 'Draft'}
-                    </p>
-                    <p className="text-xs text-[var(--admin-text-secondary)]">
-                      {page.isActive ? 'Page is visible to visitors' : 'Page is hidden from visitors'}
-                    </p>
+                    <label className="block text-xs font-medium text-[var(--admin-text-muted)] mb-1.5 uppercase tracking-wide">
+                      Page Title
+                    </label>
+                    <input
+                      type="text"
+                      value={page.title}
+                      onChange={(e) => setPage({ ...page, title: e.target.value })}
+                      placeholder="About Us"
+                      className="w-full px-3 py-2 text-sm bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)] placeholder:text-[var(--admin-text-muted)] focus:outline-none focus:border-[var(--primary)]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-[var(--admin-text-muted)] mb-1.5 uppercase tracking-wide">
+                      URL Slug
+                    </label>
+                    <div className="flex items-center gap-1">
+                      <span className="text-[var(--admin-text-muted)] text-sm">/</span>
+                      <input
+                        type="text"
+                        value={page.slug}
+                        onChange={(e) =>
+                          setPage({
+                            ...page,
+                            slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'),
+                          })
+                        }
+                        placeholder="about-us"
+                        disabled={page.slug === 'home'}
+                        className="flex-1 px-3 py-2 text-sm bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)] placeholder:text-[var(--admin-text-muted)] focus:outline-none focus:border-[var(--primary)] disabled:opacity-50"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Status Toggle */}
+                <div className="pt-4 border-t border-[var(--admin-border)]">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-[var(--admin-text-primary)]">Page Status</p>
+                      <p className="text-xs text-[var(--admin-text-muted)]">
+                        {page.isActive ? 'Visible to visitors' : 'Hidden from visitors'}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => setPage({ ...page, isActive: !page.isActive })}
+                      className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
+                      style={{
+                        backgroundColor: page.isActive ? '#22c55e' : '#374151'
+                      }}
+                    >
+                      <span
+                        className={cn(
+                          "inline-block h-4 w-4 transform rounded-full bg-white transition-transform",
+                          page.isActive ? "translate-x-6" : "translate-x-1"
+                        )}
+                      />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Navigation Settings */}
+                <div className="pt-4 border-t border-[var(--admin-border)]">
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <p className="text-sm font-medium text-[var(--admin-text-primary)]">Show in Nav</p>
+                      <p className="text-xs text-[var(--admin-text-muted)]">
+                        Display in site navigation
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => setPage({ ...page, showInNav: !page.showInNav })}
+                      className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
+                      style={{
+                        backgroundColor: page.showInNav ? '#22c55e' : '#374151'
+                      }}
+                    >
+                      <span
+                        className={cn(
+                          "inline-block h-4 w-4 transform rounded-full bg-white transition-transform",
+                          page.showInNav ? "translate-x-6" : "translate-x-1"
+                        )}
+                      />
+                    </button>
+                  </div>
+
+                  {page.showInNav && (
+                    <div>
+                      <label className="block text-xs font-medium text-[var(--admin-text-muted)] mb-1.5">
+                        Nav Order
+                      </label>
+                      <input
+                        type="number"
+                        value={page.navOrder}
+                        onChange={(e) => setPage({ ...page, navOrder: parseInt(e.target.value) || 0 })}
+                        className="w-full px-3 py-2 text-sm bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)] focus:outline-none focus:border-[var(--primary)]"
+                      />
+                    </div>
+                  )}
+                </div>
+
+                {/* SEO */}
+                <div className="pt-4 border-t border-[var(--admin-border)]">
+                  <h4 className="text-xs font-medium text-[var(--admin-text-muted)] mb-3 uppercase tracking-wide">
+                    SEO
+                  </h4>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-xs text-[var(--admin-text-muted)] mb-1">Meta Title</label>
+                      <input
+                        type="text"
+                        value={page.metaTitle || ''}
+                        onChange={(e) => setPage({ ...page, metaTitle: e.target.value })}
+                        placeholder={page.title || 'Page title'}
+                        className="w-full px-3 py-2 text-sm bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)] placeholder:text-[var(--admin-text-muted)] focus:outline-none focus:border-[var(--primary)]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-[var(--admin-text-muted)] mb-1">Meta Description</label>
+                      <textarea
+                        value={page.metaDescription || ''}
+                        onChange={(e) => setPage({ ...page, metaDescription: e.target.value })}
+                        placeholder="Brief description for search engines..."
+                        rows={2}
+                        className="w-full px-3 py-2 text-sm bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)] placeholder:text-[var(--admin-text-muted)] focus:outline-none focus:border-[var(--primary)] resize-none"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
-      )}
 
-      {/* Content Tab */}
-      {activeTab === 'content' && (
-        <div className="flex gap-6">
-          {/* Page Widgets - Left Side */}
-          <div className={`flex-1 transition-all duration-300`}>
-            <div className="bg-[var(--admin-input)] rounded-xl border border-[var(--admin-border)]">
-              <div className="p-4 border-b border-[var(--admin-border)] flex items-center justify-between">
-                <div>
-                  <h3 className="font-medium text-[var(--admin-text-primary)]">
-                    {isHomepage ? 'Homepage Widgets' : 'Page Widgets'}
-                  </h3>
-                  <p className="text-sm text-[var(--admin-text-muted)]">
-                    {isHomepage
-                      ? 'Click a widget to manage its content'
-                      : 'Drag to reorder, click to edit'}
-                  </p>
-                </div>
-                {!isHomepage && (
-                  <button
-                    onClick={() => setLibraryOpen(!libraryOpen)}
-                    className="p-2 rounded-lg hover:bg-[var(--admin-input)] transition-colors text-[var(--admin-text-secondary)]"
-                    title={libraryOpen ? 'Hide Widget Library' : 'Show Widget Library'}
-                  >
-                    {libraryOpen ? (
-                      <PanelRightClose className="w-5 h-5" />
-                    ) : (
-                      <PanelRightOpen className="w-5 h-5" />
-                    )}
-                  </button>
-                )}
+        {/* Center - Widget List */}
+        <div className="flex-1 min-w-0">
+          <div className="p-6">
+            {/* Widget List Header */}
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <h2 className="text-lg font-medium text-[var(--admin-text-primary)]">
+                  Page Content
+                </h2>
+                <span className="px-2 py-0.5 text-xs font-medium bg-[var(--admin-hover)] text-[var(--admin-text-muted)] rounded-full">
+                  {activeWidgets.length} widgets
+                </span>
               </div>
+              <DevicePreviewToggle device={previewDevice} onChange={setPreviewDevice} />
+            </div>
 
-              {/* Homepage Widgets - Special Display with Inline Editing */}
+            {/* Widget List */}
+            <div className="bg-[var(--admin-input)] rounded-xl border border-[var(--admin-border)]">
               {isHomepage && homepageWidgets.length > 0 ? (
                 <div className="divide-y divide-[var(--admin-border)]">
                   {homepageWidgets.map((widget, index) => {
@@ -729,26 +680,44 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
                             </p>
                           </div>
 
-                          <div className="flex items-center gap-3">
+                          {/* Desktop/Mobile visibility toggles */}
+                          <div className="flex items-center gap-1">
+                            <button
+                              onClick={(e) => e.stopPropagation()}
+                              className="p-1.5 rounded-lg text-[var(--admin-text-muted)] hover:bg-[var(--admin-hover)]"
+                              title="Toggle desktop visibility"
+                            >
+                              <Monitor className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={(e) => e.stopPropagation()}
+                              className="p-1.5 rounded-lg text-[var(--admin-text-muted)] hover:bg-[var(--admin-hover)]"
+                              title="Toggle mobile visibility"
+                            >
+                              <Smartphone className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={(e) => e.stopPropagation()}
+                              className="p-1.5 rounded-lg text-[var(--admin-text-muted)] hover:bg-[var(--admin-hover)]"
+                              title={widget.isVisible ? 'Hide widget' : 'Show widget'}
+                            >
+                              {widget.isVisible !== false ? (
+                                <Eye className="w-4 h-4" />
+                              ) : (
+                                <EyeOff className="w-4 h-4" />
+                              )}
+                            </button>
+                          </div>
+
+                          <div className="flex items-center gap-2">
                             {widget.count !== undefined && (
-                              <span className={cn(
-                                'px-2.5 py-1 text-xs font-medium rounded-full',
-                                widget.isVisible
-                                  ? 'bg-green-500/10 text-green-400'
-                                  : 'bg-[var(--admin-hover)] text-[var(--admin-text-muted)]'
-                              )}>
+                              <span className="px-2.5 py-1 text-xs font-medium rounded-full bg-[var(--admin-hover)] text-[var(--admin-text-muted)]">
                                 {widget.count} items
                               </span>
                             )}
                             {isHeroCarousel ? (
-                              <button
-                                className="p-2 rounded-lg hover:bg-[var(--admin-input)] transition-colors text-[var(--admin-text-secondary)]"
-                              >
-                                {isExpanded ? (
-                                  <ChevronUp className="w-4 h-4" />
-                                ) : (
-                                  <ChevronDown className="w-4 h-4" />
-                                )}
+                              <button className="p-2 rounded-lg hover:bg-[var(--admin-input)] transition-colors text-[var(--admin-text-secondary)]">
+                                {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                               </button>
                             ) : (
                               <Link
@@ -813,7 +782,7 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
                         <div
                           className={cn(
                             'p-4 flex items-center gap-4 cursor-grab active:cursor-grabbing transition-colors',
-                            isExpanded ? 'bg-[var(--admin-input)]' : 'hover:bg-[var(--admin-sidebar)]'
+                            isExpanded ? 'bg-[var(--admin-sidebar)]' : 'hover:bg-[var(--admin-sidebar)]'
                           )}
                         >
                           <div className="flex items-center gap-2">
@@ -840,44 +809,75 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
                           </div>
 
                           <div className="flex items-center gap-1">
+                            {/* Desktop visibility */}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const cfg = (widget.config || {}) as Record<string, unknown>;
+                                handleUpdateWidget(widget.id, {
+                                  config: { ...cfg, showOnDesktop: cfg.showOnDesktop !== false ? false : true }
+                                });
+                              }}
+                              className={cn(
+                                'p-1.5 rounded-lg transition-colors',
+                                (widget.config as Record<string, unknown>)?.showOnDesktop !== false
+                                  ? 'text-[var(--admin-text-muted)] hover:bg-[var(--admin-hover)]'
+                                  : 'text-amber-500 bg-amber-500/10'
+                              )}
+                              title="Toggle desktop visibility"
+                            >
+                              <Monitor className="w-4 h-4" />
+                            </button>
+                            {/* Mobile visibility */}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const cfg = (widget.config || {}) as Record<string, unknown>;
+                                handleUpdateWidget(widget.id, {
+                                  config: { ...cfg, showOnMobile: cfg.showOnMobile !== false ? false : true }
+                                });
+                              }}
+                              className={cn(
+                                'p-1.5 rounded-lg transition-colors',
+                                (widget.config as Record<string, unknown>)?.showOnMobile !== false
+                                  ? 'text-[var(--admin-text-muted)] hover:bg-[var(--admin-hover)]'
+                                  : 'text-amber-500 bg-amber-500/10'
+                              )}
+                              title="Toggle mobile visibility"
+                            >
+                              <Smartphone className="w-4 h-4" />
+                            </button>
+                            {/* Widget visibility */}
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleUpdateWidget(widget.id, { isVisible: !widget.isVisible });
                               }}
                               className={cn(
-                                'p-2 rounded-lg transition-colors',
+                                'p-1.5 rounded-lg transition-colors',
                                 widget.isVisible
-                                  ? 'text-[var(--admin-text-secondary)] hover:bg-[var(--admin-input)]'
-                                  : 'text-[var(--admin-text-muted)] hover:bg-[var(--admin-input)]'
+                                  ? 'text-[var(--admin-text-muted)] hover:bg-[var(--admin-hover)]'
+                                  : 'text-amber-500 bg-amber-500/10'
                               )}
                               title={widget.isVisible ? 'Hide' : 'Show'}
                             >
-                              {widget.isVisible ? (
-                                <Eye className="w-4 h-4" />
-                              ) : (
-                                <EyeOff className="w-4 h-4" />
-                              )}
+                              {widget.isVisible ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
                             </button>
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setExpandedWidget(isExpanded ? null : widget.id);
                               }}
-                              className="p-2 rounded-lg hover:bg-[var(--admin-input)] transition-colors text-[var(--admin-text-secondary)]"
+                              className="p-1.5 rounded-lg hover:bg-[var(--admin-hover)] transition-colors text-[var(--admin-text-secondary)]"
                             >
-                              {isExpanded ? (
-                                <ChevronUp className="w-4 h-4" />
-                              ) : (
-                                <ChevronDown className="w-4 h-4" />
-                              )}
+                              {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                             </button>
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleDeleteWidget(widget.id);
                               }}
-                              className="p-2 rounded-lg hover:bg-red-500/10 text-red-400 transition-colors"
+                              className="p-1.5 rounded-lg hover:bg-red-500/10 text-red-400 transition-colors"
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>
@@ -942,9 +942,7 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
                                     </div>
                                   )}
 
-                                  {(widget.type === 'image' ||
-                                    widget.type === 'hero' ||
-                                    widget.type === 'image_text') && (
+                                  {(widget.type === 'image' || widget.type === 'hero' || widget.type === 'image_text') && (
                                     <MediaPickerButton
                                       label="Widget Image"
                                       value={(widget.config as Record<string, string>)?.imageUrl || null}
@@ -1029,20 +1027,80 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
                                   )}
 
                                   {widget.type === 'marquee' && (
-                                    <div>
-                                      <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
-                                        Marquee Text
-                                      </label>
-                                      <input
-                                        value={(widget.config as Record<string, string>)?.text || ''}
-                                        onChange={(e) =>
-                                          handleUpdateWidget(widget.id, {
-                                            config: { ...widget.config, text: e.target.value },
-                                          })
-                                        }
-                                        placeholder="Free shipping on orders $50+ ★"
-                                        className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
-                                      />
+                                    <div className="space-y-4">
+                                      <div>
+                                        <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
+                                          Marquee Text
+                                        </label>
+                                        <input
+                                          value={(widget.config as Record<string, string>)?.text || ''}
+                                          onChange={(e) =>
+                                            handleUpdateWidget(widget.id, {
+                                              config: { ...widget.config, text: e.target.value },
+                                            })
+                                          }
+                                          placeholder="Free shipping on orders $50+ ★"
+                                          className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+                                        />
+                                      </div>
+                                      <div className="grid grid-cols-3 gap-4">
+                                        <div>
+                                          <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
+                                            Speed
+                                          </label>
+                                          <select
+                                            value={(widget.config as Record<string, string>)?.speed || 'slow'}
+                                            onChange={(e) =>
+                                              handleUpdateWidget(widget.id, {
+                                                config: { ...widget.config, speed: e.target.value },
+                                              })
+                                            }
+                                            className="w-full px-3 py-2 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)]"
+                                          >
+                                            <option value="slow">Slow</option>
+                                            <option value="normal">Normal</option>
+                                            <option value="fast">Fast</option>
+                                          </select>
+                                        </div>
+                                        <div>
+                                          <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
+                                            Size
+                                          </label>
+                                          <select
+                                            value={(widget.config as Record<string, string>)?.size || 'xl'}
+                                            onChange={(e) =>
+                                              handleUpdateWidget(widget.id, {
+                                                config: { ...widget.config, size: e.target.value },
+                                              })
+                                            }
+                                            className="w-full px-3 py-2 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)]"
+                                          >
+                                            <option value="small">Small</option>
+                                            <option value="medium">Medium</option>
+                                            <option value="large">Large</option>
+                                            <option value="xl">XL</option>
+                                            <option value="xxl">XXL</option>
+                                          </select>
+                                        </div>
+                                        <div>
+                                          <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
+                                            Style
+                                          </label>
+                                          <select
+                                            value={(widget.config as Record<string, string>)?.style || 'dark'}
+                                            onChange={(e) =>
+                                              handleUpdateWidget(widget.id, {
+                                                config: { ...widget.config, style: e.target.value },
+                                              })
+                                            }
+                                            className="w-full px-3 py-2 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)]"
+                                          >
+                                            <option value="dark">Dark</option>
+                                            <option value="light">Light</option>
+                                            <option value="baby-blue">Baby Blue</option>
+                                          </select>
+                                        </div>
+                                      </div>
                                     </div>
                                   )}
                                 </div>
@@ -1054,176 +1112,120 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
                     );
                   })}
                 </Reorder.Group>
-              ) : isHomepage ? (
-                <div className="py-16 text-center">
-                  <Layout className="w-16 h-16 mx-auto mb-4 text-[var(--admin-text-muted)]" />
-                  <h3 className="font-medium text-lg text-[var(--admin-text-primary)] mb-2">Loading homepage widgets...</h3>
-                  <p className="text-sm text-[var(--admin-text-muted)] mb-4 max-w-xs mx-auto">
-                    Homepage widgets are managed in their dedicated sections
-                  </p>
-                </div>
               ) : (
                 <div className="py-16 text-center">
                   <Layout className="w-16 h-16 mx-auto mb-4 text-[var(--admin-text-muted)]" />
-                  <h3 className="font-medium text-lg text-[var(--admin-text-primary)] mb-2">No widgets yet</h3>
+                  <h3 className="font-medium text-lg text-[var(--admin-text-primary)] mb-2">
+                    {isHomepage ? 'Loading homepage widgets...' : 'No widgets yet'}
+                  </h3>
                   <p className="text-sm text-[var(--admin-text-muted)] mb-4 max-w-xs mx-auto">
-                    Add widgets from the library on the right to build your page
+                    {isHomepage
+                      ? 'Homepage widgets are managed in their dedicated sections'
+                      : 'Add widgets from the library on the right to build your page'}
                   </p>
-                  {!libraryOpen && (
-                    <button
-                      onClick={() => setLibraryOpen(true)}
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--admin-input)] text-[var(--admin-text-secondary)] rounded-lg text-sm hover:bg-[var(--admin-hover)] transition-colors"
-                    >
-                      <Plus className="w-4 h-4" />
-                      Open Widget Library
-                    </button>
-                  )}
                 </div>
               )}
             </div>
           </div>
+        </div>
 
-          {/* Widget Library - Right Side Panel (not for homepage) */}
-          <AnimatePresence>
-            {libraryOpen && !isHomepage && (
-              <motion.div
-                initial={{ width: 0, opacity: 0 }}
-                animate={{ width: 320, opacity: 1 }}
-                exit={{ width: 0, opacity: 0 }}
-                transition={{ duration: 0.2 }}
-                className="flex-shrink-0 overflow-hidden"
-              >
-                <div className="w-80 bg-[var(--admin-input)] rounded-xl border border-[var(--admin-border)] sticky top-4">
-                  <div className="p-4 border-b border-[var(--admin-border)]">
-                    <h3 className="font-medium text-[var(--admin-text-primary)]">Widget Library</h3>
-                    <p className="text-xs text-[var(--admin-text-muted)] mt-1">
-                      Click a widget to add it to your page
-                    </p>
-                  </div>
+        {/* Right Panel - Widget Library (Always Visible) */}
+        <div className="w-72 border-l border-[var(--admin-border)] bg-[var(--admin-sidebar)] flex-shrink-0">
+          <div className="sticky top-[73px] max-h-[calc(100vh-73px)] overflow-y-auto">
+            <div className="p-4 border-b border-[var(--admin-border)]">
+              <h3 className="font-medium text-[var(--admin-text-primary)]">Widget Library</h3>
+              <p className="text-xs text-[var(--admin-text-muted)] mt-1">
+                Click to add widgets to your page
+              </p>
+            </div>
 
-                  <div className="max-h-[calc(100vh-300px)] overflow-y-auto">
-                    {WIDGET_CATEGORIES.map((category) => (
-                      <div key={category.name} className="border-b border-[var(--admin-border)] last:border-0">
-                        <button
-                          onClick={() =>
-                            setExpandedCategory(
-                              expandedCategory === category.name ? null : category.name
-                            )
-                          }
-                          className="w-full p-3 flex items-center justify-between hover:bg-[var(--admin-input)] transition-colors"
-                        >
-                          <span className="text-sm font-medium text-[var(--admin-text-primary)]">{category.name}</span>
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs text-[var(--admin-text-muted)]">
-                              {category.widgets.length}
-                            </span>
-                            {expandedCategory === category.name ? (
-                              <ChevronUp className="w-4 h-4 text-[var(--admin-text-muted)]" />
-                            ) : (
-                              <ChevronDown className="w-4 h-4 text-[var(--admin-text-muted)]" />
-                            )}
-                          </div>
-                        </button>
+            <div>
+              {WIDGET_CATEGORIES.map((category) => (
+                <div key={category.name} className="border-b border-[var(--admin-border)] last:border-0">
+                  <button
+                    onClick={() =>
+                      setExpandedCategory(
+                        expandedCategory === category.name ? null : category.name
+                      )
+                    }
+                    className="w-full p-3 flex items-center justify-between hover:bg-[var(--admin-hover)] transition-colors"
+                  >
+                    <span className="text-sm font-medium text-[var(--admin-text-primary)]">{category.name}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-[var(--admin-text-muted)]">
+                        {category.widgets.length}
+                      </span>
+                      {expandedCategory === category.name ? (
+                        <ChevronUp className="w-4 h-4 text-[var(--admin-text-muted)]" />
+                      ) : (
+                        <ChevronDown className="w-4 h-4 text-[var(--admin-text-muted)]" />
+                      )}
+                    </div>
+                  </button>
 
-                        <AnimatePresence>
-                          {expandedCategory === category.name && (
-                            <motion.div
-                              initial={{ height: 0 }}
-                              animate={{ height: 'auto' }}
-                              exit={{ height: 0 }}
-                              transition={{ duration: 0.15 }}
-                              className="overflow-hidden"
-                            >
-                              <div className="p-2 space-y-1">
-                                {category.widgets.map((widget) => {
-                                  const Icon = widget.icon;
-                                  return (
-                                    <button
-                                      key={widget.type}
-                                      onClick={() => handleAddWidget(widget.type)}
-                                      className="w-full p-3 rounded-lg border border-transparent hover:border-[var(--primary)]/50 hover:bg-[var(--primary)]/5 transition-all text-left group"
-                                    >
-                                      <div className="flex items-start gap-3">
-                                        <div className="w-8 h-8 rounded-lg bg-[var(--admin-input)] group-hover:bg-[var(--primary)]/10 flex items-center justify-center flex-shrink-0 transition-colors">
-                                          <Icon className="w-4 h-4 text-[var(--admin-text-secondary)] group-hover:text-[var(--primary)]" />
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                          <div className="flex items-center justify-between">
-                                            <span className="text-sm font-medium text-[var(--admin-text-primary)]">
-                                              {widget.label}
-                                            </span>
-                                            <Plus className="w-4 h-4 text-[var(--admin-text-muted)] opacity-0 group-hover:opacity-100 transition-opacity" />
-                                          </div>
-                                          <p className="text-xs text-[var(--admin-text-muted)] mt-0.5 line-clamp-1">
-                                            {widget.description}
-                                          </p>
-                                        </div>
-                                      </div>
-                                    </button>
-                                  );
-                                })}
-                              </div>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </div>
-                    ))}
-                  </div>
+                  <AnimatePresence>
+                    {expandedCategory === category.name && (
+                      <motion.div
+                        initial={{ height: 0 }}
+                        animate={{ height: 'auto' }}
+                        exit={{ height: 0 }}
+                        transition={{ duration: 0.15 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="p-2 space-y-1">
+                          {category.widgets.map((widget) => {
+                            const Icon = widget.icon;
+                            return (
+                              <button
+                                key={widget.type}
+                                onClick={() => handleAddWidget(widget.type)}
+                                disabled={isHomepage}
+                                className={cn(
+                                  'w-full p-3 rounded-lg border border-transparent transition-all text-left group',
+                                  isHomepage
+                                    ? 'opacity-50 cursor-not-allowed'
+                                    : 'hover:border-[var(--primary)]/50 hover:bg-[var(--primary)]/5'
+                                )}
+                              >
+                                <div className="flex items-start gap-3">
+                                  <div className="w-8 h-8 rounded-lg bg-[var(--admin-input)] group-hover:bg-[var(--primary)]/10 flex items-center justify-center flex-shrink-0 transition-colors">
+                                    <Icon className="w-4 h-4 text-[var(--admin-text-secondary)] group-hover:text-[var(--primary)]" />
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center justify-between">
+                                      <span className="text-sm font-medium text-[var(--admin-text-primary)]">
+                                        {widget.label}
+                                      </span>
+                                      {!isHomepage && (
+                                        <Plus className="w-4 h-4 text-[var(--admin-text-muted)] opacity-0 group-hover:opacity-100 transition-opacity" />
+                                      )}
+                                    </div>
+                                    <p className="text-xs text-[var(--admin-text-muted)] mt-0.5 line-clamp-1">
+                                      {widget.description}
+                                    </p>
+                                  </div>
+                                </div>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
-              </motion.div>
+              ))}
+            </div>
+
+            {isHomepage && (
+              <div className="p-4 border-t border-[var(--admin-border)] bg-amber-500/5">
+                <p className="text-xs text-amber-600">
+                  Homepage widgets are managed globally. Click on a widget above to edit its content.
+                </p>
+              </div>
             )}
-          </AnimatePresence>
-        </div>
-      )}
-
-      {/* SEO Tab */}
-      {activeTab === 'seo' && (
-        <div className="bg-[var(--admin-input)] rounded-xl border border-[var(--admin-border)] p-6 space-y-6 max-w-2xl">
-          <h3 className="font-medium text-[var(--admin-text-primary)]">Search Engine Optimization</h3>
-
-          <div>
-            <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Meta Title</label>
-            <input
-              type="text"
-              value={page.metaTitle || ''}
-              onChange={(e) => setPage({ ...page, metaTitle: e.target.value })}
-              placeholder={page.title || 'Page title'}
-              className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
-            />
-            <p className="text-xs text-[var(--admin-text-muted)] mt-1">
-              {(page.metaTitle || page.title || '').length}/60 characters
-            </p>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Meta Description</label>
-            <textarea
-              value={page.metaDescription || ''}
-              onChange={(e) => setPage({ ...page, metaDescription: e.target.value })}
-              placeholder="Brief description for search engines..."
-              rows={3}
-              className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors resize-none"
-            />
-            <p className="text-xs text-[var(--admin-text-muted)] mt-1">
-              {(page.metaDescription || '').length}/160 characters
-            </p>
-          </div>
-
-          {/* SEO Preview */}
-          <div className="mt-6 p-4 bg-white rounded-lg">
-            <p className="text-xs text-gray-500 mb-2">Search Preview</p>
-            <div className="text-blue-600 text-lg hover:underline cursor-pointer">
-              {page.metaTitle || page.title || 'Page Title'}
-            </div>
-            <div className="text-green-700 text-sm">
-              archiesremedies.com/{page.slug || 'page-slug'}
-            </div>
-            <p className="text-sm text-gray-600 line-clamp-2">
-              {page.metaDescription || 'Page description will appear here...'}
-            </p>
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }

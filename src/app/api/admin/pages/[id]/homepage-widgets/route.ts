@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { heroSlides, testimonials, videoTestimonials, faqs, instagramPosts, products } from '@/lib/db/schema';
-import { eq, desc } from 'drizzle-orm';
+import { heroSlides, testimonials, videoTestimonials, faqs, instagramPosts, products, siteSettings } from '@/lib/db/schema';
+import { eq } from 'drizzle-orm';
 import { requireAuth } from '@/lib/api-auth';
 
 // GET /api/admin/pages/[id]/homepage-widgets - Get widgets for homepage from dedicated tables
@@ -17,6 +17,7 @@ export async function GET() {
       faqsData,
       instagramData,
       productsData,
+      settingsData,
     ] = await Promise.all([
       db.select().from(heroSlides).orderBy(heroSlides.sortOrder),
       db.select().from(testimonials).where(eq(testimonials.isActive, true)).orderBy(testimonials.sortOrder),
@@ -24,9 +25,13 @@ export async function GET() {
       db.select().from(faqs).where(eq(faqs.isActive, true)).orderBy(faqs.sortOrder),
       db.select().from(instagramPosts).where(eq(instagramPosts.isActive, true)).orderBy(instagramPosts.sortOrder),
       db.select().from(products).where(eq(products.isActive, true)).orderBy(products.sortOrder),
+      db.select().from(siteSettings).limit(1),
     ]);
 
+    const settings = settingsData[0];
+
     // Convert to widget format for display in the page editor
+    // Order matches actual homepage rendering order
     const widgets = [
       {
         id: 'homepage-hero',
@@ -40,6 +45,21 @@ export async function GET() {
         isHomepageWidget: true,
       },
       {
+        id: 'homepage-marquee',
+        type: 'marquee',
+        title: 'Marquee Bar',
+        subtitle: settings?.marqueeText ? 'Scrolling text banner' : 'Not configured',
+        isVisible: settings?.marqueeEnabled !== false,
+        editUrl: '/admin/settings',
+        isHomepageWidget: true,
+        config: {
+          text: settings?.marqueeText || '',
+          speed: settings?.marqueeSpeed || 'slow',
+          size: settings?.marqueeSize || 'xl',
+          style: settings?.marqueeStyle || 'dark',
+        },
+      },
+      {
         id: 'homepage-products',
         type: 'product_grid',
         title: 'Featured Products',
@@ -47,6 +67,15 @@ export async function GET() {
         isVisible: productsData.length > 0,
         count: productsData.length,
         editUrl: '/admin/products',
+        isHomepageWidget: true,
+      },
+      {
+        id: 'homepage-mission',
+        type: 'mission',
+        title: 'Mission Section',
+        subtitle: 'Brand story and values',
+        isVisible: true,
+        editUrl: '/admin/settings',
         isHomepageWidget: true,
       },
       {
@@ -67,16 +96,6 @@ export async function GET() {
         isVisible: videoTestimonialsData.length > 0,
         count: videoTestimonialsData.length,
         editUrl: '/admin/video-testimonials',
-        isHomepageWidget: true,
-      },
-      {
-        id: 'homepage-faqs',
-        type: 'faqs',
-        title: 'FAQ Section',
-        subtitle: `${faqsData.length} questions`,
-        isVisible: faqsData.length > 0,
-        count: faqsData.length,
-        editUrl: '/admin/faqs',
         isHomepageWidget: true,
       },
       {

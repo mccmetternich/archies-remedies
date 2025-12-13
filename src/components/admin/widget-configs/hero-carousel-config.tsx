@@ -61,6 +61,8 @@ interface HeroSlide {
   showOnDesktop: boolean;
   showOnMobile: boolean;
   sortOrder: number;
+  layout: string | null;
+  textColor: string | null;
 }
 
 interface HeroCarouselConfigProps {
@@ -122,6 +124,8 @@ export function HeroCarouselConfig({
       showOnDesktop: true,
       showOnMobile: true,
       sortOrder: slides.length,
+      layout: 'full-width',
+      textColor: 'dark',
     };
 
     onSlidesChange([...slides, newSlide]);
@@ -435,6 +439,42 @@ function SlideCard({
                     {product.slug}
                   </p>
                 )}
+              </section>
+
+              {/* Layout Options */}
+              <section>
+                <h4 className="text-sm font-medium text-[var(--admin-text-primary)] mb-3 flex items-center gap-2">
+                  <ImageIcon className="w-4 h-4" />
+                  Layout & Style
+                </h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs text-[var(--admin-text-muted)] mb-1">Layout</label>
+                    <select
+                      value={slide.layout || 'full-width'}
+                      onChange={(e) => onUpdate({ layout: e.target.value })}
+                      className="w-full px-3 py-2 text-sm bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)] focus:outline-none focus:border-[var(--primary)]"
+                    >
+                      <option value="full-width">Full Width (image background)</option>
+                      <option value="two-column">Two Column (image right)</option>
+                      <option value="two-column-reversed">Two Column (image left)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs text-[var(--admin-text-muted)] mb-1">Text Color</label>
+                    <select
+                      value={slide.textColor || 'dark'}
+                      onChange={(e) => onUpdate({ textColor: e.target.value })}
+                      className="w-full px-3 py-2 text-sm bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)] focus:outline-none focus:border-[var(--primary)]"
+                    >
+                      <option value="dark">Dark (for light backgrounds)</option>
+                      <option value="light">Light (for dark backgrounds)</option>
+                    </select>
+                  </div>
+                </div>
+                <p className="mt-2 text-xs text-[var(--admin-text-muted)]">
+                  Full width uses image as background. Two-column shows text and image side by side.
+                </p>
               </section>
 
               {/* Title & Body */}
