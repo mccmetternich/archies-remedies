@@ -167,14 +167,10 @@ export function HeroCarousel({ slides, isPaused = false }: HeroCarouselProps) {
     </AnimatePresence>
   );
 
+  // Use consistent height for all layouts to prevent jumping
   return (
     <section
-      className={cn(
-        "relative overflow-hidden",
-        isTwoColumn
-          ? "min-h-[600px] lg:min-h-[700px]"
-          : "h-[90vh] min-h-[700px] max-h-[950px]"
-      )}
+      className="relative overflow-hidden h-[85vh] min-h-[600px] max-h-[850px]"
     >
       {/* Background for full-width layout */}
       {!isTwoColumn && (
@@ -209,6 +205,44 @@ export function HeroCarousel({ slides, isPaused = false }: HeroCarouselProps) {
                 aria-label={slide.buttonText || 'Shop Now'}
               />
             )}
+
+            {/* Testimonial card - centered at bottom of image (full-width layout) */}
+            {slide.testimonialText && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}
+                className="hidden lg:flex absolute bottom-20 left-1/2 -translate-x-1/2 z-20 w-full max-w-sm justify-center pointer-events-auto"
+              >
+                <div className="bg-white/95 backdrop-blur-sm px-4 py-3 rounded-xl shadow-xl border border-white/20">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full overflow-hidden bg-[var(--sand)] flex-shrink-0">
+                      <Image
+                        src={slide.testimonialAvatarUrl || DEFAULT_AVATAR}
+                        alt={slide.testimonialAuthor || 'Customer'}
+                        width={40}
+                        height={40}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <span className="font-medium text-sm text-[var(--foreground)]">{slide.testimonialAuthor || 'Verified Buyer'}</span>
+                        <div className="flex gap-0.5">
+                          {[1, 2, 3, 4, 5].map((i) => (
+                            <Star key={i} className="w-3 h-3 fill-[var(--primary)] text-[var(--primary)]" />
+                          ))}
+                        </div>
+                      </div>
+                      <p className="text-sm text-[var(--muted-foreground)] leading-snug line-clamp-2">
+                        &ldquo;{slide.testimonialText}&rdquo;
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
           </motion.div>
         </AnimatePresence>
       )}
@@ -239,7 +273,7 @@ export function HeroCarousel({ slides, isPaused = false }: HeroCarouselProps) {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: isReversed ? 30 : -30 }}
                 transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                className="relative h-[400px] lg:h-[600px] rounded-2xl overflow-hidden"
+                className="relative h-[350px] lg:h-[500px] rounded-2xl overflow-hidden"
               >
                 {slide.imageUrl ? (
                   <Image
@@ -315,53 +349,6 @@ export function HeroCarousel({ slides, isPaused = false }: HeroCarouselProps) {
         </div>
       )}
 
-      {/* Featured testimonial card - For full-width layout only (two-column has it inside image) */}
-      {!isTwoColumn && (
-        <AnimatePresence mode="wait">
-          {slide.testimonialText && (
-            <motion.div
-              key={`testimonial-${currentIndex}`}
-              initial={{ opacity: 0, y: 20, x: 20 }}
-              animate={{ opacity: 1, y: 0, x: 0 }}
-              exit={{ opacity: 0, y: 10, x: 10 }}
-              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}
-              style={{ willChange: 'opacity, transform' }}
-              className="hidden lg:block absolute bottom-24 right-8 xl:right-16 z-30 pointer-events-auto"
-            >
-              <div className="relative max-w-sm">
-                {/* Decorative element */}
-                <div className="absolute -top-4 -left-4 w-16 h-16 bg-[var(--primary)] rounded-full opacity-30 blur-2xl" />
-
-                <div className="relative bg-white/95 backdrop-blur-sm p-6 rounded-2xl shadow-2xl border border-[var(--border-light)]">
-                  <div className="flex gap-0.5 mb-3">
-                    {[1, 2, 3, 4, 5].map((i) => (
-                      <Star key={i} className="w-4 h-4 fill-[var(--foreground)] text-[var(--foreground)]" />
-                    ))}
-                  </div>
-                  <blockquote className="text-base leading-relaxed mb-4 text-[var(--foreground)]">
-                    &ldquo;{slide.testimonialText}&rdquo;
-                  </blockquote>
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full overflow-hidden bg-[var(--sand)]">
-                      <Image
-                        src={slide.testimonialAvatarUrl || DEFAULT_AVATAR}
-                        alt={slide.testimonialAuthor || 'Customer'}
-                        width={40}
-                        height={40}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div>
-                      <p className="font-medium text-sm">{slide.testimonialAuthor || 'Verified Buyer'}</p>
-                      <p className="text-xs text-[var(--muted-foreground)]">Verified Purchase</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      )}
 
       {/* Minimal progress indicator */}
       {slides.length > 1 && (
