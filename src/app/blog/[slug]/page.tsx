@@ -10,6 +10,7 @@ import { MediaThumbnail } from '@/components/blog';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { getHeaderProps, getFooterProps } from '@/lib/get-header-props';
+import { checkDraftMode } from '@/lib/draft-mode';
 
 export const dynamic = 'force-dynamic';
 
@@ -123,6 +124,12 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
   const { slug } = await params;
   const { preview } = await searchParams;
   const isPreview = preview === 'true';
+
+  // Check if site is in draft mode - redirects to coming-soon if needed
+  // Skip check for preview mode (allows admins to preview posts)
+  if (!isPreview) {
+    await checkDraftMode();
+  }
 
   const [post, headerProps] = await Promise.all([
     getPostBySlug(slug, isPreview),

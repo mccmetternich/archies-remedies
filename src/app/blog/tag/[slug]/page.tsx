@@ -10,6 +10,7 @@ import { Footer } from '@/components/layout/footer';
 import { getHeaderProps, getFooterProps } from '@/lib/get-header-props';
 import { blogSettings } from '@/lib/db/schema';
 import { Metadata } from 'next';
+import { checkDraftMode } from '@/lib/draft-mode';
 
 export const dynamic = 'force-dynamic';
 
@@ -113,6 +114,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function BlogTagPage({ params }: Props) {
+  // Check if site is in draft mode - redirects to coming-soon if needed
+  await checkDraftMode();
+
   const { slug } = await params;
 
   const [data, headerProps] = await Promise.all([

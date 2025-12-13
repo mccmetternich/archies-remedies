@@ -8,6 +8,7 @@ import { BlogGrid, BlogMasonry, BlogList } from '@/components/blog';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { getHeaderProps, getFooterProps } from '@/lib/get-header-props';
+import { checkDraftMode } from '@/lib/draft-mode';
 
 // ISR: Revalidate every 60 seconds
 export const revalidate = 60;
@@ -93,6 +94,9 @@ async function getBlogData() {
 }
 
 export default async function BlogPage() {
+  // Check if site is in draft mode - redirects to coming-soon if needed
+  await checkDraftMode();
+
   const [{ posts, tags, layoutMode }, headerProps] = await Promise.all([
     getBlogData(),
     getHeaderProps(),
