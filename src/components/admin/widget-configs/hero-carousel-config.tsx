@@ -588,6 +588,25 @@ function SlideCard({
                     </p>
                   </div>
                 </div>
+                {/* Resolution Tips */}
+                <div className="mt-4 p-3 bg-[var(--admin-hover)] rounded-lg">
+                  <p className="text-xs font-medium text-[var(--admin-text-secondary)] mb-2">Optimal Resolution</p>
+                  <div className="grid grid-cols-2 gap-4 text-xs text-[var(--admin-text-muted)]">
+                    <div>
+                      <p className="font-medium text-[var(--admin-text-secondary)]">Images:</p>
+                      <p>Desktop: 1920×1080px (16:9) or 2560×1440px</p>
+                      <p>Mobile: 750×1334px (9:16) or 1080×1920px</p>
+                    </div>
+                    <div>
+                      <p className="font-medium text-[var(--admin-text-secondary)]">Videos:</p>
+                      <p>Desktop: 1920×1080px MP4/WebM, under 10MB</p>
+                      <p>Mobile: 720×1280px MP4/WebM, under 5MB</p>
+                    </div>
+                  </div>
+                  <p className="text-xs text-[var(--admin-text-muted)] mt-2">
+                    Tip: Use WebM format for smaller file sizes. Videos auto-play muted on loop.
+                  </p>
+                </div>
               </section>
 
               {/* Buttons */}

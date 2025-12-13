@@ -72,7 +72,7 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
   const isTwoColumn = layout === 'two-column' || layout === 'two-column-reversed';
   const isReversed = layout === 'two-column-reversed';
 
-  // Text content component (shared between layouts) - 1.5x scaled up
+  // Text content component (shared between layouts) - scaled up ~1.9x total
   const TextContent = () => (
     <AnimatePresence mode="wait">
       <motion.div
@@ -83,7 +83,7 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
         style={{ willChange: 'opacity, transform' }}
       >
-        {/* Stars and Verified Reviews - Above title (1.5x scaled) */}
+        {/* Stars and Verified Reviews - Above title */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -93,75 +93,75 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
           <div className="flex gap-0.5">
             {[1, 2, 3, 4, 5].map((i) => (
               <Star key={i} className={cn(
-                "w-6 h-6",
+                "w-7 h-7",
                 isLightText ? "fill-white text-white" : "fill-[var(--primary)] text-[var(--primary)]"
               )} />
             ))}
           </div>
-          <span className={cn("text-lg font-semibold", isLightText ? "text-white" : "text-[var(--foreground)]")}>4.9</span>
-          <span className={cn("text-lg", isLightText ? "text-white/80" : "text-[var(--muted-foreground)]")}>2,500+ Verified Reviews</span>
+          <span className={cn("text-xl font-semibold", isLightText ? "text-white" : "text-[var(--foreground)]")}>4.9</span>
+          <span className={cn("text-xl", isLightText ? "text-white/80" : "text-[var(--muted-foreground)]")}>2,500+ Verified Reviews</span>
         </motion.div>
 
-        {/* Title - Editorial typography (1.5x scaled) */}
+        {/* Title - Editorial typography (scaled up 25% more) */}
         <motion.h1
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.8 }}
           className={cn(
-            "text-[clamp(3rem,7vw,6rem)] font-normal leading-[1.02] tracking-[-0.03em] mb-8 max-w-2xl",
+            "text-[clamp(3.5rem,8vw,7.5rem)] font-normal leading-[1.02] tracking-[-0.03em] mb-10 max-w-3xl",
             isLightText ? "text-white" : "text-[var(--foreground)]"
           )}
         >
           {slide.title || 'Instant Relief,\nClean Formula'}
         </motion.h1>
 
-        {/* Subtitle (1.5x scaled) */}
+        {/* Subtitle (scaled up 25% more) */}
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.6 }}
           className={cn(
-            "text-xl md:text-2xl mb-12 leading-relaxed max-w-lg",
+            "text-2xl md:text-3xl mb-14 leading-relaxed max-w-xl",
             isLightText ? "text-white/90" : "text-[var(--muted-foreground)]"
           )}
         >
           {slide.subtitle || 'Preservative-free eye drops crafted for sensitive eyes. Feel the difference of truly clean ingredients.'}
         </motion.p>
 
-        {/* CTA - Buttons with hover states (1.5x scaled) */}
+        {/* CTA - Buttons with hover states (both same size now) */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, duration: 0.6 }}
           className="flex flex-wrap items-center gap-5"
         >
-          {/* Primary button */}
+          {/* Primary button - same size as secondary */}
           {slide.buttonUrl && (
             <Link
               href={slide.buttonUrl}
               className={cn(
-                "group inline-flex items-center gap-4 px-8 py-5 rounded-full text-lg font-semibold transition-all duration-300",
+                "group inline-flex items-center justify-center gap-4 px-10 py-6 rounded-full text-xl font-semibold transition-all duration-300 min-h-[72px]",
                 isLightText
                   ? "bg-white text-[#1a1a1a] hover:bg-white/90"
-                  : "cta-button-primary cta-button-primary-lg"
+                  : "bg-[#1a1a1a] text-white hover:bg-[#333]"
               )}
             >
               {slide.buttonText || 'Shop Now'}
               <ArrowRight className="w-6 h-6 transition-transform group-hover:translate-x-1" />
             </Link>
           )}
-          {/* Secondary button - hidden on mobile */}
+          {/* Secondary button - hidden on mobile, same size as primary */}
           <Link
             href={slide.secondaryButtonUrl || '/about'}
             className={cn(
-              "hidden md:inline-flex group items-center gap-4 px-8 py-5 rounded-full text-lg font-semibold border-2 transition-all duration-300",
+              "hidden md:inline-flex group items-center justify-center gap-4 px-10 py-6 rounded-full text-xl font-semibold border-2 transition-all duration-300 min-h-[72px]",
               isLightText
                 ? "border-white/40 text-white hover:bg-white/10 hover:border-white/60"
                 : "border-[#1a1a1a]/20 bg-white text-[#1a1a1a] hover:bg-[#f5f5f5] hover:border-[#1a1a1a]/40"
             )}
           >
             {slide.secondaryButtonText || 'Learn More'}
-            <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+            <ArrowRight className="w-6 h-6 transition-transform group-hover:translate-x-1" />
           </Link>
         </motion.div>
       </motion.div>
@@ -263,15 +263,15 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
 
       {/* Content */}
       {isTwoColumn ? (
-        // Two-column layout - increased gap, full-width media
-        <div className="container relative z-20 h-full">
+        // Two-column layout - wide gap, full-width media
+        <div className="relative z-20 h-full">
           <div className={cn(
-            "grid lg:grid-cols-2 gap-12 lg:gap-24 h-full items-center py-12 lg:py-0",
+            "grid lg:grid-cols-2 h-full items-stretch",
             isReversed && "lg:[&>*:first-child]:order-2 lg:[&>*:last-child]:order-1"
           )}>
-            {/* Text content with testimonial at bottom */}
-            <div className="flex flex-col justify-center h-full py-8 lg:py-16">
-              <div className="max-w-xl">
+            {/* Text content with testimonial at bottom - with container padding */}
+            <div className="flex flex-col justify-center h-full py-12 lg:py-20 px-6 lg:px-16 xl:px-24">
+              <div className="max-w-2xl">
                 <TextContent />
               </div>
 
@@ -282,7 +282,7 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 10 }}
                   transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: 0.5 }}
-                  className="mt-12 max-w-md pointer-events-auto"
+                  className="mt-14 max-w-md pointer-events-auto"
                 >
                   <div className="bg-white/95 backdrop-blur-sm px-5 py-4 rounded-2xl shadow-xl border border-black/5">
                     <div className="flex items-center gap-4">
@@ -314,7 +314,7 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
               )}
             </div>
 
-            {/* Media - Full width in column, supports video */}
+            {/* Media - Full width of column, full height */}
             <AnimatePresence mode="sync">
               <motion.div
                 key={`image-${currentIndex}`}
@@ -322,9 +322,9 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: isReversed ? 30 : -30 }}
                 transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                className="relative h-full min-h-[400px] lg:min-h-0 overflow-hidden"
+                className="relative w-full h-full min-h-[400px] lg:min-h-full"
               >
-                {/* Video or Image */}
+                {/* Video or Image - full width of column */}
                 {slide.videoUrl ? (
                   <video
                     src={slide.videoUrl}
@@ -332,7 +332,7 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
                     muted
                     loop
                     playsInline
-                    className="absolute inset-0 w-full h-full object-cover"
+                    className="w-full h-full object-cover"
                   />
                 ) : slide.imageUrl ? (
                   <Image

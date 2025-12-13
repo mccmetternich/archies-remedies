@@ -3,7 +3,7 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 
-export type MarqueeSize = 'small' | 'medium' | 'large' | 'xl' | 'xxl';
+export type MarqueeSize = 'small' | 'medium' | 'large' | 'xl' | 'xxl' | 'xxxl';
 export type MarqueeSpeed = 'slow' | 'medium' | 'fast';
 export type MarqueeTheme = 'light' | 'dark' | 'baby-blue';
 
@@ -31,6 +31,7 @@ const sizeClasses: Record<MarqueeSize, string> = {
   large: 'py-4 text-base md:text-lg',
   xl: 'py-5 text-lg md:text-2xl',
   xxl: 'py-6 md:py-8 text-2xl md:text-4xl lg:text-5xl',  // GIGANTIC on desktop, reasonable on mobile
+  xxxl: 'py-8 md:py-12 text-4xl md:text-6xl lg:text-8xl xl:text-9xl',  // MASSIVE - double XXL
 };
 
 // Theme presets
