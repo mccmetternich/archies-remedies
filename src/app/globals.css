@@ -444,6 +444,51 @@ input[type="button"]:disabled,
   font-size: 1.125rem;
 }
 
+/* =============================================
+   HERO CAROUSEL BUTTONS - Guaranteed Styles
+   Use these classes to prevent Tailwind v4 issues
+   with arbitrary color values [#1a1a1a] etc
+   ============================================= */
+.hero-btn-dark {
+  background-color: #1a1a1a !important;
+  color: #ffffff !important;
+}
+
+.hero-btn-dark:hover {
+  background-color: #333333 !important;
+}
+
+.hero-btn-light {
+  background-color: #ffffff !important;
+  color: #1a1a1a !important;
+}
+
+.hero-btn-light:hover {
+  background-color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.hero-btn-outline-dark {
+  background-color: transparent !important;
+  border-color: rgba(26, 26, 26, 0.2) !important;
+  color: #1a1a1a !important;
+}
+
+.hero-btn-outline-dark:hover {
+  background-color: rgba(26, 26, 26, 0.05) !important;
+  border-color: rgba(26, 26, 26, 0.4) !important;
+}
+
+.hero-btn-outline-light {
+  background-color: transparent !important;
+  border-color: rgba(255, 255, 255, 0.4) !important;
+  color: #ffffff !important;
+}
+
+.hero-btn-outline-light:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.6) !important;
+}
+
 /* Premium Input Styles */
 .input {
   width: 100%;

@@ -129,35 +129,32 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
         </motion.p>
 
         {/* CTA - Buttons with hover states (both same size, proper styling) */}
+        {/* Using guaranteed CSS classes from globals.css to prevent Tailwind v4 issues */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, duration: 0.6 }}
           className="flex flex-wrap items-center gap-4"
         >
-          {/* Primary button - solid dark/white with proper text contrast */}
+          {/* Primary button - uses hero-btn-dark/light classes for guaranteed styling */}
           {slide.buttonUrl && (
             <Link
               href={slide.buttonUrl}
               className={cn(
                 "group inline-flex items-center justify-center gap-3 px-8 py-5 rounded-full text-lg font-semibold transition-all duration-300 min-h-[60px]",
-                isLightText
-                  ? "bg-white text-[#1a1a1a] hover:bg-white/90"
-                  : "bg-[#1a1a1a] text-white hover:bg-[#333]"
+                isLightText ? "hero-btn-light" : "hero-btn-dark"
               )}
             >
               {slide.buttonText || 'Shop Now'}
               <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
             </Link>
           )}
-          {/* Secondary button - outlined, hidden on mobile */}
+          {/* Secondary button - uses hero-btn-outline-dark/light classes */}
           <Link
             href={slide.secondaryButtonUrl || '/about'}
             className={cn(
               "hidden md:inline-flex group items-center justify-center gap-3 px-8 py-5 rounded-full text-lg font-semibold border-2 transition-all duration-300 min-h-[60px]",
-              isLightText
-                ? "border-white/40 text-white hover:bg-white/10 hover:border-white/60"
-                : "border-[#1a1a1a]/20 text-[#1a1a1a] hover:bg-[#1a1a1a]/5 hover:border-[#1a1a1a]/40"
+              isLightText ? "hero-btn-outline-light" : "hero-btn-outline-dark"
             )}
           >
             {slide.secondaryButtonText || 'Learn More'}
@@ -186,6 +183,8 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
             style={{ willChange: 'opacity' }}
           >
             {/* Video or Image background */}
+            {/* Full-width layout: image covers entire hero section */}
+            {/* Recommended: 2400x1350px (16:9) or 2400x1600px for full-width hero */}
             {slide.videoUrl ? (
               <video
                 src={slide.videoUrl}
@@ -193,14 +192,14 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
                 muted
                 loop
                 playsInline
-                className="absolute inset-0 w-full h-full object-cover"
+                className="absolute inset-0 w-full h-full object-cover object-center"
               />
             ) : slide.imageUrl ? (
               <Image
                 src={slide.imageUrl}
                 alt={slide.title || 'Hero image'}
                 fill
-                className="object-cover"
+                className="object-cover object-center"
                 priority
                 sizes="100vw"
               />
@@ -315,6 +314,9 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
             </div>
 
             {/* Media - Full width of column, full height */}
+            {/* Image sizing convention: object-cover fills container, object-position centers by default */}
+            {/* For product shots, use object-position: center to keep subject centered */}
+            {/* Recommended: Upload images at 1200x1600px (3:4 portrait) or 1600x1200px (4:3 landscape) */}
             <AnimatePresence mode="sync">
               <motion.div
                 key={`image-${currentIndex}`}
@@ -322,9 +324,11 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: isReversed ? 30 : -30 }}
                 transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                className="relative w-full h-full min-h-[400px] lg:min-h-full"
+                className="relative w-full h-full min-h-[400px] lg:min-h-full overflow-hidden"
               >
                 {/* Video or Image - full width of column */}
+                {/* object-cover: scales to fill container, crops overflow */}
+                {/* object-position: center centers the subject (default behavior) */}
                 {slide.videoUrl ? (
                   <video
                     src={slide.videoUrl}
@@ -332,14 +336,14 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
                     muted
                     loop
                     playsInline
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover object-center"
                   />
                 ) : slide.imageUrl ? (
                   <Image
                     src={slide.imageUrl}
                     alt={slide.title || 'Hero image'}
                     fill
-                    className="object-cover"
+                    className="object-cover object-center"
                     priority
                     sizes="(max-width: 1024px) 100vw, 50vw"
                   />
