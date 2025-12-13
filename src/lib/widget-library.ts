@@ -453,8 +453,12 @@ export const DEFAULT_CONFIGS: Record<string, Record<string, unknown>> = {
     buttonText: 'Subscribe',
   },
   marquee: {
-    items: ['Free Shipping on Orders $50+', 'Made in USA', '100% Satisfaction Guarantee'],
-    speed: 30,
+    text: 'Preservative-Free ✦ Clean Ingredients ✦ Doctor Trusted ✦ Instant Relief',
+    speed: 'slow',
+    size: 'xxl',
+    style: 'dark',
+    theme: 'dark',
+    separator: '✦',
   },
 };
 

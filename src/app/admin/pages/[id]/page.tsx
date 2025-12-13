@@ -497,9 +497,9 @@ function WidgetConfigPanel({
                 }
                 className="w-full px-3 py-2 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)]"
               >
-                <option value="slow">Slow</option>
-                <option value="normal">Normal</option>
-                <option value="fast">Fast</option>
+                <option value="slow">Slow (120s)</option>
+                <option value="medium">Medium (60s)</option>
+                <option value="fast">Fast (30s)</option>
               </select>
             </div>
             <div>
@@ -507,7 +507,7 @@ function WidgetConfigPanel({
                 Size
               </label>
               <select
-                value={(config.size as string) || 'xl'}
+                value={(config.size as string) || 'xxl'}
                 onChange={(e) =>
                   onUpdate({
                     config: { ...config, size: e.target.value },
@@ -519,24 +519,25 @@ function WidgetConfigPanel({
                 <option value="medium">Medium</option>
                 <option value="large">Large</option>
                 <option value="xl">XL</option>
-                <option value="xxl">XXL</option>
+                <option value="xxl">XXL (Gigantic)</option>
+                <option value="xxxl">XXXL (Massive)</option>
               </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
-                Style
+                Theme
               </label>
               <select
-                value={(config.style as string) || 'dark'}
+                value={(config.style as string) || (config.theme as string) || 'dark'}
                 onChange={(e) =>
                   onUpdate({
-                    config: { ...config, style: e.target.value },
+                    config: { ...config, style: e.target.value, theme: e.target.value },
                   })
                 }
                 className="w-full px-3 py-2 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)]"
               >
-                <option value="dark">Dark</option>
-                <option value="light">Light</option>
+                <option value="dark">Dark (Black BG)</option>
+                <option value="light">Light (White BG)</option>
                 <option value="baby-blue">Baby Blue</option>
               </select>
             </div>
