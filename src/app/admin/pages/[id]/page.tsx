@@ -208,7 +208,7 @@ function DraggableWidgetRow({
 
         {/* Controls */}
         <div className="flex items-center gap-1">
-          {/* Desktop visibility */}
+          {/* Desktop visibility - Green when on, Red when off */}
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -220,14 +220,14 @@ function DraggableWidgetRow({
             className={cn(
               'p-1.5 rounded-lg transition-colors',
               (widget.config as Record<string, unknown>)?.showOnDesktop !== false
-                ? 'text-[var(--admin-text-muted)] hover:bg-[var(--admin-hover)]'
-                : 'text-amber-500 bg-amber-500/10'
+                ? 'text-green-500 bg-green-500/10 hover:bg-green-500/20'
+                : 'text-red-400 bg-red-500/10 hover:bg-red-500/20'
             )}
-            title="Toggle desktop visibility"
+            title={(widget.config as Record<string, unknown>)?.showOnDesktop !== false ? 'Visible on desktop - click to hide' : 'Hidden on desktop - click to show'}
           >
             <Monitor className="w-4 h-4" />
           </button>
-          {/* Mobile visibility */}
+          {/* Mobile visibility - Green when on, Red when off */}
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -239,14 +239,14 @@ function DraggableWidgetRow({
             className={cn(
               'p-1.5 rounded-lg transition-colors',
               (widget.config as Record<string, unknown>)?.showOnMobile !== false
-                ? 'text-[var(--admin-text-muted)] hover:bg-[var(--admin-hover)]'
-                : 'text-amber-500 bg-amber-500/10'
+                ? 'text-green-500 bg-green-500/10 hover:bg-green-500/20'
+                : 'text-red-400 bg-red-500/10 hover:bg-red-500/20'
             )}
-            title="Toggle mobile visibility"
+            title={(widget.config as Record<string, unknown>)?.showOnMobile !== false ? 'Visible on mobile - click to hide' : 'Hidden on mobile - click to show'}
           >
             <Smartphone className="w-4 h-4" />
           </button>
-          {/* Widget visibility */}
+          {/* Widget visibility (draft/live) - Green when live, Amber when draft */}
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -255,10 +255,10 @@ function DraggableWidgetRow({
             className={cn(
               'p-1.5 rounded-lg transition-colors',
               widget.isVisible
-                ? 'text-[var(--admin-text-muted)] hover:bg-[var(--admin-hover)]'
-                : 'text-amber-500 bg-amber-500/10'
+                ? 'text-green-500 bg-green-500/10 hover:bg-green-500/20'
+                : 'text-amber-500 bg-amber-500/10 hover:bg-amber-500/20'
             )}
-            title={widget.isVisible ? 'Hide' : 'Show'}
+            title={widget.isVisible ? 'Live - click to set as draft' : 'Draft - click to publish'}
           >
             {widget.isVisible ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
           </button>
