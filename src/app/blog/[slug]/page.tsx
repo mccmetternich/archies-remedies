@@ -7,6 +7,9 @@ import { ArrowLeft, ArrowRight, Share2, Twitter, Facebook, Linkedin, Eye, Heart 
 import { Metadata } from 'next';
 import { isVideoUrl, formatEditorialDate } from '@/lib/media-utils';
 import { MediaThumbnail } from '@/components/blog';
+import { Header } from '@/components/layout/header';
+import { Footer } from '@/components/layout/footer';
+import { getHeaderProps, getFooterProps } from '@/lib/get-header-props';
 
 export const dynamic = 'force-dynamic';
 
@@ -121,7 +124,10 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
   const { preview } = await searchParams;
   const isPreview = preview === 'true';
 
-  const post = await getPostBySlug(slug, isPreview);
+  const [post, headerProps] = await Promise.all([
+    getPostBySlug(slug, isPreview),
+    getHeaderProps(),
+  ]);
 
   if (!post) {
     notFound();
@@ -134,7 +140,9 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
   const isVideo = isVideoUrl(post.featuredImageUrl);
 
   return (
-    <main className="min-h-screen bg-[var(--blog-bg)]">
+    <>
+      <Header {...headerProps} />
+      <main className="min-h-screen bg-[var(--blog-bg)]">
       {/* Split-Screen Hero - 90vh */}
       <section className="min-h-[90vh] lg:h-[90vh]">
         <div className="grid grid-cols-1 lg:grid-cols-2 h-full">
@@ -358,5 +366,7 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
         </div>
       </section>
     </main>
+      <Footer {...getFooterProps(headerProps.settings)} />
+    </>
   );
 }

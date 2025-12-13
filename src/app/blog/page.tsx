@@ -5,6 +5,9 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { unstable_cache } from 'next/cache';
 import { BlogGrid, BlogMasonry, BlogList } from '@/components/blog';
+import { Header } from '@/components/layout/header';
+import { Footer } from '@/components/layout/footer';
+import { getHeaderProps, getFooterProps } from '@/lib/get-header-props';
 
 // ISR: Revalidate every 60 seconds
 export const revalidate = 60;
@@ -90,69 +93,76 @@ async function getBlogData() {
 }
 
 export default async function BlogPage() {
-  const { posts, tags, layoutMode } = await getBlogData();
+  const [{ posts, tags, layoutMode }, headerProps] = await Promise.all([
+    getBlogData(),
+    getHeaderProps(),
+  ]);
 
   return (
-    <main className="min-h-screen bg-[var(--blog-bg)]">
-      {/* Minimal Editorial Header */}
-      <section className="pt-24 pb-12 px-4">
-        <div className="max-w-7xl mx-auto">
-          <h1 className="blog-header blog-header-xl text-center">
-            Journal
-          </h1>
-        </div>
-      </section>
-
-      {/* Sticky Tag Filter Bar */}
-      {tags.length > 0 && (
-        <section className="sticky top-0 z-40 bg-[var(--blog-bg)] border-b border-[var(--blog-divider)] py-4 px-4">
+    <>
+      <Header {...headerProps} />
+      <main className="min-h-screen bg-[var(--blog-bg)]">
+        {/* Minimal Editorial Header */}
+        <section className="pt-32 pb-12 px-4">
           <div className="max-w-7xl mx-auto">
-            <div className="flex flex-wrap justify-center gap-3">
-              <Link
-                href="/blog"
-                className="blog-tag-pill blog-tag-pill-active"
-              >
-                All
-              </Link>
-              {tags.map((tag) => (
+            <h1 className="blog-header blog-header-xl text-center">
+              Journal
+            </h1>
+          </div>
+        </section>
+
+        {/* Sticky Tag Filter Bar */}
+        {tags.length > 0 && (
+          <section className="sticky top-[72px] z-40 bg-[var(--blog-bg)] border-b border-[var(--blog-divider)] py-4 px-4">
+            <div className="max-w-7xl mx-auto">
+              <div className="flex flex-wrap justify-center gap-3">
                 <Link
-                  key={tag.id}
-                  href={`/blog/tag/${tag.slug}`}
-                  className="blog-tag-pill"
+                  href="/blog"
+                  className="blog-tag-pill blog-tag-pill-active"
                 >
-                  {tag.name}
+                  All
                 </Link>
-              ))}
+                {tags.map((tag) => (
+                  <Link
+                    key={tag.id}
+                    href={`/blog/tag/${tag.slug}`}
+                    className="blog-tag-pill"
+                  >
+                    {tag.name}
+                  </Link>
+                ))}
+              </div>
             </div>
-          </div>
-        </section>
-      )}
+          </section>
+        )}
 
-      {/* Posts - Dynamic Layout Based on CMS Setting */}
-      {posts.length > 0 && (
-        <section className="px-4 py-16">
-          <div className={cn(
-            'mx-auto',
-            layoutMode === 'list' ? 'max-w-5xl' : 'max-w-7xl'
-          )}>
-            {layoutMode === 'masonry' && <BlogMasonry posts={posts} />}
-            {layoutMode === 'grid' && <BlogGrid posts={posts} />}
-            {layoutMode === 'list' && <BlogList posts={posts} />}
-          </div>
-        </section>
-      )}
+        {/* Posts - Dynamic Layout Based on CMS Setting */}
+        {posts.length > 0 && (
+          <section className="px-4 py-16">
+            <div className={cn(
+              'mx-auto',
+              layoutMode === 'list' ? 'max-w-5xl' : 'max-w-7xl'
+            )}>
+              {layoutMode === 'masonry' && <BlogMasonry posts={posts} />}
+              {layoutMode === 'grid' && <BlogGrid posts={posts} />}
+              {layoutMode === 'list' && <BlogList posts={posts} />}
+            </div>
+          </section>
+        )}
 
-      {/* Empty State */}
-      {posts.length === 0 && (
-        <section className="px-4 py-24">
-          <div className="max-w-md mx-auto text-center">
-            <h2 className="blog-header blog-header-md mb-4">Coming Soon</h2>
-            <p className="blog-body">
-              We&apos;re working on some great content. Check back soon.
-            </p>
-          </div>
-        </section>
-      )}
-    </main>
+        {/* Empty State */}
+        {posts.length === 0 && (
+          <section className="px-4 py-24">
+            <div className="max-w-md mx-auto text-center">
+              <h2 className="blog-header blog-header-md mb-4">Coming Soon</h2>
+              <p className="blog-body">
+                We&apos;re working on some great content. Check back soon.
+              </p>
+            </div>
+          </section>
+        )}
+      </main>
+      <Footer {...getFooterProps(headerProps.settings)} />
+    </>
   );
 }
