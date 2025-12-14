@@ -101,6 +101,11 @@ export async function POST(request: Request) {
       metaTitle: body.metaTitle || null,
       metaDescription: body.metaDescription || null,
       readingTime,
+      // New fields for blog post page redesign
+      heroCarouselImages: body.heroCarouselImages || null,
+      rightColumnBgColor: body.rightColumnBgColor || 'blue',
+      rightColumnThumbnailUrl: body.rightColumnThumbnailUrl || null,
+      postWidgets: body.postWidgets || null,
     };
 
     await db.insert(blogPosts).values(newPost);

@@ -20,10 +20,21 @@ import {
   Search,
   User,
   AlertCircle,
+  GripVertical,
+  Layers,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { MediaPickerButton } from '@/components/admin/media-picker';
 import { RichTextEditor } from '@/components/admin/rich-text-editor';
+import { WidgetLibrarySidebar } from '@/components/admin/widget-library-sidebar';
+import { WIDGET_TYPES } from '@/lib/widget-library';
+
+interface PostWidget {
+  id: string;
+  type: string;
+  visible: boolean;
+  config: Record<string, unknown>;
+}
 
 interface BlogPost {
   id: string;
@@ -47,6 +58,11 @@ interface BlogPost {
   createdAt: string | null;
   updatedAt: string | null;
   tags?: BlogTag[];
+  // New fields for redesigned blog post page
+  heroCarouselImages: string | null; // JSON array of up to 4 image URLs
+  rightColumnBgColor: string | null; // 'blue' | 'white' | 'black'
+  rightColumnThumbnailUrl: string | null;
+  postWidgets: string | null; // JSON array of widget configs
 }
 
 interface BlogTag {
@@ -92,12 +108,22 @@ export default function BlogPostEditorPage({ params }: { params: Promise<{ id: s
     createdAt: null,
     updatedAt: null,
     tags: [],
+    heroCarouselImages: null,
+    rightColumnBgColor: 'blue',
+    rightColumnThumbnailUrl: null,
+    postWidgets: null,
   });
 
   // State for inline tag creation
   const [creatingTag, setCreatingTag] = useState(false);
 
   const [originalPost, setOriginalPost] = useState<BlogPost | null>(null);
+
+  // Widget state
+  const [postWidgets, setPostWidgets] = useState<PostWidget[]>([]);
+  const [draggedWidgetType, setDraggedWidgetType] = useState<string | null>(null);
+  const [dropTargetIndex, setDropTargetIndex] = useState<number | null>(null);
+  const [showWidgetLibrary, setShowWidgetLibrary] = useState(false);
 
   // Fetch default author settings for new posts
   const fetchDefaultAuthor = async () => {
@@ -124,6 +150,68 @@ export default function BlogPostEditorPage({ params }: { params: Promise<{ id: s
       fetchPost();
     }
   }, [id, isNew]);
+
+  // Parse widgets from post when post changes
+  useEffect(() => {
+    if (post.postWidgets) {
+      try {
+        const parsed = JSON.parse(post.postWidgets);
+        setPostWidgets(parsed);
+      } catch {
+        setPostWidgets([]);
+      }
+    } else {
+      setPostWidgets([]);
+    }
+  }, [post.postWidgets]);
+
+  // Sync widgets back to post state
+  const updatePostWidgets = (widgets: PostWidget[]) => {
+    setPostWidgets(widgets);
+    setPost(prev => ({
+      ...prev,
+      postWidgets: widgets.length > 0 ? JSON.stringify(widgets) : null
+    }));
+  };
+
+  // Widget handlers
+  const handleAddWidget = (type: string, index?: number) => {
+    const widgetDef = WIDGET_TYPES.find(w => w.type === type);
+    if (!widgetDef) return;
+
+    const newWidget: PostWidget = {
+      id: `widget-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+      type,
+      visible: true,
+      config: {},
+    };
+
+    const newWidgets = [...postWidgets];
+    if (index !== undefined) {
+      newWidgets.splice(index, 0, newWidget);
+    } else {
+      newWidgets.push(newWidget);
+    }
+    updatePostWidgets(newWidgets);
+  };
+
+  const handleDeleteWidget = (id: string) => {
+    updatePostWidgets(postWidgets.filter(w => w.id !== id));
+  };
+
+  const handleToggleWidgetVisibility = (id: string) => {
+    updatePostWidgets(postWidgets.map(w =>
+      w.id === id ? { ...w, visible: !w.visible } : w
+    ));
+  };
+
+  const handleWidgetDrop = (index: number) => {
+    if (draggedWidgetType) {
+      handleAddWidget(draggedWidgetType, index);
+    }
+    setDraggedWidgetType(null);
+    setDropTargetIndex(null);
+  };
 
   const fetchPost = async () => {
     try {
@@ -458,6 +546,156 @@ export default function BlogPostEditorPage({ params }: { params: Promise<{ id: s
               minHeight="500px"
             />
           </div>
+
+          {/* Post Widgets Section */}
+          <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--admin-text-muted)]">
+                  <Layers className="w-3.5 h-3.5 inline mr-1.5" />
+                  Post Widgets
+                </label>
+                <p className="text-xs text-[var(--admin-text-muted)] mt-1">
+                  Add widgets to appear after the article content
+                </p>
+              </div>
+              <button
+                onClick={() => setShowWidgetLibrary(!showWidgetLibrary)}
+                className={cn(
+                  'flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+                  showWidgetLibrary
+                    ? 'bg-[var(--primary)] text-white'
+                    : 'bg-[var(--admin-input)] text-[var(--admin-text-secondary)] hover:bg-[var(--admin-hover)]'
+                )}
+              >
+                <Plus className="w-4 h-4" />
+                {showWidgetLibrary ? 'Close Library' : 'Add Widget'}
+              </button>
+            </div>
+
+            {/* Widget Library Dropdown */}
+            {showWidgetLibrary && (
+              <div className="mb-4 border border-[var(--admin-border-light)] rounded-lg overflow-hidden max-h-[400px] overflow-y-auto">
+                <WidgetLibrarySidebar
+                  onAddWidget={(type) => {
+                    handleAddWidget(type);
+                    setShowWidgetLibrary(false);
+                  }}
+                  onDragStart={setDraggedWidgetType}
+                  onDragEnd={() => setDraggedWidgetType(null)}
+                  draggedWidgetType={draggedWidgetType}
+                  showReorderControls={false}
+                  compact
+                  title="Select Widget"
+                  subtitle="Click to add to post"
+                />
+              </div>
+            )}
+
+            {/* Widget Drop Zone & List */}
+            <div
+              className={cn(
+                'min-h-[100px] rounded-lg border-2 border-dashed transition-colors',
+                draggedWidgetType
+                  ? 'border-[var(--primary)] bg-[var(--primary)]/5'
+                  : 'border-[var(--admin-border-light)]',
+                postWidgets.length === 0 && 'flex items-center justify-center'
+              )}
+              onDragOver={(e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'copy';
+              }}
+              onDrop={(e) => {
+                e.preventDefault();
+                const type = e.dataTransfer.getData('widget-type');
+                if (type) {
+                  handleAddWidget(type);
+                  setDraggedWidgetType(null);
+                }
+              }}
+            >
+              {postWidgets.length === 0 ? (
+                <div className="text-center py-8">
+                  <Layers className="w-8 h-8 text-[var(--admin-text-muted)] mx-auto mb-2" />
+                  <p className="text-sm text-[var(--admin-text-muted)]">
+                    {draggedWidgetType ? 'Drop widget here' : 'No widgets added yet'}
+                  </p>
+                  <p className="text-xs text-[var(--admin-text-muted)] mt-1">
+                    Drag from the library or click "Add Widget"
+                  </p>
+                </div>
+              ) : (
+                <div className="p-3 space-y-2">
+                  {postWidgets.map((widget, index) => {
+                    const widgetDef = WIDGET_TYPES.find(w => w.type === widget.type);
+                    const Icon = widgetDef?.icon;
+
+                    return (
+                      <div
+                        key={widget.id}
+                        className={cn(
+                          'flex items-center gap-3 p-3 bg-[var(--admin-input)] rounded-lg group transition-all',
+                          !widget.visible && 'opacity-50'
+                        )}
+                        draggable
+                        onDragStart={(e) => {
+                          e.dataTransfer.setData('widget-index', index.toString());
+                        }}
+                        onDragOver={(e) => {
+                          e.preventDefault();
+                          setDropTargetIndex(index);
+                        }}
+                        onDragLeave={() => setDropTargetIndex(null)}
+                        onDrop={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          const fromIndex = parseInt(e.dataTransfer.getData('widget-index'));
+                          if (!isNaN(fromIndex) && fromIndex !== index) {
+                            const newWidgets = [...postWidgets];
+                            const [moved] = newWidgets.splice(fromIndex, 1);
+                            newWidgets.splice(index, 0, moved);
+                            updatePostWidgets(newWidgets);
+                          }
+                          setDropTargetIndex(null);
+                        }}
+                      >
+                        <GripVertical className="w-4 h-4 text-[var(--admin-text-muted)] cursor-grab" />
+                        {Icon && (
+                          <div className="w-8 h-8 rounded-lg bg-[var(--admin-card)] flex items-center justify-center">
+                            <Icon className="w-4 h-4 text-[var(--admin-text-secondary)]" />
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-[var(--admin-text-primary)] truncate">
+                            {widgetDef?.name || widget.type}
+                          </p>
+                          <p className="text-xs text-[var(--admin-text-muted)] truncate">
+                            {widgetDef?.description}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button
+                            onClick={() => handleToggleWidgetVisibility(widget.id)}
+                            className="p-1.5 rounded hover:bg-[var(--admin-hover)] text-[var(--admin-text-muted)] hover:text-[var(--admin-text-primary)]"
+                            title={widget.visible ? 'Hide widget' : 'Show widget'}
+                          >
+                            {widget.visible ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                          </button>
+                          <button
+                            onClick={() => handleDeleteWidget(widget.id)}
+                            className="p-1.5 rounded hover:bg-red-500/10 text-[var(--admin-text-muted)] hover:text-red-500"
+                            title="Delete widget"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Right Column - Settings in order */}
@@ -522,6 +760,113 @@ export default function BlogPostEditorPage({ params }: { params: Promise<{ id: s
               folder="blog"
               aspectRatio="16/9"
             />
+          </div>
+
+          {/* 2b. Hero Carousel Images (up to 4) */}
+          <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--admin-text-muted)] mb-2">
+              Hero Carousel Images
+            </label>
+            <p className="text-xs text-[var(--admin-text-muted)] mb-4">
+              Add up to 4 additional images that appear as floating thumbnails on the hero media
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              {[0, 1, 2, 3].map((index) => {
+                const images: string[] = post.heroCarouselImages ? JSON.parse(post.heroCarouselImages) : [];
+                const currentUrl = images[index] || null;
+                return (
+                  <div key={index} className="relative">
+                    {currentUrl ? (
+                      <div className="relative aspect-square bg-[var(--admin-input)] rounded-lg overflow-hidden group">
+                        <img src={currentUrl} alt={`Carousel ${index + 1}`} className="w-full h-full object-cover" />
+                        <button
+                          onClick={() => {
+                            const newImages = [...images];
+                            newImages.splice(index, 1);
+                            setPost(prev => ({
+                              ...prev,
+                              heroCarouselImages: newImages.length > 0 ? JSON.stringify(newImages) : null
+                            }));
+                          }}
+                          className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ) : (
+                      <MediaPickerButton
+                        label=""
+                        value={null}
+                        onChange={(url) => {
+                          if (url) {
+                            const images: string[] = post.heroCarouselImages ? JSON.parse(post.heroCarouselImages) : [];
+                            // Find first empty slot or add to end
+                            if (images.length < 4) {
+                              images.push(url);
+                            }
+                            setPost(prev => ({
+                              ...prev,
+                              heroCarouselImages: JSON.stringify(images)
+                            }));
+                          }
+                        }}
+                        helpText=""
+                        folder="blog/carousel"
+                        aspectRatio="1/1"
+                        buttonText={`Image ${index + 1}`}
+                        compact
+                      />
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* 2c. Right Column Settings */}
+          <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6 space-y-4">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--admin-text-muted)]">
+              Right Column Style
+            </label>
+
+            {/* Background Color Selection */}
+            <div>
+              <label className="block text-sm text-[var(--admin-text-secondary)] mb-2">Background Color</label>
+              <div className="flex gap-2">
+                {[
+                  { value: 'blue', label: 'Blue', bg: 'bg-[#bad9ea]', text: 'text-[#1a1a1a]' },
+                  { value: 'white', label: 'White', bg: 'bg-white', text: 'text-[#1a1a1a]' },
+                  { value: 'black', label: 'Black', bg: 'bg-[#1a1a1a]', text: 'text-white' },
+                ].map((option) => (
+                  <button
+                    key={option.value}
+                    onClick={() => setPost(prev => ({ ...prev, rightColumnBgColor: option.value }))}
+                    className={cn(
+                      'flex-1 px-4 py-3 rounded-lg border-2 transition-all text-sm font-medium',
+                      option.bg,
+                      option.text,
+                      post.rightColumnBgColor === option.value
+                        ? 'border-[var(--primary)] ring-2 ring-[var(--primary)]/20'
+                        : 'border-transparent hover:border-[var(--admin-border-light)]'
+                    )}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Right Column Thumbnail */}
+            <div className="border-t border-[var(--admin-border-light)] pt-4">
+              <MediaPickerButton
+                label="Optional Thumbnail"
+                value={post.rightColumnThumbnailUrl}
+                onChange={(url) => setPost((prev) => ({ ...prev, rightColumnThumbnailUrl: url || null }))}
+                helpText="Small image displayed in the center of the right column"
+                folder="blog/thumbnails"
+                aspectRatio="1/1"
+              />
+            </div>
           </div>
 
           {/* 3. Featured Post Toggle */}

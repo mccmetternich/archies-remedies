@@ -63,6 +63,10 @@ interface BlogSettings {
   id: string;
   blogName: string;
   blogSlug: string;
+  // Homepage hero section
+  heroMediaUrl: string | null;
+  heroTitle: string | null;
+  heroSubtitle: string | null;
   pageTitle: string;
   pageSubtitle: string;
   gridLayout: 'masonry' | 'grid' | 'list';
@@ -94,6 +98,9 @@ export default function BlogAdminPage() {
     id: 'default',
     blogName: 'Blog',
     blogSlug: 'blog',
+    heroMediaUrl: null,
+    heroTitle: null,
+    heroSubtitle: null,
     pageTitle: 'Blog',
     pageSubtitle: '',
     gridLayout: 'masonry',
@@ -649,6 +656,81 @@ export default function BlogAdminPage() {
                       className="flex-1 px-4 py-2.5 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-r-lg text-[var(--admin-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50"
                       placeholder="blog"
                     />
+                  </div>
+                </div>
+
+                {/* Homepage Hero Section */}
+                <div className="pt-6 border-t border-[var(--admin-border)]">
+                  <h3 className="text-sm font-semibold text-[var(--admin-text-primary)] mb-4 flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[var(--primary)]" />
+                    Homepage Hero
+                  </h3>
+
+                  <div className="space-y-4">
+                    {/* Hero Media Upload */}
+                    <div>
+                      <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
+                        Hero Media (Full-Screen Image/Video)
+                      </label>
+                      <div className="flex gap-3">
+                        <input
+                          type="text"
+                          value={settings.heroMediaUrl || ''}
+                          onChange={(e) => setSettings({ ...settings, heroMediaUrl: e.target.value || null })}
+                          className="flex-1 px-4 py-2.5 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50"
+                          placeholder="https://... (image or video URL)"
+                        />
+                        {settings.heroMediaUrl && (
+                          <button
+                            type="button"
+                            onClick={() => setSettings({ ...settings, heroMediaUrl: null })}
+                            className="px-3 py-2 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
+                      {settings.heroMediaUrl && (
+                        <div className="mt-2 rounded-lg overflow-hidden bg-[var(--admin-bg-secondary)] h-32">
+                          {settings.heroMediaUrl.match(/\.(mp4|webm|mov)(\?|$)/i) ? (
+                            <video src={settings.heroMediaUrl} className="w-full h-full object-cover" muted autoPlay loop />
+                          ) : (
+                            <img src={settings.heroMediaUrl} alt="Hero preview" className="w-full h-full object-cover" />
+                          )}
+                        </div>
+                      )}
+                      <p className="mt-1.5 text-xs text-[var(--admin-text-muted)]">
+                        Full-width hero displayed at the top of the blog homepage
+                      </p>
+                    </div>
+
+                    {/* Hero Title */}
+                    <div>
+                      <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
+                        Hero Title
+                      </label>
+                      <input
+                        type="text"
+                        value={settings.heroTitle || ''}
+                        onChange={(e) => setSettings({ ...settings, heroTitle: e.target.value || null })}
+                        className="w-full px-4 py-2.5 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50"
+                        placeholder="The Journal"
+                      />
+                    </div>
+
+                    {/* Hero Subtitle */}
+                    <div>
+                      <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
+                        Hero Subtitle
+                      </label>
+                      <input
+                        type="text"
+                        value={settings.heroSubtitle || ''}
+                        onChange={(e) => setSettings({ ...settings, heroSubtitle: e.target.value || null })}
+                        className="w-full px-4 py-2.5 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50"
+                        placeholder="Stories, tips, and inspiration for healthy eyes"
+                      />
+                    </div>
                   </div>
                 </div>
 

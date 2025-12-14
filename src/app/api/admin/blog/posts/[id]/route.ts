@@ -80,6 +80,8 @@ export async function PATCH(
     // Handle tag updates separately
     const tagIds = body.tagIds;
     delete body.tagIds;
+    // Remove tags array if sent (it's a computed field)
+    delete body.tags;
 
     await db.update(blogPosts).set(body).where(eq(blogPosts.id, id));
 

@@ -670,6 +670,16 @@ export const blogPosts = sqliteTable('blog_posts', {
   authorName: text('author_name').default('Archie\'s Remedies'),
   authorAvatarUrl: text('author_avatar_url'),
 
+  // Hero carousel - up to 4 additional images/videos for the hero section
+  heroCarouselImages: text('hero_carousel_images'), // JSON array of URLs
+
+  // Right column styling
+  rightColumnBgColor: text('right_column_bg_color').default('blue'), // 'blue' | 'white' | 'black'
+  rightColumnThumbnailUrl: text('right_column_thumbnail_url'), // Optional thumbnail in right column
+
+  // Post-specific widgets (drag-drop widgets for article bottom)
+  postWidgets: text('post_widgets'), // JSON array of widget configs
+
   // Status
   status: text('status').default('draft'), // draft, published, scheduled
   publishedAt: text('published_at'),
@@ -701,6 +711,12 @@ export const blogSettings = sqliteTable('blog_settings', {
   id: text('id').primaryKey(),
   blogName: text('blog_name').default('Blog'),
   blogSlug: text('blog_slug').default('blog'),
+
+  // Full-screen hero at top of blog homepage
+  heroMediaUrl: text('hero_media_url'), // Full-screen hero image/video
+  heroTitle: text('hero_title'), // Big title overlaid or below hero
+  heroSubtitle: text('hero_subtitle'), // Subtitle below title
+
   pageTitle: text('page_title'),
   pageSubtitle: text('page_subtitle'),
   gridLayout: text('grid_layout').default('masonry'), // masonry, grid, list

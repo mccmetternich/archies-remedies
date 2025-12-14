@@ -4,11 +4,11 @@ import { desc, eq, inArray } from 'drizzle-orm';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { unstable_cache } from 'next/cache';
-import { BlogGrid, BlogMasonry, BlogList } from '@/components/blog';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { getHeaderProps, getFooterProps } from '@/lib/get-header-props';
 import { checkDraftMode } from '@/lib/draft-mode';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 // ISR: Revalidate every 60 seconds
 export const revalidate = 60;
@@ -27,12 +27,19 @@ interface BlogPost {
   tags?: { id: string; name: string; slug: string; color: string | null }[];
 }
 
-// Cached blog data with single efficient query (fixes N+1 problem)
+interface BlogSettings {
+  heroMediaUrl: string | null;
+  heroTitle: string | null;
+  heroSubtitle: string | null;
+  pageTitle: string | null;
+  pageSubtitle: string | null;
+}
+
+// Cached blog data with single efficient query
 const getCachedBlogData = unstable_cache(
   async () => {
-    // Get blog settings for layout mode
+    // Get blog settings for hero and layout
     const [settings] = await db.select().from(blogSettings).limit(1);
-    const layoutMode = settings?.gridLayout || 'grid';
 
     // Get published posts
     const posts = await db
@@ -41,7 +48,7 @@ const getCachedBlogData = unstable_cache(
       .where(eq(blogPosts.status, 'published'))
       .orderBy(desc(blogPosts.publishedAt));
 
-    // Get all tags for all posts in a single query (fixes N+1)
+    // Get all tags for all posts in a single query
     const postIds = posts.map((p) => p.id);
     const allPostTags = postIds.length > 0
       ? await db
@@ -82,72 +89,423 @@ const getCachedBlogData = unstable_cache(
     return {
       posts: postsWithTags as BlogPost[],
       tags: allTags,
-      layoutMode: layoutMode as 'grid' | 'masonry' | 'list'
+      settings: {
+        heroMediaUrl: settings?.heroMediaUrl || null,
+        heroTitle: settings?.heroTitle || null,
+        heroSubtitle: settings?.heroSubtitle || null,
+        pageTitle: settings?.pageTitle || null,
+        pageSubtitle: settings?.pageSubtitle || null,
+      } as BlogSettings,
     };
   },
   ['blog-data'],
   { revalidate: 60, tags: ['blog-data'] }
 );
 
-async function getBlogData() {
-  return getCachedBlogData();
+// Helper to check if URL is video
+function isVideoUrl(url: string | null): boolean {
+  if (!url) return false;
+  return /\.(mp4|webm|mov)(\?|$)/i.test(url) || url.includes('/video/upload/');
+}
+
+// Editorial Card Component with compartments
+function EditorialCard({ post, className }: { post: BlogPost; className?: string }) {
+  return (
+    <Link href={`/blog/${post.slug}`} className={cn('group block', className)}>
+      {/* Thumbnail compartment with white gap inside black frame */}
+      <div className="p-3 bg-white">
+        <div className="aspect-[4/5] overflow-hidden bg-[#f5f5f5]">
+          {post.featuredImageUrl ? (
+            isVideoUrl(post.featuredImageUrl) ? (
+              <video
+                src={post.featuredImageUrl}
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                muted
+                autoPlay
+                loop
+                playsInline
+              />
+            ) : (
+              <img
+                src={post.featuredImageUrl}
+                alt={post.title}
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              />
+            )
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <span className="text-6xl font-bold text-[#e0e0e0]">
+                {post.title.charAt(0).toUpperCase()}
+              </span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Title compartment */}
+      <div className="px-4 py-3 border-t border-black">
+        <h3 className="font-semibold text-base leading-tight line-clamp-2 group-hover:text-[#bad9ea] transition-colors">
+          {post.title}
+        </h3>
+      </div>
+
+      {/* Caption/excerpt compartment */}
+      {post.excerpt && (
+        <div className="px-4 py-2 border-t border-black">
+          <p className="text-sm text-gray-600 line-clamp-2">{post.excerpt}</p>
+        </div>
+      )}
+
+      {/* Tags compartment */}
+      {post.tags && post.tags.length > 0 && (
+        <div className="px-4 py-3 border-t border-black flex flex-wrap gap-2">
+          {post.tags.slice(0, 3).map((tag) => (
+            <span
+              key={tag.id}
+              className="px-2 py-1 bg-[#bad9ea] text-xs font-medium text-black"
+            >
+              {tag.name}
+            </span>
+          ))}
+        </div>
+      )}
+    </Link>
+  );
+}
+
+// Full-width feature post (5th post or two-column)
+function FeaturePost({ post, variant = 'full' }: { post: BlogPost; variant?: 'full' | 'split' }) {
+  if (variant === 'split') {
+    return (
+      <div className="grid grid-cols-1 lg:grid-cols-2 border border-black">
+        {/* Left: Content */}
+        <div className="p-8 lg:p-12 flex flex-col justify-center order-2 lg:order-1">
+          {post.tags && post.tags.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-4">
+              {post.tags.map((tag) => (
+                <span
+                  key={tag.id}
+                  className="px-3 py-1 bg-[#bad9ea] text-xs font-semibold text-black uppercase tracking-wide"
+                >
+                  {tag.name}
+                </span>
+              ))}
+            </div>
+          )}
+          <h3 className="text-3xl lg:text-4xl font-bold leading-tight mb-4">
+            {post.title}
+          </h3>
+          {post.excerpt && (
+            <p className="text-gray-600 mb-6 line-clamp-3">{post.excerpt}</p>
+          )}
+          <div className="flex items-center gap-4 text-sm text-gray-500 mb-6">
+            {post.readingTime && <span>{post.readingTime} min read</span>}
+          </div>
+          <Link
+            href={`/blog/${post.slug}`}
+            className="inline-flex items-center gap-2 px-6 py-3 bg-black text-white font-medium hover:bg-[#bad9ea] hover:text-black transition-colors self-start"
+          >
+            Read Article
+            <ChevronRight className="w-4 h-4" />
+          </Link>
+        </div>
+
+        {/* Right: Media */}
+        <div className="aspect-[4/3] lg:aspect-auto lg:min-h-[400px] overflow-hidden order-1 lg:order-2 border-b lg:border-b-0 lg:border-l border-black">
+          {post.featuredImageUrl ? (
+            isVideoUrl(post.featuredImageUrl) ? (
+              <video
+                src={post.featuredImageUrl}
+                className="w-full h-full object-cover"
+                muted
+                autoPlay
+                loop
+                playsInline
+              />
+            ) : (
+              <img
+                src={post.featuredImageUrl}
+                alt={post.title}
+                className="w-full h-full object-cover"
+              />
+            )
+          ) : (
+            <div className="w-full h-full bg-[#f5f5f5] flex items-center justify-center">
+              <span className="text-8xl font-bold text-[#e0e0e0]">
+                {post.title.charAt(0).toUpperCase()}
+              </span>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // Full-width variant (3/4 media, 1/4 content)
+  return (
+    <Link href={`/blog/${post.slug}`} className="group block border border-black">
+      <div className="grid grid-cols-1 lg:grid-cols-[3fr_1fr]">
+        {/* Media - 3/4 width */}
+        <div className="aspect-[16/9] lg:aspect-[21/9] overflow-hidden border-b lg:border-b-0 lg:border-r border-black">
+          {post.featuredImageUrl ? (
+            isVideoUrl(post.featuredImageUrl) ? (
+              <video
+                src={post.featuredImageUrl}
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                muted
+                autoPlay
+                loop
+                playsInline
+              />
+            ) : (
+              <img
+                src={post.featuredImageUrl}
+                alt={post.title}
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              />
+            )
+          ) : (
+            <div className="w-full h-full bg-[#f5f5f5] flex items-center justify-center">
+              <span className="text-[15vw] font-bold text-[#e0e0e0]">
+                {post.title.charAt(0).toUpperCase()}
+              </span>
+            </div>
+          )}
+        </div>
+
+        {/* Content - 1/4 width */}
+        <div className="p-6 lg:p-8 flex flex-col justify-center">
+          {post.tags && post.tags.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-4">
+              {post.tags.slice(0, 2).map((tag) => (
+                <span
+                  key={tag.id}
+                  className="px-2 py-1 bg-[#bad9ea] text-xs font-semibold text-black"
+                >
+                  {tag.name}
+                </span>
+              ))}
+            </div>
+          )}
+          <h3 className="text-xl lg:text-2xl font-bold leading-tight mb-3 group-hover:text-[#bad9ea] transition-colors">
+            {post.title}
+          </h3>
+          {post.excerpt && (
+            <p className="text-sm text-gray-600 line-clamp-3">{post.excerpt}</p>
+          )}
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+// Pagination component
+function Pagination({ currentPage, totalPages }: { currentPage: number; totalPages: number }) {
+  if (totalPages <= 1) return null;
+
+  const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
+
+  return (
+    <div className="flex items-center justify-center gap-2">
+      <Link
+        href={currentPage > 1 ? `/blog?page=${currentPage - 1}` : '#'}
+        className={cn(
+          'w-10 h-10 flex items-center justify-center border border-black transition-colors',
+          currentPage > 1
+            ? 'hover:bg-[#bad9ea] hover:border-[#bad9ea]'
+            : 'opacity-30 cursor-not-allowed'
+        )}
+      >
+        <ChevronLeft className="w-4 h-4" />
+      </Link>
+
+      {pages.map((page) => (
+        <Link
+          key={page}
+          href={`/blog?page=${page}`}
+          className={cn(
+            'w-10 h-10 flex items-center justify-center border border-black font-medium transition-colors',
+            page === currentPage
+              ? 'bg-black text-white'
+              : 'hover:bg-[#bad9ea] hover:border-[#bad9ea]'
+          )}
+        >
+          {page}
+        </Link>
+      ))}
+
+      <Link
+        href={currentPage < totalPages ? `/blog?page=${currentPage + 1}` : '#'}
+        className={cn(
+          'w-10 h-10 flex items-center justify-center border border-black transition-colors',
+          currentPage < totalPages
+            ? 'hover:bg-[#bad9ea] hover:border-[#bad9ea]'
+            : 'opacity-30 cursor-not-allowed'
+        )}
+      >
+        <ChevronRight className="w-4 h-4" />
+      </Link>
+    </div>
+  );
 }
 
 export default async function BlogPage() {
-  // Check if site is in draft mode - redirects to coming-soon if needed
+  // Check if site is in draft mode
   await checkDraftMode();
 
-  const [{ posts, tags, layoutMode }, headerProps] = await Promise.all([
-    getBlogData(),
+  const [{ posts, tags, settings }, headerProps] = await Promise.all([
+    getCachedBlogData(),
     getHeaderProps(),
   ]);
+
+  // Split posts into sections:
+  // Row 1: Posts 0-3 (4 cards)
+  // Feature 1: Post 4 (full-width)
+  // Row 2: Posts 5-8 (4 cards)
+  // Feature 2: Post 9 (split layout)
+  // Row 3: Posts 10-13 (4 cards)
+  // Then paginate...
+
+  const row1 = posts.slice(0, 4);
+  const feature1 = posts[4];
+  const row2 = posts.slice(5, 9);
+  const feature2 = posts[9];
+  const row3 = posts.slice(10, 14);
+
+  const hasHero = settings.heroMediaUrl || settings.heroTitle;
 
   return (
     <>
       <Header {...headerProps} />
-      <main className="min-h-screen bg-[var(--blog-bg)]">
-        {/* Minimal Editorial Header */}
-        <section className="pt-32 pb-12 px-4">
-          <div className="max-w-7xl mx-auto">
-            <h1 className="blog-header blog-header-xl text-center">
-              Journal
-            </h1>
-          </div>
-        </section>
+      <main className="min-h-screen bg-white">
+        {/* Full-Screen Hero */}
+        {hasHero && (
+          <section className="relative h-[80vh] min-h-[600px] overflow-hidden">
+            {settings.heroMediaUrl && (
+              <div className="absolute inset-0">
+                {isVideoUrl(settings.heroMediaUrl) ? (
+                  <video
+                    src={settings.heroMediaUrl}
+                    className="w-full h-full object-cover"
+                    muted
+                    autoPlay
+                    loop
+                    playsInline
+                  />
+                ) : (
+                  <img
+                    src={settings.heroMediaUrl}
+                    alt=""
+                    className="w-full h-full object-cover"
+                  />
+                )}
+                {/* Gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+              </div>
+            )}
 
-        {/* Sticky Tag Filter Bar - Horizontal Scroll */}
-        {tags.length > 0 && (
-          <section className="sticky top-[72px] z-40 bg-[var(--blog-bg)] border-b border-[var(--blog-divider)] py-4">
-            <div className="blog-tag-scroll-container px-4">
-              <Link
-                href="/blog"
-                className="blog-tag-pill blog-tag-pill-active"
-              >
-                All
-              </Link>
-              {[...tags].sort((a, b) => a.name.localeCompare(b.name)).map((tag) => (
-                <Link
-                  key={tag.id}
-                  href={`/blog/tag/${tag.slug}`}
-                  className="blog-tag-pill"
-                >
-                  {tag.name}
-                </Link>
-              ))}
+            {/* Hero content */}
+            <div className="relative h-full flex flex-col justify-end p-8 lg:p-16">
+              <div className="max-w-4xl">
+                {settings.heroTitle && (
+                  <h1 className="text-5xl lg:text-7xl font-bold text-white leading-[0.95] tracking-tight mb-4">
+                    {settings.heroTitle}
+                  </h1>
+                )}
+                {settings.heroSubtitle && (
+                  <p className="text-xl lg:text-2xl text-white/80 max-w-2xl">
+                    {settings.heroSubtitle}
+                  </p>
+                )}
+              </div>
             </div>
           </section>
         )}
 
-        {/* Posts - Dynamic Layout Based on CMS Setting */}
+        {/* Minimal header if no hero */}
+        {!hasHero && (
+          <section className="pt-32 pb-12 px-4">
+            <div className="max-w-7xl mx-auto text-center">
+              <h1 className="text-5xl lg:text-6xl font-bold tracking-tight">
+                {settings.pageTitle || 'Journal'}
+              </h1>
+              {settings.pageSubtitle && (
+                <p className="mt-4 text-xl text-gray-600">{settings.pageSubtitle}</p>
+              )}
+            </div>
+          </section>
+        )}
+
+        {/* Sticky Tag Filter Bar */}
+        {tags.length > 0 && (
+          <section className="sticky top-[72px] z-40 bg-white border-y border-black py-4">
+            <div className="overflow-x-auto scrollbar-hide px-4">
+              <div className="flex gap-2 min-w-max">
+                <Link
+                  href="/blog"
+                  className="px-4 py-2 bg-black text-white text-sm font-medium uppercase tracking-wide"
+                >
+                  All
+                </Link>
+                {[...tags].sort((a, b) => a.name.localeCompare(b.name)).map((tag) => (
+                  <Link
+                    key={tag.id}
+                    href={`/blog/tag/${tag.slug}`}
+                    className="px-4 py-2 border border-black text-sm font-medium uppercase tracking-wide hover:bg-[#bad9ea] hover:border-[#bad9ea] transition-colors"
+                  >
+                    {tag.name}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Posts Grid */}
         {posts.length > 0 && (
-          <section className="px-4 py-16">
-            <div className={cn(
-              'mx-auto',
-              layoutMode === 'list' ? 'max-w-5xl' : 'max-w-7xl'
-            )}>
-              {layoutMode === 'masonry' && <BlogMasonry posts={posts} />}
-              {layoutMode === 'grid' && <BlogGrid posts={posts} />}
-              {layoutMode === 'list' && <BlogList posts={posts} />}
+          <section className="px-4 py-12">
+            <div className="max-w-7xl mx-auto space-y-12">
+              {/* Row 1: 4-card grid with shared borders */}
+              {row1.length > 0 && (
+                <div className="grid grid-cols-2 lg:grid-cols-4 border-l border-t border-black">
+                  {row1.map((post) => (
+                    <div key={post.id} className="border-r border-b border-black">
+                      <EditorialCard post={post} />
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Feature 1: Full-width post (5th post) */}
+              {feature1 && <FeaturePost post={feature1} variant="full" />}
+
+              {/* Row 2: 4-card grid */}
+              {row2.length > 0 && (
+                <div className="grid grid-cols-2 lg:grid-cols-4 border-l border-t border-black">
+                  {row2.map((post) => (
+                    <div key={post.id} className="border-r border-b border-black">
+                      <EditorialCard post={post} />
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Feature 2: Split layout (media right, content left) */}
+              {feature2 && <FeaturePost post={feature2} variant="split" />}
+
+              {/* Row 3: 4-card grid */}
+              {row3.length > 0 && (
+                <div className="grid grid-cols-2 lg:grid-cols-4 border-l border-t border-black">
+                  {row3.map((post) => (
+                    <div key={post.id} className="border-r border-b border-black">
+                      <EditorialCard post={post} />
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Pagination */}
+              <Pagination currentPage={1} totalPages={Math.ceil(posts.length / 14)} />
             </div>
           </section>
         )}
@@ -156,8 +514,8 @@ export default async function BlogPage() {
         {posts.length === 0 && (
           <section className="px-4 py-24">
             <div className="max-w-md mx-auto text-center">
-              <h2 className="blog-header blog-header-md mb-4">Coming Soon</h2>
-              <p className="blog-body">
+              <h2 className="text-3xl font-bold mb-4">Coming Soon</h2>
+              <p className="text-gray-600">
                 We&apos;re working on some great content. Check back soon.
               </p>
             </div>

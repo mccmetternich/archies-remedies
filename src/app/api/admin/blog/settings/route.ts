@@ -16,6 +16,9 @@ export async function GET() {
         id: 'default',
         blogName: 'Blog',
         blogSlug: 'blog',
+        heroMediaUrl: null,
+        heroTitle: null,
+        heroSubtitle: null,
         pageTitle: 'Blog',
         pageSubtitle: '',
         gridLayout: 'masonry',
@@ -37,7 +40,7 @@ export async function GET() {
 export async function PUT(request: Request) {
   try {
     const body = await request.json();
-    const { blogName, blogSlug, pageTitle, pageSubtitle, gridLayout, widgets, blogInDraftMode } = body;
+    const { blogName, blogSlug, heroMediaUrl, heroTitle, heroSubtitle, pageTitle, pageSubtitle, gridLayout, widgets, blogInDraftMode } = body;
 
     // Check if settings exist
     const [existing] = await db
@@ -54,6 +57,9 @@ export async function PUT(request: Request) {
         .set({
           blogName,
           blogSlug,
+          heroMediaUrl,
+          heroTitle,
+          heroSubtitle,
           pageTitle,
           pageSubtitle,
           gridLayout,
@@ -67,6 +73,9 @@ export async function PUT(request: Request) {
         ...existing,
         blogName,
         blogSlug,
+        heroMediaUrl,
+        heroTitle,
+        heroSubtitle,
         pageTitle,
         pageSubtitle,
         gridLayout,
@@ -81,6 +90,9 @@ export async function PUT(request: Request) {
         id,
         blogName,
         blogSlug,
+        heroMediaUrl,
+        heroTitle,
+        heroSubtitle,
         pageTitle,
         pageSubtitle,
         gridLayout,
@@ -93,6 +105,9 @@ export async function PUT(request: Request) {
         id,
         blogName,
         blogSlug,
+        heroMediaUrl,
+        heroTitle,
+        heroSubtitle,
         pageTitle,
         pageSubtitle,
         gridLayout,
