@@ -33,6 +33,8 @@ import {
 import { cn } from '@/lib/utils';
 import { WidgetLibrarySidebar } from '@/components/admin/widget-library-sidebar';
 import { getDefaultConfig, WIDGET_TYPES } from '@/lib/widget-library';
+import { MediaPickerButton } from '@/components/admin/media-picker';
+import { ChevronDown, ChevronUp, Image, Type, AlignLeft, Video } from 'lucide-react';
 
 interface BlogPost {
   id: string;
@@ -125,6 +127,7 @@ export default function BlogAdminPage() {
   const [originalBlogWidgets, setOriginalBlogWidgets] = useState<BlogWidget[]>([]);
   const [draggedWidgetType, setDraggedWidgetType] = useState<string | null>(null);
   const [dropTargetIndex, setDropTargetIndex] = useState<number | null>(null);
+  const [expandedWidgetId, setExpandedWidgetId] = useState<string | null>(null);
 
   // Track unsaved changes (must be after state declarations)
   const hasSettingsChanges = originalSettings && (
@@ -669,39 +672,15 @@ export default function BlogAdminPage() {
                   <div className="space-y-4">
                     {/* Hero Media Upload */}
                     <div>
-                      <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
-                        Hero Media (Full-Screen Image/Video)
-                      </label>
-                      <div className="flex gap-3">
-                        <input
-                          type="text"
-                          value={settings.heroMediaUrl || ''}
-                          onChange={(e) => setSettings({ ...settings, heroMediaUrl: e.target.value || null })}
-                          className="flex-1 px-4 py-2.5 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50"
-                          placeholder="https://... (image or video URL)"
-                        />
-                        {settings.heroMediaUrl && (
-                          <button
-                            type="button"
-                            onClick={() => setSettings({ ...settings, heroMediaUrl: null })}
-                            className="px-3 py-2 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        )}
-                      </div>
-                      {settings.heroMediaUrl && (
-                        <div className="mt-2 rounded-lg overflow-hidden bg-[var(--admin-bg-secondary)] h-32">
-                          {settings.heroMediaUrl.match(/\.(mp4|webm|mov)(\?|$)/i) ? (
-                            <video src={settings.heroMediaUrl} className="w-full h-full object-cover" muted autoPlay loop />
-                          ) : (
-                            <img src={settings.heroMediaUrl} alt="Hero preview" className="w-full h-full object-cover" />
-                          )}
-                        </div>
-                      )}
-                      <p className="mt-1.5 text-xs text-[var(--admin-text-muted)]">
-                        Full-width hero displayed at the top of the blog homepage
-                      </p>
+                      <MediaPickerButton
+                        label="Hero Media (Full-Screen Image/Video)"
+                        value={settings.heroMediaUrl}
+                        onChange={(url) => setSettings({ ...settings, heroMediaUrl: url || null })}
+                        helpText="Full-width hero displayed at the top of the blog homepage"
+                        folder="blog/hero"
+                        aspectRatio="21/9"
+                        acceptVideo
+                      />
                     </div>
 
                     {/* Hero Title */}
@@ -936,6 +915,7 @@ export default function BlogAdminPage() {
                     {blogWidgets.map((widget, index) => {
                       const widgetDef = WIDGET_TYPES.find((w) => w.type === widget.type);
                       const Icon = widgetDef?.icon || FileText;
+                      const isExpanded = expandedWidgetId === widget.id;
                       return (
                         <div
                           key={widget.id}
@@ -948,41 +928,239 @@ export default function BlogAdminPage() {
                           )}
                           <div
                             className={cn(
-                              'flex items-center gap-3 p-4 rounded-xl border border-[var(--admin-border)] bg-[var(--admin-input)] transition-all',
-                              'hover:border-[var(--admin-border-light)]'
+                              'rounded-xl border border-[var(--admin-border)] bg-[var(--admin-input)] transition-all overflow-hidden',
+                              'hover:border-[var(--admin-border-light)]',
+                              isExpanded && 'border-[var(--primary)]'
                             )}
                           >
-                            <GripVertical className="w-4 h-4 text-[var(--admin-text-muted)] cursor-grab" />
-                            <div className="w-10 h-10 rounded-lg bg-[var(--primary)]/10 flex items-center justify-center">
-                              <Icon className="w-5 h-5 text-[var(--primary)]" />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <h4 className="font-medium text-[var(--admin-text-primary)] truncate">
-                                {widget.title || widgetDef?.name || widget.type}
-                              </h4>
-                              <p className="text-xs text-[var(--admin-text-muted)]">
-                                {widgetDef?.description || ''}
-                              </p>
-                            </div>
-                            <button
-                              onClick={() => handleUpdateWidget(widget.id, { isVisible: !widget.isVisible })}
-                              className={cn(
-                                'p-2 rounded-lg transition-colors',
-                                widget.isVisible
-                                  ? 'text-green-400 bg-green-500/10 hover:bg-green-500/20'
-                                  : 'text-orange-400 bg-orange-500/10 hover:bg-orange-500/20'
+                            {/* Widget Header */}
+                            <div
+                              className="flex items-center gap-3 p-4 cursor-pointer"
+                              onClick={() => setExpandedWidgetId(isExpanded ? null : widget.id)}
+                            >
+                              <GripVertical className="w-4 h-4 text-[var(--admin-text-muted)] cursor-grab" onClick={(e) => e.stopPropagation()} />
+                              <div className="w-10 h-10 rounded-lg bg-[var(--primary)]/10 flex items-center justify-center">
+                                <Icon className="w-5 h-5 text-[var(--primary)]" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <h4 className="font-medium text-[var(--admin-text-primary)] truncate">
+                                  {widget.title || widgetDef?.name || widget.type}
+                                </h4>
+                                <p className="text-xs text-[var(--admin-text-muted)]">
+                                  {widgetDef?.description || ''}
+                                </p>
+                              </div>
+                              <button
+                                onClick={(e) => { e.stopPropagation(); handleUpdateWidget(widget.id, { isVisible: !widget.isVisible }); }}
+                                className={cn(
+                                  'p-2 rounded-lg transition-colors',
+                                  widget.isVisible
+                                    ? 'text-green-400 bg-green-500/10 hover:bg-green-500/20'
+                                    : 'text-orange-400 bg-orange-500/10 hover:bg-orange-500/20'
+                                )}
+                                title={widget.isVisible ? 'Visible - click to hide' : 'Hidden - click to show'}
+                              >
+                                {widget.isVisible ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                              </button>
+                              <button
+                                onClick={(e) => { e.stopPropagation(); handleDeleteWidget(widget.id); }}
+                                className="p-2 rounded-lg text-[var(--admin-text-muted)] hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                                title="Delete widget"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                              {isExpanded ? (
+                                <ChevronUp className="w-4 h-4 text-[var(--admin-text-muted)]" />
+                              ) : (
+                                <ChevronDown className="w-4 h-4 text-[var(--admin-text-muted)]" />
                               )}
-                              title={widget.isVisible ? 'Visible - click to hide' : 'Hidden - click to show'}
-                            >
-                              {widget.isVisible ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-                            </button>
-                            <button
-                              onClick={() => handleDeleteWidget(widget.id)}
-                              className="p-2 rounded-lg text-[var(--admin-text-muted)] hover:text-red-400 hover:bg-red-500/10 transition-colors"
-                              title="Delete widget"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
+                            </div>
+
+                            {/* Expandable Edit Panel */}
+                            {isExpanded && (
+                              <div className="px-4 pb-4 border-t border-[var(--admin-border)] pt-4 space-y-4">
+                                {/* Title Field - All widgets have this */}
+                                <div>
+                                  <label className="block text-xs font-medium text-[var(--admin-text-muted)] mb-1.5">
+                                    Widget Title
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={widget.title || ''}
+                                    onChange={(e) => handleUpdateWidget(widget.id, { title: e.target.value })}
+                                    placeholder={widgetDef?.name || 'Widget title'}
+                                    className="w-full px-3 py-2 bg-[var(--admin-card)] border border-[var(--admin-border)] rounded-lg text-sm text-[var(--admin-text-primary)] focus:outline-none focus:border-[var(--primary)]"
+                                  />
+                                </div>
+
+                                {/* Subtitle Field */}
+                                <div>
+                                  <label className="block text-xs font-medium text-[var(--admin-text-muted)] mb-1.5">
+                                    Subtitle (Optional)
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={widget.subtitle || ''}
+                                    onChange={(e) => handleUpdateWidget(widget.id, { subtitle: e.target.value })}
+                                    placeholder="Optional subtitle"
+                                    className="w-full px-3 py-2 bg-[var(--admin-card)] border border-[var(--admin-border)] rounded-lg text-sm text-[var(--admin-text-primary)] focus:outline-none focus:border-[var(--primary)]"
+                                  />
+                                </div>
+
+                                {/* Widget-specific fields */}
+                                {(widget.type === 'image-text' || widget.type === 'hero-carousel' || widget.type === 'full-width-image') && (
+                                  <div>
+                                    <MediaPickerButton
+                                      label="Image/Video"
+                                      value={(widget.config as { imageUrl?: string })?.imageUrl || null}
+                                      onChange={(url) => handleUpdateWidget(widget.id, { config: { ...widget.config, imageUrl: url } })}
+                                      helpText="Select or upload media"
+                                      folder="blog/widgets"
+                                      aspectRatio="16/9"
+                                      acceptVideo
+                                    />
+                                  </div>
+                                )}
+
+                                {(widget.type === 'image-text' || widget.type === 'text-block' || widget.type === 'cta-banner') && (
+                                  <div>
+                                    <label className="block text-xs font-medium text-[var(--admin-text-muted)] mb-1.5">
+                                      Content Text
+                                    </label>
+                                    <textarea
+                                      value={widget.content || ''}
+                                      onChange={(e) => handleUpdateWidget(widget.id, { content: e.target.value })}
+                                      placeholder="Enter content text..."
+                                      rows={4}
+                                      className="w-full px-3 py-2 bg-[var(--admin-card)] border border-[var(--admin-border)] rounded-lg text-sm text-[var(--admin-text-primary)] focus:outline-none focus:border-[var(--primary)] resize-none"
+                                    />
+                                  </div>
+                                )}
+
+                                {(widget.type === 'cta-banner' || widget.type === 'newsletter-signup') && (
+                                  <div className="grid grid-cols-2 gap-3">
+                                    <div>
+                                      <label className="block text-xs font-medium text-[var(--admin-text-muted)] mb-1.5">
+                                        Button Text
+                                      </label>
+                                      <input
+                                        type="text"
+                                        value={(widget.config as { buttonText?: string })?.buttonText || ''}
+                                        onChange={(e) => handleUpdateWidget(widget.id, { config: { ...widget.config, buttonText: e.target.value } })}
+                                        placeholder="Shop Now"
+                                        className="w-full px-3 py-2 bg-[var(--admin-card)] border border-[var(--admin-border)] rounded-lg text-sm text-[var(--admin-text-primary)] focus:outline-none focus:border-[var(--primary)]"
+                                      />
+                                    </div>
+                                    <div>
+                                      <label className="block text-xs font-medium text-[var(--admin-text-muted)] mb-1.5">
+                                        Button Link
+                                      </label>
+                                      <input
+                                        type="text"
+                                        value={(widget.config as { buttonLink?: string })?.buttonLink || ''}
+                                        onChange={(e) => handleUpdateWidget(widget.id, { config: { ...widget.config, buttonLink: e.target.value } })}
+                                        placeholder="/products"
+                                        className="w-full px-3 py-2 bg-[var(--admin-card)] border border-[var(--admin-border)] rounded-lg text-sm text-[var(--admin-text-primary)] focus:outline-none focus:border-[var(--primary)]"
+                                      />
+                                    </div>
+                                  </div>
+                                )}
+
+                                {widget.type === 'testimonials' && (
+                                  <div className="space-y-3">
+                                    <label className="block text-xs font-medium text-[var(--admin-text-muted)]">
+                                      Display Options
+                                    </label>
+                                    <div className="flex items-center gap-4">
+                                      <label className="flex items-center gap-2 text-sm text-[var(--admin-text-secondary)]">
+                                        <input
+                                          type="checkbox"
+                                          checked={(widget.config as { showRating?: boolean })?.showRating !== false}
+                                          onChange={(e) => handleUpdateWidget(widget.id, { config: { ...widget.config, showRating: e.target.checked } })}
+                                          className="rounded border-[var(--admin-border)]"
+                                        />
+                                        Show Rating Stars
+                                      </label>
+                                      <label className="flex items-center gap-2 text-sm text-[var(--admin-text-secondary)]">
+                                        <input
+                                          type="checkbox"
+                                          checked={(widget.config as { autoRotate?: boolean })?.autoRotate !== false}
+                                          onChange={(e) => handleUpdateWidget(widget.id, { config: { ...widget.config, autoRotate: e.target.checked } })}
+                                          className="rounded border-[var(--admin-border)]"
+                                        />
+                                        Auto-Rotate
+                                      </label>
+                                    </div>
+                                    <div>
+                                      <label className="block text-xs font-medium text-[var(--admin-text-muted)] mb-1.5">
+                                        Number of Testimonials
+                                      </label>
+                                      <select
+                                        value={(widget.config as { count?: number })?.count || 3}
+                                        onChange={(e) => handleUpdateWidget(widget.id, { config: { ...widget.config, count: parseInt(e.target.value) } })}
+                                        className="w-full px-3 py-2 bg-[var(--admin-card)] border border-[var(--admin-border)] rounded-lg text-sm text-[var(--admin-text-primary)] focus:outline-none focus:border-[var(--primary)]"
+                                      >
+                                        <option value={3}>3 testimonials</option>
+                                        <option value={5}>5 testimonials</option>
+                                        <option value={10}>10 testimonials</option>
+                                        <option value={0}>All testimonials</option>
+                                      </select>
+                                    </div>
+                                  </div>
+                                )}
+
+                                {widget.type === 'featured-products' && (
+                                  <div className="space-y-3">
+                                    <div>
+                                      <label className="block text-xs font-medium text-[var(--admin-text-muted)] mb-1.5">
+                                        Number of Products
+                                      </label>
+                                      <select
+                                        value={(widget.config as { count?: number })?.count || 4}
+                                        onChange={(e) => handleUpdateWidget(widget.id, { config: { ...widget.config, count: parseInt(e.target.value) } })}
+                                        className="w-full px-3 py-2 bg-[var(--admin-card)] border border-[var(--admin-border)] rounded-lg text-sm text-[var(--admin-text-primary)] focus:outline-none focus:border-[var(--primary)]"
+                                      >
+                                        <option value={2}>2 products</option>
+                                        <option value={3}>3 products</option>
+                                        <option value={4}>4 products</option>
+                                        <option value={6}>6 products</option>
+                                      </select>
+                                    </div>
+                                  </div>
+                                )}
+
+                                {widget.type === 'instagram-feed' && (
+                                  <div className="space-y-3">
+                                    <div>
+                                      <label className="block text-xs font-medium text-[var(--admin-text-muted)] mb-1.5">
+                                        Instagram Handle
+                                      </label>
+                                      <input
+                                        type="text"
+                                        value={(widget.config as { handle?: string })?.handle || ''}
+                                        onChange={(e) => handleUpdateWidget(widget.id, { config: { ...widget.config, handle: e.target.value } })}
+                                        placeholder="@archiesremedies"
+                                        className="w-full px-3 py-2 bg-[var(--admin-card)] border border-[var(--admin-border)] rounded-lg text-sm text-[var(--admin-text-primary)] focus:outline-none focus:border-[var(--primary)]"
+                                      />
+                                    </div>
+                                    <div>
+                                      <label className="block text-xs font-medium text-[var(--admin-text-muted)] mb-1.5">
+                                        Number of Posts
+                                      </label>
+                                      <select
+                                        value={(widget.config as { count?: number })?.count || 6}
+                                        onChange={(e) => handleUpdateWidget(widget.id, { config: { ...widget.config, count: parseInt(e.target.value) } })}
+                                        className="w-full px-3 py-2 bg-[var(--admin-card)] border border-[var(--admin-border)] rounded-lg text-sm text-[var(--admin-text-primary)] focus:outline-none focus:border-[var(--primary)]"
+                                      >
+                                        <option value={4}>4 posts</option>
+                                        <option value={6}>6 posts</option>
+                                        <option value={8}>8 posts</option>
+                                      </select>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            )}
                           </div>
                           {/* Drop indicator after last widget */}
                           {draggedWidgetType && index === blogWidgets.length - 1 && dropTargetIndex === blogWidgets.length && (

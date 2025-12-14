@@ -700,7 +700,36 @@ export default function BlogPostEditorPage({ params }: { params: Promise<{ id: s
 
         {/* Right Column - Settings in order */}
         <div className="space-y-6" ref={rightColumnRef}>
-          {/* 1. Author Section */}
+          {/* 1. Right Column Color Style - at top */}
+          <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--admin-text-muted)] mb-3">
+              Right Column Background
+            </label>
+            <div className="flex gap-2">
+              {[
+                { value: 'blue', label: 'Blue', bg: 'bg-[#bad9ea]', text: 'text-[#1a1a1a]' },
+                { value: 'white', label: 'White', bg: 'bg-white', text: 'text-[#1a1a1a]' },
+                { value: 'black', label: 'Black', bg: 'bg-[#1a1a1a]', text: 'text-white' },
+              ].map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() => setPost(prev => ({ ...prev, rightColumnBgColor: option.value }))}
+                  className={cn(
+                    'flex-1 px-4 py-3 rounded-lg border-2 transition-all text-sm font-medium',
+                    option.bg,
+                    option.text,
+                    post.rightColumnBgColor === option.value
+                      ? 'border-[var(--primary)] ring-2 ring-[var(--primary)]/20'
+                      : 'border-transparent hover:border-[var(--admin-border-light)]'
+                  )}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* 2. Author Section */}
           <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6">
             <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--admin-text-muted)] mb-4">Author</label>
 
@@ -762,23 +791,41 @@ export default function BlogPostEditorPage({ params }: { params: Promise<{ id: s
             />
           </div>
 
-          {/* 2b. Hero Carousel Images (up to 4) */}
+          {/* 2b. Title Thumbnail (Optional) - Goes under title on frontend */}
+          <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6">
+            <MediaPickerButton
+              label="Title Thumbnail (Optional)"
+              value={post.rightColumnThumbnailUrl}
+              onChange={(url) => setPost((prev) => ({ ...prev, rightColumnThumbnailUrl: url || null }))}
+              helpText="Image or video displayed below the title on the post page"
+              folder="blog/thumbnails"
+              aspectRatio="1/1"
+              acceptVideo
+            />
+          </div>
+
+          {/* 2c. Hero Carousel Images (up to 4) */}
           <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6">
             <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--admin-text-muted)] mb-2">
-              Hero Carousel Images
+              Hero Carousel Media
             </label>
             <p className="text-xs text-[var(--admin-text-muted)] mb-4">
-              Add up to 4 additional images that appear as floating thumbnails on the hero media
+              Add up to 4 images or videos that appear as floating thumbnails on the hero media
             </p>
             <div className="grid grid-cols-2 gap-3">
               {[0, 1, 2, 3].map((index) => {
                 const images: string[] = post.heroCarouselImages ? JSON.parse(post.heroCarouselImages) : [];
                 const currentUrl = images[index] || null;
+                const isVideo = currentUrl && /\.(mp4|webm|mov)(\?|$)/i.test(currentUrl);
                 return (
                   <div key={index} className="relative">
                     {currentUrl ? (
                       <div className="relative aspect-square bg-[var(--admin-input)] rounded-lg overflow-hidden group">
-                        <img src={currentUrl} alt={`Carousel ${index + 1}`} className="w-full h-full object-cover" />
+                        {isVideo ? (
+                          <video src={currentUrl} className="w-full h-full object-cover" muted autoPlay loop playsInline />
+                        ) : (
+                          <img src={currentUrl} alt={`Carousel ${index + 1}`} className="w-full h-full object-cover" />
+                        )}
                         <button
                           onClick={() => {
                             const newImages = [...images];
@@ -800,7 +847,6 @@ export default function BlogPostEditorPage({ params }: { params: Promise<{ id: s
                         onChange={(url) => {
                           if (url) {
                             const images: string[] = post.heroCarouselImages ? JSON.parse(post.heroCarouselImages) : [];
-                            // Find first empty slot or add to end
                             if (images.length < 4) {
                               images.push(url);
                             }
@@ -813,59 +859,14 @@ export default function BlogPostEditorPage({ params }: { params: Promise<{ id: s
                         helpText=""
                         folder="blog/carousel"
                         aspectRatio="1/1"
-                        buttonText={`Image ${index + 1}`}
+                        buttonText={`Media ${index + 1}`}
                         compact
+                        acceptVideo
                       />
                     )}
                   </div>
                 );
               })}
-            </div>
-          </div>
-
-          {/* 2c. Right Column Settings */}
-          <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6 space-y-4">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--admin-text-muted)]">
-              Right Column Style
-            </label>
-
-            {/* Background Color Selection */}
-            <div>
-              <label className="block text-sm text-[var(--admin-text-secondary)] mb-2">Background Color</label>
-              <div className="flex gap-2">
-                {[
-                  { value: 'blue', label: 'Blue', bg: 'bg-[#bad9ea]', text: 'text-[#1a1a1a]' },
-                  { value: 'white', label: 'White', bg: 'bg-white', text: 'text-[#1a1a1a]' },
-                  { value: 'black', label: 'Black', bg: 'bg-[#1a1a1a]', text: 'text-white' },
-                ].map((option) => (
-                  <button
-                    key={option.value}
-                    onClick={() => setPost(prev => ({ ...prev, rightColumnBgColor: option.value }))}
-                    className={cn(
-                      'flex-1 px-4 py-3 rounded-lg border-2 transition-all text-sm font-medium',
-                      option.bg,
-                      option.text,
-                      post.rightColumnBgColor === option.value
-                        ? 'border-[var(--primary)] ring-2 ring-[var(--primary)]/20'
-                        : 'border-transparent hover:border-[var(--admin-border-light)]'
-                    )}
-                  >
-                    {option.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Right Column Thumbnail */}
-            <div className="border-t border-[var(--admin-border-light)] pt-4">
-              <MediaPickerButton
-                label="Optional Thumbnail"
-                value={post.rightColumnThumbnailUrl}
-                onChange={(url) => setPost((prev) => ({ ...prev, rightColumnThumbnailUrl: url || null }))}
-                helpText="Small image displayed in the center of the right column"
-                folder="blog/thumbnails"
-                aspectRatio="1/1"
-              />
             </div>
           </div>
 
