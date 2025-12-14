@@ -466,16 +466,16 @@ export default function BlogAdminPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <div>
-            <h1 className="text-2xl font-medium text-[var(--admin-text-primary)]">Blog</h1>
-            <p className="text-[var(--admin-text-secondary)] mt-1">
-              Configure blog settings and manage posts
-            </p>
-          </div>
+        <div>
+          <h1 className="text-2xl font-medium text-[var(--admin-text-primary)]">Blog</h1>
+          <p className="text-[var(--admin-text-secondary)] mt-1">
+            Configure blog settings and manage posts
+          </p>
+        </div>
 
-          {/* Blog Draft/Live Toggle */}
-          <div className="flex items-center gap-2 pl-4 border-l border-[var(--admin-border)]">
+        <div className="flex items-center gap-3">
+          {/* Blog Draft/Live Toggle - moved to right side */}
+          <div className="flex items-center gap-2 pr-3 border-r border-[var(--admin-border)]">
             <span className={cn(
               "text-sm font-medium transition-colors",
               isBlogDraft ? "text-orange-400" : "text-[var(--admin-text-muted)]"
@@ -503,9 +503,7 @@ export default function BlogAdminPage() {
               Live
             </span>
           </div>
-        </div>
 
-        <div className="flex items-center gap-3">
           {/* View Live / View Draft */}
           <a
             href={isBlogDraft ? `/blog?preview=true` : '/blog'}
@@ -531,6 +529,7 @@ export default function BlogAdminPage() {
             )}
           </a>
 
+          {/* Save Settings - only shows when changes exist */}
           {activeTab === 'settings' && hasSettingsChanges && (
             <button
               onClick={handleSaveSettings}
@@ -554,15 +553,14 @@ export default function BlogAdminPage() {
             </button>
           )}
 
-          {activeTab === 'posts' && (
-            <Link
-              href="/admin/blog/new"
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[var(--primary)] text-[var(--admin-button-text)] rounded-lg font-medium hover:bg-[var(--primary-dark)] transition-colors"
-            >
-              <Plus className="w-4 h-4" />
-              New Post
-            </Link>
-          )}
+          {/* New Blog Post - always visible with hex blue */}
+          <Link
+            href="/admin/blog/new"
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#bad9ea] text-[#1a1a1a] rounded-lg font-medium hover:bg-[#a5cce0] transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            New Blog Post
+          </Link>
         </div>
       </div>
 
@@ -662,82 +660,60 @@ export default function BlogAdminPage() {
                   </div>
                 </div>
 
-                {/* Homepage Hero Section */}
+                {/* Homepage Header Section */}
                 <div className="pt-6 border-t border-[var(--admin-border)]">
                   <h3 className="text-sm font-semibold text-[var(--admin-text-primary)] mb-4 flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-[var(--primary)]" />
-                    Homepage Hero
+                    Homepage Header
                   </h3>
+                  <p className="text-xs text-[var(--admin-text-muted)] mb-4">
+                    Add a hero image/video for a full-screen header, or leave empty for a simple title header
+                  </p>
 
                   <div className="space-y-4">
                     {/* Hero Media Upload */}
                     <div>
                       <MediaPickerButton
-                        label="Hero Media (Full-Screen Image/Video)"
+                        label="Hero Media (Optional)"
                         value={settings.heroMediaUrl}
                         onChange={(url) => setSettings({ ...settings, heroMediaUrl: url || null })}
-                        helpText="Full-width hero displayed at the top of the blog homepage"
+                        helpText="Full-width hero displayed at the top of the blog. Leave empty for simple header."
                         folder="blog/hero"
                         aspectRatio="21/9"
                         acceptVideo
                       />
                     </div>
 
-                    {/* Hero Title */}
+                    {/* Title */}
                     <div>
                       <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
-                        Hero Title
+                        Title
                       </label>
                       <input
                         type="text"
                         value={settings.heroTitle || ''}
-                        onChange={(e) => setSettings({ ...settings, heroTitle: e.target.value || null })}
+                        onChange={(e) => setSettings({ ...settings, heroTitle: e.target.value || null, pageTitle: e.target.value || 'Journal' })}
                         className="w-full px-4 py-2.5 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50"
                         placeholder="The Journal"
                       />
+                      <p className="mt-1.5 text-xs text-[var(--admin-text-muted)]">
+                        {settings.heroMediaUrl ? 'Overlaid on the hero image' : 'Displayed as the page header'}
+                      </p>
                     </div>
 
-                    {/* Hero Subtitle */}
+                    {/* Subtitle */}
                     <div>
                       <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
-                        Hero Subtitle
+                        Subtitle (Optional)
                       </label>
                       <input
                         type="text"
                         value={settings.heroSubtitle || ''}
-                        onChange={(e) => setSettings({ ...settings, heroSubtitle: e.target.value || null })}
+                        onChange={(e) => setSettings({ ...settings, heroSubtitle: e.target.value || null, pageSubtitle: e.target.value || '' })}
                         className="w-full px-4 py-2.5 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50"
-                        placeholder="Stories, tips, and inspiration for healthy eyes"
+                        placeholder="Stories, tips, and inspiration"
                       />
                     </div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
-                      Page Title
-                    </label>
-                    <input
-                      type="text"
-                      value={settings.pageTitle}
-                      onChange={(e) => setSettings({ ...settings, pageTitle: e.target.value })}
-                      className="w-full px-4 py-2.5 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50"
-                      placeholder="Blog"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
-                      Page Subtitle
-                    </label>
-                    <input
-                      type="text"
-                      value={settings.pageSubtitle || ''}
-                      onChange={(e) => setSettings({ ...settings, pageSubtitle: e.target.value })}
-                      className="w-full px-4 py-2.5 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50"
-                      placeholder="Insights & stories"
-                    />
                   </div>
                 </div>
 

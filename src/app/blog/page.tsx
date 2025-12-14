@@ -1,6 +1,6 @@
 import { db } from '@/lib/db';
 import { blogPosts, blogTags, blogPostTags, blogSettings } from '@/lib/db/schema';
-import { desc, eq, inArray } from 'drizzle-orm';
+import { desc, eq, inArray, sql } from 'drizzle-orm';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { unstable_cache } from 'next/cache';
@@ -27,12 +27,21 @@ interface BlogPost {
   tags?: { id: string; name: string; slug: string; color: string | null }[];
 }
 
-interface BlogSettings {
+interface BlogSettingsData {
   heroMediaUrl: string | null;
   heroTitle: string | null;
   heroSubtitle: string | null;
   pageTitle: string | null;
   pageSubtitle: string | null;
+  gridLayout: string | null;
+}
+
+interface TagWithCount {
+  id: string;
+  name: string;
+  slug: string;
+  color: string | null;
+  postCount: number;
 }
 
 // Cached blog data with single efficient query
@@ -83,19 +92,32 @@ const getCachedBlogData = unstable_cache(
       tags: tagsByPostId.get(post.id) || [],
     }));
 
-    // Get all tags for filter bar
+    // Get all tags with post counts
     const allTags = await db.select().from(blogTags);
+
+    // Count posts per tag
+    const tagPostCounts = new Map<string, number>();
+    for (const row of allPostTags) {
+      const current = tagPostCounts.get(row.tagId) || 0;
+      tagPostCounts.set(row.tagId, current + 1);
+    }
+
+    const tagsWithCounts: TagWithCount[] = allTags.map(tag => ({
+      ...tag,
+      postCount: tagPostCounts.get(tag.id) || 0,
+    }));
 
     return {
       posts: postsWithTags as BlogPost[],
-      tags: allTags,
+      tags: tagsWithCounts,
       settings: {
         heroMediaUrl: settings?.heroMediaUrl || null,
         heroTitle: settings?.heroTitle || null,
         heroSubtitle: settings?.heroSubtitle || null,
         pageTitle: settings?.pageTitle || null,
         pageSubtitle: settings?.pageSubtitle || null,
-      } as BlogSettings,
+        gridLayout: settings?.gridLayout || 'grid',
+      } as BlogSettingsData,
     };
   },
   ['blog-data'],
@@ -108,12 +130,12 @@ function isVideoUrl(url: string | null): boolean {
   return /\.(mp4|webm|mov)(\?|$)/i.test(url) || url.includes('/video/upload/');
 }
 
-// Editorial Card Component with compartments
+// Editorial Card Component with compartments - 2x bigger
 function EditorialCard({ post, className }: { post: BlogPost; className?: string }) {
   return (
     <Link href={`/blog/${post.slug}`} className={cn('group block', className)}>
-      {/* Thumbnail compartment with white gap inside black frame */}
-      <div className="p-3 bg-white">
+      {/* Thumbnail compartment with thick white gap (4x = p-6) inside black frame */}
+      <div className="p-6 bg-white">
         <div className="aspect-[4/5] overflow-hidden bg-[#f5f5f5]">
           {post.featuredImageUrl ? (
             isVideoUrl(post.featuredImageUrl) ? (
@@ -142,27 +164,27 @@ function EditorialCard({ post, className }: { post: BlogPost; className?: string
         </div>
       </div>
 
-      {/* Title compartment */}
-      <div className="px-4 py-3 border-t border-black">
-        <h3 className="font-semibold text-base leading-tight line-clamp-2 group-hover:text-[#bad9ea] transition-colors">
+      {/* Title compartment - more space for wrapping */}
+      <div className="px-5 py-4 border-t border-black min-h-[80px]">
+        <h3 className="font-semibold text-lg leading-snug line-clamp-3 text-black">
           {post.title}
         </h3>
       </div>
 
-      {/* Caption/excerpt compartment */}
+      {/* Caption/excerpt compartment - show more text */}
       {post.excerpt && (
-        <div className="px-4 py-2 border-t border-black">
-          <p className="text-sm text-gray-600 line-clamp-2">{post.excerpt}</p>
+        <div className="px-5 py-3 border-t border-black">
+          <p className="text-sm text-gray-600 line-clamp-3">{post.excerpt}</p>
         </div>
       )}
 
       {/* Tags compartment */}
       {post.tags && post.tags.length > 0 && (
-        <div className="px-4 py-3 border-t border-black flex flex-wrap gap-2">
+        <div className="px-5 py-4 border-t border-black flex flex-wrap gap-2">
           {post.tags.slice(0, 3).map((tag) => (
             <span
               key={tag.id}
-              className="px-2 py-1 bg-[#bad9ea] text-xs font-medium text-black"
+              className="px-3 py-1.5 bg-[#bad9ea] text-sm font-medium text-black"
             >
               {tag.name}
             </span>
@@ -185,18 +207,18 @@ function FeaturePost({ post, variant = 'full' }: { post: BlogPost; variant?: 'fu
               {post.tags.map((tag) => (
                 <span
                   key={tag.id}
-                  className="px-3 py-1 bg-[#bad9ea] text-xs font-semibold text-black uppercase tracking-wide"
+                  className="px-4 py-2 bg-[#bad9ea] text-sm font-semibold text-black uppercase tracking-wide"
                 >
                   {tag.name}
                 </span>
               ))}
             </div>
           )}
-          <h3 className="text-3xl lg:text-4xl font-bold leading-tight mb-4">
+          <h3 className="text-3xl lg:text-4xl font-bold leading-tight mb-4 text-black">
             {post.title}
           </h3>
           {post.excerpt && (
-            <p className="text-gray-600 mb-6 line-clamp-3">{post.excerpt}</p>
+            <p className="text-gray-600 mb-6 line-clamp-4 text-lg">{post.excerpt}</p>
           )}
           <div className="flex items-center gap-4 text-sm text-gray-500 mb-6">
             {post.readingTime && <span>{post.readingTime} min read</span>}
@@ -280,18 +302,18 @@ function FeaturePost({ post, variant = 'full' }: { post: BlogPost; variant?: 'fu
               {post.tags.slice(0, 2).map((tag) => (
                 <span
                   key={tag.id}
-                  className="px-2 py-1 bg-[#bad9ea] text-xs font-semibold text-black"
+                  className="px-3 py-1.5 bg-[#bad9ea] text-sm font-semibold text-black"
                 >
                   {tag.name}
                 </span>
               ))}
             </div>
           )}
-          <h3 className="text-xl lg:text-2xl font-bold leading-tight mb-3 group-hover:text-[#bad9ea] transition-colors">
+          <h3 className="text-xl lg:text-2xl font-bold leading-tight mb-3 text-black">
             {post.title}
           </h3>
           {post.excerpt && (
-            <p className="text-sm text-gray-600 line-clamp-3">{post.excerpt}</p>
+            <p className="text-sm text-gray-600 line-clamp-4">{post.excerpt}</p>
           )}
         </div>
       </div>
@@ -349,6 +371,44 @@ function Pagination({ currentPage, totalPages }: { currentPage: number; totalPag
   );
 }
 
+// Grid component that adapts to number of posts
+function PostGrid({ posts }: { posts: BlogPost[] }) {
+  if (posts.length === 0) return null;
+
+  // Calculate grid columns based on post count
+  const colCount = Math.min(posts.length, 4);
+  const gridClass = colCount === 1
+    ? 'grid-cols-1'
+    : colCount === 2
+    ? 'grid-cols-2'
+    : colCount === 3
+    ? 'grid-cols-2 lg:grid-cols-3'
+    : 'grid-cols-2 lg:grid-cols-4';
+
+  return (
+    <div className={cn('grid', gridClass)}>
+      {posts.map((post, index) => (
+        <div
+          key={post.id}
+          className={cn(
+            'border-black',
+            // Top border on first row
+            index < colCount && 'border-t',
+            // Left border on first column
+            index % colCount === 0 && 'border-l',
+            // Right border on all
+            'border-r',
+            // Bottom border on all
+            'border-b'
+          )}
+        >
+          <EditorialCard post={post} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default async function BlogPage() {
   // Check if site is in draft mode
   await checkDraftMode();
@@ -373,6 +433,9 @@ export default async function BlogPage() {
   const row3 = posts.slice(10, 14);
 
   const hasHero = settings.heroMediaUrl || settings.heroTitle;
+
+  // Filter tags with posts only
+  const tagsWithPosts = tags.filter(t => t.postCount > 0).sort((a, b) => a.name.localeCompare(b.name));
 
   return (
     <>
@@ -436,24 +499,19 @@ export default async function BlogPage() {
           </section>
         )}
 
-        {/* Sticky Tag Filter Bar */}
-        {tags.length > 0 && (
+        {/* Tag Filter Bar - No "All", bigger tags, hex blue, with post counts */}
+        {tagsWithPosts.length > 0 && (
           <section className="sticky top-[72px] z-40 bg-white border-y border-black py-4">
             <div className="overflow-x-auto scrollbar-hide px-4">
-              <div className="flex gap-2 min-w-max">
-                <Link
-                  href="/blog"
-                  className="px-4 py-2 bg-black text-white text-sm font-medium uppercase tracking-wide"
-                >
-                  All
-                </Link>
-                {[...tags].sort((a, b) => a.name.localeCompare(b.name)).map((tag) => (
+              <div className="flex gap-3 min-w-max">
+                {tagsWithPosts.map((tag) => (
                   <Link
                     key={tag.id}
                     href={`/blog/tag/${tag.slug}`}
-                    className="px-4 py-2 border border-black text-sm font-medium uppercase tracking-wide hover:bg-[#bad9ea] hover:border-[#bad9ea] transition-colors"
+                    className="px-5 py-2.5 bg-[#bad9ea] text-base font-semibold text-black uppercase tracking-wide hover:bg-[#a5cce0] transition-colors flex items-center gap-2"
                   >
                     {tag.name}
+                    <span className="text-sm font-normal opacity-70">({tag.postCount})</span>
                   </Link>
                 ))}
               </div>
@@ -465,44 +523,20 @@ export default async function BlogPage() {
         {posts.length > 0 && (
           <section className="px-4 py-12">
             <div className="max-w-7xl mx-auto space-y-12">
-              {/* Row 1: 4-card grid with shared borders */}
-              {row1.length > 0 && (
-                <div className="grid grid-cols-2 lg:grid-cols-4 border-l border-t border-black">
-                  {row1.map((post) => (
-                    <div key={post.id} className="border-r border-b border-black">
-                      <EditorialCard post={post} />
-                    </div>
-                  ))}
-                </div>
-              )}
+              {/* Row 1: up to 4-card grid with proper borders */}
+              {row1.length > 0 && <PostGrid posts={row1} />}
 
               {/* Feature 1: Full-width post (5th post) */}
               {feature1 && <FeaturePost post={feature1} variant="full" />}
 
-              {/* Row 2: 4-card grid */}
-              {row2.length > 0 && (
-                <div className="grid grid-cols-2 lg:grid-cols-4 border-l border-t border-black">
-                  {row2.map((post) => (
-                    <div key={post.id} className="border-r border-b border-black">
-                      <EditorialCard post={post} />
-                    </div>
-                  ))}
-                </div>
-              )}
+              {/* Row 2: up to 4-card grid */}
+              {row2.length > 0 && <PostGrid posts={row2} />}
 
               {/* Feature 2: Split layout (media right, content left) */}
               {feature2 && <FeaturePost post={feature2} variant="split" />}
 
-              {/* Row 3: 4-card grid */}
-              {row3.length > 0 && (
-                <div className="grid grid-cols-2 lg:grid-cols-4 border-l border-t border-black">
-                  {row3.map((post) => (
-                    <div key={post.id} className="border-r border-b border-black">
-                      <EditorialCard post={post} />
-                    </div>
-                  ))}
-                </div>
-              )}
+              {/* Row 3: up to 4-card grid */}
+              {row3.length > 0 && <PostGrid posts={row3} />}
 
               {/* Pagination */}
               <Pagination currentPage={1} totalPages={Math.ceil(posts.length / 14)} />

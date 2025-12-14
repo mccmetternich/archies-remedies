@@ -389,19 +389,19 @@ export default function BlogPostEditorPage({ params }: { params: Promise<{ id: s
 
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 min-w-0 flex-1">
           <Link
             href="/admin/blog"
-            className="p-2 rounded-lg hover:bg-[var(--admin-input)] text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)] transition-colors"
+            className="p-2 rounded-lg hover:bg-[var(--admin-input)] text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)] transition-colors shrink-0"
           >
             <ArrowLeft className="w-5 h-5" />
           </Link>
-          <div>
-            <h1 className="text-xl font-medium text-[var(--admin-text-primary)]">
+          <div className="min-w-0 flex-1">
+            <h1 className="text-xl font-medium text-[var(--admin-text-primary)] truncate max-w-[400px]" title={isNew ? 'New Blog Post' : post.title || 'Untitled Post'}>
               {isNew ? 'New Blog Post' : post.title || 'Untitled Post'}
             </h1>
             {!isNew && post.slug && (
-              <p className="text-sm text-[var(--admin-text-muted)]">
+              <p className="text-sm text-[var(--admin-text-muted)] truncate max-w-[400px]">
                 /blog/{post.slug}
               </p>
             )}
