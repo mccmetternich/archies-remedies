@@ -146,30 +146,28 @@ export default async function BlogTagPage({ params }: Props) {
           </div>
         </section>
 
-        {/* Sticky Tag Filter Bar */}
+        {/* Sticky Tag Filter Bar - Horizontal Scroll */}
         {allTags.length > 0 && (
-          <section className="sticky top-[72px] z-40 bg-[var(--blog-bg)] border-b border-[var(--blog-divider)] py-4 px-4">
-            <div className="max-w-7xl mx-auto">
-              <div className="flex flex-wrap justify-center gap-3">
+          <section className="sticky top-[72px] z-40 bg-[var(--blog-bg)] border-b border-[var(--blog-divider)] py-4">
+            <div className="blog-tag-scroll-container px-4">
+              <Link
+                href="/blog"
+                className="blog-tag-pill"
+              >
+                All
+              </Link>
+              {[...allTags].sort((a, b) => a.name.localeCompare(b.name)).map((t) => (
                 <Link
-                  href="/blog"
-                  className="blog-tag-pill"
+                  key={t.id}
+                  href={`/blog/tag/${t.slug}`}
+                  className={cn(
+                    'blog-tag-pill',
+                    t.slug === slug && 'blog-tag-pill-active'
+                  )}
                 >
-                  All
+                  {t.name}
                 </Link>
-                {allTags.map((t) => (
-                  <Link
-                    key={t.id}
-                    href={`/blog/tag/${t.slug}`}
-                    className={cn(
-                      'blog-tag-pill',
-                      t.slug === slug && 'blog-tag-pill-active'
-                    )}
-                  >
-                    {t.name}
-                  </Link>
-                ))}
-              </div>
+              ))}
             </div>
           </section>
         )}

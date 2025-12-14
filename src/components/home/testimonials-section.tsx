@@ -79,14 +79,14 @@ export function TestimonialsSection({
             <div className="flex gap-3">
               <button
                 onClick={() => scroll('left')}
-                className="w-12 h-12 rounded-full bg-[var(--primary)] flex items-center justify-center hover:bg-[var(--primary-dark)] transition-all duration-300 shadow-sm"
+                className="w-12 h-12 bg-[var(--primary)] flex items-center justify-center hover:bg-[var(--primary-dark)] transition-all duration-300 shadow-sm"
                 aria-label="Previous testimonials"
               >
                 <ChevronLeft className="w-5 h-5" />
               </button>
               <button
                 onClick={() => scroll('right')}
-                className="w-12 h-12 rounded-full bg-[var(--primary)] flex items-center justify-center hover:bg-[var(--primary-dark)] transition-all duration-300 shadow-sm"
+                className="w-12 h-12 bg-[var(--primary)] flex items-center justify-center hover:bg-[var(--primary-dark)] transition-all duration-300 shadow-sm"
                 aria-label="Next testimonials"
               >
                 <ChevronRight className="w-5 h-5" />
@@ -107,7 +107,7 @@ export function TestimonialsSection({
             <div
               key={testimonial.id}
               className={cn(
-                'flex-shrink-0 w-[340px] md:w-[380px] bg-white rounded-2xl p-8 relative',
+                'flex-shrink-0 w-[340px] md:w-[380px] bg-white p-8 relative',
                 'border border-[var(--border)] hover:border-[var(--border)] hover:shadow-lg transition-all duration-300'
               )}
               style={{ scrollSnapAlign: 'start' }}
@@ -155,7 +155,7 @@ export function TestimonialsSection({
 
           {/* CTA Card - Editorial style */}
           <div
-            className="flex-shrink-0 w-[340px] md:w-[380px] bg-[var(--foreground)] rounded-2xl p-8 flex flex-col justify-center border border-[var(--foreground)]"
+            className="flex-shrink-0 w-[340px] md:w-[380px] bg-[var(--foreground)] p-8 flex flex-col justify-center border border-[var(--foreground)]"
             style={{ scrollSnapAlign: 'start' }}
           >
             <div className="flex gap-1 mb-6">

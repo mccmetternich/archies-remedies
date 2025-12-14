@@ -31,6 +31,8 @@ import {
   FileEdit,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { WidgetLibrarySidebar } from '@/components/admin/widget-library-sidebar';
+import { getDefaultConfig, WIDGET_TYPES } from '@/lib/widget-library';
 
 interface BlogPost {
   id: string;
@@ -68,6 +70,16 @@ interface BlogSettings {
   blogInDraftMode: boolean;
 }
 
+interface BlogWidget {
+  id: string;
+  type: string;
+  title?: string;
+  subtitle?: string;
+  content?: string;
+  config?: Record<string, unknown>;
+  isVisible: boolean;
+}
+
 const LAYOUT_OPTIONS = [
   { value: 'masonry', label: 'Masonry', icon: Columns, description: 'Pinterest-style staggered grid' },
   { value: 'grid', label: 'Grid', icon: LayoutGrid, description: 'Uniform card grid' },
@@ -94,15 +106,24 @@ export default function BlogAdminPage() {
   const [saved, setSaved] = useState(false);
   const [siteInDraftMode, setSiteInDraftMode] = useState(false);
 
-  // Track unsaved changes
-  const hasSettingsChanges = originalSettings && JSON.stringify(settings) !== JSON.stringify(originalSettings);
-
   // Posts tab state
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [selectedPosts, setSelectedPosts] = useState<Set<string>>(new Set());
   const [draggedPost, setDraggedPost] = useState<string | null>(null);
   const [dragOverPost, setDragOverPost] = useState<string | null>(null);
+
+  // Widget state for blog page content
+  const [blogWidgets, setBlogWidgets] = useState<BlogWidget[]>([]);
+  const [originalBlogWidgets, setOriginalBlogWidgets] = useState<BlogWidget[]>([]);
+  const [draggedWidgetType, setDraggedWidgetType] = useState<string | null>(null);
+  const [dropTargetIndex, setDropTargetIndex] = useState<number | null>(null);
+
+  // Track unsaved changes (must be after state declarations)
+  const hasSettingsChanges = originalSettings && (
+    JSON.stringify(settings) !== JSON.stringify(originalSettings) ||
+    JSON.stringify(blogWidgets) !== JSON.stringify(originalBlogWidgets)
+  );
 
   // Fetch all data
   useEffect(() => {
@@ -141,6 +162,18 @@ export default function BlogAdminPage() {
           const mergedSettings = { ...settings, ...settingsData };
           setSettings(mergedSettings);
           setOriginalSettings(mergedSettings);
+
+          // Parse and load widgets if they exist
+          if (settingsData.widgets) {
+            try {
+              const parsedWidgets = JSON.parse(settingsData.widgets);
+              setBlogWidgets(parsedWidgets);
+              setOriginalBlogWidgets(parsedWidgets);
+            } catch {
+              setBlogWidgets([]);
+              setOriginalBlogWidgets([]);
+            }
+          }
         }
       }
     } catch (error) {
@@ -153,13 +186,18 @@ export default function BlogAdminPage() {
   const handleSaveSettings = async () => {
     setSaving(true);
     try {
+      const settingsWithWidgets = {
+        ...settings,
+        widgets: JSON.stringify(blogWidgets),
+      };
       const res = await fetch('/api/admin/blog/settings', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(settings),
+        body: JSON.stringify(settingsWithWidgets),
       });
       if (res.ok) {
         setOriginalSettings(settings);
+        setOriginalBlogWidgets(blogWidgets);
         setSaved(true);
         setTimeout(() => setSaved(false), 2000);
       }
@@ -311,6 +349,65 @@ export default function BlogAdminPage() {
   const handleDragEnd = () => {
     setDraggedPost(null);
     setDragOverPost(null);
+  };
+
+  // Widget handlers for blog page content
+  const handleAddWidget = (type: string, atIndex?: number) => {
+    const widgetDef = WIDGET_TYPES.find((w) => w.type === type);
+    const newWidget: BlogWidget = {
+      id: `widget-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      type,
+      title: widgetDef?.name || '',
+      subtitle: '',
+      content: '',
+      config: getDefaultConfig(type),
+      isVisible: true,
+    };
+
+    if (atIndex !== undefined) {
+      const newWidgets = [...blogWidgets];
+      newWidgets.splice(atIndex, 0, newWidget);
+      setBlogWidgets(newWidgets);
+    } else {
+      setBlogWidgets([...blogWidgets, newWidget]);
+    }
+  };
+
+  const handleUpdateWidget = (widgetId: string, updates: Partial<BlogWidget>) => {
+    setBlogWidgets(blogWidgets.map((w) => (w.id === widgetId ? { ...w, ...updates } : w)));
+  };
+
+  const handleDeleteWidget = (widgetId: string) => {
+    if (confirm('Delete this widget?')) {
+      setBlogWidgets(blogWidgets.filter((w) => w.id !== widgetId));
+    }
+  };
+
+  const handleWidgetDrop = (e: React.DragEvent<HTMLDivElement>, atIndex?: number) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const widgetType = e.dataTransfer.getData('widget-type');
+    if (widgetType) {
+      const insertIndex = atIndex !== undefined ? atIndex : dropTargetIndex !== null ? dropTargetIndex : blogWidgets.length;
+      handleAddWidget(widgetType, insertIndex);
+    }
+    setDraggedWidgetType(null);
+    setDropTargetIndex(null);
+  };
+
+  const handleWidgetDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+  };
+
+  const handleDragOverWidgetRow = (e: React.DragEvent<HTMLDivElement>, index: number) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const rect = e.currentTarget.getBoundingClientRect();
+    const midY = rect.top + rect.height / 2;
+    const newIndex = e.clientY < midY ? index : index + 1;
+    if (newIndex !== dropTargetIndex) {
+      setDropTargetIndex(newIndex);
+    }
   };
 
   // Filter posts
@@ -727,8 +824,8 @@ export default function BlogAdminPage() {
           </div>
 
           {/* Page Content / Widgets Section - Full Width */}
-          <div className="bg-[var(--admin-card)] border border-[var(--admin-border)] rounded-xl p-6">
-            <div className="flex items-center justify-between mb-6">
+          <div className="bg-[var(--admin-card)] border border-[var(--admin-border)] rounded-xl overflow-hidden">
+            <div className="flex items-center justify-between p-6 border-b border-[var(--admin-border)]">
               <div>
                 <h2 className="text-lg font-medium text-[var(--admin-text-primary)]">
                   Page Content
@@ -737,38 +834,128 @@ export default function BlogAdminPage() {
                   Add widgets to customize your blog page layout
                 </p>
               </div>
+              <span className="px-2 py-0.5 text-xs font-medium bg-[var(--admin-hover)] text-[var(--admin-text-muted)] rounded-full">
+                {blogWidgets.length} widgets
+              </span>
             </div>
-            <div className="grid lg:grid-cols-3 gap-6">
-              {/* Widget Drop Zone */}
-              <div className="lg:col-span-2 border-2 border-dashed border-[var(--admin-border)] rounded-lg p-8 text-center min-h-[200px] flex flex-col items-center justify-center">
-                <Plus className="w-8 h-8 text-[var(--admin-text-muted)] mb-2" />
-                <p className="text-sm text-[var(--admin-text-muted)] mb-2">
-                  Drag and drop widgets from the library
-                </p>
-                <p className="text-xs text-[var(--admin-text-muted)]">
-                  Coming soon: Full widget management for blog pages
-                </p>
+            <div className="flex">
+              {/* Widget Drop Zone - Left side */}
+              <div
+                className={cn(
+                  'flex-1 p-6 min-h-[400px] transition-all',
+                  draggedWidgetType && 'bg-[var(--primary)]/5'
+                )}
+                onDrop={handleWidgetDrop}
+                onDragOver={handleWidgetDragOver}
+                onDragLeave={() => setDropTargetIndex(null)}
+              >
+                {blogWidgets.length > 0 ? (
+                  <div className="space-y-2">
+                    {blogWidgets.map((widget, index) => {
+                      const widgetDef = WIDGET_TYPES.find((w) => w.type === widget.type);
+                      const Icon = widgetDef?.icon || FileText;
+                      return (
+                        <div
+                          key={widget.id}
+                          onDragOver={(e) => draggedWidgetType && handleDragOverWidgetRow(e, index)}
+                          onDrop={(e) => handleWidgetDrop(e, dropTargetIndex ?? index)}
+                        >
+                          {/* Drop indicator before this widget */}
+                          {draggedWidgetType && dropTargetIndex === index && (
+                            <div className="h-1 bg-[var(--primary)] mx-4 rounded-full animate-pulse mb-2" />
+                          )}
+                          <div
+                            className={cn(
+                              'flex items-center gap-3 p-4 rounded-xl border border-[var(--admin-border)] bg-[var(--admin-input)] transition-all',
+                              'hover:border-[var(--admin-border-light)]'
+                            )}
+                          >
+                            <GripVertical className="w-4 h-4 text-[var(--admin-text-muted)] cursor-grab" />
+                            <div className="w-10 h-10 rounded-lg bg-[var(--primary)]/10 flex items-center justify-center">
+                              <Icon className="w-5 h-5 text-[var(--primary)]" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-medium text-[var(--admin-text-primary)] truncate">
+                                {widget.title || widgetDef?.name || widget.type}
+                              </h4>
+                              <p className="text-xs text-[var(--admin-text-muted)]">
+                                {widgetDef?.description || ''}
+                              </p>
+                            </div>
+                            <button
+                              onClick={() => handleUpdateWidget(widget.id, { isVisible: !widget.isVisible })}
+                              className={cn(
+                                'p-2 rounded-lg transition-colors',
+                                widget.isVisible
+                                  ? 'text-green-400 bg-green-500/10 hover:bg-green-500/20'
+                                  : 'text-orange-400 bg-orange-500/10 hover:bg-orange-500/20'
+                              )}
+                              title={widget.isVisible ? 'Visible - click to hide' : 'Hidden - click to show'}
+                            >
+                              {widget.isVisible ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                            </button>
+                            <button
+                              onClick={() => handleDeleteWidget(widget.id)}
+                              className="p-2 rounded-lg text-[var(--admin-text-muted)] hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                              title="Delete widget"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                          {/* Drop indicator after last widget */}
+                          {draggedWidgetType && index === blogWidgets.length - 1 && dropTargetIndex === blogWidgets.length && (
+                            <div className="h-1 bg-[var(--primary)] mx-4 rounded-full animate-pulse mt-2" />
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div
+                    className="h-full flex flex-col items-center justify-center text-center"
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      setDropTargetIndex(0);
+                    }}
+                    onDrop={(e) => handleWidgetDrop(e, 0)}
+                  >
+                    {draggedWidgetType ? (
+                      <>
+                        <div className="w-16 h-16 rounded-2xl bg-[var(--primary)]/20 flex items-center justify-center mb-4">
+                          <Plus className="w-8 h-8 text-[var(--primary)]" />
+                        </div>
+                        <h3 className="font-medium text-lg text-[var(--primary)] mb-2">
+                          Drop here to add
+                        </h3>
+                        <p className="text-sm text-[var(--admin-text-muted)]">
+                          Release to add widget
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="w-12 h-12 text-[var(--admin-text-muted)] mb-4" />
+                        <h3 className="font-medium text-lg text-[var(--admin-text-primary)] mb-2">
+                          No widgets yet
+                        </h3>
+                        <p className="text-sm text-[var(--admin-text-muted)] max-w-xs">
+                          Drag widgets from the library on the right, or click to add them to your blog page
+                        </p>
+                      </>
+                    )}
+                  </div>
+                )}
               </div>
-              {/* Widget Library */}
-              <div className="bg-[var(--admin-input)] rounded-lg p-4">
-                <h3 className="text-sm font-medium text-[var(--admin-text-secondary)] mb-3">Widget Library</h3>
-                <div className="space-y-2">
-                  <div className="p-3 bg-[var(--admin-card)] rounded-lg border border-[var(--admin-border)] opacity-50 cursor-not-allowed">
-                    <p className="text-sm text-[var(--admin-text-primary)]">Newsletter Signup</p>
-                    <p className="text-xs text-[var(--admin-text-muted)]">Email capture form</p>
-                  </div>
-                  <div className="p-3 bg-[var(--admin-card)] rounded-lg border border-[var(--admin-border)] opacity-50 cursor-not-allowed">
-                    <p className="text-sm text-[var(--admin-text-primary)]">Featured Posts</p>
-                    <p className="text-xs text-[var(--admin-text-muted)]">Highlight top content</p>
-                  </div>
-                  <div className="p-3 bg-[var(--admin-card)] rounded-lg border border-[var(--admin-border)] opacity-50 cursor-not-allowed">
-                    <p className="text-sm text-[var(--admin-text-primary)]">Categories</p>
-                    <p className="text-xs text-[var(--admin-text-muted)]">Tag cloud or list</p>
-                  </div>
-                </div>
-                <p className="text-xs text-[var(--admin-text-muted)] mt-3 text-center">
-                  Widget library coming soon
-                </p>
+
+              {/* Widget Library Sidebar - Right side */}
+              <div className="w-72 border-l border-[var(--admin-border)] bg-[var(--admin-sidebar)]">
+                <WidgetLibrarySidebar
+                  onAddWidget={handleAddWidget}
+                  onDragStart={(type) => setDraggedWidgetType(type)}
+                  onDragEnd={() => setDraggedWidgetType(null)}
+                  draggedWidgetType={draggedWidgetType}
+                  storageKey="blog-admin-widget-order"
+                  showReorderControls={true}
+                />
               </div>
             </div>
           </div>

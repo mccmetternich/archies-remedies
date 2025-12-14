@@ -69,7 +69,7 @@ export function InstagramFeed({ posts, instagramUrl }: InstagramFeedProps) {
               href={post.postUrl || instagramUrl || '#'}
               target="_blank"
               rel="noopener noreferrer"
-              className="relative shrink-0 w-[280px] md:w-[320px] aspect-square mx-3 rounded-2xl overflow-hidden group"
+              className="relative shrink-0 w-[280px] md:w-[320px] aspect-square mx-3 overflow-hidden group"
             >
               {post.thumbnailUrl ? (
                 <Image
@@ -102,7 +102,7 @@ export function InstagramFeed({ posts, instagramUrl }: InstagramFeedProps) {
               </div>
 
               {/* Instagram Icon Badge */}
-              <div className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              <div className="absolute top-4 right-4 w-10 h-10 bg-white/90 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 <Instagram className="w-5 h-5 text-[var(--foreground)]" />
               </div>
             </a>

@@ -216,7 +216,7 @@ export function PDPBuyBox({
             window.open(amazonUrl, '_blank', 'noopener,noreferrer');
           }, 100);
         }}
-        className="group flex items-center justify-center gap-3 w-full py-4 bg-[var(--primary)] text-[var(--foreground)] rounded-full font-medium hover:translate-y-[-2px] hover:shadow-lg transition-all duration-300"
+        className="group flex items-center justify-center gap-3 w-full py-4 bg-[#1a1a1a] text-white font-medium hover:bg-[#bbdae9] hover:text-[#1a1a1a] transition-all duration-300"
       >
         Buy Now on Amazon
         <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
@@ -244,13 +244,13 @@ export function PDPBuyBox({
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
-              className="flex-1 px-4 py-2.5 text-sm border border-[var(--border)] rounded-full focus:outline-none focus:border-[var(--primary)]"
+              className="flex-1 px-4 py-2.5 text-sm border border-[var(--border)] focus:outline-none focus:border-[var(--primary)]"
               required
             />
             <button
               type="submit"
               disabled={emailStatus === 'loading'}
-              className="px-5 py-2.5 bg-[var(--foreground)] text-white rounded-full text-sm font-medium hover:bg-black transition-colors disabled:opacity-50"
+              className="px-5 py-2.5 bg-[#1a1a1a] text-white text-sm font-medium hover:bg-[#bbdae9] hover:text-[#1a1a1a] transition-colors disabled:opacity-50"
             >
               {emailStatus === 'loading' ? '...' : emailStatus === 'success' ? <Check className="w-4 h-4" /> : 'Join'}
             </button>

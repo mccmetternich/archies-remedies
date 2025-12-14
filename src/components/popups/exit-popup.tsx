@@ -457,11 +457,11 @@ export function ExitPopup({
             style={{ willChange: 'opacity, transform' }}
             className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-[94%] max-w-md md:max-w-4xl max-h-[90vh] overflow-y-auto md:overflow-hidden"
           >
-            <div className="bg-white rounded-3xl overflow-hidden shadow-2xl border-2 border-[#bbdae9] md:flex md:min-h-[480px]">
+            <div className="bg-white overflow-hidden shadow-2xl border-2 border-[#bbdae9] md:flex md:min-h-[480px]">
               {/* Close button */}
               <button
                 onClick={handleClose}
-                className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center hover:bg-white transition-colors border border-gray-200/50 shadow-sm"
+                className="absolute top-4 right-4 z-10 w-10 h-10 bg-white/90 backdrop-blur-sm flex items-center justify-center hover:bg-white transition-colors border border-gray-200/50 shadow-sm"
                 aria-label="Close popup"
               >
                 <X className="w-4 h-4 text-gray-600" />
@@ -674,7 +674,7 @@ export function ExitPopup({
                         {successLink1Text && successLink1Url && (
                           <a
                             href={successLink1Url}
-                            className="block text-center px-5 py-2.5 bg-[#1a1a1a] text-white rounded-full font-medium text-sm hover:bg-[#bbdae9] hover:text-[#1a1a1a] transition-colors"
+                            className="block text-center px-5 py-2.5 bg-[#1a1a1a] text-white font-medium text-sm hover:bg-[#bbdae9] hover:text-[#1a1a1a] transition-colors"
                           >
                             {successLink1Text}
                           </a>
@@ -682,7 +682,7 @@ export function ExitPopup({
                         {successLink2Text && successLink2Url && (
                           <a
                             href={successLink2Url}
-                            className="block text-center px-5 py-2.5 border border-gray-300 text-gray-700 rounded-full font-medium text-sm hover:border-[#1a1a1a] hover:text-[#1a1a1a] transition-colors"
+                            className="block text-center px-5 py-2.5 border border-gray-300 text-gray-700 font-medium text-sm hover:border-[#1a1a1a] hover:text-[#1a1a1a] transition-colors"
                           >
                             {successLink2Text}
                           </a>
@@ -763,7 +763,7 @@ export function ExitPopup({
                               onBlur={handleBlur}
                               placeholder={contactType === 'email' ? 'Enter your email' : 'Enter Phone #'}
                               autoComplete={contactType === 'email' ? 'email' : 'tel'}
-                              className={`w-full pl-20 pr-5 py-4 text-base bg-[#f5f5f0] border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[#bbdae9] focus:border-[#bbdae9] placeholder:text-gray-400 ${
+                              className={`w-full pl-20 pr-5 py-4 text-base bg-[#f5f5f0] border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#bbdae9] focus:border-[#bbdae9] placeholder:text-gray-400 ${
                                 validationError ? 'ring-2 ring-[#bbdae9] border-[#bbdae9]' : ''
                               }`}
                               style={{ fontSize: '16px' }}
@@ -785,7 +785,7 @@ export function ExitPopup({
                               const error = validateEmail(contactValue);
                               setValidationError(error || '');
                             }}
-                            className={`w-full px-5 py-4 text-base bg-[#f5f5f0] border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[#bbdae9] focus:border-[#bbdae9] placeholder:text-gray-400 ${
+                            className={`w-full px-5 py-4 text-base bg-[#f5f5f0] border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#bbdae9] focus:border-[#bbdae9] placeholder:text-gray-400 ${
                               validationError ? 'ring-2 ring-[#bbdae9] border-[#bbdae9]' : ''
                             }`}
                             style={{ fontSize: '16px' }}
@@ -808,7 +808,7 @@ export function ExitPopup({
                               setValidationError(error || '');
                             }}
                             autoComplete="tel"
-                            className={`w-full px-5 py-4 text-base bg-[#f5f5f0] border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[#bbdae9] focus:border-[#bbdae9] placeholder:text-gray-400 ${
+                            className={`w-full px-5 py-4 text-base bg-[#f5f5f0] border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#bbdae9] focus:border-[#bbdae9] placeholder:text-gray-400 ${
                               validationError ? 'ring-2 ring-[#bbdae9] border-[#bbdae9]' : ''
                             }`}
                             style={{ fontSize: '16px' }}
@@ -840,7 +840,7 @@ export function ExitPopup({
                         <button
                           type="submit"
                           disabled={status === 'loading'}
-                          className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-[#1a1a1a] text-white rounded-full font-medium text-base hover:bg-[#bbdae9] hover:text-[#1a1a1a] transition-colors disabled:opacity-50"
+                          className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-[#1a1a1a] text-white font-medium text-base hover:bg-[#bbdae9] hover:text-[#1a1a1a] transition-colors disabled:opacity-50"
                         >
                           {status === 'loading' ? (
                             <Loader2 className="w-5 h-5 animate-spin" />
@@ -876,7 +876,7 @@ export function ExitPopup({
                       <div className="space-y-3">
                         <button
                           onClick={handleDownloadOnly}
-                          className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-[#1a1a1a] text-white rounded-full font-medium text-base hover:bg-[#bbdae9] hover:text-[#1a1a1a] transition-colors"
+                          className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-[#1a1a1a] text-white font-medium text-base hover:bg-[#bbdae9] hover:text-[#1a1a1a] transition-colors"
                         >
                           <Download className="w-4 h-4" />
                           {buttonText || 'Download Now'}

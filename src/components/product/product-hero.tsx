@@ -71,14 +71,14 @@ export function ProductHero({ images, heroImage, productName, isNew, badge, badg
       <div className="space-y-4 lg:sticky lg:top-24">
         {/* Main Image - Extra Large */}
         <div
-          className="relative aspect-square lg:aspect-[4/5] bg-gradient-to-br from-[var(--primary-light)] to-[var(--secondary)] rounded-3xl overflow-hidden group"
+          className="relative aspect-square lg:aspect-[4/5] bg-gradient-to-br from-[var(--primary-light)] to-[var(--secondary)] overflow-hidden group"
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
         >
           {/* Product Badge - Editable from admin */}
           {badge && (
             <div className="absolute top-6 right-6 z-20">
-              <span className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-[var(--foreground)] text-white rounded-full text-sm font-medium shadow-lg">
+              <span className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-[var(--foreground)] text-white text-sm font-medium shadow-lg">
                 {badgeEmoji && <span>{badgeEmoji}</span>}
                 {badge}
               </span>
@@ -97,7 +97,7 @@ export function ProductHero({ images, heroImage, productName, isNew, badge, badg
           {/* Zoom Button */}
           <button
             onClick={() => setLightboxOpen(true)}
-            className="absolute top-6 right-6 z-20 w-12 h-12 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-white hover:scale-110 shadow-lg"
+            className="absolute top-6 right-6 z-20 w-12 h-12 bg-white/90 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-white hover:scale-110 shadow-lg"
             aria-label="Zoom image"
           >
             <Expand className="w-5 h-5" />
@@ -138,7 +138,7 @@ export function ProductHero({ images, heroImage, productName, isNew, badge, badg
                   onClick={() => handleVideoClick(activeImage.videoUrl!)}
                   className="absolute inset-0 flex items-center justify-center bg-black/10 hover:bg-black/20 transition-colors"
                 >
-                  <div className="w-24 h-24 rounded-full bg-white/95 backdrop-blur-sm flex items-center justify-center hover:scale-110 transition-transform shadow-2xl">
+                  <div className="w-24 h-24 bg-white/95 backdrop-blur-sm flex items-center justify-center hover:scale-110 transition-transform shadow-2xl">
                     <Play className="w-10 h-10 text-[var(--foreground)] ml-1.5" fill="currentColor" />
                   </div>
                 </button>
@@ -151,14 +151,14 @@ export function ProductHero({ images, heroImage, productName, isNew, badge, badg
             <>
               <button
                 onClick={goToPrev}
-                className="absolute left-4 top-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-white hover:scale-110 transition-all duration-300 shadow-lg"
+                className="absolute left-4 top-1/2 -translate-y-1/2 w-14 h-14 bg-white/90 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-white hover:scale-110 transition-all duration-300 shadow-lg"
                 aria-label="Previous image"
               >
                 <ChevronLeft className="w-6 h-6" />
               </button>
               <button
                 onClick={goToNext}
-                className="absolute right-4 top-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-white hover:scale-110 transition-all duration-300 shadow-lg"
+                className="absolute right-4 top-1/2 -translate-y-1/2 w-14 h-14 bg-white/90 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-white hover:scale-110 transition-all duration-300 shadow-lg"
                 aria-label="Next image"
               >
                 <ChevronRight className="w-6 h-6" />
@@ -174,7 +174,7 @@ export function ProductHero({ images, heroImage, productName, isNew, badge, badg
                   key={index}
                   onClick={() => setActiveIndex(index)}
                   className={cn(
-                    'h-2 rounded-full transition-all duration-300',
+                    'h-2 transition-all duration-300',
                     index === activeIndex
                       ? 'w-8 bg-[var(--foreground)]'
                       : 'w-2 bg-[var(--foreground)]/30 hover:bg-[var(--foreground)]/50'
@@ -194,7 +194,7 @@ export function ProductHero({ images, heroImage, productName, isNew, badge, badg
                 key={image.id}
                 onClick={() => setActiveIndex(index)}
                 className={cn(
-                  'relative aspect-square rounded-xl overflow-hidden border-2 transition-all duration-300 group/thumb',
+                  'relative aspect-square overflow-hidden border-2 transition-all duration-300 group/thumb',
                   index === activeIndex
                     ? 'border-[var(--foreground)] ring-2 ring-[var(--primary-light)] ring-offset-2'
                     : 'border-transparent hover:border-[var(--primary)]'
@@ -231,7 +231,7 @@ export function ProductHero({ images, heroImage, productName, isNew, badge, badg
         )}
 
         {/* Trust indicators */}
-        <div className="flex flex-wrap items-center justify-center gap-4 py-4 px-6 bg-[var(--muted)] rounded-2xl">
+        <div className="flex flex-wrap items-center justify-center gap-4 py-4 px-6 bg-[var(--muted)]">
           <div className="flex items-center gap-2 text-sm">
             <div className="w-8 h-8 rounded-full bg-[var(--primary-light)] flex items-center justify-center">
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -263,7 +263,7 @@ export function ProductHero({ images, heroImage, productName, isNew, badge, badg
 
       {/* Lightbox Modal */}
       <Dialog open={lightboxOpen} onOpenChange={setLightboxOpen}>
-        <DialogContent className="max-w-5xl p-0 bg-black border-none rounded-3xl overflow-hidden">
+        <DialogContent className="max-w-5xl p-0 bg-black border-none overflow-hidden">
           <div className="relative aspect-square">
             {activeImage.imageUrl && (
               <Image
@@ -280,7 +280,7 @@ export function ProductHero({ images, heroImage, productName, isNew, badge, badg
               <>
                 <button
                   onClick={goToPrev}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center hover:bg-white/40 transition-colors"
+                  className="absolute left-4 top-1/2 -translate-y-1/2 w-14 h-14 bg-white/20 backdrop-blur-sm flex items-center justify-center hover:bg-white/40 transition-colors"
                   aria-label="Previous image"
                 >
                   <ChevronLeft className="w-6 h-6 text-white" />

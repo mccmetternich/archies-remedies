@@ -182,42 +182,52 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
           </div>
 
           {/* Right: Sticky title block with accent background */}
-          <div className="bg-[var(--blog-accent)] min-h-[50vh] lg:h-full lg:sticky lg:top-0 flex items-center justify-center p-8 lg:p-16">
-            <div className="max-w-lg w-full">
-              {/* Back link */}
+          <div className="bg-[var(--blog-accent)] min-h-[50vh] lg:h-full lg:sticky lg:top-0 flex flex-col p-8 lg:p-16">
+            {/* Top bar: Back link (left) + Date/Read time (right) - white text on accent */}
+            <div className="flex items-center justify-between mb-8 lg:mb-12">
               <Link
                 href="/blog"
-                className="blog-meta inline-flex items-center gap-2 opacity-60 hover:opacity-100 transition-opacity mb-8"
+                className="blog-meta text-white/70 inline-flex items-center gap-2 hover:text-white transition-colors"
               >
                 <ArrowLeft className="w-4 h-4" />
                 Back to Journal
               </Link>
+              <div className="blog-meta text-white/70 flex items-center gap-3">
+                {post.publishedAt && (
+                  <span>{formatEditorialDate(post.publishedAt)}</span>
+                )}
+                <span>&bull;</span>
+                <span>{post.readingTime || 5} min read</span>
+              </div>
+            </div>
 
-              {/* Tags */}
+            {/* Centered content area */}
+            <div className="flex-1 flex flex-col justify-center max-w-2xl">
+              {/* Tags as rectangular bubbles - white on accent */}
               {post.tags && post.tags.length > 0 && (
-                <div className="flex flex-wrap gap-2 mb-6">
+                <div className="flex flex-wrap gap-2 mb-8">
                   {post.tags.map((tag) => (
-                    <span key={tag.id} className="blog-meta opacity-60">
+                    <Link
+                      key={tag.id}
+                      href={`/blog/tag/${tag.slug}`}
+                      className="px-4 py-2 bg-white/20 text-white text-xs font-semibold uppercase tracking-wider hover:bg-white hover:text-[#1a1a1a] transition-colors duration-300"
+                    >
                       {tag.name}
-                    </span>
+                    </Link>
                   ))}
                 </div>
               )}
 
-              {/* Title */}
-              <h1 className="blog-header blog-header-lg text-[var(--blog-text)]">
+              {/* Title - Massive, White on accent (per spec) */}
+              <h1 className="blog-header text-[clamp(2.5rem,8vw,6rem)] leading-[0.95] text-white mb-8">
                 {post.title}
               </h1>
 
-              {/* Meta */}
-              <div className="blog-meta mt-8 opacity-60 flex flex-wrap items-center gap-4">
+              {/* Author and vanity metrics - white on accent */}
+              <div className="blog-meta text-white/70 flex flex-wrap items-center gap-4">
                 {post.authorName && (
                   <span>By {post.authorName}</span>
                 )}
-                {post.publishedAt && (
-                  <span>{formatEditorialDate(post.publishedAt)}</span>
-                )}
-                <span>{post.readingTime || 5} min read</span>
                 {showVanityMetrics && (
                   <>
                     {post.viewCount && post.viewCount > 0 && (
@@ -235,38 +245,38 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
                   </>
                 )}
               </div>
+            </div>
 
-              {/* Share */}
-              <div className="flex items-center gap-3 mt-8 pt-8 border-t border-[var(--blog-divider)]">
-                <span className="blog-meta opacity-60 flex items-center gap-1.5">
-                  <Share2 className="w-4 h-4" />
-                  Share
-                </span>
-                <a
-                  href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(post.title)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="p-2 bg-[var(--blog-text)] text-[var(--blog-bg)] hover:bg-[var(--blog-bg)] hover:text-[var(--blog-text)] transition-colors duration-[400ms] ease-[cubic-bezier(0.4,0,0.2,1)]"
-                >
-                  <Twitter className="w-4 h-4" />
-                </a>
-                <a
-                  href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="p-2 bg-[var(--blog-text)] text-[var(--blog-bg)] hover:bg-[var(--blog-bg)] hover:text-[var(--blog-text)] transition-colors duration-[400ms] ease-[cubic-bezier(0.4,0,0.2,1)]"
-                >
-                  <Facebook className="w-4 h-4" />
-                </a>
-                <a
-                  href={`https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(shareUrl)}&title=${encodeURIComponent(post.title)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="p-2 bg-[var(--blog-text)] text-[var(--blog-bg)] hover:bg-[var(--blog-bg)] hover:text-[var(--blog-text)] transition-colors duration-[400ms] ease-[cubic-bezier(0.4,0,0.2,1)]"
-                >
-                  <Linkedin className="w-4 h-4" />
-                </a>
-              </div>
+            {/* Share buttons at bottom - white style on accent */}
+            <div className="flex items-center gap-3 mt-8 pt-8 border-t border-white/20">
+              <span className="blog-meta text-white/70 flex items-center gap-1.5">
+                <Share2 className="w-4 h-4" />
+                Share
+              </span>
+              <a
+                href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(post.title)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2.5 bg-white text-[#1a1a1a] hover:bg-[#1a1a1a] hover:text-white transition-colors duration-300"
+              >
+                <Twitter className="w-4 h-4" />
+              </a>
+              <a
+                href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2.5 bg-white text-[#1a1a1a] hover:bg-[#1a1a1a] hover:text-white transition-colors duration-300"
+              >
+                <Facebook className="w-4 h-4" />
+              </a>
+              <a
+                href={`https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(shareUrl)}&title=${encodeURIComponent(post.title)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2.5 bg-white text-[#1a1a1a] hover:bg-[#1a1a1a] hover:text-white transition-colors duration-300"
+              >
+                <Linkedin className="w-4 h-4" />
+              </a>
             </div>
           </div>
         </div>

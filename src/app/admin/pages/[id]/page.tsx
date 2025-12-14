@@ -33,6 +33,7 @@ import {
 } from '@/lib/widget-library';
 import { DevicePreviewToggle, type DeviceType } from '@/components/admin/widget-editor/device-preview';
 import { HeroCarouselConfig } from '@/components/admin/widget-configs/hero-carousel-config';
+import { WidgetLibrarySidebar } from '@/components/admin/widget-library-sidebar';
 
 interface PageWidget {
   id: string;
@@ -624,7 +625,6 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
   const [widgets, setWidgets] = useState<PageWidget[]>([]);
   const [originalWidgets, setOriginalWidgets] = useState<PageWidget[]>([]);
   const [expandedWidget, setExpandedWidget] = useState<string | null>(null);
-  const [expandedCategory, setExpandedCategory] = useState<string | null>('Hero');
   const [isHomepage, setIsHomepage] = useState(false);
 
   // Device preview state
@@ -1271,87 +1271,14 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
         {/* Right Panel - Widget Library (Always Visible) */}
         <div className="w-72 border-l border-[var(--admin-border)] bg-[var(--admin-sidebar)] flex-shrink-0">
           <div className="sticky top-[73px] max-h-[calc(100vh-73px)] overflow-y-auto">
-            <div className="p-4 border-b border-[var(--admin-border)]">
-              <h3 className="font-medium text-[var(--admin-text-primary)]">Widget Library</h3>
-              <p className="text-xs text-[var(--admin-text-muted)] mt-1">
-                Drag or click to add widgets
-              </p>
-            </div>
-
-            <div>
-              {WIDGET_CATEGORIES.map((category) => (
-                <div key={category.name} className="border-b border-[var(--admin-border)] last:border-0">
-                  <button
-                    onClick={() =>
-                      setExpandedCategory(
-                        expandedCategory === category.name ? null : category.name
-                      )
-                    }
-                    className="w-full p-3 flex items-center justify-between hover:bg-[var(--admin-hover)] transition-colors"
-                  >
-                    <span className="text-sm font-medium text-[var(--admin-text-primary)]">{category.name}</span>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-[var(--admin-text-muted)]">
-                        {category.widgets.length}
-                      </span>
-                      {expandedCategory === category.name ? (
-                        <ChevronUp className="w-4 h-4 text-[var(--admin-text-muted)]" />
-                      ) : (
-                        <ChevronDown className="w-4 h-4 text-[var(--admin-text-muted)]" />
-                      )}
-                    </div>
-                  </button>
-
-                  <AnimatePresence>
-                    {expandedCategory === category.name && (
-                      <motion.div
-                        initial={{ height: 0 }}
-                        animate={{ height: 'auto' }}
-                        exit={{ height: 0 }}
-                        transition={{ duration: 0.15 }}
-                        className="overflow-hidden"
-                      >
-                        <div className="p-2 space-y-1">
-                          {category.widgets.map((widget) => {
-                            const Icon = widget.icon;
-                            return (
-                              <div
-                                key={widget.type}
-                                draggable
-                                onDragStart={(e) => {
-                                  e.dataTransfer.setData('widget-type', widget.type);
-                                  setDraggedWidgetType(widget.type);
-                                }}
-                                onDragEnd={() => setDraggedWidgetType(null)}
-                                onClick={() => handleAddWidget(widget.type)}
-                                className="w-full p-3 rounded-lg border border-transparent transition-all text-left group cursor-grab active:cursor-grabbing hover:border-[var(--primary)]/50 hover:bg-[var(--primary)]/5"
-                              >
-                                <div className="flex items-start gap-3">
-                                  <div className="w-8 h-8 rounded-lg bg-[var(--admin-input)] group-hover:bg-[var(--primary)]/10 flex items-center justify-center flex-shrink-0 transition-colors">
-                                    <Icon className="w-4 h-4 text-[var(--admin-text-secondary)] group-hover:text-[var(--primary)]" />
-                                  </div>
-                                  <div className="flex-1 min-w-0">
-                                    <div className="flex items-center justify-between">
-                                      <span className="text-sm font-medium text-[var(--admin-text-primary)]">
-                                        {widget.label}
-                                      </span>
-                                      <Plus className="w-4 h-4 text-[var(--admin-text-muted)] opacity-0 group-hover:opacity-100 transition-opacity" />
-                                    </div>
-                                    <p className="text-xs text-[var(--admin-text-muted)] mt-0.5 line-clamp-1">
-                                      {widget.description}
-                                    </p>
-                                  </div>
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              ))}
-            </div>
+            <WidgetLibrarySidebar
+              onAddWidget={handleAddWidget}
+              onDragStart={(type) => setDraggedWidgetType(type)}
+              onDragEnd={() => setDraggedWidgetType(null)}
+              draggedWidgetType={draggedWidgetType}
+              storageKey="page-editor-widget-order"
+              showReorderControls={true}
+            />
           </div>
         </div>
       </div>

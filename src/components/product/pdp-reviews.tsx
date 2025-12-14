@@ -101,7 +101,7 @@ export const PDPReviews = forwardRef<HTMLElement, PDPReviewsProps>(
               <button
                 onClick={() => setSelectedKeyword(null)}
                 className={cn(
-                  'px-4 py-2 rounded-full text-sm font-medium transition-all duration-200',
+                  'px-4 py-2 text-sm font-medium transition-all duration-200',
                   !selectedKeyword
                     ? 'bg-[var(--foreground)] text-white'
                     : 'bg-white border border-[var(--border)] hover:border-[var(--foreground)]'
@@ -118,7 +118,7 @@ export const PDPReviews = forwardRef<HTMLElement, PDPReviewsProps>(
                     )
                   }
                   className={cn(
-                    'px-4 py-2 rounded-full text-sm font-medium transition-all duration-200',
+                    'px-4 py-2 text-sm font-medium transition-all duration-200',
                     selectedKeyword === kw.keyword
                       ? 'bg-[var(--foreground)] text-white'
                       : 'bg-white border border-[var(--border)] hover:border-[var(--foreground)]'
@@ -143,7 +143,7 @@ export const PDPReviews = forwardRef<HTMLElement, PDPReviewsProps>(
             <div className="text-center mt-10">
               <button
                 onClick={() => setShowAll(!showAll)}
-                className="inline-flex items-center gap-2 px-6 py-3 border border-[var(--foreground)] rounded-full text-sm font-medium hover:bg-[var(--foreground)] hover:text-white transition-all duration-200"
+                className="inline-flex items-center gap-2 px-6 py-3 border border-[var(--foreground)] text-sm font-medium hover:bg-[var(--foreground)] hover:text-white transition-all duration-200"
               >
                 {showAll ? 'Show Less' : `Show All ${filteredReviews.length} Reviews`}
                 <ChevronDown

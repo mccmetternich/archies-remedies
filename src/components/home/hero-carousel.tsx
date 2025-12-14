@@ -150,7 +150,7 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
             <Link
               href={slide.buttonUrl}
               className={cn(
-                "group inline-flex items-center justify-center gap-3 px-8 py-5 rounded-full text-lg font-semibold transition-all duration-300 min-h-[60px]",
+                "group inline-flex items-center justify-center gap-3 px-8 py-5 text-lg font-semibold transition-all duration-300 min-h-[60px]",
                 isLightText ? "hero-btn-light" : "hero-btn-dark"
               )}
             >
@@ -162,7 +162,7 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
           <Link
             href={slide.secondaryButtonUrl || '/about'}
             className={cn(
-              "hidden md:inline-flex group items-center justify-center gap-3 px-8 py-5 rounded-full text-lg font-semibold border-2 transition-all duration-300 min-h-[60px]",
+              "hidden md:inline-flex group items-center justify-center gap-3 px-8 py-5 text-lg font-semibold border-2 transition-all duration-300 min-h-[60px]",
               isLightText ? "hero-btn-outline-light" : "hero-btn-outline-dark"
             )}
           >
@@ -233,7 +233,7 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
                 transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}
                 className="hidden lg:flex absolute bottom-24 right-[12.5%] z-20 w-full max-w-md justify-center pointer-events-auto"
               >
-                <div className="bg-white/95 backdrop-blur-sm px-5 py-4 rounded-2xl shadow-xl border border-white/20">
+                <div className="bg-white/95 backdrop-blur-sm px-5 py-4 shadow-xl border border-white/20">
                   <div className="flex items-center gap-4">
                     <div className="w-14 h-14 rounded-full overflow-hidden bg-[var(--sand)] flex-shrink-0">
                       <Image
@@ -297,7 +297,7 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
                   transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: 0.5 }}
                   className="absolute bottom-16 left-1/2 -translate-x-1/2 w-full max-w-xl px-6 lg:px-0 pointer-events-auto"
                 >
-                  <div className="bg-white/95 backdrop-blur-sm px-5 py-4 rounded-2xl shadow-xl border border-black/5 max-w-md">
+                  <div className="bg-white/95 backdrop-blur-sm px-5 py-4 shadow-xl border border-black/5 max-w-md">
                     <div className="flex items-center gap-4">
                       <div className="w-14 h-14 rounded-full overflow-hidden bg-[var(--sand)] flex-shrink-0">
                         <Image
@@ -396,7 +396,7 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
               key={index}
               onClick={() => setCurrentIndex(index)}
               className={cn(
-                'h-1 rounded-full transition-all duration-500',
+                'h-1 transition-all duration-500',
                 index === currentIndex
                   ? 'w-12 bg-[var(--foreground)]'
                   : 'w-1 bg-[var(--foreground)]/20 hover:bg-[var(--foreground)]/40'

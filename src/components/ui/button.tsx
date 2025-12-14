@@ -25,11 +25,11 @@ const buttonVariants = cva(
           'bg-[var(--primary-light)] text-[var(--foreground)] hover:bg-[var(--primary)]',
       },
       size: {
-        default: 'h-11 px-6 py-2.5 text-sm tracking-wide uppercase rounded-full',
-        sm: 'h-9 px-4 py-2 text-xs tracking-wide uppercase rounded-full',
-        lg: 'h-14 px-8 py-3 text-sm tracking-wide uppercase rounded-full',
-        xl: 'h-16 px-10 py-4 text-base tracking-wide uppercase rounded-full',
-        icon: 'h-10 w-10 rounded-full',
+        default: 'h-11 px-6 py-2.5 text-sm tracking-wide uppercase',
+        sm: 'h-9 px-4 py-2 text-xs tracking-wide uppercase',
+        lg: 'h-14 px-8 py-3 text-sm tracking-wide uppercase',
+        xl: 'h-16 px-10 py-4 text-base tracking-wide uppercase',
+        icon: 'h-10 w-10',
       },
     },
     defaultVariants: {

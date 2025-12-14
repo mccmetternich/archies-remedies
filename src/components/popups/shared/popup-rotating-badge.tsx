@@ -18,7 +18,7 @@ export const PopupRotatingBadge = memo(function PopupRotatingBadge({ badgeUrl, c
   if (!badgeUrl) return null;
 
   return (
-    <div className={`hidden md:block absolute -top-6 -right-6 w-[105px] h-[105px] z-10 animate-spin-slow ${className}`}>
+    <div className={`hidden md:block absolute -top-6 -left-6 w-[105px] h-[105px] z-10 animate-spin-slow ${className}`}>
       <Image
         src={badgeUrl}
         alt="Badge"
