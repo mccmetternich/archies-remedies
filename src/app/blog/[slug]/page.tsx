@@ -345,16 +345,16 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
 
               {/* Main Content Area */}
               <div className="flex-1 flex flex-col justify-center">
-                {/* Title Block - narrower bands, smaller font, tighter line-height */}
-                <div className={`text-center ${hasTitleThumbnail ? 'mb-6' : 'mb-4'} max-w-md mx-auto px-4`}>
+                {/* Title Block - moderate width, smaller font, tighter line-height */}
+                <div className={`text-center ${hasTitleThumbnail ? 'mb-6' : 'mb-4'} max-w-lg mx-auto px-4`}>
                   <h1 className={`blog-header text-[clamp(2rem,5vw,3.5rem)] leading-[0.95] ${colors.text}`}>
                     {post.title}
                   </h1>
                 </div>
 
-                {/* Optional Title Thumbnail - smaller max height */}
+                {/* Optional Title Thumbnail - 75% larger */}
                 {hasTitleThumbnail && (
-                  <div className="mb-6 mx-auto w-full max-w-[200px]">
+                  <div className="mb-6 mx-auto w-full max-w-[350px]">
                     {titleThumbnailIsVideo ? (
                       <video
                         src={post.rightColumnThumbnailUrl!}
@@ -384,17 +384,16 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
 
               {/* Bottom Area - Tags + Share + Read Time */}
               <div className="mt-auto pt-8">
-                {/* Tags - 2x bigger, no hover states */}
+                {/* Tags - 4x bigger, not clickable (just for reference) */}
                 {post.tags && post.tags.length > 0 && (
-                  <div className="flex flex-wrap justify-center gap-3 mb-6">
+                  <div className="flex flex-wrap justify-center gap-4 mb-6">
                     {post.tags.map((tag) => (
-                      <Link
+                      <span
                         key={tag.id}
-                        href={`/blog/tag/${tag.slug}`}
-                        className={`px-8 py-4 ${colors.tagBg} ${colors.tagText} text-lg font-semibold uppercase tracking-wider`}
+                        className={`px-10 py-5 ${colors.tagBg} ${colors.tagText} text-xl font-semibold uppercase tracking-wider`}
                       >
                         {tag.name}
-                      </Link>
+                      </span>
                     ))}
                   </div>
                 )}

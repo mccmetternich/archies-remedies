@@ -10,8 +10,12 @@ interface BlogHeroCarouselProps {
 }
 
 export function BlogHeroCarousel({ featuredMediaUrl, title, heroCarouselImages }: BlogHeroCarouselProps) {
-  // Build the full media list: featured image first, then carousel images
-  const allMedia = [featuredMediaUrl, ...heroCarouselImages].filter(Boolean) as string[];
+  // Use heroCarouselImages as the source of truth for all carousel media
+  // If heroCarouselImages is empty, fall back to just the featuredMediaUrl
+  // This prevents duplicate images when featuredImage is also in the carousel array
+  const allMedia = heroCarouselImages.length > 0
+    ? heroCarouselImages.filter(Boolean) as string[]
+    : (featuredMediaUrl ? [featuredMediaUrl] : []);
   const [activeIndex, setActiveIndex] = useState(0);
 
   const currentMedia = allMedia[activeIndex] || featuredMediaUrl;
@@ -48,7 +52,7 @@ export function BlogHeroCarousel({ featuredMediaUrl, title, heroCarouselImages }
         </div>
       )}
 
-      {/* Floating Carousel Thumbnails - 2x bigger */}
+      {/* Floating Carousel Thumbnails - 4x bigger (doubled again) */}
       {allMedia.length > 1 && (
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-4">
           {allMedia.slice(0, 5).map((mediaUrl, index) => {
@@ -59,7 +63,7 @@ export function BlogHeroCarousel({ featuredMediaUrl, title, heroCarouselImages }
               <button
                 key={index}
                 onClick={() => setActiveIndex(index)}
-                className={`w-24 h-24 lg:w-28 lg:h-28 overflow-hidden shadow-lg transition-all duration-300 ${
+                className={`w-36 h-36 lg:w-44 lg:h-44 overflow-hidden shadow-lg transition-all duration-300 ${
                   isActive
                     ? 'ring-4 ring-white scale-105'
                     : 'hover:scale-105 opacity-80 hover:opacity-100'
