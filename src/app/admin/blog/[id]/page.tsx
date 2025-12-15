@@ -879,104 +879,51 @@ export default function BlogPostEditorPage({ params }: { params: Promise<{ id: s
             <p className="text-xs text-[var(--admin-text-muted)] mb-4">
               Media 1 is the featured hero image/video. Media 2-4 appear as carousel thumbnails.
             </p>
-            <div className="space-y-3">
-              {[0, 1, 2, 3].map((index) => {
-                // Get all media: featuredImageUrl is Media 1, heroCarouselImages are Media 2-4
+            <div className="space-y-4">
+              {/* Media 1 - Featured */}
+              <MediaPickerButton
+                label="Media 1 - Featured"
+                value={post.featuredImageUrl}
+                onChange={(url) => setPost((prev) => ({ ...prev, featuredImageUrl: url || null }))}
+                helpText=""
+                folder="blog/carousel"
+                aspectRatio="16/9"
+                acceptVideo
+              />
+
+              {/* Media 2-4 - Carousel images */}
+              {[1, 2, 3].map((index) => {
                 const carouselImages: string[] = post.heroCarouselImages ? JSON.parse(post.heroCarouselImages) : [];
-                let currentUrl: string | null = null;
-
-                if (index === 0) {
-                  currentUrl = post.featuredImageUrl;
-                } else {
-                  currentUrl = carouselImages[index - 1] || null;
-                }
-
-                const isVideo = currentUrl && /\.(mp4|webm|mov)(\?|$)/i.test(currentUrl);
-                const mediaLabel = index === 0 ? 'Media 1 - Featured' : `Media ${index + 1}`;
+                const currentUrl = carouselImages[index - 1] || null;
 
                 return (
-                  <div key={index} className="flex items-center gap-3">
-                    {/* Label */}
-                    <div className="w-32 shrink-0">
-                      <span className={cn(
-                        "text-sm font-medium",
-                        index === 0 ? "text-[var(--primary)]" : "text-[var(--admin-text-secondary)]"
-                      )}>
-                        {mediaLabel}
-                      </span>
-                      {isVideo && (
-                        <span className="ml-1.5 text-xs text-[var(--admin-text-muted)]">
-                          <Video className="w-3 h-3 inline" />
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Preview or Upload */}
-                    <div className="flex-1">
-                      {currentUrl ? (
-                        <div className="flex items-center gap-3">
-                          <div className="relative w-20 h-20 bg-[var(--admin-input)] rounded-lg overflow-hidden group shrink-0">
-                            {isVideo ? (
-                              <video src={currentUrl} className="w-full h-full object-cover" muted autoPlay loop playsInline />
-                            ) : (
-                              <img src={currentUrl} alt={mediaLabel} className="w-full h-full object-cover" />
-                            )}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-xs text-[var(--admin-text-muted)] truncate">{currentUrl.split('/').pop()}</p>
-                          </div>
-                          <button
-                            onClick={() => {
-                              if (index === 0) {
-                                setPost(prev => ({ ...prev, featuredImageUrl: null }));
-                              } else {
-                                const newImages = [...carouselImages];
-                                newImages.splice(index - 1, 1);
-                                setPost(prev => ({
-                                  ...prev,
-                                  heroCarouselImages: newImages.length > 0 ? JSON.stringify(newImages) : null
-                                }));
-                              }
-                            }}
-                            className="p-2 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      ) : (
-                        <MediaPickerButton
-                          label=""
-                          value={null}
-                          onChange={(url) => {
-                            if (url) {
-                              if (index === 0) {
-                                setPost(prev => ({ ...prev, featuredImageUrl: url }));
-                              } else {
-                                const newImages = [...carouselImages];
-                                // Ensure we put it in the right slot
-                                while (newImages.length < index) {
-                                  newImages.push('');
-                                }
-                                newImages[index - 1] = url;
-                                // Filter out empty strings
-                                const filtered = newImages.filter(Boolean);
-                                setPost(prev => ({
-                                  ...prev,
-                                  heroCarouselImages: filtered.length > 0 ? JSON.stringify(filtered) : null
-                                }));
-                              }
-                            }
-                          }}
-                          helpText=""
-                          folder="blog/carousel"
-                          aspectRatio={index === 0 ? "16/9" : "1/1"}
-                          buttonText="Browse / Upload / URL"
-                          compact
-                          acceptVideo
-                        />
-                      )}
-                    </div>
-                  </div>
+                  <MediaPickerButton
+                    key={index}
+                    label={`Media ${index + 1}`}
+                    value={currentUrl}
+                    onChange={(url) => {
+                      const newImages = [...carouselImages];
+                      // Ensure array has enough slots
+                      while (newImages.length < index) {
+                        newImages.push('');
+                      }
+                      if (url) {
+                        newImages[index - 1] = url;
+                      } else {
+                        newImages[index - 1] = '';
+                      }
+                      // Filter out empty strings for storage
+                      const filtered = newImages.filter(Boolean);
+                      setPost((prev) => ({
+                        ...prev,
+                        heroCarouselImages: filtered.length > 0 ? JSON.stringify(filtered) : null
+                      }));
+                    }}
+                    helpText=""
+                    folder="blog/carousel"
+                    aspectRatio="1/1"
+                    acceptVideo
+                  />
                 );
               })}
             </div>

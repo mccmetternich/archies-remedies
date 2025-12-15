@@ -52,9 +52,9 @@ export function BlogHeroCarousel({ featuredMediaUrl, title, heroCarouselImages }
         </div>
       )}
 
-      {/* Floating Carousel Thumbnails - 8x original (doubled again) */}
+      {/* Floating Carousel Thumbnails - 20% smaller, more spacing, thicker border */}
       {allMedia.length > 1 && (
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-4">
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-6">
           {allMedia.slice(0, 5).map((mediaUrl, index) => {
             const thumbIsVideo = isVideoUrl(mediaUrl);
             const isActive = index === activeIndex;
@@ -63,9 +63,9 @@ export function BlogHeroCarousel({ featuredMediaUrl, title, heroCarouselImages }
               <button
                 key={index}
                 onClick={() => setActiveIndex(index)}
-                className={`w-72 h-72 lg:w-80 lg:h-80 overflow-hidden shadow-lg transition-all duration-300 ${
+                className={`w-56 h-56 lg:w-64 lg:h-64 overflow-hidden shadow-lg transition-all duration-300 ${
                   isActive
-                    ? 'ring-4 ring-white scale-105'
+                    ? 'ring-[6px] ring-white scale-105'
                     : 'hover:scale-105 opacity-80 hover:opacity-100'
                 }`}
                 style={{ background: 'transparent' }}
