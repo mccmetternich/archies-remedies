@@ -33,6 +33,7 @@ import { cn } from '@/lib/utils';
 import { MediaPickerButton } from '@/components/admin/media-picker';
 import { RichTextEditor } from '@/components/admin/rich-text-editor';
 import { WidgetLibrarySidebar } from '@/components/admin/widget-library-sidebar';
+import { WidgetConfigPanel } from '@/components/admin/widget-config-panel';
 import { WIDGET_TYPES } from '@/lib/widget-library';
 
 interface PostWidget {
@@ -757,155 +758,13 @@ export default function BlogPostEditorPage({ params }: { params: Promise<{ id: s
                           </div>
                         </div>
 
-                        {/* Expanded Config Panel */}
+                        {/* Expanded Config Panel - Uses shared component for consistency */}
                         {isExpanded && (
-                          <div className="border-t border-[var(--admin-border)] bg-[var(--admin-bg)] p-4 space-y-4">
-                            {/* Title & Subtitle for most widgets */}
-                            <div className="grid grid-cols-2 gap-4">
-                              <div>
-                                <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Title</label>
-                                <input
-                                  value={(config.title as string) || ''}
-                                  onChange={(e) => handleUpdateWidget(widget.id, {
-                                    config: { ...config, title: e.target.value }
-                                  })}
-                                  placeholder="Widget title"
-                                  className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
-                                />
-                              </div>
-                              <div>
-                                <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Subtitle</label>
-                                <input
-                                  value={(config.subtitle as string) || ''}
-                                  onChange={(e) => handleUpdateWidget(widget.id, {
-                                    config: { ...config, subtitle: e.target.value }
-                                  })}
-                                  placeholder="Widget subtitle"
-                                  className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
-                                />
-                              </div>
-                            </div>
-
-                            {/* Marquee-specific config */}
-                            {widget.type === 'marquee' && (
-                              <div className="space-y-4">
-                                <div>
-                                  <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Marquee Text</label>
-                                  <input
-                                    value={(config.text as string) || ''}
-                                    onChange={(e) => handleUpdateWidget(widget.id, {
-                                      config: { ...config, text: e.target.value }
-                                    })}
-                                    placeholder="Free shipping on orders $50+ ★"
-                                    className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
-                                  />
-                                </div>
-                                <div className="grid grid-cols-3 gap-4">
-                                  <div>
-                                    <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Speed</label>
-                                    <select
-                                      value={(config.speed as string) || 'slow'}
-                                      onChange={(e) => handleUpdateWidget(widget.id, {
-                                        config: { ...config, speed: e.target.value }
-                                      })}
-                                      className="w-full px-3 py-2 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)]"
-                                    >
-                                      <option value="slow">Slow</option>
-                                      <option value="medium">Medium</option>
-                                      <option value="fast">Fast</option>
-                                    </select>
-                                  </div>
-                                  <div>
-                                    <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Size</label>
-                                    <select
-                                      value={(config.size as string) || 'medium'}
-                                      onChange={(e) => handleUpdateWidget(widget.id, {
-                                        config: { ...config, size: e.target.value }
-                                      })}
-                                      className="w-full px-3 py-2 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)]"
-                                    >
-                                      <option value="small">Small</option>
-                                      <option value="medium">Medium</option>
-                                      <option value="large">Large</option>
-                                    </select>
-                                  </div>
-                                  <div>
-                                    <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Theme</label>
-                                    <select
-                                      value={(config.theme as string) || 'dark'}
-                                      onChange={(e) => handleUpdateWidget(widget.id, {
-                                        config: { ...config, theme: e.target.value }
-                                      })}
-                                      className="w-full px-3 py-2 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)]"
-                                    >
-                                      <option value="dark">Dark</option>
-                                      <option value="light">Light</option>
-                                      <option value="primary">Primary</option>
-                                    </select>
-                                  </div>
-                                </div>
-                              </div>
-                            )}
-
-                            {/* Instagram-specific: note that it uses global data */}
-                            {widget.type === 'instagram' && (
-                              <div className="p-4 bg-[var(--admin-input)] rounded-lg">
-                                <p className="text-sm text-[var(--admin-text-secondary)]">
-                                  Instagram feed uses posts from the global Instagram admin section.
-                                </p>
-                                <a href="/admin/instagram" className="text-sm text-[var(--primary)] hover:underline mt-1 inline-block">
-                                  Manage Instagram Posts →
-                                </a>
-                              </div>
-                            )}
-
-                            {/* Testimonials: uses global data */}
-                            {widget.type === 'testimonials' && (
-                              <div className="p-4 bg-[var(--admin-input)] rounded-lg">
-                                <p className="text-sm text-[var(--admin-text-secondary)]">
-                                  Testimonials are managed globally.
-                                </p>
-                                <a href="/admin/testimonials" className="text-sm text-[var(--primary)] hover:underline mt-1 inline-block">
-                                  Manage Testimonials →
-                                </a>
-                              </div>
-                            )}
-
-                            {/* Video testimonials */}
-                            {widget.type === 'video_testimonials' && (
-                              <div className="p-4 bg-[var(--admin-input)] rounded-lg">
-                                <p className="text-sm text-[var(--admin-text-secondary)]">
-                                  Video testimonials are managed globally.
-                                </p>
-                                <a href="/admin/video-testimonials" className="text-sm text-[var(--primary)] hover:underline mt-1 inline-block">
-                                  Manage Video Testimonials →
-                                </a>
-                              </div>
-                            )}
-
-                            {/* Product grid: uses global data */}
-                            {widget.type === 'product_grid' && (
-                              <div className="p-4 bg-[var(--admin-input)] rounded-lg">
-                                <p className="text-sm text-[var(--admin-text-secondary)]">
-                                  Product grid displays all active products.
-                                </p>
-                                <a href="/admin/products" className="text-sm text-[var(--primary)] hover:underline mt-1 inline-block">
-                                  Manage Products →
-                                </a>
-                              </div>
-                            )}
-
-                            {/* FAQs */}
-                            {widget.type === 'faqs' && (
-                              <div className="p-4 bg-[var(--admin-input)] rounded-lg">
-                                <p className="text-sm text-[var(--admin-text-secondary)]">
-                                  FAQs are managed globally.
-                                </p>
-                                <a href="/admin/faqs" className="text-sm text-[var(--primary)] hover:underline mt-1 inline-block">
-                                  Manage FAQs →
-                                </a>
-                              </div>
-                            )}
+                          <div className="border-t border-[var(--admin-border)] bg-[var(--admin-bg)] p-4">
+                            <WidgetConfigPanel
+                              widget={widget}
+                              onUpdate={(updates) => handleUpdateWidget(widget.id, updates)}
+                            />
                           </div>
                         )}
                       </div>
