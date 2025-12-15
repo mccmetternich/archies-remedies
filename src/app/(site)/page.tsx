@@ -83,7 +83,7 @@ export default async function HomePage() {
         <WidgetRenderer widgets={pageWidgets} data={widgetDataWithSettings} />
       </main>
 
-      <Footer {...getFooterProps(headerProps.settings)} />
+      <Footer {...await getFooterProps(headerProps.settings)} />
 
       {/* Site Popups - Welcome, Exit, and Custom */}
       <SitePopups

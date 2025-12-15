@@ -130,13 +130,13 @@ function isVideoUrl(url: string | null): boolean {
   return /\.(mp4|webm|mov)(\?|$)/i.test(url) || url.includes('/video/upload/');
 }
 
-// Editorial Card Component with compartments - 2x bigger
+// Editorial Card Component with compartments
 function EditorialCard({ post, className }: { post: BlogPost; className?: string }) {
   return (
     <Link href={`/blog/${post.slug}`} className={cn('group block', className)}>
-      {/* Thumbnail compartment with thick white gap (4x = p-6) inside black frame */}
-      <div className="p-6 bg-white">
-        <div className="aspect-[4/5] overflow-hidden bg-[#f5f5f5]">
+      {/* Thumbnail compartment with white gap inside black frame */}
+      <div className="p-4 bg-white">
+        <div className="aspect-[3/4] overflow-hidden bg-[#f5f5f5]">
           {post.featuredImageUrl ? (
             isVideoUrl(post.featuredImageUrl) ? (
               <video
@@ -556,7 +556,7 @@ export default async function BlogPage() {
           </section>
         )}
       </main>
-      <Footer {...getFooterProps(headerProps.settings)} />
+      <Footer {...await getFooterProps(headerProps.settings)} />
     </>
   );
 }

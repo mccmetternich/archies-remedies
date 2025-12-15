@@ -1,5 +1,5 @@
 import { db } from '@/lib/db';
-import { siteSettings, products, pages } from '@/lib/db/schema';
+import { siteSettings, products, pages, footerLinks } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { unstable_cache } from 'next/cache';
 
@@ -107,7 +107,57 @@ export async function getHeaderProps() {
   };
 }
 
-export function getFooterProps(settings: typeof siteSettings.$inferSelect | null) {
+// Cached footer data - revalidates every 60 seconds
+const getCachedFooterData = unstable_cache(
+  async () => {
+    const links = await db.select().from(footerLinks).orderBy(footerLinks.sortOrder);
+    return { links };
+  },
+  ['footer-links-data'],
+  { revalidate: 60, tags: ['header-data'] }
+);
+
+export async function getFooterProps(settings: typeof siteSettings.$inferSelect | null) {
+  const { links } = await getCachedFooterData();
+
+  // Organize links by column
+  const column1Title = settings?.footerColumn1Title || 'Shop';
+  const column2Title = settings?.footerColumn2Title || 'Learn';
+  const column3Title = settings?.footerColumn3Title || 'Support';
+
+  // Map links to ensure proper types for footer component
+  const mapLink = (link: typeof links[number]) => ({
+    id: link.id,
+    label: link.label,
+    url: link.url,
+    column: link.column || 'Shop',
+    isExternal: link.isExternal ?? false,
+    isActive: link.isActive ?? true,
+  });
+
+  const column1Links = links.filter(l => l.column === column1Title || l.column === 'Shop').map(mapLink);
+  const column2Links = links.filter(l => l.column === column2Title || l.column === 'Learn').map(mapLink);
+  const column3Links = links.filter(l => l.column === column3Title || l.column === 'Support').map(mapLink);
+
+  // Certifications
+  const certifications = [
+    {
+      icon: settings?.footerCert1Icon || 'droplet',
+      iconUrl: settings?.footerCert1IconUrl || null,
+      label: settings?.footerCert1Label || 'Preservative Free',
+    },
+    {
+      icon: settings?.footerCert2Icon || 'flag',
+      iconUrl: settings?.footerCert2IconUrl || null,
+      label: settings?.footerCert2Label || 'Made in USA',
+    },
+    {
+      icon: settings?.footerCert3Icon || 'rabbit',
+      iconUrl: settings?.footerCert3IconUrl || null,
+      label: settings?.footerCert3Label || 'Cruelty Free',
+    },
+  ];
+
   return {
     logo: settings?.logoUrl,
     instagramUrl: settings?.instagramUrl,
@@ -120,5 +170,32 @@ export function getFooterProps(settings: typeof siteSettings.$inferSelect | null
     facebookIconUrl: settings?.facebookIconUrl,
     tiktokIconUrl: settings?.tiktokIconUrl,
     amazonIconUrl: settings?.amazonIconUrl,
+    // Theme
+    footerTheme: (settings?.footerTheme as 'dark' | 'light') || 'dark',
+    // Site name
+    siteName: settings?.siteName || "Archie's Remedies",
+    // Email signup
+    emailSignupEnabled: settings?.footerEmailSignupEnabled ?? true,
+    emailSignupTitle: settings?.footerEmailSignupTitle || "Join the Archie's Community",
+    emailSignupSubtitle: settings?.footerEmailSignupSubtitle || 'Expert eye care tips, new product drops, and wellness inspiration. No spam, ever.',
+    emailSignupPlaceholder: settings?.footerEmailSignupPlaceholder || 'Enter your email',
+    emailSignupButtonText: settings?.footerEmailSignupButtonText || 'Sign Up',
+    emailSignupSuccessMessage: settings?.footerEmailSignupSuccessMessage || "You're on the list.",
+    // Column titles
+    column1Title,
+    column2Title,
+    column3Title,
+    column4Title: settings?.footerColumn4Title || 'Certifications',
+    // Column links
+    column1Links,
+    column2Links,
+    column3Links,
+    // Certifications
+    certifications,
+    // Legal links
+    privacyUrl: settings?.footerPrivacyUrl || '/privacy',
+    privacyLabel: settings?.footerPrivacyLabel || 'Privacy Policy',
+    termsUrl: settings?.footerTermsUrl || '/terms',
+    termsLabel: settings?.footerTermsLabel || 'Terms of Service',
   };
 }

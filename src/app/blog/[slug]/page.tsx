@@ -6,11 +6,13 @@ import Link from 'next/link';
 import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Share2, Twitter, Facebook, Linkedin, Eye, Heart } from 'lucide-react';
 import { Metadata } from 'next';
 import { isVideoUrl, formatEditorialDate } from '@/lib/media-utils';
-import { MediaThumbnail } from '@/components/blog';
+import { MediaThumbnail, BlogHeroCarousel } from '@/components/blog';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { getHeaderProps, getFooterProps } from '@/lib/get-header-props';
 import { checkDraftMode } from '@/lib/draft-mode';
+import { WidgetRenderer } from '@/components/widgets/widget-renderer';
+import { getWidgetData } from '@/lib/get-widget-data';
 
 export const dynamic = 'force-dynamic';
 
@@ -164,10 +166,9 @@ function getColumnColors(bgColor: string | null) {
         border: 'border-[#1a1a1a]/20',
         tagBg: 'bg-[#1a1a1a]/10',
         tagText: 'text-[#1a1a1a]',
-        tagHoverBg: 'hover:bg-[#1a1a1a] hover:text-white',
-        shareBg: 'bg-[#1a1a1a]',
-        shareText: 'text-white',
-        shareHover: 'hover:bg-[#bad9ea] hover:text-[#1a1a1a]',
+        // Icon-only share buttons: black icons on white bg
+        shareIcon: 'text-[#1a1a1a]',
+        shareHover: 'hover:text-[#1a1a1a]/70',
         navBg: 'bg-[#1a1a1a]/10',
         navText: 'text-[#1a1a1a]',
         navHover: 'hover:bg-[#1a1a1a] hover:text-white',
@@ -180,10 +181,9 @@ function getColumnColors(bgColor: string | null) {
         border: 'border-white/20',
         tagBg: 'bg-white/20',
         tagText: 'text-white',
-        tagHoverBg: 'hover:bg-white hover:text-[#1a1a1a]',
-        shareBg: 'bg-white',
-        shareText: 'text-[#1a1a1a]',
-        shareHover: 'hover:bg-[#bad9ea]',
+        // Icon-only share buttons: white icons on black bg
+        shareIcon: 'text-white',
+        shareHover: 'hover:text-white/70',
         navBg: 'bg-white/20',
         navText: 'text-white',
         navHover: 'hover:bg-white hover:text-[#1a1a1a]',
@@ -197,10 +197,9 @@ function getColumnColors(bgColor: string | null) {
         border: 'border-[#1a1a1a]/20',
         tagBg: 'bg-[#1a1a1a]/10',
         tagText: 'text-[#1a1a1a]',
-        tagHoverBg: 'hover:bg-[#1a1a1a] hover:text-white',
-        shareBg: 'bg-[#1a1a1a]',
-        shareText: 'text-white',
-        shareHover: 'hover:bg-white hover:text-[#1a1a1a]',
+        // Icon-only share buttons: black icons on blue bg
+        shareIcon: 'text-[#1a1a1a]',
+        shareHover: 'hover:text-[#1a1a1a]/70',
         navBg: 'bg-[#1a1a1a]/10',
         navText: 'text-[#1a1a1a]',
         navHover: 'hover:bg-[#1a1a1a] hover:text-white',
@@ -232,14 +231,40 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
     getAdjacentPosts(post.id, post.publishedAt),
   ]);
 
+  // Parse post widgets (JSON array of widget configs)
+  // Map to PageWidget format with required id and isVisible fields
+  let postWidgets: Array<{ id: string; type: string; isVisible: boolean; config?: Record<string, unknown> }> = [];
+  if (post.postWidgets) {
+    try {
+      const rawWidgets = JSON.parse(post.postWidgets) as Array<{ id?: string; type: string; isVisible?: boolean; config?: Record<string, unknown> }>;
+      postWidgets = rawWidgets.map((w, index) => ({
+        id: w.id || `post-widget-${index}`,
+        type: w.type,
+        isVisible: w.isVisible !== false, // Default to true
+        config: w.config,
+      }));
+    } catch {
+      postWidgets = [];
+    }
+  }
+
+  // Fetch widget data if there are widgets to render
+  const widgetTypes = postWidgets.map(w => w.type);
+  const widgetData = widgetTypes.length > 0 ? await getWidgetData(widgetTypes) : {};
+
+  // Add settings data for widgets that need it (like instagram)
+  const widgetDataWithSettings = {
+    ...widgetData,
+    instagramUrl: headerProps.settings?.instagramUrl,
+    settings: headerProps.settings,
+  };
+
   // Use post author or fall back to site settings
   const authorName = post.authorName || settings?.blogName || "Archie's Remedies";
   const authorAvatarUrl = post.authorAvatarUrl || null;
 
   const shareUrl = `https://archiesremedies.com/blog/${post.slug}`;
   const showVanityMetrics = post.viewCount || post.heartCount;
-  const hasMedia = !!post.featuredImageUrl;
-  const isVideo = isVideoUrl(post.featuredImageUrl);
 
   // Parse hero carousel images (JSON array of URLs)
   const heroCarouselImages: string[] = post.heroCarouselImages
@@ -261,62 +286,11 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
         <section className="min-h-[90vh] lg:h-[90vh]">
           <div className="grid grid-cols-1 lg:grid-cols-2 h-full">
             {/* Left: Full-bleed image/video with floating carousel thumbnails */}
-            <div className="relative h-[50vh] lg:h-full overflow-hidden bg-[#f5f5f5]">
-              {hasMedia ? (
-                isVideo ? (
-                  <video
-                    src={post.featuredImageUrl!}
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <img
-                    src={post.featuredImageUrl!}
-                    alt={post.title}
-                    className="w-full h-full object-cover"
-                  />
-                )
-              ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <span className="blog-header text-[20vw] text-[#e0e0e0]">
-                    {post.title.charAt(0).toUpperCase()}
-                  </span>
-                </div>
-              )}
-
-              {/* Floating Carousel Thumbnails - 3x larger */}
-              {heroCarouselImages.length > 0 && (
-                <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-4">
-                  {heroCarouselImages.slice(0, 4).map((imageUrl, index) => (
-                    <button
-                      key={index}
-                      className="w-32 h-32 lg:w-36 lg:h-36 overflow-hidden shadow-lg hover:scale-105 transition-transform duration-300"
-                      style={{ background: 'transparent' }}
-                    >
-                      {isVideoUrl(imageUrl) ? (
-                        <video
-                          src={imageUrl}
-                          autoPlay
-                          muted
-                          loop
-                          playsInline
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <img
-                          src={imageUrl}
-                          alt={`Gallery image ${index + 1}`}
-                          className="w-full h-full object-cover"
-                        />
-                      )}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
+            <BlogHeroCarousel
+              featuredMediaUrl={post.featuredImageUrl}
+              title={post.title}
+              heroCarouselImages={heroCarouselImages}
+            />
 
             {/* Right: Redesigned content column with per-post background */}
             <div className={`${colors.bg} min-h-[50vh] lg:h-full lg:sticky lg:top-0 flex flex-col p-8 lg:p-12`}>
@@ -371,16 +345,16 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
 
               {/* Main Content Area */}
               <div className="flex-1 flex flex-col justify-center">
-                {/* Title Block - 2x bigger */}
-                <div className={`text-center ${hasTitleThumbnail ? 'mb-8' : 'mb-4'}`}>
-                  <h1 className={`blog-header text-[clamp(3rem,8vw,7rem)] leading-[1.02] ${colors.text}`}>
+                {/* Title Block - narrower bands, smaller font, tighter line-height */}
+                <div className={`text-center ${hasTitleThumbnail ? 'mb-6' : 'mb-4'} max-w-md mx-auto px-4`}>
+                  <h1 className={`blog-header text-[clamp(2rem,5vw,3.5rem)] leading-[0.95] ${colors.text}`}>
                     {post.title}
                   </h1>
                 </div>
 
-                {/* Optional Title Thumbnail - supports video */}
+                {/* Optional Title Thumbnail - smaller max height */}
                 {hasTitleThumbnail && (
-                  <div className="mb-8 mx-auto w-full max-w-sm">
+                  <div className="mb-6 mx-auto w-full max-w-[200px]">
                     {titleThumbnailIsVideo ? (
                       <video
                         src={post.rightColumnThumbnailUrl!}
@@ -410,14 +384,14 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
 
               {/* Bottom Area - Tags + Share + Read Time */}
               <div className="mt-auto pt-8">
-                {/* Tags - 3x bigger */}
+                {/* Tags - 2x bigger, no hover states */}
                 {post.tags && post.tags.length > 0 && (
                   <div className="flex flex-wrap justify-center gap-3 mb-6">
                     {post.tags.map((tag) => (
                       <Link
                         key={tag.id}
                         href={`/blog/tag/${tag.slug}`}
-                        className={`px-6 py-3 ${colors.tagBg} ${colors.tagText} text-base font-semibold uppercase tracking-wider ${colors.tagHoverBg} transition-colors duration-300`}
+                        className={`px-8 py-4 ${colors.tagBg} ${colors.tagText} text-lg font-semibold uppercase tracking-wider`}
                       >
                         {tag.name}
                       </Link>
@@ -425,9 +399,9 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
                   </div>
                 )}
 
-                {/* Share buttons + Read Time */}
+                {/* Share buttons + Read Time - icons only, no boxes */}
                 <div className={`flex items-center justify-center gap-4 pt-6 border-t ${colors.border}`}>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-3">
                     <span className={`text-sm ${colors.textMuted} flex items-center gap-1`}>
                       <Share2 className="w-4 h-4" />
                     </span>
@@ -435,25 +409,25 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
                       href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(post.title)}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className={`p-2.5 ${colors.shareBg} ${colors.shareText} ${colors.shareHover} transition-colors duration-300`}
+                      className={`${colors.shareIcon} ${colors.shareHover} transition-colors duration-300`}
                     >
-                      <Twitter className="w-4 h-4" />
+                      <Twitter className="w-5 h-5" />
                     </a>
                     <a
                       href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className={`p-2.5 ${colors.shareBg} ${colors.shareText} ${colors.shareHover} transition-colors duration-300`}
+                      className={`${colors.shareIcon} ${colors.shareHover} transition-colors duration-300`}
                     >
-                      <Facebook className="w-4 h-4" />
+                      <Facebook className="w-5 h-5" />
                     </a>
                     <a
                       href={`https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(shareUrl)}&title=${encodeURIComponent(post.title)}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className={`p-2.5 ${colors.shareBg} ${colors.shareText} ${colors.shareHover} transition-colors duration-300`}
+                      className={`${colors.shareIcon} ${colors.shareHover} transition-colors duration-300`}
                     >
-                      <Linkedin className="w-4 h-4" />
+                      <Linkedin className="w-5 h-5" />
                     </a>
                   </div>
                   <span className={`text-sm ${colors.textMuted}`}>|</span>
@@ -556,7 +530,13 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
           </section>
         )}
       </main>
-      <Footer {...getFooterProps(headerProps.settings)} />
+
+      {/* Blog Post Widgets - rendered above footer */}
+      {postWidgets.length > 0 && (
+        <WidgetRenderer widgets={postWidgets} data={widgetDataWithSettings} />
+      )}
+
+      <Footer {...await getFooterProps(headerProps.settings)} />
     </>
   );
 }

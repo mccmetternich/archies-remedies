@@ -204,7 +204,7 @@ export default async function BlogTagPage({ params }: Props) {
           </section>
         )}
       </main>
-      <Footer {...getFooterProps(headerProps.settings)} />
+      <Footer {...await getFooterProps(headerProps.settings)} />
     </>
   );
 }

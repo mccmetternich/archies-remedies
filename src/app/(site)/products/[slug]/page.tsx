@@ -298,7 +298,7 @@ export default async function ProductPage({ params }: PageProps) {
         )}
       </main>
 
-      <Footer {...getFooterProps(headerProps.settings)} />
+      <Footer {...await getFooterProps(headerProps.settings)} />
 
       {/* Site Popups */}
       <SitePopups

@@ -123,7 +123,7 @@ export default async function DynamicPage({
         <WidgetRenderer widgets={widgets} data={widgetDataWithSettings} />
       </main>
 
-      <Footer {...getFooterProps(headerProps.settings)} />
+      <Footer {...await getFooterProps(headerProps.settings)} />
 
       {/* Site Popups */}
       <SitePopups
