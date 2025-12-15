@@ -22,6 +22,12 @@ import {
   AlertCircle,
   GripVertical,
   Layers,
+  ChevronDown,
+  ChevronUp,
+  Monitor,
+  Smartphone,
+  ImageIcon,
+  Video,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { MediaPickerButton } from '@/components/admin/media-picker';
@@ -124,6 +130,7 @@ export default function BlogPostEditorPage({ params }: { params: Promise<{ id: s
   const [draggedWidgetType, setDraggedWidgetType] = useState<string | null>(null);
   const [dropTargetIndex, setDropTargetIndex] = useState<number | null>(null);
   const [showWidgetLibrary, setShowWidgetLibrary] = useState(false);
+  const [expandedWidgetId, setExpandedWidgetId] = useState<string | null>(null);
 
   // Fetch default author settings for new posts
   const fetchDefaultAuthor = async () => {
@@ -202,6 +209,12 @@ export default function BlogPostEditorPage({ params }: { params: Promise<{ id: s
   const handleToggleWidgetVisibility = (id: string) => {
     updatePostWidgets(postWidgets.map(w =>
       w.id === id ? { ...w, visible: !w.visible } : w
+    ));
+  };
+
+  const handleUpdateWidget = (id: string, updates: Partial<PostWidget>) => {
+    updatePostWidgets(postWidgets.map(w =>
+      w.id === id ? { ...w, ...updates } : w
     ));
   };
 
@@ -625,70 +638,276 @@ export default function BlogPostEditorPage({ params }: { params: Promise<{ id: s
                   </p>
                 </div>
               ) : (
-                <div className="p-3 space-y-2">
+                <div className="divide-y divide-[var(--admin-border-light)]">
                   {postWidgets.map((widget, index) => {
                     const widgetDef = WIDGET_TYPES.find(w => w.type === widget.type);
                     const Icon = widgetDef?.icon;
+                    const isExpanded = expandedWidgetId === widget.id;
+                    const config = (widget.config || {}) as Record<string, unknown>;
 
                     return (
-                      <div
-                        key={widget.id}
-                        className={cn(
-                          'flex items-center gap-3 p-3 bg-[var(--admin-input)] rounded-lg group transition-all',
-                          !widget.visible && 'opacity-50'
-                        )}
-                        draggable
-                        onDragStart={(e) => {
-                          e.dataTransfer.setData('widget-index', index.toString());
-                        }}
-                        onDragOver={(e) => {
-                          e.preventDefault();
-                          setDropTargetIndex(index);
-                        }}
-                        onDragLeave={() => setDropTargetIndex(null)}
-                        onDrop={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          const fromIndex = parseInt(e.dataTransfer.getData('widget-index'));
-                          if (!isNaN(fromIndex) && fromIndex !== index) {
-                            const newWidgets = [...postWidgets];
-                            const [moved] = newWidgets.splice(fromIndex, 1);
-                            newWidgets.splice(index, 0, moved);
-                            updatePostWidgets(newWidgets);
-                          }
-                          setDropTargetIndex(null);
-                        }}
-                      >
-                        <GripVertical className="w-4 h-4 text-[var(--admin-text-muted)] cursor-grab" />
-                        {Icon && (
-                          <div className="w-8 h-8 rounded-lg bg-[var(--admin-card)] flex items-center justify-center">
-                            <Icon className="w-4 h-4 text-[var(--admin-text-secondary)]" />
+                      <div key={widget.id} className="bg-[var(--admin-input)]">
+                        {/* Widget Header - Click to expand */}
+                        <div
+                          className={cn(
+                            'flex items-center gap-3 p-4 transition-colors cursor-pointer',
+                            isExpanded ? 'bg-[var(--admin-sidebar)]' : 'hover:bg-[var(--admin-sidebar)]',
+                            !widget.visible && 'opacity-60'
+                          )}
+                          onClick={() => setExpandedWidgetId(isExpanded ? null : widget.id)}
+                          draggable
+                          onDragStart={(e) => {
+                            e.dataTransfer.setData('widget-index', index.toString());
+                          }}
+                          onDragOver={(e) => {
+                            e.preventDefault();
+                            setDropTargetIndex(index);
+                          }}
+                          onDragLeave={() => setDropTargetIndex(null)}
+                          onDrop={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            const fromIndex = parseInt(e.dataTransfer.getData('widget-index'));
+                            if (!isNaN(fromIndex) && fromIndex !== index) {
+                              const newWidgets = [...postWidgets];
+                              const [moved] = newWidgets.splice(fromIndex, 1);
+                              newWidgets.splice(index, 0, moved);
+                              updatePostWidgets(newWidgets);
+                            }
+                            setDropTargetIndex(null);
+                          }}
+                        >
+                          <GripVertical className="w-4 h-4 text-[var(--admin-text-muted)] cursor-grab" />
+                          <span className="text-xs text-[var(--admin-text-muted)] font-mono w-5">{index + 1}</span>
+                          {Icon && (
+                            <div className="w-10 h-10 rounded-lg bg-[var(--primary)]/10 flex items-center justify-center">
+                              <Icon className="w-5 h-5 text-[var(--primary)]" />
+                            </div>
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-[var(--admin-text-primary)] truncate">
+                              {widgetDef?.name || widget.type}
+                            </p>
+                            <p className="text-xs text-[var(--admin-text-muted)] truncate">
+                              {widgetDef?.description}
+                            </p>
+                          </div>
+
+                          {/* Controls */}
+                          <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                            {/* Desktop toggle */}
+                            <button
+                              onClick={() => handleUpdateWidget(widget.id, {
+                                config: { ...config, showOnDesktop: config.showOnDesktop !== false ? false : true }
+                              })}
+                              className={cn(
+                                'flex items-center gap-1 px-2 py-1 rounded text-xs font-medium transition-all',
+                                config.showOnDesktop !== false
+                                  ? 'text-green-400 bg-green-500/10'
+                                  : 'text-[var(--admin-text-muted)] bg-[var(--admin-input)]'
+                              )}
+                              title={config.showOnDesktop !== false ? 'Hide on desktop' : 'Show on desktop'}
+                            >
+                              <Monitor className="w-3.5 h-3.5" />
+                            </button>
+                            {/* Mobile toggle */}
+                            <button
+                              onClick={() => handleUpdateWidget(widget.id, {
+                                config: { ...config, showOnMobile: config.showOnMobile !== false ? false : true }
+                              })}
+                              className={cn(
+                                'flex items-center gap-1 px-2 py-1 rounded text-xs font-medium transition-all',
+                                config.showOnMobile !== false
+                                  ? 'text-green-400 bg-green-500/10'
+                                  : 'text-[var(--admin-text-muted)] bg-[var(--admin-input)]'
+                              )}
+                              title={config.showOnMobile !== false ? 'Hide on mobile' : 'Show on mobile'}
+                            >
+                              <Smartphone className="w-3.5 h-3.5" />
+                            </button>
+                            {/* Visible toggle */}
+                            <button
+                              onClick={() => handleToggleWidgetVisibility(widget.id)}
+                              className={cn(
+                                'flex items-center gap-1 px-2 py-1 rounded text-xs font-medium transition-all',
+                                widget.visible
+                                  ? 'text-green-400 bg-green-500/10'
+                                  : 'text-amber-400 bg-amber-500/10'
+                              )}
+                              title={widget.visible ? 'Click to hide' : 'Click to show'}
+                            >
+                              {widget.visible ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+                              <span>{widget.visible ? 'Live' : 'Draft'}</span>
+                            </button>
+                            <div className="w-px h-5 bg-[var(--admin-border)]" />
+                            {/* Delete */}
+                            <button
+                              onClick={() => handleDeleteWidget(widget.id)}
+                              className="p-1.5 rounded text-[var(--admin-text-muted)] hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                              title="Delete widget"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                            {/* Expand/Collapse indicator */}
+                            {isExpanded ? (
+                              <ChevronUp className="w-4 h-4 text-[var(--admin-text-muted)]" />
+                            ) : (
+                              <ChevronDown className="w-4 h-4 text-[var(--admin-text-muted)]" />
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Expanded Config Panel */}
+                        {isExpanded && (
+                          <div className="border-t border-[var(--admin-border)] bg-[var(--admin-bg)] p-4 space-y-4">
+                            {/* Title & Subtitle for most widgets */}
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Title</label>
+                                <input
+                                  value={(config.title as string) || ''}
+                                  onChange={(e) => handleUpdateWidget(widget.id, {
+                                    config: { ...config, title: e.target.value }
+                                  })}
+                                  placeholder="Widget title"
+                                  className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Subtitle</label>
+                                <input
+                                  value={(config.subtitle as string) || ''}
+                                  onChange={(e) => handleUpdateWidget(widget.id, {
+                                    config: { ...config, subtitle: e.target.value }
+                                  })}
+                                  placeholder="Widget subtitle"
+                                  className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+                                />
+                              </div>
+                            </div>
+
+                            {/* Marquee-specific config */}
+                            {widget.type === 'marquee' && (
+                              <div className="space-y-4">
+                                <div>
+                                  <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Marquee Text</label>
+                                  <input
+                                    value={(config.text as string) || ''}
+                                    onChange={(e) => handleUpdateWidget(widget.id, {
+                                      config: { ...config, text: e.target.value }
+                                    })}
+                                    placeholder="Free shipping on orders $50+ ★"
+                                    className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+                                  />
+                                </div>
+                                <div className="grid grid-cols-3 gap-4">
+                                  <div>
+                                    <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Speed</label>
+                                    <select
+                                      value={(config.speed as string) || 'slow'}
+                                      onChange={(e) => handleUpdateWidget(widget.id, {
+                                        config: { ...config, speed: e.target.value }
+                                      })}
+                                      className="w-full px-3 py-2 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)]"
+                                    >
+                                      <option value="slow">Slow</option>
+                                      <option value="medium">Medium</option>
+                                      <option value="fast">Fast</option>
+                                    </select>
+                                  </div>
+                                  <div>
+                                    <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Size</label>
+                                    <select
+                                      value={(config.size as string) || 'medium'}
+                                      onChange={(e) => handleUpdateWidget(widget.id, {
+                                        config: { ...config, size: e.target.value }
+                                      })}
+                                      className="w-full px-3 py-2 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)]"
+                                    >
+                                      <option value="small">Small</option>
+                                      <option value="medium">Medium</option>
+                                      <option value="large">Large</option>
+                                    </select>
+                                  </div>
+                                  <div>
+                                    <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Theme</label>
+                                    <select
+                                      value={(config.theme as string) || 'dark'}
+                                      onChange={(e) => handleUpdateWidget(widget.id, {
+                                        config: { ...config, theme: e.target.value }
+                                      })}
+                                      className="w-full px-3 py-2 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)]"
+                                    >
+                                      <option value="dark">Dark</option>
+                                      <option value="light">Light</option>
+                                      <option value="primary">Primary</option>
+                                    </select>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Instagram-specific: note that it uses global data */}
+                            {widget.type === 'instagram' && (
+                              <div className="p-4 bg-[var(--admin-input)] rounded-lg">
+                                <p className="text-sm text-[var(--admin-text-secondary)]">
+                                  Instagram feed uses posts from the global Instagram admin section.
+                                </p>
+                                <a href="/admin/instagram" className="text-sm text-[var(--primary)] hover:underline mt-1 inline-block">
+                                  Manage Instagram Posts →
+                                </a>
+                              </div>
+                            )}
+
+                            {/* Testimonials: uses global data */}
+                            {widget.type === 'testimonials' && (
+                              <div className="p-4 bg-[var(--admin-input)] rounded-lg">
+                                <p className="text-sm text-[var(--admin-text-secondary)]">
+                                  Testimonials are managed globally.
+                                </p>
+                                <a href="/admin/testimonials" className="text-sm text-[var(--primary)] hover:underline mt-1 inline-block">
+                                  Manage Testimonials →
+                                </a>
+                              </div>
+                            )}
+
+                            {/* Video testimonials */}
+                            {widget.type === 'video_testimonials' && (
+                              <div className="p-4 bg-[var(--admin-input)] rounded-lg">
+                                <p className="text-sm text-[var(--admin-text-secondary)]">
+                                  Video testimonials are managed globally.
+                                </p>
+                                <a href="/admin/video-testimonials" className="text-sm text-[var(--primary)] hover:underline mt-1 inline-block">
+                                  Manage Video Testimonials →
+                                </a>
+                              </div>
+                            )}
+
+                            {/* Product grid: uses global data */}
+                            {widget.type === 'product_grid' && (
+                              <div className="p-4 bg-[var(--admin-input)] rounded-lg">
+                                <p className="text-sm text-[var(--admin-text-secondary)]">
+                                  Product grid displays all active products.
+                                </p>
+                                <a href="/admin/products" className="text-sm text-[var(--primary)] hover:underline mt-1 inline-block">
+                                  Manage Products →
+                                </a>
+                              </div>
+                            )}
+
+                            {/* FAQs */}
+                            {widget.type === 'faqs' && (
+                              <div className="p-4 bg-[var(--admin-input)] rounded-lg">
+                                <p className="text-sm text-[var(--admin-text-secondary)]">
+                                  FAQs are managed globally.
+                                </p>
+                                <a href="/admin/faqs" className="text-sm text-[var(--primary)] hover:underline mt-1 inline-block">
+                                  Manage FAQs →
+                                </a>
+                              </div>
+                            )}
                           </div>
                         )}
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-[var(--admin-text-primary)] truncate">
-                            {widgetDef?.name || widget.type}
-                          </p>
-                          <p className="text-xs text-[var(--admin-text-muted)] truncate">
-                            {widgetDef?.description}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button
-                            onClick={() => handleToggleWidgetVisibility(widget.id)}
-                            className="p-1.5 rounded hover:bg-[var(--admin-hover)] text-[var(--admin-text-muted)] hover:text-[var(--admin-text-primary)]"
-                            title={widget.visible ? 'Hide widget' : 'Show widget'}
-                          >
-                            {widget.visible ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-                          </button>
-                          <button
-                            onClick={() => handleDeleteWidget(widget.id)}
-                            className="p-1.5 rounded hover:bg-red-500/10 text-[var(--admin-text-muted)] hover:text-red-500"
-                            title="Delete widget"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
                       </div>
                     );
                   })}
@@ -779,91 +998,125 @@ export default function BlogPostEditorPage({ params }: { params: Promise<{ id: s
             </div>
           </div>
 
-          {/* 2. Featured Image/Video */}
-          <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6">
-            <MediaPickerButton
-              label="Featured Image or Video"
-              value={post.featuredImageUrl}
-              onChange={(url) => setPost((prev) => ({ ...prev, featuredImageUrl: url || null }))}
-              helpText="Main visual displayed in blog listings and at top of post"
-              folder="blog"
-              aspectRatio="16/9"
-            />
-          </div>
-
-          {/* 2b. Title Thumbnail (Optional) - Goes under title on frontend */}
+          {/* 2. Title Thumbnail (Optional) - Goes under title on frontend */}
           <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6">
             <MediaPickerButton
               label="Title Thumbnail (Optional)"
               value={post.rightColumnThumbnailUrl}
               onChange={(url) => setPost((prev) => ({ ...prev, rightColumnThumbnailUrl: url || null }))}
-              helpText="Image or video displayed below the title on the post page"
+              helpText="Image or video displayed below the title in the right column"
               folder="blog/thumbnails"
               aspectRatio="1/1"
               acceptVideo
             />
           </div>
 
-          {/* 2c. Hero Carousel Images (up to 4) */}
+          {/* 3. Hero Media Section - Media 1-4 */}
           <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6">
             <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--admin-text-muted)] mb-2">
-              Hero Carousel Media
+              <ImageIcon className="w-3.5 h-3.5 inline mr-1.5" />
+              Hero Media (4 max)
             </label>
             <p className="text-xs text-[var(--admin-text-muted)] mb-4">
-              Add up to 4 images or videos that appear as floating thumbnails on the hero media
+              Media 1 is the featured hero image/video. Media 2-4 appear as carousel thumbnails.
             </p>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-3">
               {[0, 1, 2, 3].map((index) => {
-                const images: string[] = post.heroCarouselImages ? JSON.parse(post.heroCarouselImages) : [];
-                const currentUrl = images[index] || null;
+                // Get all media: featuredImageUrl is Media 1, heroCarouselImages are Media 2-4
+                const carouselImages: string[] = post.heroCarouselImages ? JSON.parse(post.heroCarouselImages) : [];
+                let currentUrl: string | null = null;
+
+                if (index === 0) {
+                  currentUrl = post.featuredImageUrl;
+                } else {
+                  currentUrl = carouselImages[index - 1] || null;
+                }
+
                 const isVideo = currentUrl && /\.(mp4|webm|mov)(\?|$)/i.test(currentUrl);
+                const mediaLabel = index === 0 ? 'Media 1 - Featured' : `Media ${index + 1}`;
+
                 return (
-                  <div key={index} className="relative">
-                    {currentUrl ? (
-                      <div className="relative aspect-square bg-[var(--admin-input)] rounded-lg overflow-hidden group">
-                        {isVideo ? (
-                          <video src={currentUrl} className="w-full h-full object-cover" muted autoPlay loop playsInline />
-                        ) : (
-                          <img src={currentUrl} alt={`Carousel ${index + 1}`} className="w-full h-full object-cover" />
-                        )}
-                        <button
-                          onClick={() => {
-                            const newImages = [...images];
-                            newImages.splice(index, 1);
-                            setPost(prev => ({
-                              ...prev,
-                              heroCarouselImages: newImages.length > 0 ? JSON.stringify(newImages) : null
-                            }));
-                          }}
-                          className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
-                      </div>
-                    ) : (
-                      <MediaPickerButton
-                        label=""
-                        value={null}
-                        onChange={(url) => {
-                          if (url) {
-                            const images: string[] = post.heroCarouselImages ? JSON.parse(post.heroCarouselImages) : [];
-                            if (images.length < 4) {
-                              images.push(url);
+                  <div key={index} className="flex items-center gap-3">
+                    {/* Label */}
+                    <div className="w-32 shrink-0">
+                      <span className={cn(
+                        "text-sm font-medium",
+                        index === 0 ? "text-[var(--primary)]" : "text-[var(--admin-text-secondary)]"
+                      )}>
+                        {mediaLabel}
+                      </span>
+                      {isVideo && (
+                        <span className="ml-1.5 text-xs text-[var(--admin-text-muted)]">
+                          <Video className="w-3 h-3 inline" />
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Preview or Upload */}
+                    <div className="flex-1">
+                      {currentUrl ? (
+                        <div className="flex items-center gap-3">
+                          <div className="relative w-20 h-20 bg-[var(--admin-input)] rounded-lg overflow-hidden group shrink-0">
+                            {isVideo ? (
+                              <video src={currentUrl} className="w-full h-full object-cover" muted autoPlay loop playsInline />
+                            ) : (
+                              <img src={currentUrl} alt={mediaLabel} className="w-full h-full object-cover" />
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs text-[var(--admin-text-muted)] truncate">{currentUrl.split('/').pop()}</p>
+                          </div>
+                          <button
+                            onClick={() => {
+                              if (index === 0) {
+                                setPost(prev => ({ ...prev, featuredImageUrl: null }));
+                              } else {
+                                const newImages = [...carouselImages];
+                                newImages.splice(index - 1, 1);
+                                setPost(prev => ({
+                                  ...prev,
+                                  heroCarouselImages: newImages.length > 0 ? JSON.stringify(newImages) : null
+                                }));
+                              }
+                            }}
+                            className="p-2 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ) : (
+                        <MediaPickerButton
+                          label=""
+                          value={null}
+                          onChange={(url) => {
+                            if (url) {
+                              if (index === 0) {
+                                setPost(prev => ({ ...prev, featuredImageUrl: url }));
+                              } else {
+                                const newImages = [...carouselImages];
+                                // Ensure we put it in the right slot
+                                while (newImages.length < index) {
+                                  newImages.push('');
+                                }
+                                newImages[index - 1] = url;
+                                // Filter out empty strings
+                                const filtered = newImages.filter(Boolean);
+                                setPost(prev => ({
+                                  ...prev,
+                                  heroCarouselImages: filtered.length > 0 ? JSON.stringify(filtered) : null
+                                }));
+                              }
                             }
-                            setPost(prev => ({
-                              ...prev,
-                              heroCarouselImages: JSON.stringify(images)
-                            }));
-                          }
-                        }}
-                        helpText=""
-                        folder="blog/carousel"
-                        aspectRatio="1/1"
-                        buttonText={`Media ${index + 1}`}
-                        compact
-                        acceptVideo
-                      />
-                    )}
+                          }}
+                          helpText=""
+                          folder="blog/carousel"
+                          aspectRatio={index === 0 ? "16/9" : "1/1"}
+                          buttonText="Browse / Upload / URL"
+                          compact
+                          acceptVideo
+                        />
+                      )}
+                    </div>
                   </div>
                 );
               })}

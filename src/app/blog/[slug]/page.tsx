@@ -233,14 +233,16 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
 
   // Parse post widgets (JSON array of widget configs)
   // Map to PageWidget format with required id and isVisible fields
+  // Note: Admin stores 'visible' but WidgetRenderer expects 'isVisible'
   let postWidgets: Array<{ id: string; type: string; isVisible: boolean; config?: Record<string, unknown> }> = [];
   if (post.postWidgets) {
     try {
-      const rawWidgets = JSON.parse(post.postWidgets) as Array<{ id?: string; type: string; isVisible?: boolean; config?: Record<string, unknown> }>;
+      const rawWidgets = JSON.parse(post.postWidgets) as Array<{ id?: string; type: string; visible?: boolean; isVisible?: boolean; config?: Record<string, unknown> }>;
       postWidgets = rawWidgets.map((w, index) => ({
         id: w.id || `post-widget-${index}`,
         type: w.type,
-        isVisible: w.isVisible !== false, // Default to true
+        // Support both 'visible' (from admin) and 'isVisible' (legacy) - default to true
+        isVisible: w.visible !== false && w.isVisible !== false,
         config: w.config,
       }));
     } catch {
