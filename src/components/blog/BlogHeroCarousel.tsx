@@ -52,7 +52,7 @@ export function BlogHeroCarousel({ featuredMediaUrl, title, heroCarouselImages }
         </div>
       )}
 
-      {/* Floating Carousel Thumbnails - 4x bigger (doubled again) */}
+      {/* Floating Carousel Thumbnails - 8x original (doubled again) */}
       {allMedia.length > 1 && (
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-4">
           {allMedia.slice(0, 5).map((mediaUrl, index) => {
@@ -63,7 +63,7 @@ export function BlogHeroCarousel({ featuredMediaUrl, title, heroCarouselImages }
               <button
                 key={index}
                 onClick={() => setActiveIndex(index)}
-                className={`w-36 h-36 lg:w-44 lg:h-44 overflow-hidden shadow-lg transition-all duration-300 ${
+                className={`w-72 h-72 lg:w-80 lg:h-80 overflow-hidden shadow-lg transition-all duration-300 ${
                   isActive
                     ? 'ring-4 ring-white scale-105'
                     : 'hover:scale-105 opacity-80 hover:opacity-100'

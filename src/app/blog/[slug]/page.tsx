@@ -293,7 +293,7 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
             />
 
             {/* Right: Redesigned content column with per-post background */}
-            <div className={`${colors.bg} min-h-[50vh] lg:h-full lg:sticky lg:top-0 flex flex-col p-8 lg:p-12`}>
+            <div className={`${colors.bg} min-h-[50vh] lg:min-h-full flex flex-col p-8 lg:p-12`}>
               {/* Top Row: Back to Journal (left) + Date + Nav Arrows (right) */}
               <div className="flex items-start justify-between mb-8">
                 {/* Left: Back to Journal */}
@@ -345,8 +345,8 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
 
               {/* Main Content Area */}
               <div className="flex-1 flex flex-col justify-center">
-                {/* Title Block - moderate width, smaller font, tighter line-height */}
-                <div className={`text-center ${hasTitleThumbnail ? 'mb-6' : 'mb-4'} max-w-lg mx-auto px-4`}>
+                {/* Title Block - 1/3rd column width */}
+                <div className={`text-center ${hasTitleThumbnail ? 'mb-6' : 'mb-4'} w-2/3 mx-auto`}>
                   <h1 className={`blog-header text-[clamp(2rem,5vw,3.5rem)] leading-[0.95] ${colors.text}`}>
                     {post.title}
                   </h1>
