@@ -105,6 +105,11 @@ export async function GET() {
     // Site name for copyright
     const siteName = settings?.siteName || "Archie's Remedies";
 
+    // Footer theme and logos
+    const footerTheme = settings?.footerTheme || 'dark';
+    const footerLogoUrl = settings?.footerLogoUrl || null;
+    const fullWidthLogoUrl = settings?.massiveFooterLogoUrl || null;
+
     // Organize links by column
     const linksByColumn: Record<string, typeof links> = {
       Shop: [],
@@ -127,6 +132,17 @@ export async function GET() {
       legalLinks,
       socialLinks,
       siteName,
+      // Theme and logo settings
+      footerTheme,
+      footerLogoUrl,
+      fullWidthLogoUrl,
+      massiveFooterLogoUrl: fullWidthLogoUrl, // Alias
+      // Social links at root level for admin page
+      instagramUrl: settings?.instagramUrl || null,
+      facebookUrl: settings?.facebookUrl || null,
+      tiktokUrl: settings?.tiktokUrl || null,
+      amazonStoreUrl: settings?.amazonStoreUrl || null,
+      // Links
       links: linksByColumn,
       allLinks: links,
       pages: pageList,
@@ -142,7 +158,17 @@ export async function PUT(request: Request) {
   if (!auth.authenticated) return auth.response;
 
   try {
-    const { emailSignup, columnTitles, certifications, legalLinks, links } = await request.json();
+    const {
+      emailSignup,
+      columnTitles,
+      certifications,
+      legalLinks,
+      links,
+      footerTheme,
+      footerLogoUrl,
+      fullWidthLogoUrl,
+      socialLinks,
+    } = await request.json();
 
     // Update site settings for footer configuration
     const [existingSettings] = await db.select().from(siteSettings).limit(1);
@@ -150,6 +176,33 @@ export async function PUT(request: Request) {
     const footerSettings: Record<string, any> = {
       updatedAt: new Date().toISOString(),
     };
+
+    // Theme and logo settings
+    if (footerTheme !== undefined) {
+      footerSettings.footerTheme = footerTheme;
+    }
+    if (footerLogoUrl !== undefined) {
+      footerSettings.footerLogoUrl = footerLogoUrl;
+    }
+    if (fullWidthLogoUrl !== undefined) {
+      footerSettings.massiveFooterLogoUrl = fullWidthLogoUrl;
+    }
+
+    // Social links
+    if (socialLinks !== undefined) {
+      if (socialLinks.instagramUrl !== undefined) {
+        footerSettings.instagramUrl = socialLinks.instagramUrl || null;
+      }
+      if (socialLinks.facebookUrl !== undefined) {
+        footerSettings.facebookUrl = socialLinks.facebookUrl || null;
+      }
+      if (socialLinks.tiktokUrl !== undefined) {
+        footerSettings.tiktokUrl = socialLinks.tiktokUrl || null;
+      }
+      if (socialLinks.amazonStoreUrl !== undefined) {
+        footerSettings.amazonStoreUrl = socialLinks.amazonStoreUrl || null;
+      }
+    }
 
     // Email signup settings
     if (emailSignup !== undefined) {

@@ -89,7 +89,7 @@ interface PageOption {
 }
 
 export default function FooterAdminPage() {
-  const [activeTab, setActiveTab] = useState<'theme' | 'signup' | 'main' | 'bottom'>('theme');
+  const [activeTab, setActiveTab] = useState<'theme' | 'signup' | 'main' | 'bottom'>('main');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -392,19 +392,19 @@ export default function FooterAdminPage() {
         </button>
       </div>
 
-      {/* Tabs */}
+      {/* Tabs - Order: Footer Links, Email Sign Up, Legal Links, Theme & Branding */}
       <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
         <button
-          onClick={() => setActiveTab('theme')}
+          onClick={() => setActiveTab('main')}
           className={cn(
             'flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm transition-all whitespace-nowrap',
-            activeTab === 'theme'
+            activeTab === 'main'
               ? 'bg-[var(--primary)] text-[var(--admin-button-text)]'
               : 'text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)] hover:bg-[var(--admin-input)]'
           )}
         >
-          <Palette className="w-4 h-4" />
-          Theme & Branding
+          <LinkIcon className="w-4 h-4" />
+          Footer Links
         </button>
         <button
           onClick={() => setActiveTab('signup')}
@@ -416,19 +416,7 @@ export default function FooterAdminPage() {
           )}
         >
           <Mail className="w-4 h-4" />
-          Email Subscription
-        </button>
-        <button
-          onClick={() => setActiveTab('main')}
-          className={cn(
-            'flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm transition-all whitespace-nowrap',
-            activeTab === 'main'
-              ? 'bg-[var(--primary)] text-[var(--admin-button-text)]'
-              : 'text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)] hover:bg-[var(--admin-input)]'
-          )}
-        >
-          <LinkIcon className="w-4 h-4" />
-          Main Footer
+          Email Sign Up
         </button>
         <button
           onClick={() => setActiveTab('bottom')}
@@ -440,7 +428,19 @@ export default function FooterAdminPage() {
           )}
         >
           <FileText className="w-4 h-4" />
-          Bottom Bar
+          Legal Links
+        </button>
+        <button
+          onClick={() => setActiveTab('theme')}
+          className={cn(
+            'flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm transition-all whitespace-nowrap',
+            activeTab === 'theme'
+              ? 'bg-[var(--primary)] text-[var(--admin-button-text)]'
+              : 'text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)] hover:bg-[var(--admin-input)]'
+          )}
+        >
+          <Palette className="w-4 h-4" />
+          Theme & Branding
         </button>
       </div>
 
