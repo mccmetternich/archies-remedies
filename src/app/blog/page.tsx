@@ -628,7 +628,7 @@ export default async function BlogPage() {
       <main className="min-h-screen bg-white">
         {/* Blog Hero - Compact full-width banner */}
         {hasHero && (
-          <section className="relative h-[35vh] min-h-[280px] max-h-[400px] overflow-hidden">
+          <section className="relative h-[42vh] min-h-[340px] max-h-[480px] overflow-hidden">
             {settings.heroMediaUrl && (
               <div className="absolute inset-0">
                 {isVideoUrl(settings.heroMediaUrl) ? (
