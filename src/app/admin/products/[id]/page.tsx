@@ -36,6 +36,11 @@ interface ProductVariant {
   heroImageUrl?: string | null;
   secondaryImageUrl?: string | null;
   heroCarouselImages?: string | null;
+  // Variant thumbnail and badge
+  thumbnailUrl?: string | null;
+  badge?: string | null;
+  badgeBgColor?: string | null;
+  badgeTextColor?: string | null;
 }
 
 interface ProductBenefit {
@@ -77,6 +82,11 @@ interface Product {
   rotatingBadgeText: string | null;
   rating: number | null;
   reviewCount: number | null;
+  // Review Badge
+  reviewBadge: string | null;
+  reviewBadgeEmoji: string | null;
+  reviewBadgeBgColor: string | null;
+  reviewBadgeTextColor: string | null;
   rotatingSealEnabled: boolean | null;
   rotatingSealImageUrl: string | null;
   ritualTitle: string | null;
@@ -264,6 +274,10 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
         rotatingBadgeText: null,
         rating: 4.9,
         reviewCount: 2900,
+        reviewBadge: null,
+        reviewBadgeEmoji: null,
+        reviewBadgeBgColor: '#bbdae9',
+        reviewBadgeTextColor: '#1a1a1a',
         rotatingSealEnabled: false,
         rotatingSealImageUrl: null,
         ritualTitle: 'The Ritual',
@@ -445,6 +459,10 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
       heroImageUrl: null,
       secondaryImageUrl: null,
       heroCarouselImages: null,
+      thumbnailUrl: null,
+      badge: null,
+      badgeBgColor: null,
+      badgeTextColor: null,
     };
     setVariants([...variants, newVariant]);
     setSelectedVariantIndex(variants.length);
@@ -858,6 +876,76 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
               <p className="text-xs text-[var(--admin-text-muted)] mt-2">
                 Displayed in navigation, homepage tiles, and product page
               </p>
+
+              {/* Review Badge */}
+              <div className="mt-6 pt-4 border-t border-[var(--admin-border-light)]">
+                <h5 className="text-sm font-medium text-[var(--admin-text-primary)] mb-4">
+                  Review Badge (Optional)
+                </h5>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm text-[var(--admin-text-secondary)] mb-1.5">
+                      Badge Text
+                    </label>
+                    <Input
+                      value={product.reviewBadge || ''}
+                      onChange={(e) => setProduct({ ...product, reviewBadge: e.target.value || null })}
+                      placeholder="Amazon Choice"
+                      className="bg-[var(--admin-input)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-[var(--admin-text-secondary)] mb-1.5">
+                      Emoji
+                    </label>
+                    <Input
+                      value={product.reviewBadgeEmoji || ''}
+                      onChange={(e) => setProduct({ ...product, reviewBadgeEmoji: e.target.value || null })}
+                      placeholder="🏆"
+                      className="bg-[var(--admin-input)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-[var(--admin-text-secondary)] mb-1.5">
+                      Background Color
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        type="color"
+                        value={product.reviewBadgeBgColor || '#bbdae9'}
+                        onChange={(e) => setProduct({ ...product, reviewBadgeBgColor: e.target.value })}
+                        className="w-10 h-10 rounded cursor-pointer border border-[var(--admin-border-light)]"
+                      />
+                      <Input
+                        value={product.reviewBadgeBgColor || '#bbdae9'}
+                        onChange={(e) => setProduct({ ...product, reviewBadgeBgColor: e.target.value })}
+                        className="flex-1 bg-[var(--admin-input)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)]"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm text-[var(--admin-text-secondary)] mb-1.5">
+                      Text Color
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        type="color"
+                        value={product.reviewBadgeTextColor || '#1a1a1a'}
+                        onChange={(e) => setProduct({ ...product, reviewBadgeTextColor: e.target.value })}
+                        className="w-10 h-10 rounded cursor-pointer border border-[var(--admin-border-light)]"
+                      />
+                      <Input
+                        value={product.reviewBadgeTextColor || '#1a1a1a'}
+                        onChange={(e) => setProduct({ ...product, reviewBadgeTextColor: e.target.value })}
+                        className="flex-1 bg-[var(--admin-input)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)]"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <p className="text-xs text-[var(--admin-text-muted)] mt-2">
+                  Shows next to the star rating on the product page
+                </p>
+              </div>
             </div>
           </div>
 
@@ -922,6 +1010,82 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
 
                   return (
                     <>
+                      {/* Variant Thumbnail for Tile */}
+                      <div className="col-span-2 mb-4">
+                        <label className="block text-sm text-[var(--admin-text-secondary)] mb-2">
+                          Variant Tile Thumbnail
+                        </label>
+                        <MediaPickerButton
+                          label="Thumbnail for Variant Tile"
+                          value={selectedMediaVariant.thumbnailUrl || null}
+                          onChange={(url) => updateVariantMedia('thumbnailUrl', url || null)}
+                          folder="products"
+                          aspectRatio="1/1"
+                        />
+                        <p className="text-xs text-[var(--admin-text-muted)] mt-1">
+                          Shows in the variant selection tile on the product page
+                        </p>
+                      </div>
+
+                      {/* Variant Badge */}
+                      <div className="col-span-2 mb-4 p-4 bg-[var(--admin-input)] rounded-lg">
+                        <label className="block text-sm font-medium text-[var(--admin-text-primary)] mb-3">
+                          Variant Badge (e.g., &quot;Best Value&quot;)
+                        </label>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-xs text-[var(--admin-text-secondary)] mb-1">
+                              Badge Text
+                            </label>
+                            <Input
+                              value={selectedMediaVariant.badge || ''}
+                              onChange={(e) => updateVariantMedia('badge', e.target.value || null)}
+                              placeholder="Best Value"
+                              className="bg-[var(--admin-card)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)]"
+                            />
+                          </div>
+                          <div className="flex gap-2">
+                            <div className="flex-1">
+                              <label className="block text-xs text-[var(--admin-text-secondary)] mb-1">
+                                BG Color
+                              </label>
+                              <div className="flex gap-1">
+                                <input
+                                  type="color"
+                                  value={selectedMediaVariant.badgeBgColor || '#bbdae9'}
+                                  onChange={(e) => updateVariantMedia('badgeBgColor', e.target.value)}
+                                  className="w-8 h-8 rounded cursor-pointer border border-[var(--admin-border-light)]"
+                                />
+                                <Input
+                                  value={selectedMediaVariant.badgeBgColor || '#bbdae9'}
+                                  onChange={(e) => updateVariantMedia('badgeBgColor', e.target.value)}
+                                  className="flex-1 bg-[var(--admin-card)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)] text-xs"
+                                />
+                              </div>
+                            </div>
+                            <div className="flex-1">
+                              <label className="block text-xs text-[var(--admin-text-secondary)] mb-1">
+                                Text Color
+                              </label>
+                              <div className="flex gap-1">
+                                <input
+                                  type="color"
+                                  value={selectedMediaVariant.badgeTextColor || '#1a1a1a'}
+                                  onChange={(e) => updateVariantMedia('badgeTextColor', e.target.value)}
+                                  className="w-8 h-8 rounded cursor-pointer border border-[var(--admin-border-light)]"
+                                />
+                                <Input
+                                  value={selectedMediaVariant.badgeTextColor || '#1a1a1a'}
+                                  onChange={(e) => updateVariantMedia('badgeTextColor', e.target.value)}
+                                  className="flex-1 bg-[var(--admin-card)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)] text-xs"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Gallery Media */}
                       <MediaPickerButton
                         label="Media 1 - Featured"
                         value={selectedMediaVariant.heroImageUrl || null}

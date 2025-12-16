@@ -16,8 +16,7 @@ import { Metadata } from 'next';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { SitePopups } from '@/components/popups';
-import { PDPGallery } from '@/components/product/pdp-gallery';
-import { PDPBuyBox } from '@/components/product/pdp-buy-box';
+import { PDPHeroSection } from '@/components/product/pdp-hero-section';
 import { getHeaderProps, getFooterProps } from '@/lib/get-header-props';
 import { getPopupSettings } from '@/lib/get-popup-settings';
 import { getWidgetData } from '@/lib/get-widget-data';
@@ -192,39 +191,22 @@ export default async function ProductPage({ params }: PageProps) {
       <main className="pt-12 md:pt-16">
         {/* Product Hero Section - Split Screen Layout (Buy Box Left, Gallery Right) */}
         <section className="container mb-12 md:mb-16">
-          <div className="grid lg:grid-cols-2 gap-8 lg:gap-16">
-            {/* Left: Buy Box (sticky) - shows first on mobile too */}
-            <div className="order-1">
-              <PDPBuyBox
-                product={product}
-                variants={product.variants}
-                reviewCount={reviewCount}
-                averageRating={averageRating}
-                bulletPoints={bulletPoints}
-                ctaButtonText={product.ctaButtonText || undefined}
-                ctaExternalUrl={product.ctaExternalUrl}
-                showDiscountSignup={product.showDiscountSignup ?? true}
-                discountSignupText={product.discountSignupText || undefined}
-                reviewBadge={product.reviewBadge}
-                reviewBadgeEmoji={product.reviewBadgeEmoji}
-                reviewBadgeBgColor={product.reviewBadgeBgColor}
-                reviewBadgeTextColor={product.reviewBadgeTextColor}
-              />
-            </div>
-
-            {/* Right: Gallery */}
-            <div className="order-2">
-              <PDPGallery
-                images={product.images}
-                heroImage={product.heroImageUrl}
-                productName={product.name}
-                badge={product.badge}
-                badgeEmoji={product.badgeEmoji}
-                rotatingSealEnabled={product.rotatingSealEnabled || false}
-                rotatingSealImageUrl={product.rotatingSealImageUrl}
-              />
-            </div>
-          </div>
+          <PDPHeroSection
+            product={product}
+            variants={product.variants}
+            images={product.images}
+            reviewCount={reviewCount}
+            averageRating={averageRating}
+            bulletPoints={bulletPoints}
+            ctaButtonText={product.ctaButtonText || undefined}
+            ctaExternalUrl={product.ctaExternalUrl}
+            showDiscountSignup={product.showDiscountSignup ?? true}
+            discountSignupText={product.discountSignupText || undefined}
+            reviewBadge={product.reviewBadge}
+            reviewBadgeEmoji={product.reviewBadgeEmoji}
+            reviewBadgeBgColor={product.reviewBadgeBgColor}
+            reviewBadgeTextColor={product.reviewBadgeTextColor}
+          />
         </section>
 
         {/* Below-Fold Widgets from CMS */}
