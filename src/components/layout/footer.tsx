@@ -28,6 +28,7 @@ interface FooterProps {
   tiktokUrl?: string | null;
   amazonStoreUrl?: string | null;
   massiveFooterLogoUrl?: string | null;
+  massiveFooterLogoOpacity?: number | null;
   // Custom social icons
   instagramIconUrl?: string | null;
   facebookIconUrl?: string | null;
@@ -69,6 +70,7 @@ export function Footer({
   tiktokUrl,
   amazonStoreUrl,
   massiveFooterLogoUrl,
+  massiveFooterLogoOpacity = 15,
   instagramIconUrl,
   facebookIconUrl,
   tiktokIconUrl,
@@ -657,8 +659,12 @@ export function Footer({
               alt=""
               width={2400}
               height={500}
-              className={cn('w-[108vw] max-w-none object-contain opacity-15', logoFilter)}
-              style={{ marginLeft: '-4vw', marginRight: '-4vw' }}
+              className={cn('w-[108vw] max-w-none object-contain', logoFilter)}
+              style={{
+                marginLeft: '-4vw',
+                marginRight: '-4vw',
+                opacity: (massiveFooterLogoOpacity ?? 15) / 100,
+              }}
               priority={false}
             />
           </div>

@@ -219,6 +219,7 @@ export default function NavigationPage() {
   const [footerTheme, setFooterTheme] = useState<'dark' | 'light'>('dark');
   const [footerLogoUrl, setFooterLogoUrl] = useState<string | null>(null);
   const [fullWidthLogoUrl, setFullWidthLogoUrl] = useState<string | null>(null);
+  const [massiveLogoOpacity, setMassiveLogoOpacity] = useState<number>(15);
   const [socialLinks, setSocialLinks] = useState({
     instagramUrl: '',
     facebookUrl: '',
@@ -327,6 +328,7 @@ export default function NavigationPage() {
     footerTheme,
     footerLogoUrl,
     fullWidthLogoUrl,
+    massiveLogoOpacity,
     socialLinks,
     emailSignup,
     columnTitles,
@@ -356,6 +358,7 @@ export default function NavigationPage() {
       setFooterTheme(data.footerTheme || 'dark');
       setFooterLogoUrl(data.footerLogoUrl || null);
       setFullWidthLogoUrl(data.fullWidthLogoUrl || data.massiveFooterLogoUrl || null);
+      setMassiveLogoOpacity(data.massiveFooterLogoOpacity ?? 15);
 
       // Social links
       setSocialLinks({
@@ -394,6 +397,7 @@ export default function NavigationPage() {
         footerTheme: data.footerTheme || 'dark',
         footerLogoUrl: data.footerLogoUrl || null,
         fullWidthLogoUrl: data.fullWidthLogoUrl || data.massiveFooterLogoUrl || null,
+        massiveLogoOpacity: data.massiveFooterLogoOpacity ?? 15,
         socialLinks: {
           instagramUrl: data.instagramUrl || '',
           facebookUrl: data.facebookUrl || '',
@@ -516,6 +520,7 @@ export default function NavigationPage() {
           footerTheme,
           footerLogoUrl,
           fullWidthLogoUrl,
+          massiveLogoOpacity,
           socialLinks,
           emailSignup,
           columnTitles,
@@ -2373,18 +2378,36 @@ export default function NavigationPage() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-3">
-                  Full-Width Logo
+                  Massive Footer Logo
                 </label>
                 <p className="text-xs text-[var(--admin-text-muted)] mb-3">
-                  Large logo displayed at the bottom of the footer
+                  Full-width brand texture displayed near the bottom of the footer
                 </p>
                 <MediaPickerButton
-                  label="Upload Full-Width Logo"
+                  label="Upload Massive Footer Logo"
                   value={fullWidthLogoUrl}
                   onChange={setFullWidthLogoUrl}
-                  helpText="Recommended: 1200x200px, PNG with transparency"
+                  helpText="Recommended: 1920x400px or larger, PNG with transparency"
                   aspectRatio="6/1"
                 />
+                {/* Opacity Slider */}
+                <div className="mt-4">
+                  <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
+                    Logo Opacity: {massiveLogoOpacity}%
+                  </label>
+                  <input
+                    type="range"
+                    min="5"
+                    max="100"
+                    value={massiveLogoOpacity}
+                    onChange={(e) => setMassiveLogoOpacity(Number(e.target.value))}
+                    className="w-full h-2 bg-[var(--admin-border)] rounded-lg appearance-none cursor-pointer accent-[var(--primary)]"
+                  />
+                  <div className="flex justify-between text-xs text-[var(--admin-text-muted)] mt-1">
+                    <span>Subtle</span>
+                    <span>Full</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

@@ -379,15 +379,6 @@ function SettingsPageContent() {
                   aspectRatio="1/1"
                 />
               </div>
-              <div className="mt-6">
-                <MediaPickerButton
-                  label="Massive Footer Logo"
-                  value={settings.massiveFooterLogoUrl}
-                  onChange={(url) => updateField('massiveFooterLogoUrl', url || '')}
-                  helpText="Full-width brand texture that spans the footer. Recommended: Large PNG with transparent background, at least 1920px wide."
-                  folder="branding"
-                />
-              </div>
 
               {/* Default Blog Author - part of Brand Assets */}
               <div className="mt-6 pt-6 border-t border-[var(--admin-border)]">
