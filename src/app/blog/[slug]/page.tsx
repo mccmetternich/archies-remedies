@@ -53,10 +53,11 @@ async function getBlogSettings() {
   return settings;
 }
 
-// Get previous and next posts for navigation
+// Get previous and next posts for navigation (with circular fallback to oldest/newest)
 async function getAdjacentPosts(currentPostId: string, publishedAt: string | null) {
-  if (!publishedAt) return { prev: null, next: null };
+  if (!publishedAt) return { prev: null, next: null, hasOtherPosts: false };
 
+  // Get adjacent posts
   const [prevPost] = await db
     .select({ slug: blogPosts.slug, title: blogPosts.title })
     .from(blogPosts)
@@ -79,7 +80,36 @@ async function getAdjacentPosts(currentPostId: string, publishedAt: string | nul
     .orderBy(asc(blogPosts.publishedAt))
     .limit(1);
 
-  return { prev: prevPost || null, next: nextPost || null };
+  // For circular navigation: get oldest and newest posts
+  const [oldestPost] = await db
+    .select({ slug: blogPosts.slug, title: blogPosts.title })
+    .from(blogPosts)
+    .where(and(
+      eq(blogPosts.status, 'published'),
+      ne(blogPosts.id, currentPostId)
+    ))
+    .orderBy(asc(blogPosts.publishedAt))
+    .limit(1);
+
+  const [newestPost] = await db
+    .select({ slug: blogPosts.slug, title: blogPosts.title })
+    .from(blogPosts)
+    .where(and(
+      eq(blogPosts.status, 'published'),
+      ne(blogPosts.id, currentPostId)
+    ))
+    .orderBy(desc(blogPosts.publishedAt))
+    .limit(1);
+
+  // Check if there are any other posts
+  const hasOtherPosts = !!(oldestPost || newestPost);
+
+  // Circular navigation: if no prev, use oldest; if no next, use newest
+  return {
+    prev: prevPost || oldestPost || null,
+    next: nextPost || newestPost || null,
+    hasOtherPosts,
+  };
 }
 
 function formatNumber(num: number): string {
@@ -163,30 +193,32 @@ function getColumnColors(bgColor: string | null) {
         bg: 'bg-white',
         text: 'text-[#1a1a1a]',
         textMuted: 'text-[#1a1a1a]/60',
+        dateMuted: 'text-[#1a1a1a]/40', // Lighter than textMuted
         border: 'border-[#1a1a1a]/20',
         tagBg: 'bg-[#1a1a1a]/10',
         tagText: 'text-[#1a1a1a]',
-        // Icon-only share buttons: black icons on white bg
         shareIcon: 'text-[#1a1a1a]',
         shareHover: 'hover:text-[#1a1a1a]/70',
-        navBg: 'bg-[#1a1a1a]/10',
-        navText: 'text-[#1a1a1a]',
-        navHover: 'hover:bg-[#1a1a1a] hover:text-white',
+        // Nav arrows: outline only
+        navBorder: 'border border-[#1a1a1a]/30',
+        navText: 'text-[#1a1a1a]/70',
+        navHover: 'hover:border-[#1a1a1a] hover:text-[#1a1a1a]',
       };
     case 'black':
       return {
         bg: 'bg-[#1a1a1a]',
         text: 'text-white',
         textMuted: 'text-white/60',
+        dateMuted: 'text-white/40', // Lighter than textMuted
         border: 'border-white/20',
         tagBg: 'bg-white/20',
         tagText: 'text-white',
-        // Icon-only share buttons: white icons on black bg
         shareIcon: 'text-white',
         shareHover: 'hover:text-white/70',
-        navBg: 'bg-white/20',
-        navText: 'text-white',
-        navHover: 'hover:bg-white hover:text-[#1a1a1a]',
+        // Nav arrows: outline only
+        navBorder: 'border border-white/30',
+        navText: 'text-white/70',
+        navHover: 'hover:border-white hover:text-white',
       };
     case 'blue':
     default:
@@ -194,15 +226,16 @@ function getColumnColors(bgColor: string | null) {
         bg: 'bg-[#bad9ea]',
         text: 'text-[#1a1a1a]',
         textMuted: 'text-[#1a1a1a]/60',
+        dateMuted: 'text-[#1a1a1a]/40', // Lighter than textMuted
         border: 'border-[#1a1a1a]/20',
         tagBg: 'bg-[#1a1a1a]/10',
         tagText: 'text-[#1a1a1a]',
-        // Icon-only share buttons: black icons on blue bg
         shareIcon: 'text-[#1a1a1a]',
         shareHover: 'hover:text-[#1a1a1a]/70',
-        navBg: 'bg-[#1a1a1a]/10',
-        navText: 'text-[#1a1a1a]',
-        navHover: 'hover:bg-[#1a1a1a] hover:text-white',
+        // Nav arrows: outline only
+        navBorder: 'border border-[#1a1a1a]/30',
+        navText: 'text-[#1a1a1a]/70',
+        navHover: 'hover:border-[#1a1a1a] hover:text-[#1a1a1a]',
       };
   }
 }
@@ -298,10 +331,10 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
             <div className={`${colors.bg} min-h-[50vh] lg:min-h-full flex flex-col p-8 lg:p-12`}>
               {/* Top Row: Back to Journal (left) + Date + Nav Arrows (right) */}
               <div className="flex items-start justify-between mb-8">
-                {/* Left: Back to Journal */}
+                {/* Left: Back to Journal - underline on hover only */}
                 <Link
                   href="/blog"
-                  className={`${colors.textMuted} inline-flex items-center gap-2 text-sm ${colors.navHover} px-3 py-2 -ml-3 transition-colors`}
+                  className={`${colors.textMuted} inline-flex items-center gap-2 text-sm hover:underline px-3 py-2 -ml-3 transition-colors`}
                 >
                   <ArrowLeft className="w-4 h-4" />
                   Back to Journal
@@ -310,38 +343,29 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
                 {/* Right: Date + Nav Arrows */}
                 <div className="flex items-center gap-3">
                   {post.publishedAt && (
-                    <span className={`text-sm ${colors.textMuted}`}>
+                    <span className={`text-sm ${colors.dateMuted}`}>
                       {formatEditorialDate(post.publishedAt)}
                     </span>
                   )}
-                  <div className="flex items-center gap-1">
-                    {adjacentPosts.prev ? (
+                  {/* Only show nav arrows if there are other posts */}
+                  {adjacentPosts.hasOtherPosts && (
+                    <div className="flex items-center gap-1">
                       <Link
-                        href={`/blog/${adjacentPosts.prev.slug}`}
-                        className={`p-2 ${colors.navBg} ${colors.navText} ${colors.navHover} transition-colors duration-300`}
-                        title={adjacentPosts.prev.title}
+                        href={`/blog/${adjacentPosts.prev?.slug}`}
+                        className={`p-2 ${colors.navBorder} ${colors.navText} ${colors.navHover} transition-colors duration-300`}
+                        title={adjacentPosts.prev?.title}
                       >
                         <ChevronLeft className="w-5 h-5" />
                       </Link>
-                    ) : (
-                      <div className={`p-2 ${colors.navBg} ${colors.navText} opacity-30`}>
-                        <ChevronLeft className="w-5 h-5" />
-                      </div>
-                    )}
-                    {adjacentPosts.next ? (
                       <Link
-                        href={`/blog/${adjacentPosts.next.slug}`}
-                        className={`p-2 ${colors.navBg} ${colors.navText} ${colors.navHover} transition-colors duration-300`}
-                        title={adjacentPosts.next.title}
+                        href={`/blog/${adjacentPosts.next?.slug}`}
+                        className={`p-2 ${colors.navBorder} ${colors.navText} ${colors.navHover} transition-colors duration-300`}
+                        title={adjacentPosts.next?.title}
                       >
                         <ChevronRight className="w-5 h-5" />
                       </Link>
-                    ) : (
-                      <div className={`p-2 ${colors.navBg} ${colors.navText} opacity-30`}>
-                        <ChevronRight className="w-5 h-5" />
-                      </div>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -349,7 +373,7 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
               <div className="flex-1 flex flex-col justify-center">
                 {/* Title Block - 1/3rd column width */}
                 <div className={`text-center ${hasTitleThumbnail ? 'mb-6' : 'mb-4'} w-2/3 mx-auto`}>
-                  <h1 className={`blog-header text-[clamp(2rem,5vw,3.5rem)] leading-[0.95] ${colors.text}`}>
+                  <h1 className={`blog-header text-[clamp(2rem,5vw,3.5rem)] leading-[0.88] ${colors.text}`}>
                     {post.title}
                   </h1>
                 </div>
