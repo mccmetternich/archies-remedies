@@ -292,6 +292,7 @@ export const products = sqliteTable('products', {
   // Media
   heroImageUrl: text('hero_image_url'),
   secondaryImageUrl: text('secondary_image_url'), // For rollover effect
+  heroCarouselImages: text('hero_carousel_images'), // JSON array of up to 3 additional images/videos
 
   // Badge (editable in admin) - e.g., "Bestseller", "Just Launched"
   badge: text('badge'),

@@ -1,33 +1,21 @@
 'use client';
 
-import React, { useState, useEffect, use, useCallback } from 'react';
+import React, { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, Reorder, useDragControls } from 'framer-motion';
 import {
-  Save,
   Loader2,
-  Check,
-  Trash2,
   Plus,
   GripVertical,
   X,
-  ChevronDown,
-  ChevronRight,
   Eye,
   EyeOff,
   Monitor,
   Smartphone,
-  Star,
-  Tag,
-  DollarSign,
-  Image as ImageIcon,
-  FileText,
-  Settings,
-  Package,
-  CheckCircle,
-  MessageSquare,
+  Trash2,
+  ImageIcon,
+  Layers,
 } from 'lucide-react';
-import Link from 'next/link';
 import { Input } from '@/components/ui/input';
 import { RichTextEditor } from '@/components/admin/rich-text-editor';
 import { MediaPickerButton } from '@/components/admin/media-picker';
@@ -76,6 +64,7 @@ interface Product {
   compareAtPrice: number | null;
   heroImageUrl: string | null;
   secondaryImageUrl: string | null;
+  heroCarouselImages: string | null;
   // Badge
   badge: string | null;
   badgeEmoji: string | null;
@@ -117,40 +106,7 @@ interface Product {
   sortOrder: number | null;
 }
 
-// Collapsible Section Component
-function CollapsibleSection({
-  title,
-  icon: Icon,
-  defaultOpen = true,
-  children,
-}: {
-  title: string;
-  icon: React.ElementType;
-  defaultOpen?: boolean;
-  children: React.ReactNode;
-}) {
-  const [isOpen, setIsOpen] = useState(defaultOpen);
-
-  return (
-    <div className="border border-[var(--admin-border)] rounded-lg overflow-hidden bg-[var(--admin-card)]">
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between p-4 hover:bg-[var(--admin-hover)] transition-colors"
-      >
-        <div className="flex items-center gap-3">
-          <Icon className="w-4 h-4 text-[var(--admin-text-muted)]" />
-          <span className="font-medium text-[var(--admin-text-primary)]">{title}</span>
-        </div>
-        {isOpen ? (
-          <ChevronDown className="w-4 h-4 text-[var(--admin-text-muted)]" />
-        ) : (
-          <ChevronRight className="w-4 h-4 text-[var(--admin-text-muted)]" />
-        )}
-      </button>
-      {isOpen && <div className="p-4 pt-0 space-y-4">{children}</div>}
-    </div>
-  );
-}
+type TabType = 'details' | 'content';
 
 // Draggable Widget Row Component
 function DraggableWidgetRow({
@@ -165,7 +121,6 @@ function DraggableWidgetRow({
   onDelete: (id: string) => void;
 }) {
   const dragControls = useDragControls();
-  const [isExpanded, setIsExpanded] = useState(false);
 
   const widgetLabels: Record<string, string> = {
     testimonials: 'Testimonials',
@@ -266,6 +221,7 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
   const isNew = id === 'new';
 
   // State
+  const [activeTab, setActiveTab] = useState<TabType>('details');
   const [product, setProduct] = useState<Product | null>(null);
   const [originalProduct, setOriginalProduct] = useState<Product | null>(null);
   const [variants, setVariants] = useState<ProductVariant[]>([]);
@@ -302,6 +258,7 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
         compareAtPrice: null,
         heroImageUrl: null,
         secondaryImageUrl: null,
+        heroCarouselImages: null,
         badge: null,
         badgeEmoji: null,
         badgeBgColor: '#1a1a1a',
@@ -453,7 +410,6 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
     const newStatus = !product.isActive;
     setProduct({ ...product, isActive: newStatus });
 
-    // If editing existing product, save immediately
     if (!isNew) {
       try {
         await fetch(`/api/admin/products/${id}`, {
@@ -480,7 +436,7 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
           return;
         }
       } catch {
-        // Fall through to regular view
+        // Fall through
       }
     }
     window.open(`/products/${product?.slug}`, '_blank');
@@ -514,28 +470,6 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
     setVariants(variants.map((v) => (v.id === variantId ? { ...v, [field]: value } : v)));
   };
 
-  // Benefit handlers
-  const addBenefit = (isPositive: boolean) => {
-    setBenefits([
-      ...benefits,
-      {
-        id: `new-${Date.now()}`,
-        title: '',
-        description: '',
-        isPositive,
-        sortOrder: benefits.filter((b) => b.isPositive === isPositive).length,
-      },
-    ]);
-  };
-
-  const removeBenefit = (benefitId: string) => {
-    setBenefits(benefits.filter((b) => b.id !== benefitId));
-  };
-
-  const updateBenefit = (benefitId: string, field: keyof ProductBenefit, value: string | boolean | null) => {
-    setBenefits(benefits.map((b) => (b.id === benefitId ? { ...b, [field]: value } : b)));
-  };
-
   // Widget handlers
   const addWidget = (type: string) => {
     const newWidget: ProductWidget = {
@@ -557,6 +491,20 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
     setWidgets(widgets.filter((w) => w.id !== widgetId));
   };
 
+  // Handle drop from library
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    const widgetType = e.dataTransfer.getData('widget-type');
+    if (widgetType) {
+      addWidget(widgetType);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy';
+  };
+
   // Loading state
   if (loading) {
     return (
@@ -576,6 +524,11 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
 
   const isDraft = siteInDraftMode || !product.isActive;
   const statusNote = siteInDraftMode && product.isActive ? '(site draft)' : undefined;
+
+  // Parse carousel images
+  const carouselImages: string[] = product.heroCarouselImages
+    ? JSON.parse(product.heroCarouselImages)
+    : [];
 
   return (
     <div className="min-h-screen">
@@ -605,13 +558,51 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
         backHref="/admin/products"
       />
 
-      {/* Three Column Layout */}
-      <div className="flex">
-        {/* Left Sidebar - Product Settings */}
-        <div className="w-80 flex-shrink-0 border-r border-[var(--admin-border)] h-[calc(100vh-73px)] overflow-y-auto p-4 space-y-4">
-          {/* Hero Section */}
-          <CollapsibleSection title="Product Info" icon={Package} defaultOpen={true}>
-            <div className="space-y-4">
+      {/* Horizontal Tab Navigation */}
+      <div className="border-b border-[var(--admin-border)] bg-[var(--admin-card)]">
+        <div className="px-6">
+          <nav className="flex gap-8">
+            <button
+              onClick={() => setActiveTab('details')}
+              className={cn(
+                'py-4 text-sm font-medium border-b-2 transition-colors',
+                activeTab === 'details'
+                  ? 'border-[var(--primary)] text-[var(--primary)]'
+                  : 'border-transparent text-[var(--admin-text-muted)] hover:text-[var(--admin-text-primary)]'
+              )}
+            >
+              Product Details
+            </button>
+            <button
+              onClick={() => setActiveTab('content')}
+              className={cn(
+                'py-4 text-sm font-medium border-b-2 transition-colors',
+                activeTab === 'content'
+                  ? 'border-[var(--primary)] text-[var(--primary)]'
+                  : 'border-transparent text-[var(--admin-text-muted)] hover:text-[var(--admin-text-primary)]'
+              )}
+            >
+              Additional Content
+              {widgets.length > 0 && (
+                <span className="ml-2 px-2 py-0.5 text-xs bg-[var(--admin-input)] rounded-full">
+                  {widgets.length}
+                </span>
+              )}
+            </button>
+          </nav>
+        </div>
+      </div>
+
+      {/* Tab Content */}
+      {activeTab === 'details' ? (
+        <div className="p-6 max-w-5xl mx-auto space-y-8">
+          {/* Product Info + Pricing Row */}
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* Product Info */}
+            <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border)] p-6 space-y-4">
+              <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--admin-text-muted)]">
+                Product Info
+              </h3>
               <div>
                 <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-1">
                   Product Name *
@@ -630,7 +621,7 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
                   value={product.shortDescription || ''}
                   onChange={(e) => setProduct({ ...product, shortDescription: e.target.value })}
                   placeholder="Brief description..."
-                  rows={2}
+                  rows={3}
                   className="flex w-full rounded-lg border border-[var(--admin-border)] bg-[var(--admin-input)] px-3 py-2 text-sm resize-none"
                 />
               </div>
@@ -643,166 +634,213 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
                   onChange={(e) => setProduct({ ...product, slug: e.target.value })}
                   placeholder="eye-drops"
                 />
+                <p className="text-xs text-[var(--admin-text-muted)] mt-1">
+                  /products/{product.slug || 'your-slug'}
+                </p>
               </div>
             </div>
-          </CollapsibleSection>
 
-          {/* Pricing */}
-          <CollapsibleSection title="Pricing" icon={DollarSign} defaultOpen={true}>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-1">
-                  Price ($)
-                </label>
-                <Input
-                  type="number"
-                  step="0.01"
-                  value={product.price || ''}
-                  onChange={(e) => setProduct({ ...product, price: parseFloat(e.target.value) || null })}
-                  placeholder="24.99"
-                />
+            {/* Pricing */}
+            <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border)] p-6 space-y-4">
+              <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--admin-text-muted)]">
+                Pricing
+              </h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-1">
+                    Price ($)
+                  </label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    value={product.price || ''}
+                    onChange={(e) => setProduct({ ...product, price: parseFloat(e.target.value) || null })}
+                    placeholder="24.99"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-1">
+                    Compare at ($)
+                  </label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    value={product.compareAtPrice || ''}
+                    onChange={(e) =>
+                      setProduct({ ...product, compareAtPrice: parseFloat(e.target.value) || null })
+                    }
+                    placeholder="29.99"
+                  />
+                </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-1">
-                  Compare at
-                </label>
-                <Input
-                  type="number"
-                  step="0.01"
-                  value={product.compareAtPrice || ''}
-                  onChange={(e) =>
-                    setProduct({ ...product, compareAtPrice: parseFloat(e.target.value) || null })
-                  }
-                  placeholder="29.99"
-                />
+
+              {/* Rating & Reviews in same card */}
+              <div className="pt-4 border-t border-[var(--admin-border)]">
+                <h4 className="text-sm font-medium text-[var(--admin-text-secondary)] mb-3">
+                  Rating & Reviews
+                </h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs text-[var(--admin-text-muted)] mb-1">
+                      Rating (0-5)
+                    </label>
+                    <Input
+                      type="number"
+                      step="0.1"
+                      min="0"
+                      max="5"
+                      value={product.rating || ''}
+                      onChange={(e) => setProduct({ ...product, rating: parseFloat(e.target.value) || null })}
+                      placeholder="4.9"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-[var(--admin-text-muted)] mb-1">
+                      Review Count
+                    </label>
+                    <Input
+                      type="number"
+                      value={product.reviewCount || ''}
+                      onChange={(e) => setProduct({ ...product, reviewCount: parseInt(e.target.value) || null })}
+                      placeholder="2900"
+                    />
+                  </div>
+                </div>
+                <p className="text-xs text-[var(--admin-text-muted)] mt-2">
+                  Used in nav, homepage tiles, and PDP
+                </p>
               </div>
             </div>
-          </CollapsibleSection>
+          </div>
 
-          {/* Media */}
-          <CollapsibleSection title="Media" icon={ImageIcon} defaultOpen={true}>
-            <MediaPickerButton
-              label="Hero Image"
-              value={product.heroImageUrl}
-              onChange={(url) => setProduct({ ...product, heroImageUrl: url || null })}
-              folder="products"
-              acceptVideo
-            />
-            <MediaPickerButton
-              label="Secondary Image"
-              value={product.secondaryImageUrl}
-              onChange={(url) => setProduct({ ...product, secondaryImageUrl: url || null })}
-              folder="products"
-              helpText="For rollover effect"
-            />
-          </CollapsibleSection>
+          {/* Hero Media Section - 4 images like blog */}
+          <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border)] p-6">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--admin-text-muted)] mb-2">
+              <ImageIcon className="w-4 h-4 inline mr-2" />
+              Hero Media (4 max)
+            </h3>
+            <p className="text-xs text-[var(--admin-text-muted)] mb-4">
+              Media 1 is the featured hero image/video. Media 2-4 appear as gallery thumbnails.
+            </p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {/* Media 1 - Featured */}
+              <MediaPickerButton
+                label="Media 1 - Featured"
+                value={product.heroImageUrl}
+                onChange={(url) => setProduct({ ...product, heroImageUrl: url || null })}
+                folder="products"
+                aspectRatio="1/1"
+                acceptVideo
+              />
+
+              {/* Media 2-4 - Carousel images */}
+              {[0, 1, 2].map((index) => {
+                const currentUrl = carouselImages[index] || null;
+
+                return (
+                  <MediaPickerButton
+                    key={index}
+                    label={`Media ${index + 2}`}
+                    value={currentUrl}
+                    onChange={(url) => {
+                      const newImages = [...carouselImages];
+                      while (newImages.length < index + 1) {
+                        newImages.push('');
+                      }
+                      if (url) {
+                        newImages[index] = url;
+                      } else {
+                        newImages[index] = '';
+                      }
+                      const filtered = newImages.filter(Boolean);
+                      setProduct({
+                        ...product,
+                        heroCarouselImages: filtered.length > 0 ? JSON.stringify(filtered) : null,
+                      });
+                    }}
+                    folder="products"
+                    aspectRatio="1/1"
+                    acceptVideo
+                  />
+                );
+              })}
+            </div>
+          </div>
 
           {/* Badge Configuration */}
-          <CollapsibleSection title="Badge" icon={Tag} defaultOpen={false}>
-            <div className="space-y-3">
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-1">
-                    Badge Text
-                  </label>
-                  <Input
-                    value={product.badge || ''}
-                    onChange={(e) => setProduct({ ...product, badge: e.target.value || null })}
-                    placeholder="Bestseller"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-1">
-                    Emoji
-                  </label>
-                  <Input
-                    value={product.badgeEmoji || ''}
-                    onChange={(e) => setProduct({ ...product, badgeEmoji: e.target.value || null })}
-                    placeholder="🔥"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-1">
-                    Background
-                  </label>
-                  <div className="flex gap-2">
-                    <input
-                      type="color"
-                      value={product.badgeBgColor || '#1a1a1a'}
-                      onChange={(e) => setProduct({ ...product, badgeBgColor: e.target.value })}
-                      className="w-10 h-10 rounded cursor-pointer"
-                    />
-                    <Input
-                      value={product.badgeBgColor || '#1a1a1a'}
-                      onChange={(e) => setProduct({ ...product, badgeBgColor: e.target.value })}
-                      className="flex-1"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-1">
-                    Text Color
-                  </label>
-                  <div className="flex gap-2">
-                    <input
-                      type="color"
-                      value={product.badgeTextColor || '#ffffff'}
-                      onChange={(e) => setProduct({ ...product, badgeTextColor: e.target.value })}
-                      className="w-10 h-10 rounded cursor-pointer"
-                    />
-                    <Input
-                      value={product.badgeTextColor || '#ffffff'}
-                      onChange={(e) => setProduct({ ...product, badgeTextColor: e.target.value })}
-                      className="flex-1"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </CollapsibleSection>
-
-          {/* Rating & Reviews */}
-          <CollapsibleSection title="Rating & Reviews" icon={Star} defaultOpen={false}>
-            <div className="grid grid-cols-2 gap-3">
+          <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border)] p-6">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--admin-text-muted)] mb-4">
+              Badge (Optional)
+            </h3>
+            <div className="grid md:grid-cols-4 gap-4">
               <div>
                 <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-1">
-                  Rating (0-5)
+                  Badge Text
                 </label>
                 <Input
-                  type="number"
-                  step="0.1"
-                  min="0"
-                  max="5"
-                  value={product.rating || ''}
-                  onChange={(e) => setProduct({ ...product, rating: parseFloat(e.target.value) || null })}
-                  placeholder="4.9"
+                  value={product.badge || ''}
+                  onChange={(e) => setProduct({ ...product, badge: e.target.value || null })}
+                  placeholder="Bestseller"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-1">
-                  Review Count
+                  Emoji
                 </label>
                 <Input
-                  type="number"
-                  value={product.reviewCount || ''}
-                  onChange={(e) => setProduct({ ...product, reviewCount: parseInt(e.target.value) || null })}
-                  placeholder="2900"
+                  value={product.badgeEmoji || ''}
+                  onChange={(e) => setProduct({ ...product, badgeEmoji: e.target.value || null })}
+                  placeholder="🔥"
                 />
               </div>
+              <div>
+                <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-1">
+                  Background
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="color"
+                    value={product.badgeBgColor || '#1a1a1a'}
+                    onChange={(e) => setProduct({ ...product, badgeBgColor: e.target.value })}
+                    className="w-10 h-10 rounded cursor-pointer border border-[var(--admin-border)]"
+                  />
+                  <Input
+                    value={product.badgeBgColor || '#1a1a1a'}
+                    onChange={(e) => setProduct({ ...product, badgeBgColor: e.target.value })}
+                    className="flex-1"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-1">
+                  Text Color
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="color"
+                    value={product.badgeTextColor || '#ffffff'}
+                    onChange={(e) => setProduct({ ...product, badgeTextColor: e.target.value })}
+                    className="w-10 h-10 rounded cursor-pointer border border-[var(--admin-border)]"
+                  />
+                  <Input
+                    value={product.badgeTextColor || '#ffffff'}
+                    onChange={(e) => setProduct({ ...product, badgeTextColor: e.target.value })}
+                    className="flex-1"
+                  />
+                </div>
+              </div>
             </div>
-            <p className="text-xs text-[var(--admin-text-muted)]">
-              Used in nav, homepage tiles, and PDP
-            </p>
-          </CollapsibleSection>
+          </div>
 
-          {/* Bullet Points */}
-          <CollapsibleSection title="Key Benefits" icon={CheckCircle} defaultOpen={false}>
-            <p className="text-xs text-[var(--admin-text-muted)] mb-3">
-              Shown with checkmarks on product page
+          {/* Key Benefits / Bullet Points */}
+          <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border)] p-6">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--admin-text-muted)] mb-2">
+              Key Benefits
+            </h3>
+            <p className="text-xs text-[var(--admin-text-muted)] mb-4">
+              Shown with green checkmarks on the product page
             </p>
-            <div className="space-y-2">
+            <div className="grid md:grid-cols-3 gap-4">
               {Array.from({ length: bulletPointCount }).map((_, i) => {
                 const key = `bulletPoint${i + 1}` as keyof Product;
                 return (
@@ -820,17 +858,20 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
             {bulletPointCount < 5 && (
               <button
                 onClick={() => setBulletPointCount(bulletPointCount + 1)}
-                className="flex items-center gap-1 text-sm text-[var(--primary)] hover:underline mt-2"
+                className="flex items-center gap-1 text-sm text-[var(--primary)] hover:underline mt-4"
               >
                 <Plus className="w-3 h-3" />
                 Add another
               </button>
             )}
-          </CollapsibleSection>
+          </div>
 
           {/* CTA Configuration */}
-          <CollapsibleSection title="CTA Button" icon={MessageSquare} defaultOpen={false}>
-            <div className="space-y-3">
+          <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border)] p-6">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--admin-text-muted)] mb-4">
+              CTA Button
+            </h3>
+            <div className="grid md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-1">
                   Button Text
@@ -848,47 +889,59 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
                 <Input
                   value={product.ctaExternalUrl || ''}
                   onChange={(e) => setProduct({ ...product, ctaExternalUrl: e.target.value || null })}
-                  placeholder="https://..."
+                  placeholder="https://amazon.com/..."
                 />
                 <p className="text-xs text-[var(--admin-text-muted)] mt-1">
                   Overrides variant Amazon URL
                 </p>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-[var(--admin-text-secondary)]">Show discount signup</span>
-                <button
-                  onClick={() => setProduct({ ...product, showDiscountSignup: !product.showDiscountSignup })}
-                  className={cn(
-                    'relative inline-flex h-6 w-11 items-center rounded-full transition-colors',
-                    product.showDiscountSignup ? 'bg-green-500' : 'bg-[var(--admin-hover)]'
-                  )}
-                >
-                  <span
-                    className={cn(
-                      'inline-block h-4 w-4 transform rounded-full bg-white transition-transform',
-                      product.showDiscountSignup ? 'translate-x-6' : 'translate-x-1'
-                    )}
-                  />
-                </button>
+            </div>
+            <div className="mt-4 pt-4 border-t border-[var(--admin-border)] flex items-center justify-between">
+              <div>
+                <span className="text-sm font-medium text-[var(--admin-text-secondary)]">
+                  Show discount signup
+                </span>
+                <p className="text-xs text-[var(--admin-text-muted)]">
+                  "Get X% off" link below CTA
+                </p>
               </div>
-              {product.showDiscountSignup && (
+              <button
+                onClick={() => setProduct({ ...product, showDiscountSignup: !product.showDiscountSignup })}
+                className={cn(
+                  'relative inline-flex h-6 w-11 items-center rounded-full transition-colors',
+                  product.showDiscountSignup ? 'bg-green-500' : 'bg-[var(--admin-hover)]'
+                )}
+              >
+                <span
+                  className={cn(
+                    'inline-block h-4 w-4 transform rounded-full bg-white transition-transform',
+                    product.showDiscountSignup ? 'translate-x-6' : 'translate-x-1'
+                  )}
+                />
+              </button>
+            </div>
+            {product.showDiscountSignup && (
+              <div className="mt-3">
                 <Input
                   value={product.discountSignupText || ''}
                   onChange={(e) => setProduct({ ...product, discountSignupText: e.target.value })}
                   placeholder="Get 10% off your first order"
                 />
-              )}
-            </div>
-          </CollapsibleSection>
+              </div>
+            )}
+          </div>
 
           {/* Accordion Drawers */}
-          <CollapsibleSection title="Accordion Drawers" icon={FileText} defaultOpen={false}>
-            <p className="text-xs text-[var(--admin-text-muted)] mb-3">
-              Only drawers with content will appear
+          <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border)] p-6">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--admin-text-muted)] mb-2">
+              Accordion Drawers
+            </h3>
+            <p className="text-xs text-[var(--admin-text-muted)] mb-4">
+              Only drawers with content will appear on the product page
             </p>
-            <div className="space-y-4">
+            <div className="space-y-6">
               {/* Drawer 1 */}
-              <div className="p-3 border border-[var(--admin-border)] rounded-lg space-y-2">
+              <div className="p-4 border border-[var(--admin-border)] rounded-lg space-y-3">
                 <Input
                   value={product.ritualTitle || ''}
                   onChange={(e) => setProduct({ ...product, ritualTitle: e.target.value })}
@@ -901,7 +954,7 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
                 />
               </div>
               {/* Drawer 2 */}
-              <div className="p-3 border border-[var(--admin-border)] rounded-lg space-y-2">
+              <div className="p-4 border border-[var(--admin-border)] rounded-lg space-y-3">
                 <Input
                   value={product.ingredientsTitle || ''}
                   onChange={(e) => setProduct({ ...product, ingredientsTitle: e.target.value })}
@@ -914,7 +967,7 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
                 />
               </div>
               {/* Drawer 3 */}
-              <div className="p-3 border border-[var(--admin-border)] rounded-lg space-y-2">
+              <div className="p-4 border border-[var(--admin-border)] rounded-lg space-y-3">
                 <Input
                   value={product.shippingTitle || ''}
                   onChange={(e) => setProduct({ ...product, shippingTitle: e.target.value })}
@@ -927,36 +980,43 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
                 />
               </div>
             </div>
-          </CollapsibleSection>
+          </div>
 
           {/* Variants */}
-          <CollapsibleSection title="Variants" icon={Package} defaultOpen={false}>
-            <div className="space-y-3">
+          <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border)] p-6">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--admin-text-muted)] mb-4">
+              Variants
+            </h3>
+            <div className="space-y-4">
               {variants.map((variant, index) => (
                 <div
                   key={variant.id}
-                  className="p-3 border border-[var(--admin-border)] rounded-lg space-y-2"
+                  className="p-4 border border-[var(--admin-border)] rounded-lg space-y-3"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-medium">Variant {index + 1}</span>
+                    <span className="text-sm font-medium text-[var(--admin-text-secondary)]">
+                      Variant {index + 1}
+                    </span>
                     <button
                       onClick={() => removeVariant(variant.id)}
                       className="p-1 text-red-400 hover:bg-red-500/10 rounded"
                     >
-                      <X className="w-3 h-3" />
+                      <X className="w-4 h-4" />
                     </button>
                   </div>
-                  <Input
-                    value={variant.name}
-                    onChange={(e) => updateVariant(variant.id, 'name', e.target.value)}
-                    placeholder="30 Count"
-                  />
-                  <Input
-                    value={variant.amazonUrl}
-                    onChange={(e) => updateVariant(variant.id, 'amazonUrl', e.target.value)}
-                    placeholder="Amazon URL"
-                  />
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid md:grid-cols-2 gap-3">
+                    <Input
+                      value={variant.name}
+                      onChange={(e) => updateVariant(variant.id, 'name', e.target.value)}
+                      placeholder="Variant name (e.g., 30 Count)"
+                    />
+                    <Input
+                      value={variant.amazonUrl}
+                      onChange={(e) => updateVariant(variant.id, 'amazonUrl', e.target.value)}
+                      placeholder="Amazon URL"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                     <Input
                       type="number"
                       step="0.01"
@@ -973,38 +1033,41 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
                       }
                       placeholder="Compare at"
                     />
+                    <label className="flex items-center gap-2 text-sm col-span-2">
+                      <input
+                        type="checkbox"
+                        checked={variant.isDefault ?? false}
+                        onChange={(e) => {
+                          setVariants(
+                            variants.map((v) => ({
+                              ...v,
+                              isDefault: v.id === variant.id ? e.target.checked : false,
+                            }))
+                          );
+                        }}
+                        className="rounded"
+                      />
+                      Default variant
+                    </label>
                   </div>
-                  <label className="flex items-center gap-2 text-xs">
-                    <input
-                      type="checkbox"
-                      checked={variant.isDefault ?? false}
-                      onChange={(e) => {
-                        setVariants(
-                          variants.map((v) => ({
-                            ...v,
-                            isDefault: v.id === variant.id ? e.target.checked : false,
-                          }))
-                        );
-                      }}
-                      className="rounded"
-                    />
-                    Default variant
-                  </label>
                 </div>
               ))}
               <button
                 onClick={addVariant}
-                className="w-full py-2 border-2 border-dashed border-[var(--admin-border)] rounded-lg text-sm text-[var(--admin-text-muted)] hover:border-[var(--primary)] hover:text-[var(--primary)] transition-colors flex items-center justify-center gap-1"
+                className="w-full py-3 border-2 border-dashed border-[var(--admin-border)] rounded-lg text-sm text-[var(--admin-text-muted)] hover:border-[var(--primary)] hover:text-[var(--primary)] transition-colors flex items-center justify-center gap-2"
               >
                 <Plus className="w-4 h-4" />
                 Add Variant
               </button>
             </div>
-          </CollapsibleSection>
+          </div>
 
           {/* SEO */}
-          <CollapsibleSection title="SEO" icon={Settings} defaultOpen={false}>
-            <div className="space-y-3">
+          <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border)] p-6">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--admin-text-muted)] mb-4">
+              SEO
+            </h3>
+            <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-1">
                   Meta Title
@@ -1012,7 +1075,7 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
                 <Input
                   value={product.metaTitle || ''}
                   onChange={(e) => setProduct({ ...product, metaTitle: e.target.value || null })}
-                  placeholder={`${product.name} | Archie's Remedies`}
+                  placeholder={`${product.name || 'Product'} | Archie's Remedies`}
                 />
               </div>
               <div>
@@ -1028,61 +1091,77 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
                 />
               </div>
             </div>
-          </CollapsibleSection>
+          </div>
         </div>
-
-        {/* Center - Widget List */}
-        <div className="flex-1 h-[calc(100vh-73px)] overflow-y-auto p-6">
-          <div className="max-w-3xl mx-auto">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-medium text-[var(--admin-text-primary)]">
-                Below-Fold Content
+      ) : (
+        /* Additional Content Tab */
+        <div className="flex h-[calc(100vh-140px)]">
+          {/* Widget List */}
+          <div
+            className="flex-1 p-6 overflow-y-auto"
+            onDrop={handleDrop}
+            onDragOver={handleDragOver}
+          >
+            <div className="max-w-3xl mx-auto">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h2 className="text-lg font-medium text-[var(--admin-text-primary)]">
+                    <Layers className="w-5 h-5 inline mr-2" />
+                    Below-Fold Content
+                  </h2>
+                  <p className="text-sm text-[var(--admin-text-muted)] mt-1">
+                    Drag widgets from the library to add content below the product hero
+                  </p>
+                </div>
                 {widgets.length > 0 && (
-                  <span className="ml-2 px-2 py-0.5 text-xs bg-[var(--admin-input)] rounded-full">
+                  <span className="px-3 py-1 text-sm bg-[var(--admin-input)] rounded-full">
                     {widgets.length} widget{widgets.length !== 1 ? 's' : ''}
                   </span>
                 )}
-              </h2>
-            </div>
-
-            {widgets.length > 0 ? (
-              <Reorder.Group
-                axis="y"
-                values={widgets}
-                onReorder={setWidgets}
-                className="space-y-3"
-              >
-                {widgets.map((widget, index) => (
-                  <DraggableWidgetRow
-                    key={widget.id}
-                    widget={widget}
-                    index={index}
-                    onUpdate={updateWidget}
-                    onDelete={deleteWidget}
-                  />
-                ))}
-              </Reorder.Group>
-            ) : (
-              <div className="py-16 text-center border-2 border-dashed border-[var(--admin-border)] rounded-xl">
-                <p className="text-[var(--admin-text-muted)] mb-2">No widgets added yet</p>
-                <p className="text-sm text-[var(--admin-text-muted)]">
-                  Drag widgets from the library to add content below the product hero
-                </p>
               </div>
-            )}
+
+              {widgets.length > 0 ? (
+                <Reorder.Group
+                  axis="y"
+                  values={widgets}
+                  onReorder={setWidgets}
+                  className="space-y-3"
+                >
+                  {widgets.map((widget, index) => (
+                    <DraggableWidgetRow
+                      key={widget.id}
+                      widget={widget}
+                      index={index}
+                      onUpdate={updateWidget}
+                      onDelete={deleteWidget}
+                    />
+                  ))}
+                </Reorder.Group>
+              ) : (
+                <div className="py-20 text-center border-2 border-dashed border-[var(--admin-border)] rounded-xl bg-[var(--admin-input)]/50">
+                  <Layers className="w-12 h-12 mx-auto mb-4 text-[var(--admin-text-muted)] opacity-50" />
+                  <p className="text-[var(--admin-text-muted)] font-medium mb-2">
+                    No widgets added yet
+                  </p>
+                  <p className="text-sm text-[var(--admin-text-muted)]">
+                    Drag widgets from the library on the right, or click to add
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Widget Library Sidebar */}
+          <div className="w-80 flex-shrink-0 border-l border-[var(--admin-border)] overflow-y-auto">
+            <WidgetLibrarySidebar
+              title="Widget Library"
+              subtitle="Drag or click to add"
+              onAddWidget={addWidget}
+              storageKey="product-widget-order"
+            />
           </div>
         </div>
-
-        {/* Right - Widget Library */}
-        <div className="w-72 flex-shrink-0 border-l border-[var(--admin-border)] h-[calc(100vh-73px)] overflow-y-auto">
-          <WidgetLibrarySidebar
-            title="Widget Library"
-            subtitle="Drag or click to add"
-            onAddWidget={addWidget}
-            storageKey="product-widget-order"
-          />
-        </div>
-      </div>
+      )}
     </div>
   );
 }

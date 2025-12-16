@@ -183,6 +183,21 @@ function AdminLayoutInner({ children, unreadMessages = 0 }: AdminLayoutProps) {
 
   const breadcrumbs = getBreadcrumbs();
 
+  // Check if we're on an entity edit page (has alphanumeric ID in path)
+  // These pages use AdminPageHeader with proper entity names
+  const isEntityEditPage = (() => {
+    const parts = pathname.split('/').filter(Boolean);
+    // Pattern: /admin/[section]/[id] or /admin/[section]/[id]/[tab]
+    // where [id] is alphanumeric (not "new" which is a known keyword)
+    if (parts.length >= 3 && parts[0] === 'admin') {
+      const possibleId = parts[2];
+      // Skip known section pages and check for entity IDs
+      const knownSections = ['new', 'settings', 'global', 'dropdown-menu', 'footer'];
+      return !knownSections.includes(possibleId);
+    }
+    return false;
+  })();
+
   // Get current section name for mobile header
   const getCurrentSectionName = () => {
     if (pathname === '/admin') return 'Dashboard';
@@ -438,29 +453,32 @@ function AdminLayoutInner({ children, unreadMessages = 0 }: AdminLayoutProps) {
         {/* Main Content - Add left margin for fixed sidebar on desktop */}
         <main className="flex-1 min-h-screen md:ml-64">
           {/* Top Horizontal Bar with Breadcrumbs + Draft Toggle + View Site */}
+          {/* Hide breadcrumbs on entity edit pages - they use AdminPageHeader with proper names */}
           <div className="hidden md:flex items-center justify-between bg-[var(--admin-sidebar)] border-b border-[var(--admin-border)]">
-            {/* Left: Breadcrumbs */}
+            {/* Left: Breadcrumbs - only on non-entity pages */}
             <div className="px-6 py-4">
-              <div className="flex items-center gap-2 text-sm">
-                {breadcrumbs.map((crumb, index) => (
-                  <React.Fragment key={crumb.href}>
-                    {index > 0 && (
-                      <ChevronRight className="w-4 h-4" style={{ color: NAV_COLORS.textMuted }} />
-                    )}
-                    {index === breadcrumbs.length - 1 ? (
-                      <span className="font-medium" style={{ color: NAV_COLORS.textPrimary }}>{crumb.label}</span>
-                    ) : (
-                      <Link
-                        href={crumb.href}
-                        className="hover:underline transition-colors"
-                        style={{ color: NAV_COLORS.textSecondary }}
-                      >
-                        {crumb.label}
-                      </Link>
-                    )}
-                  </React.Fragment>
-                ))}
-              </div>
+              {!isEntityEditPage && (
+                <div className="flex items-center gap-2 text-sm">
+                  {breadcrumbs.map((crumb, index) => (
+                    <React.Fragment key={crumb.href}>
+                      {index > 0 && (
+                        <ChevronRight className="w-4 h-4" style={{ color: NAV_COLORS.textMuted }} />
+                      )}
+                      {index === breadcrumbs.length - 1 ? (
+                        <span className="font-medium" style={{ color: NAV_COLORS.textPrimary }}>{crumb.label}</span>
+                      ) : (
+                        <Link
+                          href={crumb.href}
+                          className="hover:underline transition-colors"
+                          style={{ color: NAV_COLORS.textSecondary }}
+                        >
+                          {crumb.label}
+                        </Link>
+                      )}
+                    </React.Fragment>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Right: Draft Toggle + View Site Button */}

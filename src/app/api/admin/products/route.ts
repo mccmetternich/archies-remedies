@@ -43,6 +43,7 @@ export async function POST(request: Request) {
       // Media
       heroImageUrl: product.heroImageUrl || null,
       secondaryImageUrl: product.secondaryImageUrl || null,
+      heroCarouselImages: product.heroCarouselImages || null,
 
       // Badge
       badge: product.badge || null,

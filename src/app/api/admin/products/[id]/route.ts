@@ -70,6 +70,7 @@ export async function PUT(
         // Media
         heroImageUrl: product.heroImageUrl || null,
         secondaryImageUrl: product.secondaryImageUrl || null,
+        heroCarouselImages: product.heroCarouselImages || null,
 
         // Badge
         badge: product.badge || null,
