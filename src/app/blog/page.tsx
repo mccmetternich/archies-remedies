@@ -28,6 +28,7 @@ interface BlogPost {
 }
 
 interface BlogSettingsData {
+  blogName: string | null;
   heroMediaUrl: string | null;
   heroTitle: string | null;
   heroSubtitle: string | null;
@@ -111,6 +112,7 @@ const getCachedBlogData = unstable_cache(
       posts: postsWithTags as BlogPost[],
       tags: tagsWithCounts,
       settings: {
+        blogName: settings?.blogName || null,
         heroMediaUrl: settings?.heroMediaUrl || null,
         heroTitle: settings?.heroTitle || null,
         heroSubtitle: settings?.heroSubtitle || null,
@@ -510,6 +512,88 @@ function BentoGrid({ posts, startIndex = 0 }: { posts: BlogPost[]; startIndex?: 
   }
 }
 
+// Uniform Grid - Equal-sized cards in a regular grid
+function UniformGrid({ posts }: { posts: BlogPost[] }) {
+  if (posts.length === 0) return null;
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      {posts.map((post) => (
+        <div key={post.id} className="border border-black">
+          <EditorialCard post={post} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// List Layout - Full-width cards in vertical list
+function ListLayout({ posts }: { posts: BlogPost[] }) {
+  if (posts.length === 0) return null;
+
+  return (
+    <div className="space-y-8">
+      {posts.map((post) => (
+        <Link
+          key={post.id}
+          href={`/blog/${post.slug}`}
+          className="group flex flex-col md:flex-row gap-6 border border-black p-4 bg-white hover:bg-gray-50 transition-colors"
+        >
+          {/* Thumbnail */}
+          <div className="w-full md:w-64 lg:w-80 shrink-0 aspect-[4/3] overflow-hidden bg-[#f5f5f5]">
+            {post.featuredImageUrl ? (
+              isVideoUrl(post.featuredImageUrl) ? (
+                <video
+                  src={post.featuredImageUrl}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  muted
+                  autoPlay
+                  loop
+                  playsInline
+                />
+              ) : (
+                <img
+                  src={post.featuredImageUrl}
+                  alt={post.title}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+              )
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                <span className="text-4xl font-bold text-[#e0e0e0]">
+                  {post.title.charAt(0).toUpperCase()}
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Content */}
+          <div className="flex-1 py-2">
+            <h3 className="font-semibold text-xl lg:text-2xl leading-snug line-clamp-2 text-black mb-3">
+              {post.title}
+            </h3>
+            {post.excerpt && (
+              <p className="text-gray-600 line-clamp-3 mb-4">{post.excerpt}</p>
+            )}
+            {post.tags && post.tags.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {post.tags.slice(0, 3).map((tag) => (
+                  <span
+                    key={tag.id}
+                    className="px-3 py-1.5 bg-[#bad9ea] text-sm font-medium text-black"
+                  >
+                    {tag.name}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        </Link>
+      ))}
+    </div>
+  );
+}
+
 export default async function BlogPage() {
   // Check if site is in draft mode
   await checkDraftMode();
@@ -591,7 +675,7 @@ export default async function BlogPage() {
           <section className="pt-32 pb-12 px-4">
             <div className="max-w-7xl mx-auto text-center">
               <h1 className="text-5xl lg:text-6xl font-bold tracking-tight">
-                {settings.pageTitle || 'Journal'}
+                {settings.pageTitle || settings.blogName || 'Journal'}
               </h1>
               {settings.pageSubtitle && (
                 <p className="mt-4 text-xl text-gray-600">{settings.pageSubtitle}</p>
@@ -622,24 +706,30 @@ export default async function BlogPage() {
           </section>
         )}
 
-        {/* Posts Grid */}
+        {/* Posts Grid - Layout based on settings.gridLayout */}
         {posts.length > 0 && (
           <section className="px-4 py-12">
             <div className="max-w-7xl mx-auto space-y-12">
-              {/* Row 1: Bento grid with varied sizes */}
-              {row1.length > 0 && <BentoGrid posts={row1} startIndex={0} />}
+              {/* Bento Layout (default) - Editorial with varied sizes and feature posts */}
+              {(settings.gridLayout === 'bento' || !settings.gridLayout || settings.gridLayout === 'masonry') && (
+                <>
+                  {row1.length > 0 && <BentoGrid posts={row1} startIndex={0} />}
+                  {feature1 && <FeaturePost post={feature1} variant="full" />}
+                  {row2.length > 0 && <BentoGrid posts={row2} startIndex={4} />}
+                  {feature2 && <FeaturePost post={feature2} variant="split" />}
+                  {row3.length > 0 && <BentoGrid posts={row3} startIndex={8} />}
+                </>
+              )}
 
-              {/* Feature 1: Full-width post (5th post) */}
-              {feature1 && <FeaturePost post={feature1} variant="full" />}
+              {/* Uniform Grid Layout - Equal-sized cards */}
+              {settings.gridLayout === 'grid' && (
+                <UniformGrid posts={posts} />
+              )}
 
-              {/* Row 2: Bento grid (alternating pattern) */}
-              {row2.length > 0 && <BentoGrid posts={row2} startIndex={4} />}
-
-              {/* Feature 2: Split layout (media right, content left) */}
-              {feature2 && <FeaturePost post={feature2} variant="split" />}
-
-              {/* Row 3: Bento grid */}
-              {row3.length > 0 && <BentoGrid posts={row3} startIndex={8} />}
+              {/* List Layout - Full-width vertical list */}
+              {settings.gridLayout === 'list' && (
+                <ListLayout posts={posts} />
+              )}
 
               {/* Pagination */}
               <Pagination currentPage={1} totalPages={Math.ceil(posts.length / 14)} />

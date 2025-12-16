@@ -71,7 +71,7 @@ interface BlogSettings {
   heroSubtitle: string | null;
   pageTitle: string;
   pageSubtitle: string;
-  gridLayout: 'masonry' | 'grid' | 'list';
+  gridLayout: 'bento' | 'masonry' | 'grid' | 'list';
   widgets: string | null;
   blogInDraftMode: boolean;
 }
@@ -87,9 +87,9 @@ interface BlogWidget {
 }
 
 const LAYOUT_OPTIONS = [
-  { value: 'masonry', label: 'Masonry', icon: Columns, description: 'Pinterest-style staggered grid' },
-  { value: 'grid', label: 'Grid', icon: LayoutGrid, description: 'Uniform card grid' },
-  { value: 'list', label: 'List', icon: List, description: 'Vertical list layout' },
+  { value: 'bento', label: 'Bento Grid', icon: LayoutGrid, description: 'Editorial layout with varied card sizes' },
+  { value: 'grid', label: 'Uniform Grid', icon: Columns, description: 'Equal-sized cards in a grid' },
+  { value: 'list', label: 'List', icon: List, description: 'Full-width cards in a vertical list' },
 ];
 
 export default function BlogAdminPage() {
@@ -105,7 +105,7 @@ export default function BlogAdminPage() {
     heroSubtitle: null,
     pageTitle: 'Blog',
     pageSubtitle: '',
-    gridLayout: 'masonry',
+    gridLayout: 'bento',
     widgets: null,
     blogInDraftMode: true,
   });
@@ -566,14 +566,31 @@ export default function BlogAdminPage() {
 
       {/* Stats Bar */}
       <div className="flex items-center gap-6">
-        <div className="flex items-center gap-2 px-4 py-2 bg-green-500/10 rounded-lg">
-          <TrendingUp className="w-4 h-4 text-green-400" />
-          <span className="text-sm font-medium text-green-400">{publishedCount} Live Posts</span>
-        </div>
-        <div className="flex items-center gap-2 px-4 py-2 bg-orange-500/10 rounded-lg">
-          <FileEdit className="w-4 h-4 text-orange-400" />
-          <span className="text-sm font-medium text-orange-400">{draftCount} Drafts</span>
-        </div>
+        {isBlogDraft ? (
+          // When blog/site is in draft mode, show "Ready" instead of "Live"
+          <>
+            <div className="flex items-center gap-2 px-4 py-2 bg-blue-500/10 rounded-lg">
+              <TrendingUp className="w-4 h-4 text-blue-400" />
+              <span className="text-sm font-medium text-blue-400">{publishedCount} Ready to Publish</span>
+            </div>
+            <div className="flex items-center gap-2 px-4 py-2 bg-orange-500/10 rounded-lg">
+              <FileEdit className="w-4 h-4 text-orange-400" />
+              <span className="text-sm font-medium text-orange-400">{draftCount} Drafts</span>
+            </div>
+          </>
+        ) : (
+          // When blog is live, show actual live status
+          <>
+            <div className="flex items-center gap-2 px-4 py-2 bg-green-500/10 rounded-lg">
+              <TrendingUp className="w-4 h-4 text-green-400" />
+              <span className="text-sm font-medium text-green-400">{publishedCount} Live Posts</span>
+            </div>
+            <div className="flex items-center gap-2 px-4 py-2 bg-orange-500/10 rounded-lg">
+              <FileEdit className="w-4 h-4 text-orange-400" />
+              <span className="text-sm font-medium text-orange-400">{draftCount} Drafts</span>
+            </div>
+          </>
+        )}
       </div>
 
       {/* Main Tabs */}
@@ -607,9 +624,113 @@ export default function BlogAdminPage() {
       {/* Settings Tab */}
       {activeTab === 'settings' && (
         <div className="space-y-6">
-          {/* Two Column Layout: Settings + Recent Posts */}
+          {/* Two Column Layout: Recent Posts (left) + Settings (right) */}
           <div className="grid lg:grid-cols-2 gap-6">
-            {/* Left Column - Basic Settings */}
+            {/* Left Column - Recent Posts */}
+            <div className="bg-[var(--admin-card)] border border-[var(--admin-border)] rounded-xl overflow-hidden">
+              <div className="flex items-center justify-between p-4 border-b border-[var(--admin-border)]">
+                <div>
+                  <h2 className="text-lg font-medium text-[var(--admin-text-primary)]">
+                    Recent Posts
+                  </h2>
+                  <p className="text-xs text-[var(--admin-text-muted)]">
+                    {posts.length} total &bull; {publishedCount} {isBlogDraft ? 'ready' : 'live'} &bull; {draftCount} drafts
+                  </p>
+                </div>
+                <button
+                  onClick={() => setActiveTab('posts')}
+                  className="text-sm text-[var(--primary)] hover:underline"
+                >
+                  View All
+                </button>
+              </div>
+
+              <div className="divide-y divide-[var(--admin-border)] max-h-[600px] overflow-y-auto">
+                {posts.slice(0, 10).map((post) => {
+                  const isVideo = post.featuredImageUrl && /\.(mp4|webm|mov)(\?|$)/i.test(post.featuredImageUrl);
+                  return (
+                    <div
+                      key={post.id}
+                      className="flex items-center gap-3 p-3 hover:bg-[var(--admin-hover)] transition-colors"
+                    >
+                      <Link href={`/admin/blog/${post.id}`} className="w-12 h-12 rounded-lg overflow-hidden bg-[var(--admin-input)] shrink-0">
+                        {post.featuredImageUrl ? (
+                          isVideo ? (
+                            <video
+                              src={post.featuredImageUrl}
+                              className="w-full h-full object-cover"
+                              muted
+                              playsInline
+                            />
+                          ) : (
+                            <img
+                              src={post.featuredImageUrl}
+                              alt=""
+                              className="w-full h-full object-cover"
+                            />
+                          )
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <PenSquare className="w-5 h-5 text-[var(--admin-text-muted)]" />
+                          </div>
+                        )}
+                      </Link>
+                      <Link href={`/admin/blog/${post.id}`} className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm font-medium text-[var(--admin-text-primary)] truncate" title={post.title}>
+                            {post.title && post.title.length > 36 ? `${post.title.substring(0, 36)}...` : post.title || 'Untitled'}
+                          </p>
+                          {post.isFeatured && (
+                            <Star className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400 shrink-0" />
+                          )}
+                        </div>
+                        <p className="text-xs text-[var(--admin-text-muted)]">
+                          /{settings.blogSlug}/{post.slug}
+                        </p>
+                      </Link>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <button
+                          onClick={() => handleToggleStatus(post)}
+                          className={cn(
+                            'px-2.5 py-1 rounded-md text-xs font-medium transition-colors',
+                            post.status === 'published'
+                              ? isBlogDraft
+                                ? 'bg-blue-500/20 text-blue-400 hover:bg-blue-500/30'
+                                : 'bg-green-500/20 text-green-400 hover:bg-green-500/30'
+                              : 'bg-orange-500/20 text-orange-400 hover:bg-orange-500/30'
+                          )}
+                        >
+                          {post.status === 'published' ? (isBlogDraft ? 'Ready' : 'Live') : 'Draft'}
+                        </button>
+                        <a
+                          href={post.status === 'published' && !isBlogDraft ? `/blog/${post.slug}` : `/blog/${post.slug}?preview=true`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-1.5 rounded-md text-[var(--admin-text-muted)] hover:text-[var(--admin-text-primary)] hover:bg-[var(--admin-input)] transition-colors"
+                          title={post.status === 'published' && !isBlogDraft ? 'View Live' : 'Preview Draft'}
+                        >
+                          <ExternalLink className="w-3.5 h-3.5" />
+                        </a>
+                      </div>
+                    </div>
+                  );
+                })}
+                {posts.length === 0 && (
+                  <div className="p-6 text-center">
+                    <p className="text-sm text-[var(--admin-text-muted)]">No posts yet</p>
+                    <Link
+                      href="/admin/blog/new"
+                      className="inline-flex items-center gap-2 mt-3 text-sm text-[var(--primary)] hover:underline"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Create First Post
+                    </Link>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Right Column - Basic Settings */}
             <div className="bg-[var(--admin-card)] border border-[var(--admin-border)] rounded-xl p-6">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-10 h-10 rounded-lg bg-[var(--primary)]/10 flex items-center justify-center">
@@ -620,7 +741,7 @@ export default function BlogAdminPage() {
                     Basic Settings
                   </h2>
                   <p className="text-xs text-[var(--admin-text-muted)]">
-                    Blog name, URL, and page titles
+                    Blog name, URL, and page design
                   </p>
                 </div>
               </div>
@@ -633,12 +754,29 @@ export default function BlogAdminPage() {
                   <input
                     type="text"
                     value={settings.blogName}
-                    onChange={(e) => setSettings({ ...settings, blogName: e.target.value })}
+                    onChange={(e) => setSettings({ ...settings, blogName: e.target.value, pageTitle: e.target.value })}
                     className="w-full px-4 py-2.5 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50"
-                    placeholder="Blog"
+                    placeholder="AR Magazine"
                   />
                   <p className="mt-1.5 text-xs text-[var(--admin-text-muted)]">
-                    Displayed in navigation and page headers
+                    Used as the page title on your blog homepage
+                  </p>
+                </div>
+
+                {/* Subtitle - moved under Blog Name */}
+                <div>
+                  <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
+                    Subtitle (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={settings.heroSubtitle || ''}
+                    onChange={(e) => setSettings({ ...settings, heroSubtitle: e.target.value || null, pageSubtitle: e.target.value || '' })}
+                    className="w-full px-4 py-2.5 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50"
+                    placeholder="Stories, tips, and inspiration"
+                  />
+                  <p className="mt-1.5 text-xs text-[var(--admin-text-muted)]">
+                    Displayed below the blog name
                   </p>
                 </div>
 
@@ -662,8 +800,7 @@ export default function BlogAdminPage() {
 
                 {/* Homepage Header Section */}
                 <div className="pt-6 border-t border-[var(--admin-border)]">
-                  <h3 className="text-sm font-semibold text-[var(--admin-text-primary)] mb-4 flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[var(--primary)]" />
+                  <h3 className="text-sm font-semibold text-[var(--admin-text-primary)] mb-4">
                     Homepage Header
                   </h3>
                   <p className="text-xs text-[var(--admin-text-muted)] mb-4">
@@ -677,41 +814,10 @@ export default function BlogAdminPage() {
                         label="Hero Media (Optional)"
                         value={settings.heroMediaUrl}
                         onChange={(url) => setSettings({ ...settings, heroMediaUrl: url || null })}
-                        helpText="Full-width hero displayed at the top of the blog. Leave empty for simple header."
+                        helpText="Desktop: 1920×800px (21:9) • Mobile: 1080×1350px (4:5)"
                         folder="blog/hero"
                         aspectRatio="21/9"
                         acceptVideo
-                      />
-                    </div>
-
-                    {/* Title */}
-                    <div>
-                      <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
-                        Title
-                      </label>
-                      <input
-                        type="text"
-                        value={settings.heroTitle || ''}
-                        onChange={(e) => setSettings({ ...settings, heroTitle: e.target.value || null, pageTitle: e.target.value || 'Journal' })}
-                        className="w-full px-4 py-2.5 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50"
-                        placeholder="The Journal"
-                      />
-                      <p className="mt-1.5 text-xs text-[var(--admin-text-muted)]">
-                        {settings.heroMediaUrl ? 'Overlaid on the hero image' : 'Displayed as the page header'}
-                      </p>
-                    </div>
-
-                    {/* Subtitle */}
-                    <div>
-                      <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
-                        Subtitle (Optional)
-                      </label>
-                      <input
-                        type="text"
-                        value={settings.heroSubtitle || ''}
-                        onChange={(e) => setSettings({ ...settings, heroSubtitle: e.target.value || null, pageSubtitle: e.target.value || '' })}
-                        className="w-full px-4 py-2.5 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50"
-                        placeholder="Stories, tips, and inspiration"
                       />
                     </div>
                   </div>
@@ -767,97 +873,6 @@ export default function BlogAdminPage() {
               </div>
             </div>
 
-            {/* Right Column - Recent Posts */}
-            <div className="bg-[var(--admin-card)] border border-[var(--admin-border)] rounded-xl overflow-hidden">
-              <div className="flex items-center justify-between p-4 border-b border-[var(--admin-border)]">
-                <div>
-                  <h2 className="text-lg font-medium text-[var(--admin-text-primary)]">
-                    Recent Posts
-                  </h2>
-                  <p className="text-xs text-[var(--admin-text-muted)]">
-                    {posts.length} total &bull; {publishedCount} live &bull; {draftCount} drafts
-                  </p>
-                </div>
-                <button
-                  onClick={() => setActiveTab('posts')}
-                  className="text-sm text-[var(--primary)] hover:underline"
-                >
-                  View All
-                </button>
-              </div>
-
-              <div className="divide-y divide-[var(--admin-border)] max-h-[500px] overflow-y-auto">
-                {posts.slice(0, 10).map((post) => (
-                  <div
-                    key={post.id}
-                    className="flex items-center gap-3 p-3 hover:bg-[var(--admin-hover)] transition-colors"
-                  >
-                    <Link href={`/admin/blog/${post.id}`} className="w-12 h-12 rounded-lg overflow-hidden bg-[var(--admin-input)] shrink-0">
-                      {post.featuredImageUrl ? (
-                        <img
-                          src={post.featuredImageUrl}
-                          alt=""
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <PenSquare className="w-5 h-5 text-[var(--admin-text-muted)]" />
-                        </div>
-                      )}
-                    </Link>
-                    <Link href={`/admin/blog/${post.id}`} className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <p className="text-sm font-medium text-[var(--admin-text-primary)] truncate">
-                          {post.title || 'Untitled'}
-                        </p>
-                        {post.isFeatured && (
-                          <Star className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400 shrink-0" />
-                        )}
-                      </div>
-                      <p className="text-xs text-[var(--admin-text-muted)]">
-                        /{settings.blogSlug}/{post.slug}
-                      </p>
-                    </Link>
-                    <div className="flex items-center gap-2 shrink-0">
-                      {/* Status toggle */}
-                      <button
-                        onClick={() => handleToggleStatus(post)}
-                        className={cn(
-                          'px-2.5 py-1 rounded-md text-xs font-medium transition-colors',
-                          post.status === 'published'
-                            ? 'bg-green-500/20 text-green-400 hover:bg-green-500/30'
-                            : 'bg-orange-500/20 text-orange-400 hover:bg-orange-500/30'
-                        )}
-                      >
-                        {post.status === 'published' ? 'Live' : 'Draft'}
-                      </button>
-                      {/* View link */}
-                      <a
-                        href={post.status === 'published' ? `/blog/${post.slug}` : `/blog/${post.slug}?preview=true`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="p-1.5 rounded-md text-[var(--admin-text-muted)] hover:text-[var(--admin-text-primary)] hover:bg-[var(--admin-input)] transition-colors"
-                        title={post.status === 'published' ? 'View Live' : 'Preview Draft'}
-                      >
-                        <ExternalLink className="w-3.5 h-3.5" />
-                      </a>
-                    </div>
-                  </div>
-                ))}
-                {posts.length === 0 && (
-                  <div className="p-6 text-center">
-                    <p className="text-sm text-[var(--admin-text-muted)]">No posts yet</p>
-                    <Link
-                      href="/admin/blog/new"
-                      className="inline-flex items-center gap-2 mt-3 text-sm text-[var(--primary)] hover:underline"
-                    >
-                      <Plus className="w-4 h-4" />
-                      Create First Post
-                    </Link>
-                  </div>
-                )}
-              </div>
-            </div>
           </div>
 
           {/* Page Content / Widgets Section - Full Width */}
@@ -1354,19 +1369,21 @@ export default function BlogAdminPage() {
                         className={cn(
                           'px-3 py-1.5 rounded-lg text-xs font-medium transition-colors',
                           post.status === 'published'
-                            ? 'bg-green-500/20 text-green-400 hover:bg-green-500/30'
+                            ? isBlogDraft
+                              ? 'bg-blue-500/20 text-blue-400 hover:bg-blue-500/30'
+                              : 'bg-green-500/20 text-green-400 hover:bg-green-500/30'
                             : 'bg-orange-500/20 text-orange-400 hover:bg-orange-500/30'
                         )}
                       >
-                        {post.status === 'published' ? 'Live' : 'Draft'}
+                        {post.status === 'published' ? (isBlogDraft ? 'Ready' : 'Live') : 'Draft'}
                       </button>
 
                       <a
-                        href={post.status === 'published' ? `/blog/${post.slug}` : `/blog/${post.slug}?preview=true`}
+                        href={post.status === 'published' && !isBlogDraft ? `/blog/${post.slug}` : `/blog/${post.slug}?preview=true`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="p-2 rounded-lg text-[var(--admin-text-muted)] hover:text-[var(--admin-text-primary)] hover:bg-[var(--admin-input)] transition-colors"
-                        title="View post"
+                        title={post.status === 'published' && !isBlogDraft ? 'View Live' : 'Preview Draft'}
                       >
                         <ExternalLink className="w-4 h-4" />
                       </a>
