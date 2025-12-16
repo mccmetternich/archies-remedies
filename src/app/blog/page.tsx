@@ -130,13 +130,34 @@ function isVideoUrl(url: string | null): boolean {
   return /\.(mp4|webm|mov)(\?|$)/i.test(url) || url.includes('/video/upload/');
 }
 
-// Editorial Card Component with compartments
-function EditorialCard({ post, className }: { post: BlogPost; className?: string }) {
+// Editorial Card Component with compartments - supports size variants
+function EditorialCard({
+  post,
+  className,
+  size = 'default'
+}: {
+  post: BlogPost;
+  className?: string;
+  size?: 'default' | 'large' | 'tall' | 'wide';
+}) {
+  // Aspect ratios and sizes based on variant
+  const aspectRatio = size === 'tall'
+    ? 'aspect-[3/4]'
+    : size === 'wide'
+    ? 'aspect-[16/9]'
+    : size === 'large'
+    ? 'aspect-[4/3]'
+    : 'aspect-[4/3]';
+
+  const titleSize = size === 'large' || size === 'wide'
+    ? 'text-xl lg:text-2xl'
+    : 'text-lg';
+
   return (
-    <Link href={`/blog/${post.slug}`} className={cn('group block', className)}>
+    <Link href={`/blog/${post.slug}`} className={cn('group block h-full', className)}>
       {/* Thumbnail compartment with white gap inside black frame */}
       <div className="p-3 bg-white">
-        <div className="aspect-[4/3] overflow-hidden bg-[#f5f5f5]">
+        <div className={cn(aspectRatio, 'overflow-hidden bg-[#f5f5f5]')}>
           {post.featuredImageUrl ? (
             isVideoUrl(post.featuredImageUrl) ? (
               <video
@@ -156,7 +177,10 @@ function EditorialCard({ post, className }: { post: BlogPost; className?: string
             )
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-              <span className="text-6xl font-bold text-[#e0e0e0]">
+              <span className={cn(
+                'font-bold text-[#e0e0e0]',
+                size === 'large' || size === 'wide' ? 'text-8xl' : 'text-6xl'
+              )}>
                 {post.title.charAt(0).toUpperCase()}
               </span>
             </div>
@@ -166,7 +190,7 @@ function EditorialCard({ post, className }: { post: BlogPost; className?: string
 
       {/* Title compartment - more space for wrapping */}
       <div className="px-5 py-4 border-t border-black min-h-[80px]">
-        <h3 className="font-semibold text-lg leading-snug line-clamp-3 text-black">
+        <h3 className={cn('font-semibold leading-snug line-clamp-3 text-black', titleSize)}>
           {post.title}
         </h3>
       </div>
@@ -371,42 +395,119 @@ function Pagination({ currentPage, totalPages }: { currentPage: number; totalPag
   );
 }
 
-// Grid component that adapts to number of posts
-function PostGrid({ posts }: { posts: BlogPost[] }) {
+// Bento Grid - Editorial layout with varied sizes based on position
+function BentoGrid({ posts, startIndex = 0 }: { posts: BlogPost[]; startIndex?: number }) {
   if (posts.length === 0) return null;
 
-  // Calculate grid columns based on post count
-  const colCount = Math.min(posts.length, 4);
-  const gridClass = colCount === 1
-    ? 'grid-cols-1'
-    : colCount === 2
-    ? 'grid-cols-2'
-    : colCount === 3
-    ? 'grid-cols-2 lg:grid-cols-3'
-    : 'grid-cols-2 lg:grid-cols-4';
-
-  return (
-    <div className={cn('grid', gridClass)}>
-      {posts.map((post, index) => (
-        <div
-          key={post.id}
-          className={cn(
-            'border-black',
-            // Top border on first row
-            index < colCount && 'border-t',
-            // Left border on first column
-            index % colCount === 0 && 'border-l',
-            // Right border on all
-            'border-r',
-            // Bottom border on all
-            'border-b'
-          )}
-        >
-          <EditorialCard post={post} />
+  // For a single post, show it at a reasonable size (not full width)
+  if (posts.length === 1) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+        <div className="border border-black">
+          <EditorialCard post={posts[0]} size="large" />
         </div>
-      ))}
-    </div>
-  );
+      </div>
+    );
+  }
+
+  // For 2 posts, show them side by side
+  if (posts.length === 2) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 border border-black">
+        <div className="border-b md:border-b-0 md:border-r border-black">
+          <EditorialCard post={posts[0]} size="large" />
+        </div>
+        <div>
+          <EditorialCard post={posts[1]} size="large" />
+        </div>
+      </div>
+    );
+  }
+
+  // For 3 posts: 1 large + 2 stacked
+  if (posts.length === 3) {
+    return (
+      <div className="grid grid-cols-1 lg:grid-cols-2 border border-black">
+        {/* Large card taking full left side */}
+        <div className="border-b lg:border-b-0 lg:border-r border-black">
+          <EditorialCard post={posts[0]} size="large" />
+        </div>
+        {/* Two stacked cards on right */}
+        <div className="grid grid-rows-2">
+          <div className="border-b border-black">
+            <EditorialCard post={posts[1]} />
+          </div>
+          <div>
+            <EditorialCard post={posts[2]} />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // For 4+ posts: Bento layout
+  // Pattern based on startIndex to create variety:
+  // Pattern A (startIndex 0): Large left, 2 small right top, 1 wide bottom
+  // Pattern B (startIndex 4): 2 small left, large right, 1 wide bottom
+  const isPatternA = (startIndex / 4) % 2 === 0;
+
+  const displayPosts = posts.slice(0, 4);
+
+  if (isPatternA) {
+    // Pattern A: Large (2x2) on left, 2 small on right, 1 wide at bottom
+    return (
+      <div className="border border-black">
+        <div className="grid grid-cols-1 lg:grid-cols-3">
+          {/* Large card - spans 2 columns */}
+          <div className="lg:col-span-2 border-b lg:border-b-0 lg:border-r border-black">
+            <EditorialCard post={displayPosts[0]} size="large" />
+          </div>
+          {/* Two small cards stacked */}
+          <div className="grid grid-cols-2 lg:grid-cols-1">
+            <div className="border-r lg:border-r-0 lg:border-b border-black">
+              <EditorialCard post={displayPosts[1]} />
+            </div>
+            <div>
+              <EditorialCard post={displayPosts[2]} />
+            </div>
+          </div>
+        </div>
+        {/* Wide card at bottom */}
+        {displayPosts[3] && (
+          <div className="border-t border-black">
+            <EditorialCard post={displayPosts[3]} size="wide" />
+          </div>
+        )}
+      </div>
+    );
+  } else {
+    // Pattern B: 2 small on left, Large (2x2) on right, 1 wide at bottom
+    return (
+      <div className="border border-black">
+        <div className="grid grid-cols-1 lg:grid-cols-3">
+          {/* Two small cards stacked on left */}
+          <div className="grid grid-cols-2 lg:grid-cols-1 order-2 lg:order-1">
+            <div className="border-r lg:border-r-0 lg:border-b border-black">
+              <EditorialCard post={displayPosts[0]} />
+            </div>
+            <div>
+              <EditorialCard post={displayPosts[1]} />
+            </div>
+          </div>
+          {/* Large card - spans 2 columns on right */}
+          <div className="lg:col-span-2 border-b lg:border-b-0 lg:border-l border-black order-1 lg:order-2">
+            <EditorialCard post={displayPosts[2]} size="large" />
+          </div>
+        </div>
+        {/* Wide card at bottom */}
+        {displayPosts[3] && (
+          <div className="border-t border-black">
+            <EditorialCard post={displayPosts[3]} size="wide" />
+          </div>
+        )}
+      </div>
+    );
+  }
 }
 
 export default async function BlogPage() {
@@ -525,20 +626,20 @@ export default async function BlogPage() {
         {posts.length > 0 && (
           <section className="px-4 py-12">
             <div className="max-w-7xl mx-auto space-y-12">
-              {/* Row 1: up to 4-card grid with proper borders */}
-              {row1.length > 0 && <PostGrid posts={row1} />}
+              {/* Row 1: Bento grid with varied sizes */}
+              {row1.length > 0 && <BentoGrid posts={row1} startIndex={0} />}
 
               {/* Feature 1: Full-width post (5th post) */}
               {feature1 && <FeaturePost post={feature1} variant="full" />}
 
-              {/* Row 2: up to 4-card grid */}
-              {row2.length > 0 && <PostGrid posts={row2} />}
+              {/* Row 2: Bento grid (alternating pattern) */}
+              {row2.length > 0 && <BentoGrid posts={row2} startIndex={4} />}
 
               {/* Feature 2: Split layout (media right, content left) */}
               {feature2 && <FeaturePost post={feature2} variant="split" />}
 
-              {/* Row 3: up to 4-card grid */}
-              {row3.length > 0 && <PostGrid posts={row3} />}
+              {/* Row 3: Bento grid */}
+              {row3.length > 0 && <BentoGrid posts={row3} startIndex={8} />}
 
               {/* Pagination */}
               <Pagination currentPage={1} totalPages={Math.ceil(posts.length / 14)} />
