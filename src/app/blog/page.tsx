@@ -157,8 +157,8 @@ function EditorialCard({
 
   return (
     <Link href={`/blog/${post.slug}`} className={cn('group block h-full', className)}>
-      {/* Thumbnail compartment with white gap inside black frame */}
-      <div className="p-3 bg-white">
+      {/* Thumbnail compartment - equal padding on all sides */}
+      <div className="p-4 bg-white">
         <div className={cn(aspectRatio, 'overflow-hidden bg-[#f5f5f5]')}>
           {post.featuredImageUrl ? (
             isVideoUrl(post.featuredImageUrl) ? (
@@ -190,31 +190,37 @@ function EditorialCard({
         </div>
       </div>
 
-      {/* Title compartment - more space for wrapping */}
-      <div className="px-5 py-4 border-t border-black min-h-[80px]">
-        <h3 className={cn('font-semibold leading-snug line-clamp-3 text-black', titleSize)}>
-          {post.title}
-        </h3>
+      {/* Title compartment - border spans full width */}
+      <div className="border-t border-black">
+        <div className="px-5 py-4 min-h-[80px]">
+          <h3 className={cn('font-semibold leading-snug line-clamp-3 text-black', titleSize)}>
+            {post.title}
+          </h3>
+        </div>
       </div>
 
-      {/* Caption/excerpt compartment - show more text */}
+      {/* Caption/excerpt compartment */}
       {post.excerpt && (
-        <div className="px-5 py-3 border-t border-black">
-          <p className="text-sm text-gray-600 line-clamp-3">{post.excerpt}</p>
+        <div className="border-t border-black">
+          <div className="px-5 py-3">
+            <p className="text-sm text-gray-600 line-clamp-3">{post.excerpt}</p>
+          </div>
         </div>
       )}
 
-      {/* Tags compartment */}
+      {/* Tags compartment - larger tags, vertically centered */}
       {post.tags && post.tags.length > 0 && (
-        <div className="px-5 py-4 border-t border-black flex flex-wrap gap-2">
-          {post.tags.slice(0, 3).map((tag) => (
-            <span
-              key={tag.id}
-              className="px-3 py-1.5 bg-[#bad9ea] text-sm font-medium text-black"
-            >
-              {tag.name}
-            </span>
-          ))}
+        <div className="border-t border-black">
+          <div className="px-5 py-4 min-h-[56px] flex flex-wrap items-center gap-2">
+            {post.tags.slice(0, 3).map((tag) => (
+              <span
+                key={tag.id}
+                className="px-3 py-1.5 bg-[#bad9ea] text-base font-medium text-black"
+              >
+                {tag.name}
+              </span>
+            ))}
+          </div>
         </div>
       )}
     </Link>
