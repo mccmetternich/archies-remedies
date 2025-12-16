@@ -106,8 +106,9 @@ export async function GET() {
     const siteName = settings?.siteName || "Archie's Remedies";
 
     // Footer theme and logos
+    // Note: footerLogoUrl is for a dedicated footer logo, but we fall back to main logoUrl
     const footerTheme = settings?.footerTheme || 'dark';
-    const footerLogoUrl = settings?.footerLogoUrl || null;
+    const footerLogoUrl = settings?.footerLogoUrl || settings?.logoUrl || null;
     const fullWidthLogoUrl = settings?.massiveFooterLogoUrl || null;
 
     // Organize links by column

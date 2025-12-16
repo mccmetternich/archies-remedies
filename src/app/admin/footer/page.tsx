@@ -618,41 +618,138 @@ export default function FooterAdminPage() {
             </div>
           </div>
 
-          {/* Preview */}
+          {/* Full Footer Preview */}
           <div className={cn(
-            'rounded-xl p-8',
-            footerTheme === 'dark' ? 'bg-[#1a1a1a]' : 'bg-gray-100'
+            'rounded-xl overflow-hidden',
+            footerTheme === 'dark' ? 'bg-[#1a1a1a]' : 'bg-gray-50'
           )}>
             <p className={cn(
-              'text-xs uppercase tracking-wider mb-6',
+              'text-xs uppercase tracking-wider px-6 pt-4',
               footerTheme === 'dark' ? 'text-white/40' : 'text-gray-400'
-            )}>Theme Preview</p>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
+            )}>Desktop Footer Preview</p>
+
+            {/* Email Signup Row */}
+            {emailSignup.enabled && (
+              <div className={cn('px-6 py-6 border-b', footerTheme === 'dark' ? 'border-white/10' : 'border-gray-200')}>
+                <div className="flex items-center justify-between gap-8">
+                  <div>
+                    <p className={cn('text-xs font-semibold uppercase tracking-wider', footerTheme === 'dark' ? 'text-white' : 'text-gray-900')}>
+                      {emailSignup.title || "Join the Community"}
+                    </p>
+                    <p className={cn('text-[10px] mt-1', footerTheme === 'dark' ? 'text-white/50' : 'text-gray-500')}>
+                      {emailSignup.subtitle?.substring(0, 50)}...
+                    </p>
+                  </div>
+                  <div className={cn('flex items-center gap-2 border-b pb-1 text-[10px]', footerTheme === 'dark' ? 'border-white/30 text-white/40' : 'border-gray-300 text-gray-400')}>
+                    <span>{emailSignup.placeholder}</span>
+                    <span className={cn('font-medium uppercase', footerTheme === 'dark' ? 'text-white' : 'text-gray-900')}>{emailSignup.buttonText} →</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Navigation Grid Row */}
+            <div className="px-6 py-6 grid grid-cols-5 gap-4">
+              {/* Logo & Social */}
+              <div>
                 {footerLogoUrl ? (
-                  <Image src={footerLogoUrl} alt="Footer Logo" width={120} height={40} className="h-10 w-auto object-contain" />
+                  <Image src={footerLogoUrl} alt="Footer Logo" width={80} height={28} className="h-6 w-auto object-contain mb-3" />
                 ) : (
                   <div className={cn(
-                    'h-10 w-32 rounded flex items-center justify-center text-xs',
+                    'h-6 w-20 rounded flex items-center justify-center text-[8px] mb-3',
                     footerTheme === 'dark' ? 'bg-white/10 text-white/40' : 'bg-gray-200 text-gray-400'
                   )}>
-                    Logo Here
+                    Logo
                   </div>
                 )}
+                <div className="flex items-center gap-2">
+                  {socialLinks.instagramUrl && <Instagram className={cn('w-3 h-3', footerTheme === 'dark' ? 'text-white/60' : 'text-gray-500')} />}
+                  {socialLinks.tiktokUrl && (
+                    <svg className={cn('w-3 h-3', footerTheme === 'dark' ? 'text-white/60' : 'text-gray-500')} viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
+                    </svg>
+                  )}
+                  {socialLinks.facebookUrl && <Facebook className={cn('w-3 h-3', footerTheme === 'dark' ? 'text-white/60' : 'text-gray-500')} />}
+                </div>
               </div>
-              <div className="flex items-center gap-3">
-                {socialLinks.instagramUrl && (
-                  <Instagram className={cn('w-5 h-5', footerTheme === 'dark' ? 'text-white/60' : 'text-gray-600')} />
-                )}
-                {socialLinks.facebookUrl && (
-                  <Facebook className={cn('w-5 h-5', footerTheme === 'dark' ? 'text-white/60' : 'text-gray-600')} />
-                )}
-                {socialLinks.tiktokUrl && (
-                  <svg className={cn('w-5 h-5', footerTheme === 'dark' ? 'text-white/60' : 'text-gray-600')} viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
-                  </svg>
-                )}
+
+              {/* Column 1 */}
+              <div>
+                <p className={cn('text-[8px] font-bold uppercase tracking-wider mb-2', footerTheme === 'dark' ? 'text-white' : 'text-gray-900')}>
+                  {columnTitles.column1}
+                </p>
+                <div className="space-y-1">
+                  {(links[columnTitles.column1] || []).slice(0, 3).map((link, i) => (
+                    <p key={i} className={cn('text-[8px]', footerTheme === 'dark' ? 'text-white/60' : 'text-gray-500')}>{link.label}</p>
+                  ))}
+                  {(!links[columnTitles.column1] || links[columnTitles.column1].length === 0) && (
+                    <p className={cn('text-[8px]', footerTheme === 'dark' ? 'text-white/30' : 'text-gray-300')}>No links</p>
+                  )}
+                </div>
               </div>
+
+              {/* Column 2 */}
+              <div>
+                <p className={cn('text-[8px] font-bold uppercase tracking-wider mb-2', footerTheme === 'dark' ? 'text-white' : 'text-gray-900')}>
+                  {columnTitles.column2}
+                </p>
+                <div className="space-y-1">
+                  {(links[columnTitles.column2] || []).slice(0, 3).map((link, i) => (
+                    <p key={i} className={cn('text-[8px]', footerTheme === 'dark' ? 'text-white/60' : 'text-gray-500')}>{link.label}</p>
+                  ))}
+                  {(!links[columnTitles.column2] || links[columnTitles.column2].length === 0) && (
+                    <p className={cn('text-[8px]', footerTheme === 'dark' ? 'text-white/30' : 'text-gray-300')}>No links</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Column 3 */}
+              <div>
+                <p className={cn('text-[8px] font-bold uppercase tracking-wider mb-2', footerTheme === 'dark' ? 'text-white' : 'text-gray-900')}>
+                  {columnTitles.column3}
+                </p>
+                <div className="space-y-1">
+                  {(links[columnTitles.column3] || []).slice(0, 3).map((link, i) => (
+                    <p key={i} className={cn('text-[8px]', footerTheme === 'dark' ? 'text-white/60' : 'text-gray-500')}>{link.label}</p>
+                  ))}
+                  {(!links[columnTitles.column3] || links[columnTitles.column3].length === 0) && (
+                    <p className={cn('text-[8px]', footerTheme === 'dark' ? 'text-white/30' : 'text-gray-300')}>No links</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Certifications */}
+              <div>
+                <p className={cn('text-[8px] font-bold uppercase tracking-wider mb-2', footerTheme === 'dark' ? 'text-white' : 'text-gray-900')}>
+                  {columnTitles.column4}
+                </p>
+                <div className="flex gap-2">
+                  {certifications.map((cert, i) => (
+                    <div key={i} className={cn('w-6 h-6 rounded-full border flex items-center justify-center', footerTheme === 'dark' ? 'border-white/30' : 'border-gray-300')}>
+                      {getIconComponent(cert.icon)}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Full-Width Logo */}
+            {fullWidthLogoUrl && (
+              <div className="px-6 py-4">
+                <Image src={fullWidthLogoUrl} alt="Full Width Logo" width={400} height={60} className="w-full h-8 object-contain opacity-20" />
+              </div>
+            )}
+
+            {/* Legal Row */}
+            <div className={cn('px-6 py-3 border-t flex items-center justify-between', footerTheme === 'dark' ? 'border-white/10' : 'border-gray-200')}>
+              <div className={cn('flex items-center gap-3 text-[8px] uppercase tracking-wider', footerTheme === 'dark' ? 'text-white/40' : 'text-gray-400')}>
+                <span>{legalLinks.privacyLabel}</span>
+                <span>•</span>
+                <span>{legalLinks.termsLabel}</span>
+              </div>
+              <p className={cn('text-[8px] uppercase tracking-wider', footerTheme === 'dark' ? 'text-white/40' : 'text-gray-400')}>
+                © {new Date().getFullYear()} {siteName}
+              </p>
             </div>
           </div>
         </div>
