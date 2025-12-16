@@ -45,17 +45,18 @@ interface HeroCarouselProps {
 
 export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5 }: HeroCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
 
   const nextSlide = useCallback(() => {
     setCurrentIndex((prev) => (prev + 1) % slides.length);
   }, [slides.length]);
 
-  // Auto-advance - only pause when parent says paused (e.g., nav open)
+  // Auto-advance - pause when parent says paused OR when user hovers
   useEffect(() => {
-    if (isPaused || slides.length <= 1) return;
+    if (isPaused || isHovered || slides.length <= 1) return;
     const timer = setInterval(nextSlide, autoAdvanceInterval * 1000);
     return () => clearInterval(timer);
-  }, [nextSlide, isPaused, slides.length, autoAdvanceInterval]);
+  }, [nextSlide, isPaused, isHovered, slides.length, autoAdvanceInterval]);
 
   if (!slides || slides.length === 0) {
     return (
@@ -178,6 +179,8 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
   return (
     <section
       className="relative overflow-hidden h-[85vh] min-h-[600px] max-h-[850px]"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
       {/* Background for full-width layout */}
       {!isTwoColumn && (
@@ -295,7 +298,7 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 10 }}
                   transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: 0.5 }}
-                  className="absolute bottom-16 left-1/2 -translate-x-1/2 w-full max-w-xl px-6 lg:px-0 pointer-events-auto"
+                  className="absolute bottom-16 lg:bottom-[79px] left-1/2 -translate-x-1/2 w-full max-w-xl px-6 lg:px-0 pointer-events-auto"
                 >
                   <div className="bg-white/95 backdrop-blur-sm px-5 py-4 shadow-xl border border-black/5 max-w-md">
                     <div className="flex items-center gap-4">
