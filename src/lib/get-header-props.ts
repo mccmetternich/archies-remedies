@@ -166,7 +166,7 @@ export async function getFooterProps(settings: typeof siteSettings.$inferSelect 
     tiktokUrl: settings?.tiktokUrl,
     amazonStoreUrl: settings?.amazonStoreUrl,
     massiveFooterLogoUrl: settings?.massiveFooterLogoUrl,
-    massiveFooterLogoOpacity: 15, // Hardcoded until schema pushed to production
+    massiveFooterLogoOpacity: settings?.massiveFooterLogoOpacity ?? 15,
     // Custom social icons
     instagramIconUrl: settings?.instagramIconUrl,
     facebookIconUrl: settings?.facebookIconUrl,
