@@ -191,9 +191,10 @@ export async function PUT(request: Request) {
     if (fullWidthLogoUrl !== undefined) {
       footerSettings.massiveFooterLogoUrl = fullWidthLogoUrl;
     }
-    if (massiveLogoOpacity !== undefined) {
-      footerSettings.massiveFooterLogoOpacity = massiveLogoOpacity;
-    }
+    // Note: massiveFooterLogoOpacity disabled until schema is pushed to production
+    // if (massiveLogoOpacity !== undefined) {
+    //   footerSettings.massiveFooterLogoOpacity = massiveLogoOpacity;
+    // }
 
     // Social links
     if (socialLinks !== undefined) {
