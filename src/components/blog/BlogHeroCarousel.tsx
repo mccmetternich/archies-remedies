@@ -60,20 +60,27 @@ export function BlogHeroCarousel({ featuredMediaUrl, title, heroCarouselImages }
         </div>
       )}
 
-      {/* Floating Carousel Thumbnails - 20% smaller, more spacing, thicker border */}
+      {/* Floating Carousel Thumbnails - dynamic size based on count */}
       {allMedia.length > 1 && (
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-6">
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-4">
           {allMedia.slice(0, 5).map((mediaUrl, index) => {
             const thumbIsVideo = isVideoUrl(mediaUrl);
             const isActive = index === activeIndex;
+
+            // Dynamic sizing: XL for 2, L for 3, M for 4+
+            const sizeClass = allMedia.length === 2
+              ? 'w-40 h-40 lg:w-56 lg:h-56'  // XL: 160px / 224px
+              : allMedia.length === 3
+              ? 'w-32 h-32 lg:w-44 lg:h-44'  // L: 128px / 176px
+              : 'w-24 h-24 lg:w-32 lg:h-32'; // M: 96px / 128px
 
             return (
               <button
                 key={index}
                 onClick={() => setActiveIndex(index)}
-                className={`w-56 h-56 lg:w-64 lg:h-64 overflow-hidden shadow-lg transition-all duration-300 ${
+                className={`${sizeClass} overflow-hidden shadow-lg transition-all duration-300 ${
                   isActive
-                    ? 'ring-[6px] ring-white scale-105'
+                    ? 'ring-[4px] ring-white scale-105'
                     : 'hover:scale-105 opacity-80 hover:opacity-100'
                 }`}
                 style={{ background: 'transparent' }}
