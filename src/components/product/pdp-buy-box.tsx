@@ -170,9 +170,9 @@ export function PDPBuyBox({
         )}
       </button>
 
-      {/* Editorial Title (subtitle removed per user request) */}
+      {/* Editorial Title - Reduced by ~30% */}
       <div>
-        <h1 className="text-3xl md:text-4xl font-normal tracking-tight leading-[1.15]">
+        <h1 className="text-2xl md:text-[28px] font-normal tracking-tight leading-[1.15]">
           {product.name}
         </h1>
       </div>
