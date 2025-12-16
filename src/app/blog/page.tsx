@@ -518,17 +518,19 @@ function BentoGrid({ posts, startIndex = 0 }: { posts: BlogPost[]; startIndex?: 
   }
 }
 
-// Uniform Grid - Equal-sized cards in a regular grid
+// Uniform Grid - True grid where all cells share the same border lines
 function UniformGrid({ posts }: { posts: BlogPost[] }) {
   if (posts.length === 0) return null;
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-      {posts.map((post) => (
-        <div key={post.id} className="border border-black bg-white p-4">
-          <EditorialCard post={post} size="tall" />
-        </div>
-      ))}
+    <div className="border-t border-l border-black">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+        {posts.map((post) => (
+          <div key={post.id} className="border-r border-b border-black bg-white">
+            <EditorialCard post={post} size="tall" />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
