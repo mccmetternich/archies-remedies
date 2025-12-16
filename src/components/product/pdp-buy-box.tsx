@@ -159,7 +159,7 @@ export function PDPBuyBox({
         <ul className="space-y-2">
           {validBulletPoints.map((point, i) => (
             <li key={i} className="flex items-start gap-3">
-              <Check className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+              <Check className="w-4 h-4 text-[#bbdae9] mt-0.5 flex-shrink-0" />
               <span className="text-[var(--muted-foreground)]">{point}</span>
             </li>
           ))}

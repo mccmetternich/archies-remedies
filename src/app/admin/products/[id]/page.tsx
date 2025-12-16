@@ -636,7 +636,7 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
                     const key = `bulletPoint${i + 1}` as keyof Product;
                     return (
                       <div key={i} className="flex items-center gap-2">
-                        <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
+                        <Check className="w-4 h-4 text-[#bbdae9] flex-shrink-0" />
                         <Input
                           value={(product[key] as string) || ''}
                           onChange={(e) =>
