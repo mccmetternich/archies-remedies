@@ -1,8 +1,15 @@
 /**
  * Universal Widget Renderer
  *
+ * THE SINGLE SOURCE OF TRUTH for widget rendering behavior.
  * Renders widgets from page.widgets JSON in the order they appear.
- * Used by all pages (homepage, dynamic pages, product pages below-fold).
+ * Used by ALL pages: homepage, dynamic pages, product pages, blog posts.
+ *
+ * PHILOSOPHY:
+ * - Widget behavior should be IDENTICAL regardless of which page it's on
+ * - Components should handle their own empty/placeholder states
+ * - Never hardcode widget fallbacks in individual pages - use this renderer
+ * - If a widget needs data, fetch it via getWidgetData() based on widget types
  */
 
 import React from 'react';
@@ -206,11 +213,11 @@ function renderWidget(widget: PageWidget, data: WidgetRendererProps['data']): Re
       );
 
     case 'instagram':
-      if (!data.instagramPosts || data.instagramPosts.length === 0) return null;
+      // Always render - InstagramFeed has placeholder images when no posts exist
       return (
         <InstagramFeed
           key={widget.id}
-          posts={data.instagramPosts}
+          posts={data.instagramPosts || []}
           instagramUrl={data.instagramUrl}
         />
       );

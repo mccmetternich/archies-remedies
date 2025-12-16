@@ -24,7 +24,6 @@ import { BenefitsWidget } from '@/components/product/benefits-widget';
 import { MarqueeBar } from '@/components/widgets/marquee-bar';
 import { CertificationTrio } from '@/components/widgets/certification-trio';
 import { VideoTestimonialsGrid } from '@/components/widgets/video-testimonials-grid';
-import { InstagramFeed } from '@/components/home/instagram-feed';
 import { getHeaderProps, getFooterProps } from '@/lib/get-header-props';
 import { getPopupSettings } from '@/lib/get-popup-settings';
 import { getWidgetData } from '@/lib/get-widget-data';
@@ -287,14 +286,6 @@ export default async function ProductPage({ params }: PageProps) {
         {/* Below-Fold Widgets from CMS */}
         {belowFoldWidgets.length > 0 && (
           <WidgetRenderer widgets={belowFoldWidgets} data={widgetDataWithSettings} />
-        )}
-
-        {/* Fallback Instagram Feed if no widgets configured */}
-        {belowFoldWidgets.length === 0 && (
-          <InstagramFeed
-            posts={[]}
-            instagramUrl={headerProps.settings?.instagramUrl}
-          />
         )}
       </main>
 
