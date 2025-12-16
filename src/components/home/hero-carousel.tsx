@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -45,18 +45,23 @@ interface HeroCarouselProps {
 
 export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5 }: HeroCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isHovered, setIsHovered] = useState(false);
+  const isHoveredRef = useRef(false);
 
   const nextSlide = useCallback(() => {
     setCurrentIndex((prev) => (prev + 1) % slides.length);
   }, [slides.length]);
 
   // Auto-advance - pause when parent says paused OR when user hovers
+  // Using ref for hover state to avoid re-renders that trigger animations
   useEffect(() => {
-    if (isPaused || isHovered || slides.length <= 1) return;
-    const timer = setInterval(nextSlide, autoAdvanceInterval * 1000);
+    if (isPaused || slides.length <= 1) return;
+    const timer = setInterval(() => {
+      if (!isHoveredRef.current) {
+        nextSlide();
+      }
+    }, autoAdvanceInterval * 1000);
     return () => clearInterval(timer);
-  }, [nextSlide, isPaused, isHovered, slides.length, autoAdvanceInterval]);
+  }, [nextSlide, isPaused, slides.length, autoAdvanceInterval]);
 
   if (!slides || slides.length === 0) {
     return (
@@ -179,8 +184,8 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
   return (
     <section
       className="relative overflow-hidden h-[85vh] min-h-[600px] max-h-[850px]"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseEnter={() => { isHoveredRef.current = true; }}
+      onMouseLeave={() => { isHoveredRef.current = false; }}
     >
       {/* Background for full-width layout */}
       {!isTwoColumn && (
