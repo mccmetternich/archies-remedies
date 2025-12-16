@@ -211,9 +211,9 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                 <Image
                   src={logo}
                   alt="Archie's Remedies"
-                  width={180}
-                  height={45}
-                  className="h-9 w-auto"
+                  width={200}
+                  height={50}
+                  className="h-10 w-auto"
                   priority
                 />
               ) : (

@@ -292,7 +292,7 @@ export function Footer({
                   alt="Archie's Remedies"
                   width={180}
                   height={45}
-                  className={cn('h-8 w-auto mb-8', logoFilter)}
+                  className={cn('h-10 w-auto mb-8', logoFilter)}
                 />
               ) : (
                 <span className="text-xl font-medium block mb-8 tracking-tight">
@@ -484,7 +484,7 @@ export function Footer({
                   alt="Archie's Remedies"
                   width={150}
                   height={38}
-                  className={cn('h-7 w-auto mb-6', logoFilter)}
+                  className={cn('h-9 w-auto mb-6', logoFilter)}
                 />
               ) : (
                 <span className="text-lg font-medium block mb-6 tracking-tight">
