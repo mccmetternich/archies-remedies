@@ -142,7 +142,7 @@ function TeamAccessContent() {
                       <path d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
-                  <h1 className="text-3xl md:text-4xl font-normal tracking-tight">
+                  <h1 className="text-3xl md:text-4xl font-normal tracking-tight whitespace-nowrap">
                     Welcome Back
                   </h1>
                 </div>
@@ -165,7 +165,7 @@ function TeamAccessContent() {
                   <span className="text-sm font-medium text-gray-700">Team Access</span>
                 </div>
 
-                <h1 className="text-3xl md:text-4xl font-normal tracking-tight mb-3">
+                <h1 className="text-3xl md:text-4xl font-normal tracking-tight mb-3 whitespace-nowrap">
                   Welcome, Team
                 </h1>
                 <p className="text-base md:text-lg text-gray-600 mb-8 leading-relaxed px-2">
