@@ -135,9 +135,10 @@ export async function getFooterProps(settings: typeof siteSettings.$inferSelect 
     isActive: link.isActive ?? true,
   });
 
-  const column1Links = links.filter(l => l.column === column1Title || l.column === 'Shop').map(mapLink);
-  const column2Links = links.filter(l => l.column === column2Title || l.column === 'Learn').map(mapLink);
-  const column3Links = links.filter(l => l.column === column3Title || l.column === 'Support').map(mapLink);
+  // Filter links by exact column match only - no fallbacks that cause duplicates
+  const column1Links = links.filter(l => l.column === column1Title).map(mapLink);
+  const column2Links = links.filter(l => l.column === column2Title).map(mapLink);
+  const column3Links = links.filter(l => l.column === column3Title).map(mapLink);
 
   // Certifications
   const certifications = [
