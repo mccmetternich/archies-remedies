@@ -234,16 +234,11 @@ export function AdminPageHeader({
           </div>
         </div>
 
-        {/* Bottom row: Large Title and Subtitle */}
+        {/* Bottom row: Large Title */}
         <div className="flex items-end justify-between">
-          <div>
-            <h1 className="text-2xl font-semibold text-[var(--admin-text-primary)]">
-              {title}
-            </h1>
-            {subtitle && (
-              <p className="text-sm text-[var(--admin-text-muted)] mt-1">{subtitle}</p>
-            )}
-          </div>
+          <h1 className="text-2xl font-semibold text-[var(--admin-text-primary)] truncate max-w-[35ch]">
+            {title}
+          </h1>
         </div>
       </div>
 
