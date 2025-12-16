@@ -144,7 +144,7 @@ function EditorialCard({
 }) {
   // Aspect ratios and sizes based on variant
   const aspectRatio = size === 'tall'
-    ? 'aspect-[9/16]'
+    ? 'aspect-[2/3]'
     : size === 'wide'
     ? 'aspect-[16/9]'
     : size === 'large'
@@ -519,7 +519,7 @@ function UniformGrid({ posts }: { posts: BlogPost[] }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
       {posts.map((post) => (
-        <div key={post.id} className="border border-black">
+        <div key={post.id} className="border border-black bg-white p-4">
           <EditorialCard post={post} size="tall" />
         </div>
       ))}
