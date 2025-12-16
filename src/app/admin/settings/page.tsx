@@ -186,41 +186,10 @@ function SettingsPageContent() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <h1 className="text-2xl font-medium text-[var(--admin-text-primary)]">Site Settings</h1>
+        <h1 className="text-2xl font-medium text-[var(--admin-text-primary)]">Site Settings</h1>
 
-          {/* View Draft/Live Button - First */}
-          {settings && (
-            <button
-              onClick={async () => {
-                if (settings.siteInDraftMode) {
-                  // Generate token and open with token
-                  try {
-                    const res = await fetch('/api/admin/preview', { method: 'POST' });
-                    const data = await res.json();
-                    if (data.token) {
-                      window.open(`/?token=${data.token}`, '_blank');
-                      return;
-                    }
-                  } catch (error) {
-                    console.error('Failed to generate preview token:', error);
-                  }
-                }
-                window.open('/', '_blank');
-              }}
-              className={cn(
-                'inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors',
-                settings.siteInDraftMode
-                  ? 'bg-orange-500 text-white hover:bg-orange-600'
-                  : 'bg-green-500 text-white hover:bg-green-600'
-              )}
-            >
-              <ExternalLink className="w-4 h-4" />
-              {settings.siteInDraftMode ? 'View Draft' : 'View Live Site'}
-            </button>
-          )}
-
-          {/* Draft/Live Toggle - Second */}
+        <div className="flex items-center gap-3">
+          {/* Draft/Live Toggle */}
           {settings && (
             <div className="flex items-center gap-2">
               <span className={cn(
@@ -251,9 +220,38 @@ function SettingsPageContent() {
               </span>
             </div>
           )}
-        </div>
 
-        <div className="flex items-center gap-3">
+          {/* View Draft/Live Button */}
+          {settings && (
+            <button
+              onClick={async () => {
+                if (settings.siteInDraftMode) {
+                  // Generate token and open with token
+                  try {
+                    const res = await fetch('/api/admin/preview', { method: 'POST' });
+                    const data = await res.json();
+                    if (data.token) {
+                      window.open(`/?token=${data.token}`, '_blank');
+                      return;
+                    }
+                  } catch (error) {
+                    console.error('Failed to generate preview token:', error);
+                  }
+                }
+                window.open('/', '_blank');
+              }}
+              className={cn(
+                'inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors',
+                settings.siteInDraftMode
+                  ? 'bg-orange-500 text-white hover:bg-orange-600'
+                  : 'bg-green-500 text-white hover:bg-green-600'
+              )}
+            >
+              <ExternalLink className="w-4 h-4" />
+              {settings.siteInDraftMode ? 'View Draft' : 'View Live'}
+            </button>
+          )}
+
           {/* Save Changes Button */}
           {hasChanges && (
             <button
@@ -286,7 +284,7 @@ function SettingsPageContent() {
             </button>
           )}
 
-          {/* Delete Site Button - Far Right */}
+          {/* Delete Site Button */}
           <button
             onClick={() => setShowDeleteModal(true)}
             className="p-2.5 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors"

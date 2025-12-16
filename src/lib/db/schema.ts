@@ -315,6 +315,28 @@ export const products = sqliteTable('products', {
   shippingTitle: text('shipping_title').default('Good to Know'),
   shippingContent: text('shipping_content'), // Shipping & Returns - rich text
 
+  // Bullet Points (up to 5, shown with checkmarks on PDP)
+  bulletPoint1: text('bullet_point1'),
+  bulletPoint2: text('bullet_point2'),
+  bulletPoint3: text('bullet_point3'),
+  bulletPoint4: text('bullet_point4'),
+  bulletPoint5: text('bullet_point5'),
+
+  // Badge Styling
+  badgeBgColor: text('badge_bg_color').default('#1a1a1a'),
+  badgeTextColor: text('badge_text_color').default('#ffffff'),
+
+  // CTA Customization
+  ctaButtonText: text('cta_button_text').default('Buy Now on Amazon'),
+  ctaExternalUrl: text('cta_external_url'), // Override default variant Amazon URL
+
+  // Newsletter/Discount Toggle
+  showDiscountSignup: integer('show_discount_signup', { mode: 'boolean' }).default(true),
+  discountSignupText: text('discount_signup_text').default('Get 10% off your first order'),
+
+  // Widget System (JSON array of widget configs for below-fold content)
+  widgets: text('widgets'),
+
   // SEO
   metaTitle: text('meta_title'),
   metaDescription: text('meta_description'),

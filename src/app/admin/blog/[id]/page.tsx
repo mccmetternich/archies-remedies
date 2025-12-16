@@ -2,24 +2,18 @@
 
 import React, { useState, useEffect, use, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import {
-  ArrowLeft,
-  Save,
   Loader2,
-  Check,
   Eye,
   EyeOff,
   Star,
   Tag,
   X,
-  Trash2,
   Plus,
   Heart,
   BarChart3,
   Search,
   User,
-  AlertCircle,
   GripVertical,
   Layers,
   ChevronDown,
@@ -27,7 +21,7 @@ import {
   Monitor,
   Smartphone,
   ImageIcon,
-  Video,
+  Trash2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { MediaPickerButton } from '@/components/admin/media-picker';
@@ -35,6 +29,7 @@ import { RichTextEditor } from '@/components/admin/rich-text-editor';
 import { WidgetLibrarySidebar } from '@/components/admin/widget-library-sidebar';
 import { WidgetConfigPanel } from '@/components/admin/widget-config-panel';
 import { WIDGET_TYPES } from '@/lib/widget-library';
+import { AdminPageHeader } from '@/components/admin/admin-page-header';
 
 interface PostWidget {
   id: string;
@@ -385,147 +380,53 @@ export default function BlogPostEditorPage({ params }: { params: Promise<{ id: s
     );
   }
 
+  // Handle view with preview token for draft posts
+  const handleView = async () => {
+    const viewUrl = `/blog/${post.slug}`;
+    if (post.status === 'draft') {
+      // Generate preview token and open
+      try {
+        const res = await fetch('/api/admin/preview-token', { method: 'POST' });
+        const { token } = await res.json();
+        window.open(`${viewUrl}?preview=${token}`, '_blank');
+      } catch {
+        window.open(`${viewUrl}?preview=true`, '_blank');
+      }
+    } else {
+      window.open(viewUrl, '_blank');
+    }
+  };
+
+  const isDraft = post.status === 'draft' || siteInDraftMode;
+
   return (
     <div className="space-y-6">
-      {/* Draft Mode Banner */}
-      {post.status === 'draft' && !isNew && (
-        <div className="bg-orange-500/10 border border-orange-500/30 rounded-xl p-4 flex items-center gap-3">
-          <AlertCircle className="w-5 h-5 text-orange-400 shrink-0" />
-          <div className="flex-1">
-            <p className="text-sm font-medium text-orange-400">This Post is in Draft Mode</p>
-            <p className="text-xs text-orange-400/80">You can preview the blog post in draft mode, but visitors cannot see it.</p>
-          </div>
-          <button
-            onClick={() => setPost((prev) => ({ ...prev, status: 'published' }))}
-            className="px-4 py-2 bg-orange-500 text-white rounded-lg text-sm font-medium hover:bg-orange-600 transition-colors"
-          >
-            Publish Now
-          </button>
-        </div>
-      )}
-
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4 min-w-0 flex-1">
-          <Link
-            href="/admin/blog"
-            className="p-2 rounded-lg hover:bg-[var(--admin-input)] text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)] transition-colors shrink-0"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </Link>
-          <div className="min-w-0 flex-1 mr-4">
-            <h1 className="text-xl font-medium text-[var(--admin-text-primary)] truncate" title={isNew ? 'New Blog Post' : post.title || 'Untitled Post'}>
-              {isNew ? 'New Blog Post' : post.title || 'Untitled Post'}
-            </h1>
-            {!isNew && post.slug && (
-              <p className="text-sm text-[var(--admin-text-muted)] truncate">
-                /blog/{post.slug}
-              </p>
-            )}
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3">
-          {/* Draft/Live Toggle - accounts for global site draft mode */}
-          {/* If global site is in draft, show indicator but still allow toggling post status */}
-          <div className="flex items-center gap-2">
-            {siteInDraftMode && (
-              <span className="text-xs px-2 py-1 bg-orange-500/20 text-orange-400 rounded mr-2" title="Global site is in draft mode - all pages hidden behind coming soon">
-                Site Draft
-              </span>
-            )}
-            <span className={cn(
-              "text-sm font-medium transition-colors",
-              post.status === 'draft' ? "text-orange-400" : "text-[var(--admin-text-muted)]"
-            )}>
-              Draft
-            </span>
-            <button
-              onClick={() => setPost((prev) => ({
-                ...prev,
-                status: prev.status === 'published' ? 'draft' : 'published',
-              }))}
-              className="relative inline-flex h-7 w-14 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--admin-bg)]"
-              style={{
-                backgroundColor: post.status === 'draft' ? '#f97316' : '#22c55e'
-              }}
-              title={siteInDraftMode ? "Note: Site is in draft mode, so even 'Live' posts are hidden from public" : undefined}
-            >
-              <span
-                className={cn(
-                  "inline-block h-5 w-5 transform rounded-full bg-white transition-transform shadow-lg",
-                  post.status === 'draft' ? "translate-x-1" : "translate-x-8"
-                )}
-              />
-            </button>
-            <span className={cn(
-              "text-sm font-medium transition-colors",
-              post.status === 'published' && !siteInDraftMode ? "text-green-400" : "text-[var(--admin-text-muted)]"
-            )}>
-              Live
-            </span>
-          </div>
-
-          {/* View Live / View Draft buttons */}
-          {!isNew && post.slug && (
-            <a
-              href={post.status === 'published' ? `/blog/${post.slug}` : `/blog/${post.slug}?preview=true`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={cn(
-                'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors',
-                post.status === 'published'
-                  ? 'bg-green-500 text-white hover:bg-green-600'
-                  : 'bg-orange-500 text-white hover:bg-orange-600'
-              )}
-            >
-              <Eye className="w-4 h-4" />
-              {post.status === 'published' ? 'View Live' : 'View Draft'}
-            </a>
-          )}
-
-          {/* Save Button */}
-          {hasChanges && (
-            <button
-              onClick={handleSave}
-              disabled={saving || !post.title}
-              className={cn(
-                'inline-flex items-center gap-2 px-5 py-2 rounded-lg font-medium transition-all',
-                saved
-                  ? 'bg-green-500 text-white'
-                  : 'bg-[var(--primary)] text-[var(--admin-button-text)] hover:bg-[var(--primary-dark)]',
-                (saving || !post.title) && 'opacity-50 cursor-not-allowed'
-              )}
-            >
-              {saving ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Saving...
-                </>
-              ) : saved ? (
-                <>
-                  <Check className="w-4 h-4" />
-                  Saved!
-                </>
-              ) : (
-                <>
-                  <Save className="w-4 h-4" />
-                  Save Changes
-                </>
-              )}
-            </button>
-          )}
-          {!isNew && (
-            <button
-              onClick={handleDeletePost}
-              className="p-2.5 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors"
-              title="Delete Post"
-            >
-              <Trash2 className="w-5 h-5" />
-            </button>
-          )}
-        </div>
-      </div>
+      <AdminPageHeader
+        breadcrumbs={[
+          { label: 'Admin', href: '/admin' },
+          { label: 'Blog', href: '/admin/blog' },
+          { label: isNew ? 'New Post' : (post.title || 'Untitled Post') },
+        ]}
+        title={isNew ? 'New Blog Post' : (post.title || 'Untitled Post')}
+        subtitle={!isNew && post.slug ? `/blog/${post.slug}` : undefined}
+        status={isDraft ? 'draft' : 'live'}
+        onStatusToggle={() => setPost((prev) => ({
+          ...prev,
+          status: prev.status === 'published' ? 'draft' : 'published',
+        }))}
+        statusNote={siteInDraftMode && post.status === 'published' ? '(site draft)' : undefined}
+        onView={!isNew && post.slug ? handleView : undefined}
+        viewLabel={post.status === 'draft' ? 'Preview' : 'View Live'}
+        hasChanges={!!hasChanges}
+        onSave={handleSave}
+        saving={saving}
+        saved={saved}
+        saveLabel={isNew ? 'Create Post' : 'Save Changes'}
+        showDelete={!isNew}
+        onDelete={handleDeletePost}
+        deleteLabel="Delete Post"
+        backHref="/admin/blog"
+      />
 
       {/* Main Content - Two Column Layout */}
       <div className="grid lg:grid-cols-3 gap-6">

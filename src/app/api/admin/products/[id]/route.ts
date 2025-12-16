@@ -53,19 +53,69 @@ export async function PUT(
   try {
     const { product, variants, benefits } = await request.json();
 
-    // Update product
+    // Update product with all fields
     await db
       .update(products)
       .set({
+        // Basic info
         slug: product.slug,
         name: product.name,
+        subtitle: product.subtitle || null,
         shortDescription: product.shortDescription || null,
-        longDescription: product.longDescription || null,
+
+        // Pricing
         price: product.price || null,
         compareAtPrice: product.compareAtPrice || null,
+
+        // Media
         heroImageUrl: product.heroImageUrl || null,
+        secondaryImageUrl: product.secondaryImageUrl || null,
+
+        // Badge
+        badge: product.badge || null,
+        badgeEmoji: product.badgeEmoji || null,
+        badgeBgColor: product.badgeBgColor || '#1a1a1a',
+        badgeTextColor: product.badgeTextColor || '#ffffff',
+        rotatingBadgeEnabled: product.rotatingBadgeEnabled ?? false,
+        rotatingBadgeText: product.rotatingBadgeText || null,
+
+        // Rating & Reviews
+        rating: product.rating ?? 4.9,
+        reviewCount: product.reviewCount ?? 2900,
+
+        // Rotating Seal
+        rotatingSealEnabled: product.rotatingSealEnabled ?? false,
+        rotatingSealImageUrl: product.rotatingSealImageUrl || null,
+
+        // PDP Accordions
+        ritualTitle: product.ritualTitle || 'The Ritual',
+        ritualContent: product.ritualContent || null,
+        ingredientsTitle: product.ingredientsTitle || 'Ingredients',
+        ingredientsContent: product.ingredientsContent || null,
+        shippingTitle: product.shippingTitle || 'Good to Know',
+        shippingContent: product.shippingContent || null,
+
+        // Bullet Points
+        bulletPoint1: product.bulletPoint1 || null,
+        bulletPoint2: product.bulletPoint2 || null,
+        bulletPoint3: product.bulletPoint3 || null,
+        bulletPoint4: product.bulletPoint4 || null,
+        bulletPoint5: product.bulletPoint5 || null,
+
+        // CTA
+        ctaButtonText: product.ctaButtonText || 'Buy Now on Amazon',
+        ctaExternalUrl: product.ctaExternalUrl || null,
+        showDiscountSignup: product.showDiscountSignup ?? true,
+        discountSignupText: product.discountSignupText || 'Get 10% off your first order',
+
+        // Widgets
+        widgets: product.widgets || null,
+
+        // SEO
         metaTitle: product.metaTitle || null,
         metaDescription: product.metaDescription || null,
+
+        // Status
         isActive: product.isActive ?? true,
         sortOrder: product.sortOrder || 0,
         updatedAt: new Date().toISOString(),

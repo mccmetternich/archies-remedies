@@ -1,25 +1,41 @@
 'use client';
 
-import React, { useState, useEffect, use } from 'react';
+import React, { useState, useEffect, use, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { motion } from 'framer-motion';
+import { motion, Reorder, useDragControls } from 'framer-motion';
 import {
   Save,
   Loader2,
   Check,
-  ArrowLeft,
   Trash2,
   Plus,
   GripVertical,
   X,
+  ChevronDown,
+  ChevronRight,
+  Eye,
+  EyeOff,
+  Monitor,
+  Smartphone,
+  Star,
+  Tag,
+  DollarSign,
+  Image as ImageIcon,
+  FileText,
+  Settings,
+  Package,
+  CheckCircle,
+  MessageSquare,
 } from 'lucide-react';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { RichTextEditor } from '@/components/admin/rich-text-editor';
 import { MediaPickerButton } from '@/components/admin/media-picker';
+import { AdminPageHeader } from '@/components/admin/admin-page-header';
+import { WidgetLibrarySidebar } from '@/components/admin/widget-library-sidebar';
 import { cn } from '@/lib/utils';
 
+// Types
 interface ProductVariant {
   id: string;
   name: string;
@@ -38,19 +54,210 @@ interface ProductBenefit {
   sortOrder: number;
 }
 
+interface ProductWidget {
+  id: string;
+  type: string;
+  title?: string;
+  subtitle?: string;
+  config?: Record<string, unknown>;
+  isVisible: boolean;
+  showOnDesktop: boolean;
+  showOnMobile: boolean;
+  sortOrder: number;
+}
+
 interface Product {
   id: string;
   slug: string;
   name: string;
+  subtitle: string | null;
   shortDescription: string | null;
-  longDescription: string | null;
   price: number | null;
   compareAtPrice: number | null;
   heroImageUrl: string | null;
+  secondaryImageUrl: string | null;
+  // Badge
+  badge: string | null;
+  badgeEmoji: string | null;
+  badgeBgColor: string | null;
+  badgeTextColor: string | null;
+  rotatingBadgeEnabled: boolean | null;
+  rotatingBadgeText: string | null;
+  // Rating
+  rating: number | null;
+  reviewCount: number | null;
+  // Rotating Seal
+  rotatingSealEnabled: boolean | null;
+  rotatingSealImageUrl: string | null;
+  // Accordions
+  ritualTitle: string | null;
+  ritualContent: string | null;
+  ingredientsTitle: string | null;
+  ingredientsContent: string | null;
+  shippingTitle: string | null;
+  shippingContent: string | null;
+  // Bullet Points
+  bulletPoint1: string | null;
+  bulletPoint2: string | null;
+  bulletPoint3: string | null;
+  bulletPoint4: string | null;
+  bulletPoint5: string | null;
+  // CTA
+  ctaButtonText: string | null;
+  ctaExternalUrl: string | null;
+  showDiscountSignup: boolean | null;
+  discountSignupText: string | null;
+  // Widgets
+  widgets: string | null;
+  // SEO
   metaTitle: string | null;
   metaDescription: string | null;
+  // Status
   isActive: boolean | null;
   sortOrder: number | null;
+}
+
+// Collapsible Section Component
+function CollapsibleSection({
+  title,
+  icon: Icon,
+  defaultOpen = true,
+  children,
+}: {
+  title: string;
+  icon: React.ElementType;
+  defaultOpen?: boolean;
+  children: React.ReactNode;
+}) {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
+
+  return (
+    <div className="border border-[var(--admin-border)] rounded-lg overflow-hidden bg-[var(--admin-card)]">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full flex items-center justify-between p-4 hover:bg-[var(--admin-hover)] transition-colors"
+      >
+        <div className="flex items-center gap-3">
+          <Icon className="w-4 h-4 text-[var(--admin-text-muted)]" />
+          <span className="font-medium text-[var(--admin-text-primary)]">{title}</span>
+        </div>
+        {isOpen ? (
+          <ChevronDown className="w-4 h-4 text-[var(--admin-text-muted)]" />
+        ) : (
+          <ChevronRight className="w-4 h-4 text-[var(--admin-text-muted)]" />
+        )}
+      </button>
+      {isOpen && <div className="p-4 pt-0 space-y-4">{children}</div>}
+    </div>
+  );
+}
+
+// Draggable Widget Row Component
+function DraggableWidgetRow({
+  widget,
+  index,
+  onUpdate,
+  onDelete,
+}: {
+  widget: ProductWidget;
+  index: number;
+  onUpdate: (id: string, updates: Partial<ProductWidget>) => void;
+  onDelete: (id: string) => void;
+}) {
+  const dragControls = useDragControls();
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const widgetLabels: Record<string, string> = {
+    testimonials: 'Testimonials',
+    video_testimonials: 'Video Testimonials',
+    instagram: 'Instagram Feed',
+    faqs: 'FAQs',
+    benefits: 'Benefits Grid',
+    marquee: 'Marquee',
+    text: 'Text Block',
+    image_text: 'Image + Text',
+    cta: 'Call to Action',
+    newsletter: 'Newsletter Signup',
+  };
+
+  return (
+    <Reorder.Item
+      value={widget}
+      dragListener={false}
+      dragControls={dragControls}
+      className="bg-[var(--admin-card)] border border-[var(--admin-border)] rounded-lg overflow-hidden"
+    >
+      <div className="flex items-center gap-3 p-4">
+        <div
+          onPointerDown={(e) => dragControls.start(e)}
+          className="cursor-grab active:cursor-grabbing p-1 hover:bg-[var(--admin-hover)] rounded"
+        >
+          <GripVertical className="w-4 h-4 text-[var(--admin-text-muted)]" />
+        </div>
+
+        <span className="w-6 h-6 flex items-center justify-center text-xs font-mono bg-[var(--admin-input)] rounded">
+          {index + 1}
+        </span>
+
+        <div className="flex-1 min-w-0">
+          <h4 className="font-medium text-[var(--admin-text-primary)] truncate">
+            {widget.title || widgetLabels[widget.type] || widget.type}
+          </h4>
+          {widget.subtitle && (
+            <p className="text-xs text-[var(--admin-text-muted)] truncate">{widget.subtitle}</p>
+          )}
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => onUpdate(widget.id, { showOnDesktop: !widget.showOnDesktop })}
+            className={cn(
+              'p-1.5 rounded transition-colors',
+              widget.showOnDesktop
+                ? 'bg-[var(--primary)]/10 text-[var(--primary)]'
+                : 'text-[var(--admin-text-muted)] hover:bg-[var(--admin-hover)]'
+            )}
+            title="Show on desktop"
+          >
+            <Monitor className="w-3.5 h-3.5" />
+          </button>
+
+          <button
+            onClick={() => onUpdate(widget.id, { showOnMobile: !widget.showOnMobile })}
+            className={cn(
+              'p-1.5 rounded transition-colors',
+              widget.showOnMobile
+                ? 'bg-[var(--primary)]/10 text-[var(--primary)]'
+                : 'text-[var(--admin-text-muted)] hover:bg-[var(--admin-hover)]'
+            )}
+            title="Show on mobile"
+          >
+            <Smartphone className="w-3.5 h-3.5" />
+          </button>
+
+          <button
+            onClick={() => onUpdate(widget.id, { isVisible: !widget.isVisible })}
+            className={cn(
+              'flex items-center gap-1 px-2 py-1 rounded text-xs font-medium transition-colors',
+              widget.isVisible
+                ? 'bg-green-500/10 text-green-400'
+                : 'bg-orange-500/10 text-orange-400'
+            )}
+          >
+            {widget.isVisible ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
+            {widget.isVisible ? 'Live' : 'Draft'}
+          </button>
+
+          <button
+            onClick={() => onDelete(widget.id)}
+            className="p-1.5 rounded text-red-400 hover:bg-red-500/10 transition-colors"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+    </Reorder.Item>
+  );
 }
 
 export default function ProductEditPage({ params }: { params: Promise<{ id: string }> }) {
@@ -58,33 +265,78 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
   const router = useRouter();
   const isNew = id === 'new';
 
+  // State
   const [product, setProduct] = useState<Product | null>(null);
+  const [originalProduct, setOriginalProduct] = useState<Product | null>(null);
   const [variants, setVariants] = useState<ProductVariant[]>([]);
+  const [originalVariants, setOriginalVariants] = useState<ProductVariant[]>([]);
   const [benefits, setBenefits] = useState<ProductBenefit[]>([]);
+  const [originalBenefits, setOriginalBenefits] = useState<ProductBenefit[]>([]);
+  const [widgets, setWidgets] = useState<ProductWidget[]>([]);
+  const [originalWidgets, setOriginalWidgets] = useState<ProductWidget[]>([]);
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
-  const [activeTab, setActiveTab] = useState('details');
+  const [bulletPointCount, setBulletPointCount] = useState(3);
+  const [siteInDraftMode, setSiteInDraftMode] = useState(false);
 
+  // Track changes
+  const hasChanges =
+    (product && originalProduct && JSON.stringify(product) !== JSON.stringify(originalProduct)) ||
+    JSON.stringify(variants) !== JSON.stringify(originalVariants) ||
+    JSON.stringify(benefits) !== JSON.stringify(originalBenefits) ||
+    JSON.stringify(widgets) !== JSON.stringify(originalWidgets);
+
+  // Fetch product
   useEffect(() => {
     if (!isNew) {
       fetchProduct();
     } else {
-      setProduct({
+      const newProduct: Product = {
         id: '',
         slug: '',
         name: '',
+        subtitle: null,
         shortDescription: '',
-        longDescription: '',
         price: null,
         compareAtPrice: null,
-        heroImageUrl: '',
-        metaTitle: '',
-        metaDescription: '',
+        heroImageUrl: null,
+        secondaryImageUrl: null,
+        badge: null,
+        badgeEmoji: null,
+        badgeBgColor: '#1a1a1a',
+        badgeTextColor: '#ffffff',
+        rotatingBadgeEnabled: false,
+        rotatingBadgeText: null,
+        rating: 4.9,
+        reviewCount: 2900,
+        rotatingSealEnabled: false,
+        rotatingSealImageUrl: null,
+        ritualTitle: 'The Ritual',
+        ritualContent: null,
+        ingredientsTitle: 'Ingredients',
+        ingredientsContent: null,
+        shippingTitle: 'Good to Know',
+        shippingContent: null,
+        bulletPoint1: null,
+        bulletPoint2: null,
+        bulletPoint3: null,
+        bulletPoint4: null,
+        bulletPoint5: null,
+        ctaButtonText: 'Buy Now on Amazon',
+        ctaExternalUrl: null,
+        showDiscountSignup: true,
+        discountSignupText: 'Get 10% off your first order',
+        widgets: null,
+        metaTitle: null,
+        metaDescription: null,
         isActive: true,
         sortOrder: 0,
-      });
+      };
+      setProduct(newProduct);
+      setOriginalProduct(newProduct);
     }
+    fetchSiteSettings();
   }, [id, isNew]);
 
   const fetchProduct = async () => {
@@ -92,8 +344,33 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
       const res = await fetch(`/api/admin/products/${id}`);
       const data = await res.json();
       setProduct(data.product);
+      setOriginalProduct(data.product);
       setVariants(data.variants || []);
+      setOriginalVariants(data.variants || []);
       setBenefits(data.benefits || []);
+      setOriginalBenefits(data.benefits || []);
+
+      // Parse widgets from JSON
+      if (data.product?.widgets) {
+        try {
+          const parsedWidgets = JSON.parse(data.product.widgets);
+          setWidgets(parsedWidgets);
+          setOriginalWidgets(parsedWidgets);
+        } catch {
+          setWidgets([]);
+          setOriginalWidgets([]);
+        }
+      }
+
+      // Count existing bullet points
+      const bulletPoints = [
+        data.product?.bulletPoint1,
+        data.product?.bulletPoint2,
+        data.product?.bulletPoint3,
+        data.product?.bulletPoint4,
+        data.product?.bulletPoint5,
+      ].filter(Boolean);
+      setBulletPointCount(Math.max(3, bulletPoints.length));
     } catch (error) {
       console.error('Failed to fetch product:', error);
     } finally {
@@ -101,6 +378,27 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
     }
   };
 
+  const fetchSiteSettings = async () => {
+    try {
+      const res = await fetch('/api/admin/settings');
+      const data = await res.json();
+      setSiteInDraftMode(data?.siteInDraftMode ?? false);
+    } catch {
+      // Ignore
+    }
+  };
+
+  // Auto-generate slug from name
+  const handleNameChange = (name: string) => {
+    if (!product) return;
+    const slug = name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
+    setProduct({ ...product, name, slug: isNew || !product.slug ? slug : product.slug });
+  };
+
+  // Save handler
   const handleSave = async () => {
     if (!product) return;
 
@@ -109,10 +407,15 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
       const method = isNew ? 'POST' : 'PUT';
       const url = isNew ? '/api/admin/products' : `/api/admin/products/${id}`;
 
+      const productData = {
+        ...product,
+        widgets: widgets.length > 0 ? JSON.stringify(widgets) : null,
+      };
+
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ product, variants, benefits }),
+        body: JSON.stringify({ product: productData, variants, benefits }),
       });
 
       const data = await res.json();
@@ -120,6 +423,10 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
       if (isNew && data.id) {
         router.push(`/admin/products/${data.id}`);
       } else {
+        setOriginalProduct(product);
+        setOriginalVariants([...variants]);
+        setOriginalBenefits([...benefits]);
+        setOriginalWidgets([...widgets]);
         setSaved(true);
         setTimeout(() => setSaved(false), 2000);
       }
@@ -130,9 +437,8 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
     }
   };
 
+  // Delete handler
   const handleDelete = async () => {
-    if (!confirm('Are you sure you want to delete this product?')) return;
-
     try {
       await fetch(`/api/admin/products/${id}`, { method: 'DELETE' });
       router.push('/admin/products');
@@ -141,6 +447,46 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
     }
   };
 
+  // Toggle status
+  const handleStatusToggle = async () => {
+    if (!product) return;
+    const newStatus = !product.isActive;
+    setProduct({ ...product, isActive: newStatus });
+
+    // If editing existing product, save immediately
+    if (!isNew) {
+      try {
+        await fetch(`/api/admin/products/${id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ isActive: newStatus }),
+        });
+      } catch (error) {
+        console.error('Failed to toggle status:', error);
+        setProduct({ ...product, isActive: !newStatus });
+      }
+    }
+  };
+
+  // View handler with preview token
+  const handleView = async () => {
+    const isDraft = siteInDraftMode || !product?.isActive;
+    if (isDraft) {
+      try {
+        const res = await fetch('/api/admin/preview', { method: 'POST' });
+        const data = await res.json();
+        if (data.token) {
+          window.open(`/products/${product?.slug}?token=${data.token}`, '_blank');
+          return;
+        }
+      } catch {
+        // Fall through to regular view
+      }
+    }
+    window.open(`/products/${product?.slug}`, '_blank');
+  };
+
+  // Variant handlers
   const addVariant = () => {
     setVariants([
       ...variants,
@@ -160,12 +506,15 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
     setVariants(variants.filter((v) => v.id !== variantId));
   };
 
-  const updateVariant = (variantId: string, field: keyof ProductVariant, value: string | number | boolean | null) => {
-    setVariants(
-      variants.map((v) => (v.id === variantId ? { ...v, [field]: value } : v))
-    );
+  const updateVariant = (
+    variantId: string,
+    field: keyof ProductVariant,
+    value: string | number | boolean | null
+  ) => {
+    setVariants(variants.map((v) => (v.id === variantId ? { ...v, [field]: value } : v)));
   };
 
+  // Benefit handlers
   const addBenefit = (isPositive: boolean) => {
     setBenefits([
       ...benefits,
@@ -184,11 +533,31 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
   };
 
   const updateBenefit = (benefitId: string, field: keyof ProductBenefit, value: string | boolean | null) => {
-    setBenefits(
-      benefits.map((b) => (b.id === benefitId ? { ...b, [field]: value } : b))
-    );
+    setBenefits(benefits.map((b) => (b.id === benefitId ? { ...b, [field]: value } : b)));
   };
 
+  // Widget handlers
+  const addWidget = (type: string) => {
+    const newWidget: ProductWidget = {
+      id: `widget-${Date.now()}`,
+      type,
+      isVisible: true,
+      showOnDesktop: true,
+      showOnMobile: true,
+      sortOrder: widgets.length,
+    };
+    setWidgets([...widgets, newWidget]);
+  };
+
+  const updateWidget = (widgetId: string, updates: Partial<ProductWidget>) => {
+    setWidgets(widgets.map((w) => (w.id === widgetId ? { ...w, ...updates } : w)));
+  };
+
+  const deleteWidget = (widgetId: string) => {
+    setWidgets(widgets.filter((w) => w.id !== widgetId));
+  };
+
+  // Loading state
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -205,111 +574,70 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
     );
   }
 
-  const tabs = [
-    { id: 'details', label: 'Details' },
-    { id: 'variants', label: 'Variants' },
-    { id: 'benefits', label: "What's In/Not" },
-    { id: 'seo', label: 'SEO' },
-  ];
+  const isDraft = siteInDraftMode || !product.isActive;
+  const statusNote = siteInDraftMode && product.isActive ? '(site draft)' : undefined;
 
   return (
-    <div className="space-y-6">
+    <div className="min-h-screen">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Link
-            href="/admin/products"
-            className="p-2 rounded-lg hover:bg-[var(--admin-input)] transition-colors text-[var(--admin-text-secondary)]"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </Link>
-          <div>
-            <h1 className="text-2xl font-medium text-[var(--admin-text-primary)]">
-              {isNew ? 'New Product' : product.name || 'Edit Product'}
-            </h1>
-            {!isNew && (
-              <p className="text-[var(--admin-text-secondary)] mt-1">
-                /products/{product.slug}
-              </p>
-            )}
-          </div>
-        </div>
-        <div className="flex items-center gap-3">
-          <Button onClick={handleSave} loading={saving}>
-            {saved ? (
-              <>
-                <Check className="w-4 h-4" />
-                Saved
-              </>
-            ) : (
-              <>
-                <Save className="w-4 h-4" />
-                {isNew ? 'Create Product' : 'Save Changes'}
-              </>
-            )}
-          </Button>
-          {!isNew && (
-            <button
-              onClick={handleDelete}
-              className="p-2.5 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors"
-              title="Delete Product"
-            >
-              <Trash2 className="w-5 h-5" />
-            </button>
-          )}
-        </div>
-      </div>
+      <AdminPageHeader
+        breadcrumbs={[
+          { label: 'Admin', href: '/admin' },
+          { label: 'Products', href: '/admin/products' },
+          { label: isNew ? 'New Product' : product.name || 'Edit Product' },
+        ]}
+        title={isNew ? 'New Product' : product.name || 'Edit Product'}
+        subtitle={!isNew && product.slug ? `/products/${product.slug}` : undefined}
+        status={isDraft ? 'draft' : 'live'}
+        onStatusToggle={handleStatusToggle}
+        statusDisabled={siteInDraftMode}
+        statusNote={statusNote}
+        onView={handleView}
+        viewLabel={isDraft ? 'Preview' : 'View Live'}
+        hasChanges={hasChanges || isNew}
+        onSave={handleSave}
+        saving={saving}
+        saved={saved}
+        saveLabel={isNew ? 'Create Product' : 'Save Changes'}
+        onDelete={!isNew ? handleDelete : undefined}
+        showDelete={!isNew}
+        deleteLabel="Delete Product"
+        backHref="/admin/products"
+      />
 
-      {/* Tabs */}
-      <div className="flex gap-1 bg-[var(--admin-input)] rounded-xl p-1 border border-[var(--admin-border)]">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={cn(
-              'flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm transition-all',
-              activeTab === tab.id
-                ? 'bg-[var(--primary)] text-[var(--admin-button-text)]'
-                : 'text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)] hover:bg-[var(--admin-input)]'
-            )}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Tab Content */}
-      <div className="bg-[var(--admin-input)] rounded-xl border border-[var(--admin-border)] p-6">
-        {activeTab === 'details' && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-6"
-          >
-            <div className="flex items-center gap-3 mb-6">
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={product.isActive ?? true}
-                  onChange={(e) => setProduct({ ...product, isActive: e.target.checked })}
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-[var(--admin-hover)] peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[var(--primary)] rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
-              </label>
-              <span className="font-medium text-[var(--admin-text-primary)]">Published</span>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-6">
+      {/* Three Column Layout */}
+      <div className="flex">
+        {/* Left Sidebar - Product Settings */}
+        <div className="w-80 flex-shrink-0 border-r border-[var(--admin-border)] h-[calc(100vh-73px)] overflow-y-auto p-4 space-y-4">
+          {/* Hero Section */}
+          <CollapsibleSection title="Product Info" icon={Package} defaultOpen={true}>
+            <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Product Name *</label>
+                <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-1">
+                  Product Name *
+                </label>
                 <Input
                   value={product.name}
-                  onChange={(e) => setProduct({ ...product, name: e.target.value })}
+                  onChange={(e) => handleNameChange(e.target.value)}
                   placeholder="Dry Eye Relief Drops"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">URL Slug *</label>
+                <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-1">
+                  Short Description
+                </label>
+                <textarea
+                  value={product.shortDescription || ''}
+                  onChange={(e) => setProduct({ ...product, shortDescription: e.target.value })}
+                  placeholder="Brief description..."
+                  rows={2}
+                  className="flex w-full rounded-lg border border-[var(--admin-border)] bg-[var(--admin-input)] px-3 py-2 text-sm resize-none"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-1">
+                  URL Slug *
+                </label>
                 <Input
                   value={product.slug}
                   onChange={(e) => setProduct({ ...product, slug: e.target.value })}
@@ -317,29 +645,15 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
                 />
               </div>
             </div>
+          </CollapsibleSection>
 
-            <div>
-              <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Short Description</label>
-              <textarea
-                value={product.shortDescription || ''}
-                onChange={(e) => setProduct({ ...product, shortDescription: e.target.value })}
-                placeholder="Brief description for product cards..."
-                rows={2}
-                className="flex w-full rounded-lg border border-[var(--admin-border)] bg-[var(--admin-input)] px-4 py-3 text-base text-[var(--admin-text-primary)] transition-all duration-150 placeholder:text-[var(--admin-text-placeholder)] hover:border-[var(--admin-text-muted)] focus:outline-none focus:border-[var(--primary)] resize-none"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Full Description</label>
-              <RichTextEditor
-                value={product.longDescription || ''}
-                onChange={(value) => setProduct({ ...product, longDescription: value })}
-              />
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-6">
+          {/* Pricing */}
+          <CollapsibleSection title="Pricing" icon={DollarSign} defaultOpen={true}>
+            <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Price ($)</label>
+                <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-1">
+                  Price ($)
+                </label>
                 <Input
                   type="number"
                   step="0.01"
@@ -349,257 +663,425 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Compare at Price ($)</label>
+                <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-1">
+                  Compare at
+                </label>
                 <Input
                   type="number"
                   step="0.01"
                   value={product.compareAtPrice || ''}
-                  onChange={(e) => setProduct({ ...product, compareAtPrice: parseFloat(e.target.value) || null })}
+                  onChange={(e) =>
+                    setProduct({ ...product, compareAtPrice: parseFloat(e.target.value) || null })
+                  }
                   placeholder="29.99"
                 />
               </div>
             </div>
+          </CollapsibleSection>
 
+          {/* Media */}
+          <CollapsibleSection title="Media" icon={ImageIcon} defaultOpen={true}>
             <MediaPickerButton
               label="Hero Image"
               value={product.heroImageUrl}
               onChange={(url) => setProduct({ ...product, heroImageUrl: url || null })}
-              helpText="Main product image displayed on product page"
               folder="products"
+              acceptVideo
             />
-          </motion.div>
-        )}
+            <MediaPickerButton
+              label="Secondary Image"
+              value={product.secondaryImageUrl}
+              onChange={(url) => setProduct({ ...product, secondaryImageUrl: url || null })}
+              folder="products"
+              helpText="For rollover effect"
+            />
+          </CollapsibleSection>
 
-        {activeTab === 'variants' && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-6"
-          >
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-[var(--admin-text-secondary)]">
-                Add variants like &quot;30 Count&quot; or &quot;60 Count&quot; with different Amazon URLs.
-              </p>
-              <Button variant="outline" onClick={addVariant}>
-                <Plus className="w-4 h-4" />
-                Add Variant
-              </Button>
+          {/* Badge Configuration */}
+          <CollapsibleSection title="Badge" icon={Tag} defaultOpen={false}>
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-1">
+                    Badge Text
+                  </label>
+                  <Input
+                    value={product.badge || ''}
+                    onChange={(e) => setProduct({ ...product, badge: e.target.value || null })}
+                    placeholder="Bestseller"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-1">
+                    Emoji
+                  </label>
+                  <Input
+                    value={product.badgeEmoji || ''}
+                    onChange={(e) => setProduct({ ...product, badgeEmoji: e.target.value || null })}
+                    placeholder="🔥"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-1">
+                    Background
+                  </label>
+                  <div className="flex gap-2">
+                    <input
+                      type="color"
+                      value={product.badgeBgColor || '#1a1a1a'}
+                      onChange={(e) => setProduct({ ...product, badgeBgColor: e.target.value })}
+                      className="w-10 h-10 rounded cursor-pointer"
+                    />
+                    <Input
+                      value={product.badgeBgColor || '#1a1a1a'}
+                      onChange={(e) => setProduct({ ...product, badgeBgColor: e.target.value })}
+                      className="flex-1"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-1">
+                    Text Color
+                  </label>
+                  <div className="flex gap-2">
+                    <input
+                      type="color"
+                      value={product.badgeTextColor || '#ffffff'}
+                      onChange={(e) => setProduct({ ...product, badgeTextColor: e.target.value })}
+                      className="w-10 h-10 rounded cursor-pointer"
+                    />
+                    <Input
+                      value={product.badgeTextColor || '#ffffff'}
+                      onChange={(e) => setProduct({ ...product, badgeTextColor: e.target.value })}
+                      className="flex-1"
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
+          </CollapsibleSection>
 
+          {/* Rating & Reviews */}
+          <CollapsibleSection title="Rating & Reviews" icon={Star} defaultOpen={false}>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-1">
+                  Rating (0-5)
+                </label>
+                <Input
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  max="5"
+                  value={product.rating || ''}
+                  onChange={(e) => setProduct({ ...product, rating: parseFloat(e.target.value) || null })}
+                  placeholder="4.9"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-1">
+                  Review Count
+                </label>
+                <Input
+                  type="number"
+                  value={product.reviewCount || ''}
+                  onChange={(e) => setProduct({ ...product, reviewCount: parseInt(e.target.value) || null })}
+                  placeholder="2900"
+                />
+              </div>
+            </div>
+            <p className="text-xs text-[var(--admin-text-muted)]">
+              Used in nav, homepage tiles, and PDP
+            </p>
+          </CollapsibleSection>
+
+          {/* Bullet Points */}
+          <CollapsibleSection title="Key Benefits" icon={CheckCircle} defaultOpen={false}>
+            <p className="text-xs text-[var(--admin-text-muted)] mb-3">
+              Shown with checkmarks on product page
+            </p>
+            <div className="space-y-2">
+              {Array.from({ length: bulletPointCount }).map((_, i) => {
+                const key = `bulletPoint${i + 1}` as keyof Product;
+                return (
+                  <Input
+                    key={i}
+                    value={(product[key] as string) || ''}
+                    onChange={(e) =>
+                      setProduct({ ...product, [key]: e.target.value || null })
+                    }
+                    placeholder={`Benefit ${i + 1}`}
+                  />
+                );
+              })}
+            </div>
+            {bulletPointCount < 5 && (
+              <button
+                onClick={() => setBulletPointCount(bulletPointCount + 1)}
+                className="flex items-center gap-1 text-sm text-[var(--primary)] hover:underline mt-2"
+              >
+                <Plus className="w-3 h-3" />
+                Add another
+              </button>
+            )}
+          </CollapsibleSection>
+
+          {/* CTA Configuration */}
+          <CollapsibleSection title="CTA Button" icon={MessageSquare} defaultOpen={false}>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-1">
+                  Button Text
+                </label>
+                <Input
+                  value={product.ctaButtonText || ''}
+                  onChange={(e) => setProduct({ ...product, ctaButtonText: e.target.value })}
+                  placeholder="Buy Now on Amazon"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-1">
+                  External URL (optional)
+                </label>
+                <Input
+                  value={product.ctaExternalUrl || ''}
+                  onChange={(e) => setProduct({ ...product, ctaExternalUrl: e.target.value || null })}
+                  placeholder="https://..."
+                />
+                <p className="text-xs text-[var(--admin-text-muted)] mt-1">
+                  Overrides variant Amazon URL
+                </p>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-[var(--admin-text-secondary)]">Show discount signup</span>
+                <button
+                  onClick={() => setProduct({ ...product, showDiscountSignup: !product.showDiscountSignup })}
+                  className={cn(
+                    'relative inline-flex h-6 w-11 items-center rounded-full transition-colors',
+                    product.showDiscountSignup ? 'bg-green-500' : 'bg-[var(--admin-hover)]'
+                  )}
+                >
+                  <span
+                    className={cn(
+                      'inline-block h-4 w-4 transform rounded-full bg-white transition-transform',
+                      product.showDiscountSignup ? 'translate-x-6' : 'translate-x-1'
+                    )}
+                  />
+                </button>
+              </div>
+              {product.showDiscountSignup && (
+                <Input
+                  value={product.discountSignupText || ''}
+                  onChange={(e) => setProduct({ ...product, discountSignupText: e.target.value })}
+                  placeholder="Get 10% off your first order"
+                />
+              )}
+            </div>
+          </CollapsibleSection>
+
+          {/* Accordion Drawers */}
+          <CollapsibleSection title="Accordion Drawers" icon={FileText} defaultOpen={false}>
+            <p className="text-xs text-[var(--admin-text-muted)] mb-3">
+              Only drawers with content will appear
+            </p>
             <div className="space-y-4">
+              {/* Drawer 1 */}
+              <div className="p-3 border border-[var(--admin-border)] rounded-lg space-y-2">
+                <Input
+                  value={product.ritualTitle || ''}
+                  onChange={(e) => setProduct({ ...product, ritualTitle: e.target.value })}
+                  placeholder="Title (e.g., The Ritual)"
+                />
+                <RichTextEditor
+                  value={product.ritualContent || ''}
+                  onChange={(value) => setProduct({ ...product, ritualContent: value })}
+                  placeholder="Content..."
+                />
+              </div>
+              {/* Drawer 2 */}
+              <div className="p-3 border border-[var(--admin-border)] rounded-lg space-y-2">
+                <Input
+                  value={product.ingredientsTitle || ''}
+                  onChange={(e) => setProduct({ ...product, ingredientsTitle: e.target.value })}
+                  placeholder="Title (e.g., Ingredients)"
+                />
+                <RichTextEditor
+                  value={product.ingredientsContent || ''}
+                  onChange={(value) => setProduct({ ...product, ingredientsContent: value })}
+                  placeholder="Content..."
+                />
+              </div>
+              {/* Drawer 3 */}
+              <div className="p-3 border border-[var(--admin-border)] rounded-lg space-y-2">
+                <Input
+                  value={product.shippingTitle || ''}
+                  onChange={(e) => setProduct({ ...product, shippingTitle: e.target.value })}
+                  placeholder="Title (e.g., Good to Know)"
+                />
+                <RichTextEditor
+                  value={product.shippingContent || ''}
+                  onChange={(value) => setProduct({ ...product, shippingContent: value })}
+                  placeholder="Content..."
+                />
+              </div>
+            </div>
+          </CollapsibleSection>
+
+          {/* Variants */}
+          <CollapsibleSection title="Variants" icon={Package} defaultOpen={false}>
+            <div className="space-y-3">
               {variants.map((variant, index) => (
                 <div
                   key={variant.id}
-                  className="p-4 border border-[var(--admin-border)] rounded-lg space-y-4 bg-[var(--admin-sidebar)]"
+                  className="p-3 border border-[var(--admin-border)] rounded-lg space-y-2"
                 >
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <GripVertical className="w-4 h-4 text-[var(--admin-text-muted)] cursor-grab" />
-                      <span className="font-medium text-[var(--admin-text-primary)]">Variant {index + 1}</span>
-                      {variant.isDefault && (
-                        <span className="px-2 py-0.5 text-xs bg-green-100 text-green-700 rounded-full">
-                          Default
-                        </span>
-                      )}
-                    </div>
+                    <span className="text-xs font-medium">Variant {index + 1}</span>
                     <button
                       onClick={() => removeVariant(variant.id)}
-                      className="p-1 rounded hover:bg-red-50 text-red-500"
+                      className="p-1 text-red-400 hover:bg-red-500/10 rounded"
                     >
-                      <X className="w-4 h-4" />
+                      <X className="w-3 h-3" />
                     </button>
                   </div>
-
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-1">Name</label>
-                      <Input
-                        value={variant.name}
-                        onChange={(e) => updateVariant(variant.id, 'name', e.target.value)}
-                        placeholder="30 Count"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-1">Amazon URL</label>
-                      <Input
-                        value={variant.amazonUrl}
-                        onChange={(e) => updateVariant(variant.id, 'amazonUrl', e.target.value)}
-                        placeholder="https://amazon.com/..."
-                      />
-                    </div>
+                  <Input
+                    value={variant.name}
+                    onChange={(e) => updateVariant(variant.id, 'name', e.target.value)}
+                    placeholder="30 Count"
+                  />
+                  <Input
+                    value={variant.amazonUrl}
+                    onChange={(e) => updateVariant(variant.id, 'amazonUrl', e.target.value)}
+                    placeholder="Amazon URL"
+                  />
+                  <div className="grid grid-cols-2 gap-2">
+                    <Input
+                      type="number"
+                      step="0.01"
+                      value={variant.price || ''}
+                      onChange={(e) => updateVariant(variant.id, 'price', parseFloat(e.target.value) || null)}
+                      placeholder="Price"
+                    />
+                    <Input
+                      type="number"
+                      step="0.01"
+                      value={variant.compareAtPrice || ''}
+                      onChange={(e) =>
+                        updateVariant(variant.id, 'compareAtPrice', parseFloat(e.target.value) || null)
+                      }
+                      placeholder="Compare at"
+                    />
                   </div>
-
-                  <div className="grid md:grid-cols-3 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-1">Price ($)</label>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        value={variant.price || ''}
-                        onChange={(e) => updateVariant(variant.id, 'price', parseFloat(e.target.value) || null)}
-                        placeholder="24.99"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-1">Compare at ($)</label>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        value={variant.compareAtPrice || ''}
-                        onChange={(e) => updateVariant(variant.id, 'compareAtPrice', parseFloat(e.target.value) || null)}
-                        placeholder="29.99"
-                      />
-                    </div>
-                    <div className="flex items-end">
-                      <label className="flex items-center gap-2 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={variant.isDefault ?? false}
-                          onChange={(e) => {
-                            // Make this the default, unset others
-                            setVariants(
-                              variants.map((v) => ({
-                                ...v,
-                                isDefault: v.id === variant.id ? e.target.checked : false,
-                              }))
-                            );
-                          }}
-                          className="rounded"
-                        />
-                        <span className="text-sm text-[var(--admin-text-secondary)]">Default variant</span>
-                      </label>
-                    </div>
-                  </div>
+                  <label className="flex items-center gap-2 text-xs">
+                    <input
+                      type="checkbox"
+                      checked={variant.isDefault ?? false}
+                      onChange={(e) => {
+                        setVariants(
+                          variants.map((v) => ({
+                            ...v,
+                            isDefault: v.id === variant.id ? e.target.checked : false,
+                          }))
+                        );
+                      }}
+                      className="rounded"
+                    />
+                    Default variant
+                  </label>
                 </div>
               ))}
-
-              {variants.length === 0 && (
-                <div className="py-8 text-center border-2 border-dashed border-[var(--admin-border)] rounded-lg">
-                  <p className="text-[var(--admin-text-muted)]">No variants yet</p>
-                </div>
-              )}
+              <button
+                onClick={addVariant}
+                className="w-full py-2 border-2 border-dashed border-[var(--admin-border)] rounded-lg text-sm text-[var(--admin-text-muted)] hover:border-[var(--primary)] hover:text-[var(--primary)] transition-colors flex items-center justify-center gap-1"
+              >
+                <Plus className="w-4 h-4" />
+                Add Variant
+              </button>
             </div>
-          </motion.div>
-        )}
+          </CollapsibleSection>
 
-        {activeTab === 'benefits' && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-6"
-          >
-            {/* What's In */}
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-medium text-green-400">What&apos;s In</h3>
-                <Button variant="outline" size="sm" onClick={() => addBenefit(true)}>
-                  <Plus className="w-4 h-4" />
-                  Add
-                </Button>
+          {/* SEO */}
+          <CollapsibleSection title="SEO" icon={Settings} defaultOpen={false}>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-1">
+                  Meta Title
+                </label>
+                <Input
+                  value={product.metaTitle || ''}
+                  onChange={(e) => setProduct({ ...product, metaTitle: e.target.value || null })}
+                  placeholder={`${product.name} | Archie's Remedies`}
+                />
               </div>
-              <div className="space-y-3">
-                {benefits
-                  .filter((b) => b.isPositive)
-                  .map((benefit) => (
-                    <div
-                      key={benefit.id}
-                      className="flex items-start gap-3 p-3 bg-green-500/10 border border-green-500/30 rounded-lg"
-                    >
-                      <div className="flex-1 space-y-2">
-                        <Input
-                          value={benefit.title}
-                          onChange={(e) => updateBenefit(benefit.id, 'title', e.target.value)}
-                          placeholder="Preservative-Free"
-                        />
-                        <Input
-                          value={benefit.description || ''}
-                          onChange={(e) => updateBenefit(benefit.id, 'description', e.target.value)}
-                          placeholder="Description (optional)"
-                        />
-                      </div>
-                      <button
-                        onClick={() => removeBenefit(benefit.id)}
-                        className="p-1 rounded hover:bg-red-500/10 text-red-400"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    </div>
-                  ))}
+              <div>
+                <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-1">
+                  Meta Description
+                </label>
+                <textarea
+                  value={product.metaDescription || ''}
+                  onChange={(e) => setProduct({ ...product, metaDescription: e.target.value || null })}
+                  placeholder="Description for search engines..."
+                  rows={3}
+                  className="flex w-full rounded-lg border border-[var(--admin-border)] bg-[var(--admin-input)] px-3 py-2 text-sm resize-none"
+                />
               </div>
             </div>
+          </CollapsibleSection>
+        </div>
 
-            {/* What's Not */}
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-medium text-red-400">What&apos;s Not</h3>
-                <Button variant="outline" size="sm" onClick={() => addBenefit(false)}>
-                  <Plus className="w-4 h-4" />
-                  Add
-                </Button>
+        {/* Center - Widget List */}
+        <div className="flex-1 h-[calc(100vh-73px)] overflow-y-auto p-6">
+          <div className="max-w-3xl mx-auto">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-medium text-[var(--admin-text-primary)]">
+                Below-Fold Content
+                {widgets.length > 0 && (
+                  <span className="ml-2 px-2 py-0.5 text-xs bg-[var(--admin-input)] rounded-full">
+                    {widgets.length} widget{widgets.length !== 1 ? 's' : ''}
+                  </span>
+                )}
+              </h2>
+            </div>
+
+            {widgets.length > 0 ? (
+              <Reorder.Group
+                axis="y"
+                values={widgets}
+                onReorder={setWidgets}
+                className="space-y-3"
+              >
+                {widgets.map((widget, index) => (
+                  <DraggableWidgetRow
+                    key={widget.id}
+                    widget={widget}
+                    index={index}
+                    onUpdate={updateWidget}
+                    onDelete={deleteWidget}
+                  />
+                ))}
+              </Reorder.Group>
+            ) : (
+              <div className="py-16 text-center border-2 border-dashed border-[var(--admin-border)] rounded-xl">
+                <p className="text-[var(--admin-text-muted)] mb-2">No widgets added yet</p>
+                <p className="text-sm text-[var(--admin-text-muted)]">
+                  Drag widgets from the library to add content below the product hero
+                </p>
               </div>
-              <div className="space-y-3">
-                {benefits
-                  .filter((b) => !b.isPositive)
-                  .map((benefit) => (
-                    <div
-                      key={benefit.id}
-                      className="flex items-start gap-3 p-3 bg-red-500/10 border border-red-500/30 rounded-lg"
-                    >
-                      <div className="flex-1 space-y-2">
-                        <Input
-                          value={benefit.title}
-                          onChange={(e) => updateBenefit(benefit.id, 'title', e.target.value)}
-                          placeholder="No Preservatives"
-                        />
-                        <Input
-                          value={benefit.description || ''}
-                          onChange={(e) => updateBenefit(benefit.id, 'description', e.target.value)}
-                          placeholder="Description (optional)"
-                        />
-                      </div>
-                      <button
-                        onClick={() => removeBenefit(benefit.id)}
-                        className="p-1 rounded hover:bg-red-500/10 text-red-400"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    </div>
-                  ))}
-              </div>
-            </div>
-          </motion.div>
-        )}
+            )}
+          </div>
+        </div>
 
-        {activeTab === 'seo' && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-6"
-          >
-            <div>
-              <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Meta Title</label>
-              <Input
-                value={product.metaTitle || ''}
-                onChange={(e) => setProduct({ ...product, metaTitle: e.target.value })}
-                placeholder={`${product.name} | Archie's Remedies`}
-              />
-              <p className="text-xs text-[var(--admin-text-muted)] mt-1">
-                Leave empty to use default format
-              </p>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Meta Description</label>
-              <textarea
-                value={product.metaDescription || ''}
-                onChange={(e) => setProduct({ ...product, metaDescription: e.target.value })}
-                placeholder="Description for search engines..."
-                rows={3}
-                className="flex w-full rounded-lg border border-[var(--admin-border)] bg-[var(--admin-input)] px-4 py-3 text-base text-[var(--admin-text-primary)] transition-all duration-150 placeholder:text-[var(--admin-text-placeholder)] hover:border-[var(--admin-text-muted)] focus:outline-none focus:border-[var(--primary)] resize-none"
-              />
-            </div>
-          </motion.div>
-        )}
+        {/* Right - Widget Library */}
+        <div className="w-72 flex-shrink-0 border-l border-[var(--admin-border)] h-[calc(100vh-73px)] overflow-y-auto">
+          <WidgetLibrarySidebar
+            title="Widget Library"
+            subtitle="Drag or click to add"
+            onAddWidget={addWidget}
+            storageKey="product-widget-order"
+          />
+        </div>
       </div>
     </div>
   );

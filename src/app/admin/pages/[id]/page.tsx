@@ -4,8 +4,6 @@ import React, { useState, useEffect, use, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, Reorder, AnimatePresence, useDragControls } from 'framer-motion';
 import {
-  ArrowLeft,
-  Save,
   Loader2,
   Eye,
   EyeOff,
@@ -14,18 +12,12 @@ import {
   Plus,
   GripVertical,
   Trash2,
-  ChevronDown,
-  ChevronUp,
-  Check,
-  ExternalLink,
   Monitor,
   Smartphone,
   PanelLeftClose,
   LayoutPanelLeft,
 } from 'lucide-react';
-import Link from 'next/link';
 import { cn } from '@/lib/utils';
-import { MediaPickerButton } from '@/components/admin/media-picker';
 import {
   WIDGET_CATEGORIES as CENTRALIZED_CATEGORIES,
   WIDGET_TYPES,
@@ -35,6 +27,7 @@ import { DevicePreviewToggle, type DeviceType } from '@/components/admin/widget-
 import { HeroCarouselConfig } from '@/components/admin/widget-configs/hero-carousel-config';
 import { WidgetLibrarySidebar } from '@/components/admin/widget-library-sidebar';
 import { WidgetConfigPanel } from '@/components/admin/widget-config-panel';
+import { AdminPageHeader } from '@/components/admin/admin-page-header';
 
 interface PageWidget {
   id: string;
@@ -605,122 +598,49 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
 
   const pageDisplayName = getPageDisplayName(page.slug, page.title);
 
+  // Handle view with preview token for draft pages
+  const handleView = async () => {
+    const viewUrl = page.slug === 'home' ? '/' : `/${page.slug}`;
+    if (isPageEffectivelyDraft) {
+      // Generate preview token and open
+      try {
+        const res = await fetch('/api/admin/preview-token', { method: 'POST' });
+        const { token } = await res.json();
+        window.open(`${viewUrl}?preview=${token}`, '_blank');
+      } catch {
+        window.open(`${viewUrl}?preview=true`, '_blank');
+      }
+    } else {
+      window.open(viewUrl, '_blank');
+    }
+  };
+
   return (
     <div className="min-h-screen">
-      {/* Header - Clean breadcrumb with page title */}
-      <div className="sticky top-0 z-40 bg-[var(--admin-bg)] border-b border-[var(--admin-border)] px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link
-              href="/admin/pages"
-              className="p-2 rounded-lg hover:bg-[var(--admin-input)] transition-colors text-[var(--admin-text-secondary)]"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </Link>
-            <div>
-              {/* Readable Breadcrumb */}
-              <div className="flex items-center gap-2 text-sm text-[var(--admin-text-muted)]">
-                <span>Admin</span>
-                <span>/</span>
-                <span>Pages</span>
-                <span>/</span>
-                <span className="text-[var(--admin-text-primary)] font-medium">{pageDisplayName}</span>
-              </div>
-              {!isNew && page.slug && page.slug !== 'home' && (
-                <p className="text-xs text-[var(--admin-text-muted)] mt-0.5">/{page.slug}</p>
-              )}
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            {/* Status Badge - Shows effective status (site draft mode OR page inactive = Draft) */}
-            <div className={cn(
-              'flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium',
-              isPageEffectivelyDraft
-                ? 'bg-amber-500/10 text-amber-400'
-                : 'bg-green-500/10 text-green-400'
-            )}>
-              {isPageEffectivelyDraft ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-              {isPageEffectivelyDraft ? 'Draft' : 'Live'}
-              {siteInDraftMode && page.isActive && (
-                <span className="text-[10px] opacity-70">(site draft)</span>
-              )}
-            </div>
-
-            {/* View Buttons - Show appropriate button based on status */}
-            {!isNew && (
-              <div className="flex items-center gap-1">
-                {/* View Live - only when page is actually live (site live + page active) */}
-                {!isPageEffectivelyDraft && (
-                  <a
-                    href={page.slug === 'home' ? '/' : `/${page.slug}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-500/10 text-green-400 hover:bg-green-500/20 transition-colors text-xs font-medium"
-                    title="View live page"
-                  >
-                    <ExternalLink className="w-3.5 h-3.5" />
-                    View Live
-                  </a>
-                )}
-                {/* View Draft - always available, uses preview token for draft access */}
-                <a
-                  href={`${page.slug === 'home' ? '/' : `/${page.slug}`}?preview=true`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--admin-input)] text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)] hover:bg-[var(--admin-hover)] transition-colors text-xs font-medium"
-                  title="View draft preview"
-                >
-                  <ExternalLink className="w-3.5 h-3.5" />
-                  {isPageEffectivelyDraft ? 'Preview' : 'View Draft'}
-                </a>
-              </div>
-            )}
-
-            {/* Save Button */}
-            {(hasChanges || isNew) && (
-              <button
-                onClick={handleSave}
-                disabled={saving}
-                className={cn(
-                  'inline-flex items-center gap-2 px-5 py-2 rounded-lg font-medium transition-all text-sm',
-                  saved
-                    ? 'bg-green-500 text-white'
-                    : 'bg-[var(--primary)] text-[var(--admin-button-text)] hover:bg-[var(--primary-dark)]',
-                  saving && 'opacity-50 cursor-not-allowed'
-                )}
-              >
-                {saving ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Saving...
-                  </>
-                ) : saved ? (
-                  <>
-                    <Check className="w-4 h-4" />
-                    Saved!
-                  </>
-                ) : (
-                  <>
-                    <Save className="w-4 h-4" />
-                    {isNew ? 'Create Page' : 'Save'}
-                  </>
-                )}
-              </button>
-            )}
-
-            {!isNew && (
-              <button
-                onClick={handleDeletePage}
-                className="p-2 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors"
-                title="Delete Page"
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
+      <AdminPageHeader
+        breadcrumbs={[
+          { label: 'Admin', href: '/admin' },
+          { label: 'Pages', href: '/admin/pages' },
+          { label: pageDisplayName },
+        ]}
+        title={pageDisplayName}
+        subtitle={!isNew && page.slug && page.slug !== 'home' ? `/${page.slug}` : undefined}
+        status={isPageEffectivelyDraft ? 'draft' : 'live'}
+        onStatusToggle={() => setPage({ ...page, isActive: !page.isActive })}
+        statusDisabled={siteInDraftMode && page.isActive}
+        statusNote={siteInDraftMode && page.isActive ? '(site draft)' : undefined}
+        onView={!isNew ? handleView : undefined}
+        viewLabel={isPageEffectivelyDraft ? 'Preview' : 'View Live'}
+        hasChanges={hasChanges || isNew}
+        onSave={handleSave}
+        saving={saving}
+        saved={saved}
+        saveLabel={isNew ? 'Create Page' : 'Save Changes'}
+        showDelete={!isNew}
+        onDelete={handleDeletePage}
+        deleteLabel="Delete Page"
+        backHref="/admin/pages"
+      />
 
       {/* Main Content - Three Column Layout */}
       <div className="flex">

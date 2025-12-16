@@ -37,6 +37,12 @@ interface PDPBuyBoxProps {
   reviewCount: number;
   averageRating: number;
   onReviewsClick?: () => void;
+  // New customization props
+  bulletPoints?: (string | null)[];
+  ctaButtonText?: string;
+  ctaExternalUrl?: string | null;
+  showDiscountSignup?: boolean;
+  discountSignupText?: string;
 }
 
 type AccordionSection = 'ritual' | 'ingredients' | 'shipping' | null;
@@ -47,6 +53,11 @@ export function PDPBuyBox({
   reviewCount,
   averageRating,
   onReviewsClick,
+  bulletPoints,
+  ctaButtonText = 'Buy Now on Amazon',
+  ctaExternalUrl,
+  showDiscountSignup = true,
+  discountSignupText = 'Get 10% off your first order',
 }: PDPBuyBoxProps) {
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(
     variants.find((v) => v.isDefault) || variants[0] || null
@@ -57,7 +68,11 @@ export function PDPBuyBox({
   const [emailStatus, setEmailStatus] = useState<'idle' | 'loading' | 'success'>('idle');
 
   const displayPrice = selectedVariant?.price ?? product.price;
-  const amazonUrl = selectedVariant?.amazonUrl || '#';
+  // Use ctaExternalUrl if provided, otherwise fall back to variant's amazon URL
+  const amazonUrl = ctaExternalUrl || selectedVariant?.amazonUrl || '#';
+
+  // Filter bullet points to only non-null/non-empty values
+  const validBulletPoints = bulletPoints?.filter((bp): bp is string => Boolean(bp)) || [];
 
   const toggleAccordion = (section: AccordionSection) => {
     setOpenAccordion(openAccordion === section ? null : section);
@@ -126,7 +141,7 @@ export function PDPBuyBox({
           {product.name}
         </h1>
         {product.subtitle && (
-          <p className="text-lg text-[var(--muted-foreground)] italic">
+          <p className="text-lg text-[var(--muted-foreground)]">
             {product.subtitle}
           </p>
         )}
@@ -137,6 +152,18 @@ export function PDPBuyBox({
         <p className="text-[var(--muted-foreground)] leading-relaxed">
           {product.shortDescription}
         </p>
+      )}
+
+      {/* Bullet Points / Key Benefits */}
+      {validBulletPoints.length > 0 && (
+        <ul className="space-y-2">
+          {validBulletPoints.map((point, i) => (
+            <li key={i} className="flex items-start gap-3">
+              <Check className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+              <span className="text-[var(--muted-foreground)]">{point}</span>
+            </li>
+          ))}
+        </ul>
       )}
 
       {/* Price */}
@@ -198,7 +225,7 @@ export function PDPBuyBox({
         </div>
       )}
 
-      {/* Primary CTA - Full-width, Archie's Blue */}
+      {/* Primary CTA - Full-width */}
       <a
         href={amazonUrl}
         target="_blank"
@@ -218,45 +245,47 @@ export function PDPBuyBox({
         }}
         className="group flex items-center justify-center gap-3 w-full py-4 bg-[#1a1a1a] text-white font-medium hover:bg-[#bbdae9] hover:text-[#1a1a1a] transition-all duration-300"
       >
-        Buy Now on Amazon
+        {ctaButtonText}
         <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
       </a>
 
-      {/* Newsletter Injection */}
-      <div className="text-center">
-        {!showNewsletterInput ? (
-          <button
-            onClick={() => setShowNewsletterInput(true)}
-            className="text-sm text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors inline-flex items-center gap-2"
-          >
-            <Mail className="w-4 h-4" />
-            Get 10% off your first order
-          </button>
-        ) : (
-          <motion.form
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            onSubmit={handleNewsletterSubmit}
-            className="flex gap-2"
-          >
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email"
-              className="flex-1 px-4 py-2.5 text-sm border border-[var(--border)] focus:outline-none focus:border-[var(--primary)]"
-              required
-            />
+      {/* Newsletter Injection - Only show if enabled */}
+      {showDiscountSignup && (
+        <div className="text-center">
+          {!showNewsletterInput ? (
             <button
-              type="submit"
-              disabled={emailStatus === 'loading'}
-              className="px-5 py-2.5 bg-[#1a1a1a] text-white text-sm font-medium hover:bg-[#bbdae9] hover:text-[#1a1a1a] transition-colors disabled:opacity-50"
+              onClick={() => setShowNewsletterInput(true)}
+              className="text-sm text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors inline-flex items-center gap-2"
             >
-              {emailStatus === 'loading' ? '...' : emailStatus === 'success' ? <Check className="w-4 h-4" /> : 'Join'}
+              <Mail className="w-4 h-4" />
+              {discountSignupText}
             </button>
-          </motion.form>
-        )}
-      </div>
+          ) : (
+            <motion.form
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              onSubmit={handleNewsletterSubmit}
+              className="flex gap-2"
+            >
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email"
+                className="flex-1 px-4 py-2.5 text-sm border border-[var(--border)] focus:outline-none focus:border-[var(--primary)]"
+                required
+              />
+              <button
+                type="submit"
+                disabled={emailStatus === 'loading'}
+                className="px-5 py-2.5 bg-[#1a1a1a] text-white text-sm font-medium hover:bg-[#bbdae9] hover:text-[#1a1a1a] transition-colors disabled:opacity-50"
+              >
+                {emailStatus === 'loading' ? '...' : emailStatus === 'success' ? <Check className="w-4 h-4" /> : 'Join'}
+              </button>
+            </motion.form>
+          )}
+        </div>
+      )}
 
       {/* Accordion Drawers */}
       <div className="border-t border-[var(--border)] pt-6 space-y-0">

@@ -186,12 +186,25 @@ export default async function ProductPage({ params }: PageProps) {
   const positiveBenefits = product.benefits.filter((b) => b.isPositive);
   const negativeBenefits = product.benefits.filter((b) => !b.isPositive);
 
-  // Calculate average rating
+  // Calculate average rating - use product.rating if set, otherwise calculate from reviews
   const validReviews = product.reviews.filter((r) => r.rating !== null);
   const averageRating =
-    validReviews.length > 0
+    product.rating ??
+    (validReviews.length > 0
       ? validReviews.reduce((acc, r) => acc + (r.rating || 5), 0) / validReviews.length
-      : 5;
+      : 4.9);
+
+  // Use product.reviewCount if set, otherwise use actual reviews length
+  const reviewCount = product.reviewCount ?? product.reviews.length;
+
+  // Collect bullet points
+  const bulletPoints = [
+    product.bulletPoint1,
+    product.bulletPoint2,
+    product.bulletPoint3,
+    product.bulletPoint4,
+    product.bulletPoint5,
+  ];
 
   // Map certifications to the format expected by CertificationTrio
   const certificationData = product.certifications.map((c) => ({
@@ -222,8 +235,13 @@ export default async function ProductPage({ params }: PageProps) {
               <PDPBuyBox
                 product={product}
                 variants={product.variants}
-                reviewCount={product.reviews.length}
+                reviewCount={reviewCount}
                 averageRating={averageRating}
+                bulletPoints={bulletPoints}
+                ctaButtonText={product.ctaButtonText || undefined}
+                ctaExternalUrl={product.ctaExternalUrl}
+                showDiscountSignup={product.showDiscountSignup ?? true}
+                discountSignupText={product.discountSignupText || undefined}
               />
             </div>
 
