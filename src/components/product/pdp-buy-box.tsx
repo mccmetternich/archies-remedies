@@ -151,20 +151,20 @@ export function PDPBuyBox({
             />
           ))}
         </div>
-        <span className="text-sm text-[var(--foreground)] group-hover:text-[var(--foreground)] transition-colors">
+        <span className="text-sm text-[#1a1a1a] transition-colors">
           <span className="font-semibold">{averageRating.toFixed(1)}</span>
-          <span className="mx-1.5 text-[var(--muted-foreground)]">·</span>
+          <span className="mx-2 text-[#1a1a1a] text-base font-bold">•</span>
           <span className="font-semibold">{reviewCount.toLocaleString()} verified reviews</span>
         </span>
         {reviewBadge && (
           <span
-            className="text-xs font-semibold px-2 py-0.5 rounded-full"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full shadow-sm"
             style={{
               backgroundColor: reviewBadgeBgColor || '#bbdae9',
               color: reviewBadgeTextColor || '#1a1a1a',
             }}
           >
-            {reviewBadgeEmoji && <span className="mr-1">{reviewBadgeEmoji}</span>}
+            {reviewBadgeEmoji && <span>{reviewBadgeEmoji}</span>}
             {reviewBadge}
           </span>
         )}
@@ -177,20 +177,20 @@ export function PDPBuyBox({
         </h1>
       </div>
 
-      {/* Short Description - Larger font, narrower width */}
+      {/* Short Description - Same size as bullets, black text */}
       {product.shortDescription && (
-        <p className="text-lg text-[var(--muted-foreground)] leading-relaxed max-w-[85%]">
+        <p className="text-base text-[#1a1a1a] leading-relaxed max-w-[85%]">
           {product.shortDescription}
         </p>
       )}
 
-      {/* Bullet Points / Key Benefits - Bigger/bolder checkmarks, less gap from description */}
+      {/* Bullet Points / Key Benefits - Same size as description, black text */}
       {validBulletPoints.length > 0 && (
         <ul className="space-y-2 -mt-1">
           {validBulletPoints.map((point, i) => (
             <li key={i} className="flex items-start gap-3">
               <Check className="w-5 h-5 text-[#bbdae9] mt-0.5 flex-shrink-0 stroke-[2.5]" />
-              <span className="text-[var(--muted-foreground)]">{point}</span>
+              <span className="text-base text-[#1a1a1a]">{point}</span>
             </li>
           ))}
         </ul>
@@ -198,7 +198,7 @@ export function PDPBuyBox({
 
       {/* Variant Tiles - Show if variants exist */}
       {variants.length > 0 && (
-        <div className="space-y-3">
+        <div className="space-y-[15px]">
           <span className="text-xs font-semibold tracking-[0.15em] uppercase text-[var(--muted-foreground)]">
             Choose Size
           </span>
@@ -211,10 +211,10 @@ export function PDPBuyBox({
                   key={variant.id}
                   onClick={() => handleVariantSelect(variant)}
                   className={cn(
-                    'relative flex flex-col items-center justify-center p-4 border-2 transition-all duration-200 text-center',
+                    'relative flex flex-col items-center justify-center p-4 transition-all duration-200 text-center bg-white',
                     isSelected
-                      ? 'border-[#bbdae9] bg-[#bbdae9] text-[#1a1a1a]'
-                      : 'border-[#d1d5db] hover:border-[#bbdae9] hover:bg-[#bbdae9] hover:text-[#1a1a1a] bg-white'
+                      ? 'border-[3px] border-[#bbdae9]'
+                      : 'border-2 border-[#d1d5db] hover:border-[#bbdae9]'
                   )}
                 >
                   {/* Variant Badge */}
@@ -230,9 +230,9 @@ export function PDPBuyBox({
                     </span>
                   )}
 
-                  {/* Variant Thumbnail */}
+                  {/* Variant Thumbnail - 2x size */}
                   {variant.thumbnailUrl && (
-                    <div className="w-16 h-16 md:w-20 md:h-20 relative mb-2">
+                    <div className="w-32 h-32 md:w-40 md:h-40 relative mb-2">
                       <Image
                         src={variant.thumbnailUrl}
                         alt={variant.name}
@@ -242,8 +242,8 @@ export function PDPBuyBox({
                     </div>
                   )}
 
-                  {/* Variant Name Only (price removed, shown in CTA) */}
-                  <span className="block font-medium text-sm">{variant.name}</span>
+                  {/* Variant Name - Bold */}
+                  <span className="block font-bold text-sm text-[#1a1a1a]">{variant.name}</span>
                 </button>
               );
             })}
@@ -251,7 +251,7 @@ export function PDPBuyBox({
         </div>
       )}
 
-      {/* Primary CTA - White text, includes price */}
+      {/* Primary CTA - White text with inline styles to prevent overrides */}
       <a
         href={amazonUrl}
         target="_blank"
@@ -269,7 +269,19 @@ export function PDPBuyBox({
             window.open(amazonUrl, '_blank', 'noopener,noreferrer');
           }, 100);
         }}
-        className="group flex items-center justify-center gap-3 w-full py-4 bg-[#1a1a1a] text-white font-medium hover:bg-[#bbdae9] hover:text-[#1a1a1a] transition-all duration-300"
+        className="pdp-cta-button group flex items-center justify-center gap-3 w-full py-4 font-medium transition-all duration-300"
+        style={{
+          backgroundColor: '#1a1a1a',
+          color: '#ffffff',
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.backgroundColor = '#bbdae9';
+          e.currentTarget.style.color = '#1a1a1a';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.backgroundColor = '#1a1a1a';
+          e.currentTarget.style.color = '#ffffff';
+        }}
       >
         {ctaButtonText}
         {displayPrice && (

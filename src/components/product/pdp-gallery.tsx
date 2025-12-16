@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface ProductImage {
@@ -37,9 +37,21 @@ export function PDPGallery({
   const [videoModalOpen, setVideoModalOpen] = useState(false);
   const [activeVideoUrl, setActiveVideoUrl] = useState<string | null>(null);
 
+  // Check if heroImage is a video (common video extensions)
+  const isHeroVideo = heroImage && /\.(mp4|webm|mov|ogg)$/i.test(heroImage);
+
   // Combine hero image with additional images
   const allImages: ProductImage[] = heroImage
-    ? [{ id: 'hero', imageUrl: heroImage, altText: productName, isVideo: false, videoUrl: null }, ...images]
+    ? [
+        {
+          id: 'hero',
+          imageUrl: heroImage,
+          altText: productName,
+          isVideo: isHeroVideo || false,
+          videoUrl: isHeroVideo ? heroImage : null,
+        },
+        ...images,
+      ]
     : images;
 
   const activeImage = allImages[activeIndex];
@@ -55,9 +67,9 @@ export function PDPGallery({
 
   return (
     <>
-      <div className="relative flex gap-4">
-        {/* Main Image - 4:5 aspect ratio */}
-        <div className="flex-1 relative">
+      <div className="relative">
+        {/* Main Image Container with Floating Thumbnails */}
+        <div className="relative">
           <div className="relative aspect-[4/5] bg-gradient-to-br from-[var(--primary-light)] to-[var(--cream)] rounded-2xl overflow-hidden">
             {/* Product Badge */}
             {badge && (
@@ -92,7 +104,7 @@ export function PDPGallery({
                 className="absolute inset-0"
               >
                 {activeImage?.isVideo && activeImage?.videoUrl ? (
-                  // Video with autoplay
+                  // Video with autoplay, loop, muted, no controls
                   <video
                     src={activeImage.videoUrl}
                     autoPlay
@@ -108,7 +120,7 @@ export function PDPGallery({
                     fill
                     className="object-cover"
                     priority={activeIndex === 0}
-                    sizes="(max-width: 768px) 100vw, 50vw"
+                    sizes="(max-width: 768px) 100vw, 66vw"
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
@@ -120,52 +132,57 @@ export function PDPGallery({
               </motion.div>
             </AnimatePresence>
           </div>
-        </div>
 
-        {/* Vertical Thumbnail Strip - Right edge */}
-        {allImages.length > 1 && (
-          <div className="hidden md:flex flex-col gap-3 w-20">
-            {allImages.slice(0, 5).map((image, index) => (
-              <button
-                key={image.id}
-                onMouseEnter={() => handleThumbnailHover(index)}
-                onClick={() => {
-                  if (image.isVideo && image.videoUrl) {
-                    handleVideoClick(image.videoUrl);
-                  } else {
-                    setActiveIndex(index);
-                  }
-                }}
-                className={cn(
-                  'relative aspect-[4/5] rounded-xl overflow-hidden border-2 transition-all duration-200',
-                  index === activeIndex
-                    ? 'border-[var(--foreground)] shadow-md'
-                    : 'border-transparent hover:border-[var(--primary)]'
-                )}
-              >
-                {image.imageUrl && (
-                  <Image
-                    src={image.imageUrl}
-                    alt={image.altText || `${productName} view ${index + 1}`}
-                    fill
-                    className="object-cover"
-                    sizes="80px"
-                  />
-                )}
-                {image.isVideo && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-                    <Play className="w-5 h-5 text-white" fill="white" />
-                  </div>
-                )}
-              </button>
-            ))}
-          </div>
-        )}
+          {/* Vertical Thumbnail Strip - Floating on Right Edge, 2x size */}
+          {allImages.length > 1 && (
+            <div className="hidden md:flex flex-col gap-3 absolute right-4 top-1/2 -translate-y-1/2 z-30">
+              {allImages.slice(0, 5).map((image, index) => (
+                <button
+                  key={image.id}
+                  onMouseEnter={() => handleThumbnailHover(index)}
+                  onClick={() => {
+                    if (image.isVideo && image.videoUrl) {
+                      handleVideoClick(image.videoUrl);
+                    } else {
+                      setActiveIndex(index);
+                    }
+                  }}
+                  className={cn(
+                    'relative w-24 aspect-[4/5] rounded-xl overflow-hidden border-2 transition-all duration-200 shadow-lg bg-white',
+                    index === activeIndex
+                      ? 'border-[#bbdae9] ring-2 ring-[#bbdae9]/50'
+                      : 'border-white/80 hover:border-[#bbdae9]'
+                  )}
+                >
+                  {image.isVideo && image.videoUrl ? (
+                    // Video thumbnail - autoplay, loop, muted, no controls
+                    <video
+                      src={image.videoUrl}
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      className="w-full h-full object-cover"
+                    />
+                  ) : image.imageUrl ? (
+                    <Image
+                      src={image.imageUrl}
+                      alt={image.altText || `${productName} view ${index + 1}`}
+                      fill
+                      className="object-cover"
+                      sizes="96px"
+                    />
+                  ) : null}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Mobile Horizontal Thumbnails */}
+      {/* Mobile Horizontal Thumbnails - 2x size */}
       {allImages.length > 1 && (
-        <div className="flex md:hidden gap-2 mt-4 overflow-x-auto scrollbar-hide pb-2">
+        <div className="flex md:hidden gap-3 mt-4 overflow-x-auto scrollbar-hide pb-2">
           {allImages.map((image, index) => (
             <button
               key={image.id}
@@ -177,26 +194,31 @@ export function PDPGallery({
                 }
               }}
               className={cn(
-                'relative flex-shrink-0 w-16 aspect-square rounded-lg overflow-hidden border-2 transition-all duration-200',
+                'relative flex-shrink-0 w-20 aspect-square rounded-lg overflow-hidden border-2 transition-all duration-200',
                 index === activeIndex
-                  ? 'border-[var(--foreground)]'
+                  ? 'border-[#bbdae9]'
                   : 'border-transparent'
               )}
             >
-              {image.imageUrl && (
+              {image.isVideo && image.videoUrl ? (
+                // Video thumbnail - autoplay, loop, muted, no controls
+                <video
+                  src={image.videoUrl}
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="w-full h-full object-cover"
+                />
+              ) : image.imageUrl ? (
                 <Image
                   src={image.imageUrl}
                   alt={image.altText || `${productName} view ${index + 1}`}
                   fill
                   className="object-cover"
-                  sizes="64px"
+                  sizes="80px"
                 />
-              )}
-              {image.isVideo && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-                  <Play className="w-4 h-4 text-white" fill="white" />
-                </div>
-              )}
+              ) : null}
             </button>
           ))}
         </div>

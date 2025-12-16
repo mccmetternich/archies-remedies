@@ -1133,7 +1133,7 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
             {/* Badge Configuration */}
             <div className="pt-6 border-t border-[var(--admin-border-light)]">
               <h4 className="text-sm font-medium text-[var(--admin-text-primary)] mb-4">
-                Badge (Optional)
+                Badge On Hero Image (Optional)
               </h4>
               <div className="grid grid-cols-2 gap-4">
                 <div>

@@ -115,8 +115,8 @@ export function PDPHeroSection({
   };
 
   return (
-    <div className="grid lg:grid-cols-2 gap-8 lg:gap-16">
-      {/* Left: Buy Box (sticky) - shows first on mobile too */}
+    <div className="grid lg:grid-cols-[1fr_2fr] gap-8 lg:gap-12">
+      {/* Left: Buy Box (sticky) - 1/3 width on desktop */}
       <div className="order-1">
         <PDPBuyBox
           product={product}
