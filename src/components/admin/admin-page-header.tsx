@@ -96,8 +96,9 @@ export function AdminPageHeader({
   return (
     <>
       <div className="sticky top-0 z-40 bg-[var(--admin-bg)] border-b border-[var(--admin-border)] px-6 py-4">
-        <div className="flex items-center justify-between">
-          {/* Left side: Back button, breadcrumbs, title */}
+        {/* Top row: Breadcrumbs and Controls */}
+        <div className="flex items-center justify-between mb-3">
+          {/* Left side: Back button and breadcrumbs */}
           <div className="flex items-center gap-4">
             {backHref && (
               <Link
@@ -107,35 +108,28 @@ export function AdminPageHeader({
                 <ArrowLeft className="w-5 h-5" />
               </Link>
             )}
-            <div>
-              {/* Clickable Breadcrumbs */}
-              <nav className="flex items-center gap-2 text-sm text-[var(--admin-text-muted)]">
-                {breadcrumbs.map((crumb, index) => {
-                  const isLast = index === breadcrumbs.length - 1;
-                  return (
-                    <React.Fragment key={index}>
-                      {crumb.href && !isLast ? (
-                        <Link
-                          href={crumb.href}
-                          className="hover:text-[var(--admin-text-primary)] transition-colors"
-                        >
-                          {crumb.label}
-                        </Link>
-                      ) : (
-                        <span className={isLast ? 'text-[var(--admin-text-primary)] font-medium' : ''}>
-                          {crumb.label}
-                        </span>
-                      )}
-                      {!isLast && <span>/</span>}
-                    </React.Fragment>
-                  );
-                })}
-              </nav>
-              {/* Subtitle (e.g., slug) */}
-              {subtitle && (
-                <p className="text-xs text-[var(--admin-text-muted)] mt-0.5">{subtitle}</p>
-              )}
-            </div>
+            <nav className="flex items-center gap-2 text-sm text-[var(--admin-text-muted)]">
+              {breadcrumbs.map((crumb, index) => {
+                const isLast = index === breadcrumbs.length - 1;
+                return (
+                  <React.Fragment key={index}>
+                    {crumb.href && !isLast ? (
+                      <Link
+                        href={crumb.href}
+                        className="hover:text-[var(--admin-text-primary)] transition-colors"
+                      >
+                        {crumb.label}
+                      </Link>
+                    ) : (
+                      <span className={isLast ? 'text-[var(--admin-text-primary)] font-medium' : ''}>
+                        {crumb.label}
+                      </span>
+                    )}
+                    {!isLast && <span>/</span>}
+                  </React.Fragment>
+                );
+              })}
+            </nav>
           </div>
 
           {/* Right side: All controls aligned right */}
@@ -236,6 +230,18 @@ export function AdminPageHeader({
               >
                 <Trash2 className="w-5 h-5" />
               </button>
+            )}
+          </div>
+        </div>
+
+        {/* Bottom row: Large Title and Subtitle */}
+        <div className="flex items-end justify-between">
+          <div>
+            <h1 className="text-2xl font-semibold text-[var(--admin-text-primary)]">
+              {title}
+            </h1>
+            {subtitle && (
+              <p className="text-sm text-[var(--admin-text-muted)] mt-1">{subtitle}</p>
             )}
           </div>
         </div>

@@ -32,6 +32,10 @@ interface ProductVariant {
   amazonUrl: string;
   isDefault: boolean | null;
   sortOrder: number;
+  // Variant-specific media
+  heroImageUrl?: string | null;
+  secondaryImageUrl?: string | null;
+  heroCarouselImages?: string | null;
 }
 
 interface ProductBenefit {
@@ -227,6 +231,7 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
   const [bulletPointCount, setBulletPointCount] = useState(3);
   const [siteInDraftMode, setSiteInDraftMode] = useState(false);
   const [selectedVariantIndex, setSelectedVariantIndex] = useState(0);
+  const [selectedMediaVariantIndex, setSelectedMediaVariantIndex] = useState(0);
 
   // Track changes
   const hasChanges =
@@ -437,6 +442,9 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
       amazonUrl: '',
       isDefault: variants.length === 0,
       sortOrder: variants.length,
+      heroImageUrl: null,
+      secondaryImageUrl: null,
+      heroCarouselImages: null,
     };
     setVariants([...variants, newVariant]);
     setSelectedVariantIndex(variants.length);
@@ -550,11 +558,11 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
       {/* Horizontal Tab Navigation */}
       <div className="border-b border-[var(--admin-border)] bg-[var(--admin-sidebar)]">
         <div className="px-6">
-          <nav className="flex gap-8">
+          <nav className="flex gap-10">
             <button
               onClick={() => setActiveTab('details')}
               className={cn(
-                'py-4 text-sm font-medium border-b-2 transition-colors',
+                'py-5 text-base font-medium border-b-2 transition-colors',
                 activeTab === 'details'
                   ? 'border-[var(--primary)] text-[var(--primary)]'
                   : 'border-transparent text-[var(--admin-text-muted)] hover:text-[var(--admin-text-primary)]'
@@ -565,7 +573,7 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
             <button
               onClick={() => setActiveTab('content')}
               className={cn(
-                'py-4 text-sm font-medium border-b-2 transition-colors',
+                'py-5 text-base font-medium border-b-2 transition-colors',
                 activeTab === 'content'
                   ? 'border-[var(--primary)] text-[var(--primary)]'
                   : 'border-transparent text-[var(--admin-text-muted)] hover:text-[var(--admin-text-primary)]'
@@ -859,79 +867,104 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
               Hero Media & Badge
             </h3>
 
-            {/* Media Grid - 2 per row */}
-            <div className="grid grid-cols-2 gap-4 mb-6">
-              <MediaPickerButton
-                label="Media 1 - Featured"
-                value={product.heroImageUrl}
-                onChange={(url) => setProduct({ ...product, heroImageUrl: url || null })}
-                folder="products"
-                aspectRatio="1/1"
-                acceptVideo
-              />
-              <MediaPickerButton
-                label="Media 2"
-                value={carouselImages[0] || null}
-                onChange={(url) => {
-                  const newImages = [...carouselImages];
-                  if (url) {
-                    newImages[0] = url;
-                  } else {
-                    newImages[0] = '';
-                  }
-                  const filtered = newImages.filter(Boolean);
-                  setProduct({
-                    ...product,
-                    heroCarouselImages: filtered.length > 0 ? JSON.stringify(filtered) : null,
-                  });
-                }}
-                folder="products"
-                aspectRatio="1/1"
-                acceptVideo
-              />
-              <MediaPickerButton
-                label="Media 3"
-                value={carouselImages[1] || null}
-                onChange={(url) => {
-                  const newImages = [...carouselImages];
-                  while (newImages.length < 2) newImages.push('');
-                  if (url) {
-                    newImages[1] = url;
-                  } else {
-                    newImages[1] = '';
-                  }
-                  const filtered = newImages.filter(Boolean);
-                  setProduct({
-                    ...product,
-                    heroCarouselImages: filtered.length > 0 ? JSON.stringify(filtered) : null,
-                  });
-                }}
-                folder="products"
-                aspectRatio="1/1"
-                acceptVideo
-              />
-              <MediaPickerButton
-                label="Media 4"
-                value={carouselImages[2] || null}
-                onChange={(url) => {
-                  const newImages = [...carouselImages];
-                  while (newImages.length < 3) newImages.push('');
-                  if (url) {
-                    newImages[2] = url;
-                  } else {
-                    newImages[2] = '';
-                  }
-                  const filtered = newImages.filter(Boolean);
-                  setProduct({
-                    ...product,
-                    heroCarouselImages: filtered.length > 0 ? JSON.stringify(filtered) : null,
-                  });
-                }}
-                folder="products"
-                aspectRatio="1/1"
-                acceptVideo
-              />
-            </div>
+            {/* Variant Tabs for Media - only show if variants exist */}
+            {variants.length > 0 && (
+              <div className="mb-4">
+                <label className="block text-sm text-[var(--admin-text-secondary)] mb-2">
+                  Select Variant Media
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {variants.map((variant, index) => (
+                    <button
+                      key={variant.id}
+                      onClick={() => setSelectedMediaVariantIndex(index)}
+                      className={cn(
+                        'px-4 py-2 rounded-lg text-sm font-medium transition-all border',
+                        selectedMediaVariantIndex === index
+                          ? 'bg-[var(--primary)] text-[var(--admin-button-text)] border-[var(--primary)]'
+                          : 'bg-[var(--admin-input)] text-[var(--admin-text-secondary)] border-[var(--admin-border-light)] hover:border-[var(--primary)]'
+                      )}
+                    >
+                      {variant.name || `Variant ${index + 1}`}
+                    </button>
+                  ))}
+                </div>
+                <p className="text-xs text-[var(--admin-text-muted)] mt-2">
+                  Each variant can have its own product images/videos
+                </p>
+              </div>
+            )}
+
+            {/* Media Grid - Shows selected variant's media */}
+            {variants.length > 0 ? (
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                {(() => {
+                  const selectedMediaVariant = variants[selectedMediaVariantIndex];
+                  if (!selectedMediaVariant) return null;
+
+                  const variantCarouselImages: string[] = selectedMediaVariant.heroCarouselImages
+                    ? JSON.parse(selectedMediaVariant.heroCarouselImages)
+                    : [];
+
+                  const updateVariantMedia = (field: keyof ProductVariant, value: string | null) => {
+                    setVariants(variants.map((v, i) =>
+                      i === selectedMediaVariantIndex ? { ...v, [field]: value } : v
+                    ));
+                  };
+
+                  const updateVariantCarousel = (index: number, url: string | null) => {
+                    const newImages = [...variantCarouselImages];
+                    while (newImages.length <= index) newImages.push('');
+                    newImages[index] = url || '';
+                    const filtered = newImages.filter(Boolean);
+                    updateVariantMedia('heroCarouselImages', filtered.length > 0 ? JSON.stringify(filtered) : null);
+                  };
+
+                  return (
+                    <>
+                      <MediaPickerButton
+                        label="Media 1 - Featured"
+                        value={selectedMediaVariant.heroImageUrl || null}
+                        onChange={(url) => updateVariantMedia('heroImageUrl', url || null)}
+                        folder="products"
+                        aspectRatio="1/1"
+                        acceptVideo
+                      />
+                      <MediaPickerButton
+                        label="Media 2"
+                        value={variantCarouselImages[0] || null}
+                        onChange={(url) => updateVariantCarousel(0, url)}
+                        folder="products"
+                        aspectRatio="1/1"
+                        acceptVideo
+                      />
+                      <MediaPickerButton
+                        label="Media 3"
+                        value={variantCarouselImages[1] || null}
+                        onChange={(url) => updateVariantCarousel(1, url)}
+                        folder="products"
+                        aspectRatio="1/1"
+                        acceptVideo
+                      />
+                      <MediaPickerButton
+                        label="Media 4"
+                        value={variantCarouselImages[2] || null}
+                        onChange={(url) => updateVariantCarousel(2, url)}
+                        folder="products"
+                        aspectRatio="1/1"
+                        acceptVideo
+                      />
+                    </>
+                  );
+                })()}
+              </div>
+            ) : (
+              <div className="py-8 text-center border-2 border-dashed border-[var(--admin-border-light)] rounded-lg mb-6">
+                <p className="text-sm text-[var(--admin-text-muted)]">
+                  Add at least one variant above to upload media
+                </p>
+              </div>
+            )}
 
             {/* Badge Configuration */}
             <div className="pt-6 border-t border-[var(--admin-border-light)]">

@@ -361,6 +361,11 @@ export const productVariants = sqliteTable('product_variants', {
   isDefault: integer('is_default', { mode: 'boolean' }).default(false),
   sortOrder: integer('sort_order').default(0),
 
+  // Variant-specific media (shown in Hero Media section with variant tabs)
+  heroImageUrl: text('hero_image_url'),
+  secondaryImageUrl: text('secondary_image_url'),
+  heroCarouselImages: text('hero_carousel_images'), // JSON array of up to 2 additional images/videos
+
   createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
 });
 

@@ -106,6 +106,9 @@ export async function POST(request: Request) {
           amazonUrl: variant.amazonUrl,
           isDefault: variant.isDefault || false,
           sortOrder: variant.sortOrder || 0,
+          heroImageUrl: variant.heroImageUrl || null,
+          secondaryImageUrl: variant.secondaryImageUrl || null,
+          heroCarouselImages: variant.heroCarouselImages || null,
         });
       }
     }
