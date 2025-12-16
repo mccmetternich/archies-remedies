@@ -371,19 +371,6 @@ export function Footer({
                     )}
                   </li>
                 ))}
-                {amazonStoreUrl && !shopLinks.find(l => l.url.includes('amazon')) && (
-                  <li>
-                    <a
-                      href={amazonStoreUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={cn('text-sm transition-colors leading-relaxed inline-flex items-center gap-1 border-b border-transparent pb-0.5', textMutedClass, isDark ? 'hover:text-white hover:border-white' : 'hover:text-gray-900 hover:border-gray-900')}
-                    >
-                      Shop on Amazon
-                      <ArrowRight className="w-3 h-3" />
-                    </a>
-                  </li>
-                )}
               </ul>
             </div>
 
@@ -569,13 +556,6 @@ export function Footer({
                     )}
                   </li>
                 ))}
-                {amazonStoreUrl && !shopLinks.find(l => l.url.includes('amazon')) && (
-                  <li>
-                    <a href={amazonStoreUrl} target="_blank" rel="noopener noreferrer" className={cn('text-sm inline-flex items-center gap-1', textMutedClass)}>
-                      Shop on Amazon <ArrowRight className="w-3 h-3" />
-                    </a>
-                  </li>
-                )}
               </ul>
             </MobileAccordion>
 

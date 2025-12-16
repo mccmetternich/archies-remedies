@@ -133,12 +133,16 @@ export default function BlogPostEditorPage({ params }: { params: Promise<{ id: s
   const [showWidgetLibrary, setShowWidgetLibrary] = useState(false);
   const [expandedWidgetId, setExpandedWidgetId] = useState<string | null>(null);
 
-  // Fetch default author settings for new posts
-  const fetchDefaultAuthor = async () => {
+  // Global site draft mode - if true, entire site is behind coming soon page
+  const [siteInDraftMode, setSiteInDraftMode] = useState(false);
+
+  // Fetch default author settings and site draft mode
+  const fetchSiteSettings = async () => {
     try {
       const res = await fetch('/api/admin/settings');
       const settings = await res.json();
-      if (settings.defaultBlogAuthorName || settings.defaultBlogAuthorAvatarUrl) {
+      setSiteInDraftMode(settings.siteInDraftMode ?? false);
+      if (isNew && (settings.defaultBlogAuthorName || settings.defaultBlogAuthorAvatarUrl)) {
         setPost((prev) => ({
           ...prev,
           authorName: settings.defaultBlogAuthorName || prev.authorName,
@@ -146,15 +150,14 @@ export default function BlogPostEditorPage({ params }: { params: Promise<{ id: s
         }));
       }
     } catch (error) {
-      console.error('Failed to fetch default author settings:', error);
+      console.error('Failed to fetch site settings:', error);
     }
   };
 
   useEffect(() => {
     fetchTags();
-    if (isNew) {
-      fetchDefaultAuthor();
-    } else {
+    fetchSiteSettings();
+    if (!isNew) {
       fetchPost();
     }
   }, [id, isNew]);
@@ -410,12 +413,12 @@ export default function BlogPostEditorPage({ params }: { params: Promise<{ id: s
           >
             <ArrowLeft className="w-5 h-5" />
           </Link>
-          <div className="min-w-0 flex-1">
-            <h1 className="text-xl font-medium text-[var(--admin-text-primary)] truncate max-w-[400px]" title={isNew ? 'New Blog Post' : post.title || 'Untitled Post'}>
+          <div className="min-w-0 flex-1 mr-4">
+            <h1 className="text-xl font-medium text-[var(--admin-text-primary)] truncate" title={isNew ? 'New Blog Post' : post.title || 'Untitled Post'}>
               {isNew ? 'New Blog Post' : post.title || 'Untitled Post'}
             </h1>
             {!isNew && post.slug && (
-              <p className="text-sm text-[var(--admin-text-muted)] truncate max-w-[400px]">
+              <p className="text-sm text-[var(--admin-text-muted)] truncate">
                 /blog/{post.slug}
               </p>
             )}
@@ -423,8 +426,14 @@ export default function BlogPostEditorPage({ params }: { params: Promise<{ id: s
         </div>
 
         <div className="flex items-center gap-3">
-          {/* Draft/Live Toggle */}
+          {/* Draft/Live Toggle - accounts for global site draft mode */}
+          {/* If global site is in draft, show indicator but still allow toggling post status */}
           <div className="flex items-center gap-2">
+            {siteInDraftMode && (
+              <span className="text-xs px-2 py-1 bg-orange-500/20 text-orange-400 rounded mr-2" title="Global site is in draft mode - all pages hidden behind coming soon">
+                Site Draft
+              </span>
+            )}
             <span className={cn(
               "text-sm font-medium transition-colors",
               post.status === 'draft' ? "text-orange-400" : "text-[var(--admin-text-muted)]"
@@ -440,6 +449,7 @@ export default function BlogPostEditorPage({ params }: { params: Promise<{ id: s
               style={{
                 backgroundColor: post.status === 'draft' ? '#f97316' : '#22c55e'
               }}
+              title={siteInDraftMode ? "Note: Site is in draft mode, so even 'Live' posts are hidden from public" : undefined}
             >
               <span
                 className={cn(
@@ -450,7 +460,7 @@ export default function BlogPostEditorPage({ params }: { params: Promise<{ id: s
             </button>
             <span className={cn(
               "text-sm font-medium transition-colors",
-              post.status === 'published' ? "text-green-400" : "text-[var(--admin-text-muted)]"
+              post.status === 'published' && !siteInDraftMode ? "text-green-400" : "text-[var(--admin-text-muted)]"
             )}>
               Live
             </span>

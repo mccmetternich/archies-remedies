@@ -10,12 +10,20 @@ interface BlogHeroCarouselProps {
 }
 
 export function BlogHeroCarousel({ featuredMediaUrl, title, heroCarouselImages }: BlogHeroCarouselProps) {
-  // Use heroCarouselImages as the source of truth for all carousel media
-  // If heroCarouselImages is empty, fall back to just the featuredMediaUrl
-  // This prevents duplicate images when featuredImage is also in the carousel array
-  const allMedia = heroCarouselImages.length > 0
-    ? heroCarouselImages.filter(Boolean) as string[]
-    : (featuredMediaUrl ? [featuredMediaUrl] : []);
+  // Media 1 (featuredMediaUrl) should ALWAYS be first in the carousel
+  // heroCarouselImages contains Media 2, 3, 4
+  // Build array: [Media 1, Media 2, Media 3, Media 4] - filtering out empty values
+  const allMedia: string[] = [];
+  if (featuredMediaUrl) {
+    allMedia.push(featuredMediaUrl);
+  }
+  // Add carousel images (Media 2-4)
+  heroCarouselImages.filter(Boolean).forEach(url => {
+    // Don't add duplicates if featuredMediaUrl happens to be in carousel array
+    if (url && url !== featuredMediaUrl) {
+      allMedia.push(url);
+    }
+  });
   const [activeIndex, setActiveIndex] = useState(0);
 
   const currentMedia = allMedia[activeIndex] || featuredMediaUrl;

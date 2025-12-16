@@ -135,8 +135,8 @@ function EditorialCard({ post, className }: { post: BlogPost; className?: string
   return (
     <Link href={`/blog/${post.slug}`} className={cn('group block', className)}>
       {/* Thumbnail compartment with white gap inside black frame */}
-      <div className="p-4 bg-white">
-        <div className="aspect-[3/4] overflow-hidden bg-[#f5f5f5]">
+      <div className="p-3 bg-white">
+        <div className="aspect-[4/3] overflow-hidden bg-[#f5f5f5]">
           {post.featuredImageUrl ? (
             isVideoUrl(post.featuredImageUrl) ? (
               <video
@@ -499,19 +499,21 @@ export default async function BlogPage() {
           </section>
         )}
 
-        {/* Tag Filter Bar - No "All", bigger tags, hex blue, with post counts */}
+        {/* Tag Filter Bar - No "All", 2x larger tags, hex blue, hide count if ≤1 */}
         {tagsWithPosts.length > 0 && (
           <section className="sticky top-[72px] z-40 bg-white border-y border-black py-4">
             <div className="overflow-x-auto scrollbar-hide px-4">
-              <div className="flex gap-3 min-w-max">
+              <div className="flex gap-4 min-w-max">
                 {tagsWithPosts.map((tag) => (
                   <Link
                     key={tag.id}
                     href={`/blog/tag/${tag.slug}`}
-                    className="px-5 py-2.5 bg-[#bad9ea] text-base font-semibold text-black uppercase tracking-wide hover:bg-[#a5cce0] transition-colors flex items-center gap-2"
+                    className="px-8 py-4 bg-[#bad9ea] text-xl font-semibold text-black uppercase tracking-wide hover:bg-[#a5cce0] transition-colors flex items-center gap-2"
                   >
                     {tag.name}
-                    <span className="text-sm font-normal opacity-70">({tag.postCount})</span>
+                    {tag.postCount > 1 && (
+                      <span className="text-lg font-normal opacity-70">({tag.postCount})</span>
+                    )}
                   </Link>
                 ))}
               </div>
