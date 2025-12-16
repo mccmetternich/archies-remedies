@@ -675,7 +675,7 @@ export default async function BlogPage() {
           <section className="pt-32 pb-12 px-4">
             <div className="max-w-7xl mx-auto text-center">
               <h1 className="text-5xl lg:text-6xl font-bold tracking-tight">
-                {settings.pageTitle || settings.blogName || 'Journal'}
+                {settings.blogName || settings.pageTitle || 'Journal'}
               </h1>
               {settings.pageSubtitle && (
                 <p className="mt-4 text-xl text-gray-600">{settings.pageSubtitle}</p>

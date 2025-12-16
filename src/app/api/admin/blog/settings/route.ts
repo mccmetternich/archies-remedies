@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidateTag } from 'next/cache';
 import { db } from '@/lib/db';
 import { blogSettings } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
@@ -69,6 +70,9 @@ export async function PUT(request: Request) {
         })
         .where(eq(blogSettings.id, existing.id));
 
+      // Revalidate blog page cache
+      revalidateTag('blog-data', 'max');
+
       return NextResponse.json({
         ...existing,
         blogName,
@@ -100,6 +104,9 @@ export async function PUT(request: Request) {
         blogInDraftMode,
         updatedAt,
       });
+
+      // Revalidate blog page cache
+      revalidateTag('blog-data', 'max');
 
       return NextResponse.json({
         id,
