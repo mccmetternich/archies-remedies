@@ -13,8 +13,8 @@ import {
   Monitor,
   Smartphone,
   Trash2,
-  ImageIcon,
   Layers,
+  Check,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { RichTextEditor } from '@/components/admin/rich-text-editor';
@@ -65,43 +65,34 @@ interface Product {
   heroImageUrl: string | null;
   secondaryImageUrl: string | null;
   heroCarouselImages: string | null;
-  // Badge
   badge: string | null;
   badgeEmoji: string | null;
   badgeBgColor: string | null;
   badgeTextColor: string | null;
   rotatingBadgeEnabled: boolean | null;
   rotatingBadgeText: string | null;
-  // Rating
   rating: number | null;
   reviewCount: number | null;
-  // Rotating Seal
   rotatingSealEnabled: boolean | null;
   rotatingSealImageUrl: string | null;
-  // Accordions
   ritualTitle: string | null;
   ritualContent: string | null;
   ingredientsTitle: string | null;
   ingredientsContent: string | null;
   shippingTitle: string | null;
   shippingContent: string | null;
-  // Bullet Points
   bulletPoint1: string | null;
   bulletPoint2: string | null;
   bulletPoint3: string | null;
   bulletPoint4: string | null;
   bulletPoint5: string | null;
-  // CTA
   ctaButtonText: string | null;
   ctaExternalUrl: string | null;
   showDiscountSignup: boolean | null;
   discountSignupText: string | null;
-  // Widgets
   widgets: string | null;
-  // SEO
   metaTitle: string | null;
   metaDescription: string | null;
-  // Status
   isActive: boolean | null;
   sortOrder: number | null;
 }
@@ -140,7 +131,7 @@ function DraggableWidgetRow({
       value={widget}
       dragListener={false}
       dragControls={dragControls}
-      className="bg-[var(--admin-card)] border border-[var(--admin-border)] rounded-lg overflow-hidden"
+      className="bg-[var(--admin-card)] border border-[var(--admin-border-light)] rounded-lg overflow-hidden"
     >
       <div className="flex items-center gap-3 p-4">
         <div
@@ -150,7 +141,7 @@ function DraggableWidgetRow({
           <GripVertical className="w-4 h-4 text-[var(--admin-text-muted)]" />
         </div>
 
-        <span className="w-6 h-6 flex items-center justify-center text-xs font-mono bg-[var(--admin-input)] rounded">
+        <span className="w-6 h-6 flex items-center justify-center text-xs font-mono bg-[var(--admin-input)] rounded text-[var(--admin-text-primary)]">
           {index + 1}
         </span>
 
@@ -235,6 +226,7 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
   const [saved, setSaved] = useState(false);
   const [bulletPointCount, setBulletPointCount] = useState(3);
   const [siteInDraftMode, setSiteInDraftMode] = useState(false);
+  const [selectedVariantIndex, setSelectedVariantIndex] = useState(0);
 
   // Track changes
   const hasChanges =
@@ -307,7 +299,6 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
       setBenefits(data.benefits || []);
       setOriginalBenefits(data.benefits || []);
 
-      // Parse widgets from JSON
       if (data.product?.widgets) {
         try {
           const parsedWidgets = JSON.parse(data.product.widgets);
@@ -319,7 +310,6 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
         }
       }
 
-      // Count existing bullet points
       const bulletPoints = [
         data.product?.bulletPoint1,
         data.product?.bulletPoint2,
@@ -345,7 +335,6 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
     }
   };
 
-  // Auto-generate slug from name
   const handleNameChange = (name: string) => {
     if (!product) return;
     const slug = name
@@ -355,7 +344,6 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
     setProduct({ ...product, name, slug: isNew || !product.slug ? slug : product.slug });
   };
 
-  // Save handler
   const handleSave = async () => {
     if (!product) return;
 
@@ -394,7 +382,6 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
     }
   };
 
-  // Delete handler
   const handleDelete = async () => {
     try {
       await fetch(`/api/admin/products/${id}`, { method: 'DELETE' });
@@ -404,7 +391,6 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
     }
   };
 
-  // Toggle status
   const handleStatusToggle = async () => {
     if (!product) return;
     const newStatus = !product.isActive;
@@ -424,7 +410,6 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
     }
   };
 
-  // View handler with preview token
   const handleView = async () => {
     const isDraft = siteInDraftMode || !product?.isActive;
     if (isDraft) {
@@ -444,22 +429,25 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
 
   // Variant handlers
   const addVariant = () => {
-    setVariants([
-      ...variants,
-      {
-        id: `new-${Date.now()}`,
-        name: '',
-        price: null,
-        compareAtPrice: null,
-        amazonUrl: '',
-        isDefault: variants.length === 0,
-        sortOrder: variants.length,
-      },
-    ]);
+    const newVariant: ProductVariant = {
+      id: `new-${Date.now()}`,
+      name: '',
+      price: null,
+      compareAtPrice: null,
+      amazonUrl: '',
+      isDefault: variants.length === 0,
+      sortOrder: variants.length,
+    };
+    setVariants([...variants, newVariant]);
+    setSelectedVariantIndex(variants.length);
   };
 
   const removeVariant = (variantId: string) => {
-    setVariants(variants.filter((v) => v.id !== variantId));
+    const newVariants = variants.filter((v) => v.id !== variantId);
+    setVariants(newVariants);
+    if (selectedVariantIndex >= newVariants.length) {
+      setSelectedVariantIndex(Math.max(0, newVariants.length - 1));
+    }
   };
 
   const updateVariant = (
@@ -491,7 +479,6 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
     setWidgets(widgets.filter((w) => w.id !== widgetId));
   };
 
-  // Handle drop from library
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     const widgetType = e.dataTransfer.getData('widget-type');
@@ -505,7 +492,6 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
     e.dataTransfer.dropEffect = 'copy';
   };
 
-  // Loading state
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -530,8 +516,11 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
     ? JSON.parse(product.heroCarouselImages)
     : [];
 
+  // Get selected variant for CTA
+  const selectedVariant = variants[selectedVariantIndex] || variants[0];
+
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-[var(--admin-bg)]">
       {/* Header */}
       <AdminPageHeader
         breadcrumbs={[
@@ -559,7 +548,7 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
       />
 
       {/* Horizontal Tab Navigation */}
-      <div className="border-b border-[var(--admin-border)] bg-[var(--admin-card)]">
+      <div className="border-b border-[var(--admin-border)] bg-[var(--admin-sidebar)]">
         <div className="px-6">
           <nav className="flex gap-8">
             <button
@@ -584,7 +573,7 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
             >
               Additional Content
               {widgets.length > 0 && (
-                <span className="ml-2 px-2 py-0.5 text-xs bg-[var(--admin-input)] rounded-full">
+                <span className="ml-2 px-2 py-0.5 text-xs bg-[var(--admin-input)] rounded-full text-[var(--admin-text-primary)]">
                   {widgets.length}
                 </span>
               )}
@@ -595,135 +584,283 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
 
       {/* Tab Content */}
       {activeTab === 'details' ? (
-        <div className="p-6 max-w-5xl mx-auto space-y-8">
-          {/* Product Info + Pricing Row */}
-          <div className="grid md:grid-cols-2 gap-6">
-            {/* Product Info */}
-            <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border)] p-6 space-y-4">
-              <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--admin-text-muted)]">
-                Product Info
-              </h3>
+        <div className="p-6 max-w-4xl mx-auto space-y-6">
+          {/* Section 1: Product Info */}
+          <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6">
+            <h3 className="text-sm font-medium text-[var(--admin-text-primary)] mb-4">
+              Product Info
+            </h3>
+            <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-1">
+                <label className="block text-sm text-[var(--admin-text-secondary)] mb-1.5">
                   Product Name *
                 </label>
                 <Input
                   value={product.name}
                   onChange={(e) => handleNameChange(e.target.value)}
                   placeholder="Dry Eye Relief Drops"
+                  className="bg-[var(--admin-input)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)]"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-1">
+                <label className="block text-sm text-[var(--admin-text-secondary)] mb-1.5">
                   Short Description
                 </label>
                 <textarea
                   value={product.shortDescription || ''}
                   onChange={(e) => setProduct({ ...product, shortDescription: e.target.value })}
-                  placeholder="Brief description..."
+                  placeholder="Brief description for product cards and meta..."
                   rows={3}
-                  className="flex w-full rounded-lg border border-[var(--admin-border)] bg-[var(--admin-input)] px-3 py-2 text-sm resize-none"
+                  className="w-full px-3 py-2 bg-[var(--admin-input)] border border-[var(--admin-border-light)] rounded-lg text-sm text-[var(--admin-text-primary)] placeholder-[var(--admin-text-muted)] resize-none focus:outline-none focus:border-[var(--primary)]"
                 />
               </div>
+
+              {/* Key Benefits - Under Short Description */}
               <div>
-                <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-1">
+                <label className="block text-sm text-[var(--admin-text-secondary)] mb-1.5">
+                  Key Benefits
+                </label>
+                <p className="text-xs text-[var(--admin-text-muted)] mb-3">
+                  Shown with checkmarks on the product page
+                </p>
+                <div className="space-y-2">
+                  {Array.from({ length: bulletPointCount }).map((_, i) => {
+                    const key = `bulletPoint${i + 1}` as keyof Product;
+                    return (
+                      <div key={i} className="flex items-center gap-2">
+                        <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
+                        <Input
+                          value={(product[key] as string) || ''}
+                          onChange={(e) =>
+                            setProduct({ ...product, [key]: e.target.value || null })
+                          }
+                          placeholder={`Benefit ${i + 1}`}
+                          className="bg-[var(--admin-input)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)]"
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+                {bulletPointCount < 5 && (
+                  <button
+                    onClick={() => setBulletPointCount(bulletPointCount + 1)}
+                    className="flex items-center gap-1 text-sm text-[var(--primary)] hover:underline mt-3"
+                  >
+                    <Plus className="w-3 h-3" />
+                    Add another
+                  </button>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm text-[var(--admin-text-secondary)] mb-1.5">
                   URL Slug *
                 </label>
                 <Input
                   value={product.slug}
                   onChange={(e) => setProduct({ ...product, slug: e.target.value })}
                   placeholder="eye-drops"
+                  className="bg-[var(--admin-input)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)]"
                 />
                 <p className="text-xs text-[var(--admin-text-muted)] mt-1">
-                  /products/{product.slug || 'your-slug'}
-                </p>
-              </div>
-            </div>
-
-            {/* Pricing */}
-            <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border)] p-6 space-y-4">
-              <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--admin-text-muted)]">
-                Pricing
-              </h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-1">
-                    Price ($)
-                  </label>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    value={product.price || ''}
-                    onChange={(e) => setProduct({ ...product, price: parseFloat(e.target.value) || null })}
-                    placeholder="24.99"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-1">
-                    Compare at ($)
-                  </label>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    value={product.compareAtPrice || ''}
-                    onChange={(e) =>
-                      setProduct({ ...product, compareAtPrice: parseFloat(e.target.value) || null })
-                    }
-                    placeholder="29.99"
-                  />
-                </div>
-              </div>
-
-              {/* Rating & Reviews in same card */}
-              <div className="pt-4 border-t border-[var(--admin-border)]">
-                <h4 className="text-sm font-medium text-[var(--admin-text-secondary)] mb-3">
-                  Rating & Reviews
-                </h4>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs text-[var(--admin-text-muted)] mb-1">
-                      Rating (0-5)
-                    </label>
-                    <Input
-                      type="number"
-                      step="0.1"
-                      min="0"
-                      max="5"
-                      value={product.rating || ''}
-                      onChange={(e) => setProduct({ ...product, rating: parseFloat(e.target.value) || null })}
-                      placeholder="4.9"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs text-[var(--admin-text-muted)] mb-1">
-                      Review Count
-                    </label>
-                    <Input
-                      type="number"
-                      value={product.reviewCount || ''}
-                      onChange={(e) => setProduct({ ...product, reviewCount: parseInt(e.target.value) || null })}
-                      placeholder="2900"
-                    />
-                  </div>
-                </div>
-                <p className="text-xs text-[var(--admin-text-muted)] mt-2">
-                  Used in nav, homepage tiles, and PDP
+                  archiesremedies.com/products/{product.slug || 'your-slug'}
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Hero Media Section - 4 images like blog */}
-          <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border)] p-6">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--admin-text-muted)] mb-2">
-              <ImageIcon className="w-4 h-4 inline mr-2" />
-              Hero Media (4 max)
+          {/* Section 2: Variants & Pricing */}
+          <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6">
+            <h3 className="text-sm font-medium text-[var(--admin-text-primary)] mb-4">
+              Variants & Pricing
             </h3>
-            <p className="text-xs text-[var(--admin-text-muted)] mb-4">
-              Media 1 is the featured hero image/video. Media 2-4 appear as gallery thumbnails.
-            </p>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {/* Media 1 - Featured */}
+
+            {variants.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-sm text-[var(--admin-text-muted)] mb-4">
+                  No variants added. Add at least one variant with pricing and Amazon URL.
+                </p>
+                <button
+                  onClick={addVariant}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--primary)] text-[var(--admin-button-text)] rounded-lg text-sm font-medium hover:bg-[var(--primary-dark)] transition-colors"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add Variant
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {/* Variant Selector Tiles */}
+                {variants.length > 1 && (
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {variants.map((variant, index) => (
+                      <button
+                        key={variant.id}
+                        onClick={() => setSelectedVariantIndex(index)}
+                        className={cn(
+                          'px-4 py-2 rounded-lg text-sm font-medium transition-all border',
+                          selectedVariantIndex === index
+                            ? 'bg-[var(--primary)] text-[var(--admin-button-text)] border-[var(--primary)]'
+                            : 'bg-[var(--admin-input)] text-[var(--admin-text-secondary)] border-[var(--admin-border-light)] hover:border-[var(--primary)]'
+                        )}
+                      >
+                        {variant.name || `Variant ${index + 1}`}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {/* Variant Details */}
+                {variants.map((variant, index) => (
+                  <div
+                    key={variant.id}
+                    className={cn(
+                      'p-4 border border-[var(--admin-border-light)] rounded-lg space-y-4',
+                      variants.length > 1 && selectedVariantIndex !== index && 'hidden'
+                    )}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-[var(--admin-text-primary)]">
+                        {variants.length === 1 ? 'Product Details' : `Variant ${index + 1}`}
+                      </span>
+                      {variants.length > 1 && (
+                        <button
+                          onClick={() => removeVariant(variant.id)}
+                          className="p-1.5 text-red-400 hover:bg-red-500/10 rounded transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm text-[var(--admin-text-secondary)] mb-1.5">
+                          Variant Name
+                        </label>
+                        <Input
+                          value={variant.name}
+                          onChange={(e) => updateVariant(variant.id, 'name', e.target.value)}
+                          placeholder="e.g., 30 Count"
+                          className="bg-[var(--admin-input)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)]"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm text-[var(--admin-text-secondary)] mb-1.5">
+                          Amazon URL *
+                        </label>
+                        <Input
+                          value={variant.amazonUrl}
+                          onChange={(e) => updateVariant(variant.id, 'amazonUrl', e.target.value)}
+                          placeholder="https://amazon.com/dp/..."
+                          className="bg-[var(--admin-input)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)]"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm text-[var(--admin-text-secondary)] mb-1.5">
+                          Price ($)
+                        </label>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          value={variant.price || ''}
+                          onChange={(e) => updateVariant(variant.id, 'price', parseFloat(e.target.value) || null)}
+                          placeholder="24.99"
+                          className="bg-[var(--admin-input)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)]"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm text-[var(--admin-text-secondary)] mb-1.5">
+                          Compare at ($)
+                        </label>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          value={variant.compareAtPrice || ''}
+                          onChange={(e) =>
+                            updateVariant(variant.id, 'compareAtPrice', parseFloat(e.target.value) || null)
+                          }
+                          placeholder="29.99"
+                          className="bg-[var(--admin-input)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)]"
+                        />
+                      </div>
+                    </div>
+
+                    {variants.length === 1 && (
+                      <label className="flex items-center gap-2 text-sm text-[var(--admin-text-secondary)]">
+                        <input
+                          type="checkbox"
+                          checked={variant.isDefault ?? true}
+                          onChange={(e) => updateVariant(variant.id, 'isDefault', e.target.checked)}
+                          className="rounded border-[var(--admin-border-light)]"
+                        />
+                        Default variant
+                      </label>
+                    )}
+                  </div>
+                ))}
+
+                <button
+                  onClick={addVariant}
+                  className="w-full py-3 border-2 border-dashed border-[var(--admin-border-light)] rounded-lg text-sm text-[var(--admin-text-muted)] hover:border-[var(--primary)] hover:text-[var(--primary)] transition-colors flex items-center justify-center gap-2"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add Another Variant
+                </button>
+              </div>
+            )}
+
+            {/* Rating & Reviews */}
+            <div className="mt-6 pt-6 border-t border-[var(--admin-border-light)]">
+              <h4 className="text-sm font-medium text-[var(--admin-text-primary)] mb-4">
+                Rating & Reviews
+              </h4>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm text-[var(--admin-text-secondary)] mb-1.5">
+                    Rating (0-5)
+                  </label>
+                  <Input
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    max="5"
+                    value={product.rating || ''}
+                    onChange={(e) => setProduct({ ...product, rating: parseFloat(e.target.value) || null })}
+                    placeholder="4.9"
+                    className="bg-[var(--admin-input)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm text-[var(--admin-text-secondary)] mb-1.5">
+                    Review Count
+                  </label>
+                  <Input
+                    type="number"
+                    value={product.reviewCount || ''}
+                    onChange={(e) => setProduct({ ...product, reviewCount: parseInt(e.target.value) || null })}
+                    placeholder="2900"
+                    className="bg-[var(--admin-input)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)]"
+                  />
+                </div>
+              </div>
+              <p className="text-xs text-[var(--admin-text-muted)] mt-2">
+                Displayed in navigation, homepage tiles, and product page
+              </p>
+            </div>
+          </div>
+
+          {/* Section 3: Hero Media & Badge */}
+          <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6">
+            <h3 className="text-sm font-medium text-[var(--admin-text-primary)] mb-4">
+              Hero Media & Badge
+            </h3>
+
+            {/* Media Grid - 2 per row */}
+            <div className="grid grid-cols-2 gap-4 mb-6">
               <MediaPickerButton
                 label="Media 1 - Featured"
                 value={product.heroImageUrl}
@@ -732,220 +869,154 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
                 aspectRatio="1/1"
                 acceptVideo
               />
-
-              {/* Media 2-4 - Carousel images */}
-              {[0, 1, 2].map((index) => {
-                const currentUrl = carouselImages[index] || null;
-
-                return (
-                  <MediaPickerButton
-                    key={index}
-                    label={`Media ${index + 2}`}
-                    value={currentUrl}
-                    onChange={(url) => {
-                      const newImages = [...carouselImages];
-                      while (newImages.length < index + 1) {
-                        newImages.push('');
-                      }
-                      if (url) {
-                        newImages[index] = url;
-                      } else {
-                        newImages[index] = '';
-                      }
-                      const filtered = newImages.filter(Boolean);
-                      setProduct({
-                        ...product,
-                        heroCarouselImages: filtered.length > 0 ? JSON.stringify(filtered) : null,
-                      });
-                    }}
-                    folder="products"
-                    aspectRatio="1/1"
-                    acceptVideo
-                  />
-                );
-              })}
+              <MediaPickerButton
+                label="Media 2"
+                value={carouselImages[0] || null}
+                onChange={(url) => {
+                  const newImages = [...carouselImages];
+                  if (url) {
+                    newImages[0] = url;
+                  } else {
+                    newImages[0] = '';
+                  }
+                  const filtered = newImages.filter(Boolean);
+                  setProduct({
+                    ...product,
+                    heroCarouselImages: filtered.length > 0 ? JSON.stringify(filtered) : null,
+                  });
+                }}
+                folder="products"
+                aspectRatio="1/1"
+                acceptVideo
+              />
+              <MediaPickerButton
+                label="Media 3"
+                value={carouselImages[1] || null}
+                onChange={(url) => {
+                  const newImages = [...carouselImages];
+                  while (newImages.length < 2) newImages.push('');
+                  if (url) {
+                    newImages[1] = url;
+                  } else {
+                    newImages[1] = '';
+                  }
+                  const filtered = newImages.filter(Boolean);
+                  setProduct({
+                    ...product,
+                    heroCarouselImages: filtered.length > 0 ? JSON.stringify(filtered) : null,
+                  });
+                }}
+                folder="products"
+                aspectRatio="1/1"
+                acceptVideo
+              />
+              <MediaPickerButton
+                label="Media 4"
+                value={carouselImages[2] || null}
+                onChange={(url) => {
+                  const newImages = [...carouselImages];
+                  while (newImages.length < 3) newImages.push('');
+                  if (url) {
+                    newImages[2] = url;
+                  } else {
+                    newImages[2] = '';
+                  }
+                  const filtered = newImages.filter(Boolean);
+                  setProduct({
+                    ...product,
+                    heroCarouselImages: filtered.length > 0 ? JSON.stringify(filtered) : null,
+                  });
+                }}
+                folder="products"
+                aspectRatio="1/1"
+                acceptVideo
+              />
             </div>
-          </div>
 
-          {/* Badge Configuration */}
-          <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border)] p-6">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--admin-text-muted)] mb-4">
-              Badge (Optional)
-            </h3>
-            <div className="grid md:grid-cols-4 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-1">
-                  Badge Text
-                </label>
-                <Input
-                  value={product.badge || ''}
-                  onChange={(e) => setProduct({ ...product, badge: e.target.value || null })}
-                  placeholder="Bestseller"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-1">
-                  Emoji
-                </label>
-                <Input
-                  value={product.badgeEmoji || ''}
-                  onChange={(e) => setProduct({ ...product, badgeEmoji: e.target.value || null })}
-                  placeholder="🔥"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-1">
-                  Background
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="color"
-                    value={product.badgeBgColor || '#1a1a1a'}
-                    onChange={(e) => setProduct({ ...product, badgeBgColor: e.target.value })}
-                    className="w-10 h-10 rounded cursor-pointer border border-[var(--admin-border)]"
-                  />
+            {/* Badge Configuration */}
+            <div className="pt-6 border-t border-[var(--admin-border-light)]">
+              <h4 className="text-sm font-medium text-[var(--admin-text-primary)] mb-4">
+                Badge (Optional)
+              </h4>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm text-[var(--admin-text-secondary)] mb-1.5">
+                    Badge Text
+                  </label>
                   <Input
-                    value={product.badgeBgColor || '#1a1a1a'}
-                    onChange={(e) => setProduct({ ...product, badgeBgColor: e.target.value })}
-                    className="flex-1"
+                    value={product.badge || ''}
+                    onChange={(e) => setProduct({ ...product, badge: e.target.value || null })}
+                    placeholder="Bestseller"
+                    className="bg-[var(--admin-input)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)]"
                   />
                 </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-1">
-                  Text Color
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="color"
-                    value={product.badgeTextColor || '#ffffff'}
-                    onChange={(e) => setProduct({ ...product, badgeTextColor: e.target.value })}
-                    className="w-10 h-10 rounded cursor-pointer border border-[var(--admin-border)]"
-                  />
+                <div>
+                  <label className="block text-sm text-[var(--admin-text-secondary)] mb-1.5">
+                    Emoji
+                  </label>
                   <Input
-                    value={product.badgeTextColor || '#ffffff'}
-                    onChange={(e) => setProduct({ ...product, badgeTextColor: e.target.value })}
-                    className="flex-1"
+                    value={product.badgeEmoji || ''}
+                    onChange={(e) => setProduct({ ...product, badgeEmoji: e.target.value || null })}
+                    placeholder="🔥"
+                    className="bg-[var(--admin-input)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)]"
                   />
+                </div>
+                <div>
+                  <label className="block text-sm text-[var(--admin-text-secondary)] mb-1.5">
+                    Background Color
+                  </label>
+                  <div className="flex gap-2">
+                    <input
+                      type="color"
+                      value={product.badgeBgColor || '#1a1a1a'}
+                      onChange={(e) => setProduct({ ...product, badgeBgColor: e.target.value })}
+                      className="w-10 h-10 rounded cursor-pointer border border-[var(--admin-border-light)]"
+                    />
+                    <Input
+                      value={product.badgeBgColor || '#1a1a1a'}
+                      onChange={(e) => setProduct({ ...product, badgeBgColor: e.target.value })}
+                      className="flex-1 bg-[var(--admin-input)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)]"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm text-[var(--admin-text-secondary)] mb-1.5">
+                    Text Color
+                  </label>
+                  <div className="flex gap-2">
+                    <input
+                      type="color"
+                      value={product.badgeTextColor || '#ffffff'}
+                      onChange={(e) => setProduct({ ...product, badgeTextColor: e.target.value })}
+                      className="w-10 h-10 rounded cursor-pointer border border-[var(--admin-border-light)]"
+                    />
+                    <Input
+                      value={product.badgeTextColor || '#ffffff'}
+                      onChange={(e) => setProduct({ ...product, badgeTextColor: e.target.value })}
+                      className="flex-1 bg-[var(--admin-input)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)]"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Key Benefits / Bullet Points */}
-          <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border)] p-6">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--admin-text-muted)] mb-2">
-              Key Benefits
+          {/* Section 4: Benefit Drawers */}
+          <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6">
+            <h3 className="text-sm font-medium text-[var(--admin-text-primary)] mb-2">
+              Benefit Drawers
             </h3>
             <p className="text-xs text-[var(--admin-text-muted)] mb-4">
-              Shown with green checkmarks on the product page
+              Expandable sections on the product page. Only populated drawers will appear.
             </p>
-            <div className="grid md:grid-cols-3 gap-4">
-              {Array.from({ length: bulletPointCount }).map((_, i) => {
-                const key = `bulletPoint${i + 1}` as keyof Product;
-                return (
-                  <Input
-                    key={i}
-                    value={(product[key] as string) || ''}
-                    onChange={(e) =>
-                      setProduct({ ...product, [key]: e.target.value || null })
-                    }
-                    placeholder={`Benefit ${i + 1}`}
-                  />
-                );
-              })}
-            </div>
-            {bulletPointCount < 5 && (
-              <button
-                onClick={() => setBulletPointCount(bulletPointCount + 1)}
-                className="flex items-center gap-1 text-sm text-[var(--primary)] hover:underline mt-4"
-              >
-                <Plus className="w-3 h-3" />
-                Add another
-              </button>
-            )}
-          </div>
-
-          {/* CTA Configuration */}
-          <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border)] p-6">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--admin-text-muted)] mb-4">
-              CTA Button
-            </h3>
-            <div className="grid md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-1">
-                  Button Text
-                </label>
-                <Input
-                  value={product.ctaButtonText || ''}
-                  onChange={(e) => setProduct({ ...product, ctaButtonText: e.target.value })}
-                  placeholder="Buy Now on Amazon"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-1">
-                  External URL (optional)
-                </label>
-                <Input
-                  value={product.ctaExternalUrl || ''}
-                  onChange={(e) => setProduct({ ...product, ctaExternalUrl: e.target.value || null })}
-                  placeholder="https://amazon.com/..."
-                />
-                <p className="text-xs text-[var(--admin-text-muted)] mt-1">
-                  Overrides variant Amazon URL
-                </p>
-              </div>
-            </div>
-            <div className="mt-4 pt-4 border-t border-[var(--admin-border)] flex items-center justify-between">
-              <div>
-                <span className="text-sm font-medium text-[var(--admin-text-secondary)]">
-                  Show discount signup
-                </span>
-                <p className="text-xs text-[var(--admin-text-muted)]">
-                  "Get X% off" link below CTA
-                </p>
-              </div>
-              <button
-                onClick={() => setProduct({ ...product, showDiscountSignup: !product.showDiscountSignup })}
-                className={cn(
-                  'relative inline-flex h-6 w-11 items-center rounded-full transition-colors',
-                  product.showDiscountSignup ? 'bg-green-500' : 'bg-[var(--admin-hover)]'
-                )}
-              >
-                <span
-                  className={cn(
-                    'inline-block h-4 w-4 transform rounded-full bg-white transition-transform',
-                    product.showDiscountSignup ? 'translate-x-6' : 'translate-x-1'
-                  )}
-                />
-              </button>
-            </div>
-            {product.showDiscountSignup && (
-              <div className="mt-3">
-                <Input
-                  value={product.discountSignupText || ''}
-                  onChange={(e) => setProduct({ ...product, discountSignupText: e.target.value })}
-                  placeholder="Get 10% off your first order"
-                />
-              </div>
-            )}
-          </div>
-
-          {/* Accordion Drawers */}
-          <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border)] p-6">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--admin-text-muted)] mb-2">
-              Accordion Drawers
-            </h3>
-            <p className="text-xs text-[var(--admin-text-muted)] mb-4">
-              Only drawers with content will appear on the product page
-            </p>
-            <div className="space-y-6">
+            <div className="space-y-4">
               {/* Drawer 1 */}
-              <div className="p-4 border border-[var(--admin-border)] rounded-lg space-y-3">
+              <div className="p-4 border border-[var(--admin-border-light)] rounded-lg space-y-3">
                 <Input
                   value={product.ritualTitle || ''}
                   onChange={(e) => setProduct({ ...product, ritualTitle: e.target.value })}
-                  placeholder="Title (e.g., The Ritual)"
+                  placeholder="Drawer 1 Title (e.g., The Ritual)"
+                  className="bg-[var(--admin-input)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)]"
                 />
                 <RichTextEditor
                   value={product.ritualContent || ''}
@@ -954,11 +1025,12 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
                 />
               </div>
               {/* Drawer 2 */}
-              <div className="p-4 border border-[var(--admin-border)] rounded-lg space-y-3">
+              <div className="p-4 border border-[var(--admin-border-light)] rounded-lg space-y-3">
                 <Input
                   value={product.ingredientsTitle || ''}
                   onChange={(e) => setProduct({ ...product, ingredientsTitle: e.target.value })}
-                  placeholder="Title (e.g., Ingredients)"
+                  placeholder="Drawer 2 Title (e.g., Ingredients)"
+                  className="bg-[var(--admin-input)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)]"
                 />
                 <RichTextEditor
                   value={product.ingredientsContent || ''}
@@ -967,11 +1039,12 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
                 />
               </div>
               {/* Drawer 3 */}
-              <div className="p-4 border border-[var(--admin-border)] rounded-lg space-y-3">
+              <div className="p-4 border border-[var(--admin-border-light)] rounded-lg space-y-3">
                 <Input
                   value={product.shippingTitle || ''}
                   onChange={(e) => setProduct({ ...product, shippingTitle: e.target.value })}
-                  placeholder="Title (e.g., Good to Know)"
+                  placeholder="Drawer 3 Title (e.g., Good to Know)"
+                  className="bg-[var(--admin-input)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)]"
                 />
                 <RichTextEditor
                   value={product.shippingContent || ''}
@@ -982,104 +1055,77 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
             </div>
           </div>
 
-          {/* Variants */}
-          <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border)] p-6">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--admin-text-muted)] mb-4">
-              Variants
+          {/* Section 5: CTA Configuration */}
+          <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6">
+            <h3 className="text-sm font-medium text-[var(--admin-text-primary)] mb-4">
+              CTA Button
             </h3>
             <div className="space-y-4">
-              {variants.map((variant, index) => (
-                <div
-                  key={variant.id}
-                  className="p-4 border border-[var(--admin-border)] rounded-lg space-y-3"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-[var(--admin-text-secondary)]">
-                      Variant {index + 1}
-                    </span>
-                    <button
-                      onClick={() => removeVariant(variant.id)}
-                      className="p-1 text-red-400 hover:bg-red-500/10 rounded"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
-                  <div className="grid md:grid-cols-2 gap-3">
-                    <Input
-                      value={variant.name}
-                      onChange={(e) => updateVariant(variant.id, 'name', e.target.value)}
-                      placeholder="Variant name (e.g., 30 Count)"
-                    />
-                    <Input
-                      value={variant.amazonUrl}
-                      onChange={(e) => updateVariant(variant.id, 'amazonUrl', e.target.value)}
-                      placeholder="Amazon URL"
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    <Input
-                      type="number"
-                      step="0.01"
-                      value={variant.price || ''}
-                      onChange={(e) => updateVariant(variant.id, 'price', parseFloat(e.target.value) || null)}
-                      placeholder="Price"
-                    />
-                    <Input
-                      type="number"
-                      step="0.01"
-                      value={variant.compareAtPrice || ''}
-                      onChange={(e) =>
-                        updateVariant(variant.id, 'compareAtPrice', parseFloat(e.target.value) || null)
-                      }
-                      placeholder="Compare at"
-                    />
-                    <label className="flex items-center gap-2 text-sm col-span-2">
-                      <input
-                        type="checkbox"
-                        checked={variant.isDefault ?? false}
-                        onChange={(e) => {
-                          setVariants(
-                            variants.map((v) => ({
-                              ...v,
-                              isDefault: v.id === variant.id ? e.target.checked : false,
-                            }))
-                          );
-                        }}
-                        className="rounded"
-                      />
-                      Default variant
-                    </label>
-                  </div>
+              <div>
+                <label className="block text-sm text-[var(--admin-text-secondary)] mb-1.5">
+                  Button Text
+                </label>
+                <Input
+                  value={product.ctaButtonText || ''}
+                  onChange={(e) => setProduct({ ...product, ctaButtonText: e.target.value })}
+                  placeholder="Buy Now on Amazon"
+                  className="bg-[var(--admin-input)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)]"
+                />
+              </div>
+              <div className="flex items-center justify-between py-3">
+                <div>
+                  <span className="text-sm font-medium text-[var(--admin-text-primary)]">
+                    Show discount signup
+                  </span>
+                  <p className="text-xs text-[var(--admin-text-muted)]">
+                    "Get X% off" link below the CTA button
+                  </p>
                 </div>
-              ))}
-              <button
-                onClick={addVariant}
-                className="w-full py-3 border-2 border-dashed border-[var(--admin-border)] rounded-lg text-sm text-[var(--admin-text-muted)] hover:border-[var(--primary)] hover:text-[var(--primary)] transition-colors flex items-center justify-center gap-2"
-              >
-                <Plus className="w-4 h-4" />
-                Add Variant
-              </button>
+                <button
+                  onClick={() => setProduct({ ...product, showDiscountSignup: !product.showDiscountSignup })}
+                  className={cn(
+                    'relative inline-flex h-6 w-11 items-center rounded-full transition-colors',
+                    product.showDiscountSignup ? 'bg-green-500' : 'bg-[var(--admin-hover)]'
+                  )}
+                >
+                  <span
+                    className={cn(
+                      'inline-block h-4 w-4 transform rounded-full bg-white transition-transform',
+                      product.showDiscountSignup ? 'translate-x-6' : 'translate-x-1'
+                    )}
+                  />
+                </button>
+              </div>
+              {product.showDiscountSignup && (
+                <Input
+                  value={product.discountSignupText || ''}
+                  onChange={(e) => setProduct({ ...product, discountSignupText: e.target.value })}
+                  placeholder="Get 10% off your first order"
+                  className="bg-[var(--admin-input)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)]"
+                />
+              )}
             </div>
           </div>
 
-          {/* SEO */}
-          <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border)] p-6">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--admin-text-muted)] mb-4">
+          {/* Section 6: SEO */}
+          <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6">
+            <h3 className="text-sm font-medium text-[var(--admin-text-primary)] mb-4">
               SEO
             </h3>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-1">
+                <label className="block text-sm text-[var(--admin-text-secondary)] mb-1.5">
                   Meta Title
                 </label>
                 <Input
                   value={product.metaTitle || ''}
                   onChange={(e) => setProduct({ ...product, metaTitle: e.target.value || null })}
                   placeholder={`${product.name || 'Product'} | Archie's Remedies`}
+                  className="bg-[var(--admin-input)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)]"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-1">
+                <label className="block text-sm text-[var(--admin-text-secondary)] mb-1.5">
                   Meta Description
                 </label>
                 <textarea
@@ -1087,7 +1133,7 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
                   onChange={(e) => setProduct({ ...product, metaDescription: e.target.value || null })}
                   placeholder="Description for search engines..."
                   rows={3}
-                  className="flex w-full rounded-lg border border-[var(--admin-border)] bg-[var(--admin-input)] px-3 py-2 text-sm resize-none"
+                  className="w-full px-3 py-2 bg-[var(--admin-input)] border border-[var(--admin-border-light)] rounded-lg text-sm text-[var(--admin-text-primary)] placeholder-[var(--admin-text-muted)] resize-none focus:outline-none focus:border-[var(--primary)]"
                 />
               </div>
             </div>
@@ -1106,7 +1152,6 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h2 className="text-lg font-medium text-[var(--admin-text-primary)]">
-                    <Layers className="w-5 h-5 inline mr-2" />
                     Below-Fold Content
                   </h2>
                   <p className="text-sm text-[var(--admin-text-muted)] mt-1">
@@ -1114,7 +1159,7 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
                   </p>
                 </div>
                 {widgets.length > 0 && (
-                  <span className="px-3 py-1 text-sm bg-[var(--admin-input)] rounded-full">
+                  <span className="px-3 py-1 text-sm bg-[var(--admin-input)] rounded-full text-[var(--admin-text-primary)]">
                     {widgets.length} widget{widgets.length !== 1 ? 's' : ''}
                   </span>
                 )}
@@ -1138,7 +1183,7 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
                   ))}
                 </Reorder.Group>
               ) : (
-                <div className="py-20 text-center border-2 border-dashed border-[var(--admin-border)] rounded-xl bg-[var(--admin-input)]/50">
+                <div className="py-20 text-center border-2 border-dashed border-[var(--admin-border-light)] rounded-xl bg-[var(--admin-input)]/30">
                   <Layers className="w-12 h-12 mx-auto mb-4 text-[var(--admin-text-muted)] opacity-50" />
                   <p className="text-[var(--admin-text-muted)] font-medium mb-2">
                     No widgets added yet
@@ -1152,7 +1197,7 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
           </div>
 
           {/* Widget Library Sidebar */}
-          <div className="w-80 flex-shrink-0 border-l border-[var(--admin-border)] overflow-y-auto">
+          <div className="w-80 flex-shrink-0 border-l border-[var(--admin-border)] overflow-y-auto bg-[var(--admin-sidebar)]">
             <WidgetLibrarySidebar
               title="Widget Library"
               subtitle="Drag or click to add"
