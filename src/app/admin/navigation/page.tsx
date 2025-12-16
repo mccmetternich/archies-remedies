@@ -203,7 +203,7 @@ export default function NavigationPage() {
   // Sub-tabs within Global Navigation
   const [navSubTab, setNavSubTab] = useState<'settings' | 'pages' | 'dropdown'>('settings');
   // Sub-tabs within Footer
-  const [footerSubTab, setFooterSubTab] = useState<'theme' | 'signup' | 'main' | 'bottom'>('theme');
+  const [footerSubTab, setFooterSubTab] = useState<'theme' | 'signup' | 'main' | 'bottom'>('main');
 
   const [navItems, setNavItems] = useState<NavItem[]>([]);
   const [footerLinks, setFooterLinks] = useState<FooterLink[]>([]);
@@ -818,7 +818,7 @@ export default function NavigationPage() {
           )}
         >
           <Shield className="w-4 h-4" />
-          Footer
+          Global Footer
         </button>
         <button
           onClick={() => setActiveTab('bumper')}
@@ -873,20 +873,20 @@ export default function NavigationPage() {
         </div>
       )}
 
-      {/* Footer Sub-tabs */}
+      {/* Footer Sub-tabs - Order: Footer Links, Email Section, Legal Links, Theme & Branding */}
       {activeTab === 'footer' && (
         <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
           <button
-            onClick={() => setFooterSubTab('theme')}
+            onClick={() => setFooterSubTab('main')}
             className={cn(
               'flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-all whitespace-nowrap border',
-              footerSubTab === 'theme'
+              footerSubTab === 'main'
                 ? 'bg-[var(--admin-hover)] border-[var(--admin-border)] text-[var(--admin-text-primary)]'
                 : 'border-transparent text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)]'
             )}
           >
-            <Palette className="w-4 h-4" />
-            Theme & Branding
+            <LinkIcon className="w-4 h-4" />
+            Footer Links
           </button>
           <button
             onClick={() => setFooterSubTab('signup')}
@@ -898,19 +898,7 @@ export default function NavigationPage() {
             )}
           >
             <Mail className="w-4 h-4" />
-            Email Subscription
-          </button>
-          <button
-            onClick={() => setFooterSubTab('main')}
-            className={cn(
-              'flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-all whitespace-nowrap border',
-              footerSubTab === 'main'
-                ? 'bg-[var(--admin-hover)] border-[var(--admin-border)] text-[var(--admin-text-primary)]'
-                : 'border-transparent text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)]'
-            )}
-          >
-            <LinkIcon className="w-4 h-4" />
-            Main Footer
+            Email Section
           </button>
           <button
             onClick={() => setFooterSubTab('bottom')}
@@ -922,7 +910,19 @@ export default function NavigationPage() {
             )}
           >
             <FileText className="w-4 h-4" />
-            Bottom Bar
+            Legal Links
+          </button>
+          <button
+            onClick={() => setFooterSubTab('theme')}
+            className={cn(
+              'flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-all whitespace-nowrap border',
+              footerSubTab === 'theme'
+                ? 'bg-[var(--admin-hover)] border-[var(--admin-border)] text-[var(--admin-text-primary)]'
+                : 'border-transparent text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)]'
+            )}
+          >
+            <Palette className="w-4 h-4" />
+            Theme & Branding
           </button>
         </div>
       )}

@@ -193,9 +193,33 @@ export function Footer({
         <div className="py-20 md:py-24">
           <div className="w-full px-6 md:px-12 lg:px-20 xl:px-28">
             {status === 'success' ? (
-              <div className="text-center py-8">
-                <p className="text-2xl font-light tracking-wide animate-fade-in">
+              <div className="text-center py-8 animate-fade-in">
+                {/* Success checkmark */}
+                <div className={cn(
+                  'w-16 h-16 rounded-full mx-auto mb-6 flex items-center justify-center',
+                  isDark ? 'bg-white/10' : 'bg-gray-100'
+                )}>
+                  <svg
+                    className={cn('w-8 h-8', isDark ? 'text-white' : 'text-gray-900')}
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M5 13l4 4L19 7"
+                      className="animate-[draw_0.5s_ease-out_forwards]"
+                      style={{ strokeDasharray: 24, strokeDashoffset: 24, animation: 'draw 0.5s ease-out forwards' }}
+                    />
+                  </svg>
+                </div>
+                <p className={cn('text-2xl font-light tracking-wide', isDark ? 'text-white' : 'text-gray-900')}>
                   {emailSignupSuccessMessage}
+                </p>
+                <p className={cn('text-sm mt-2', isDark ? 'text-white/50' : 'text-gray-500')}>
+                  Check your inbox for a welcome message.
                 </p>
               </div>
             ) : (
