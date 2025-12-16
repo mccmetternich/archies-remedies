@@ -626,9 +626,9 @@ export default async function BlogPage() {
     <>
       <Header {...headerProps} />
       <main className="min-h-screen bg-white">
-        {/* Full-Screen Hero */}
+        {/* Blog Hero - Compact full-width banner */}
         {hasHero && (
-          <section className="relative h-[80vh] min-h-[600px] overflow-hidden">
+          <section className="relative h-[35vh] min-h-[280px] max-h-[400px] overflow-hidden">
             {settings.heroMediaUrl && (
               <div className="absolute inset-0">
                 {isVideoUrl(settings.heroMediaUrl) ? (
