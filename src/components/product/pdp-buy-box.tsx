@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Star, ChevronDown, ArrowRight, Mail, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -13,6 +14,11 @@ interface ProductVariant {
   compareAtPrice: number | null;
   amazonUrl: string;
   isDefault: boolean | null;
+  // Variant thumbnail and badge
+  thumbnailUrl?: string | null;
+  badge?: string | null;
+  badgeBgColor?: string | null;
+  badgeTextColor?: string | null;
 }
 
 interface Product {
@@ -37,12 +43,18 @@ interface PDPBuyBoxProps {
   reviewCount: number;
   averageRating: number;
   onReviewsClick?: () => void;
-  // New customization props
+  onVariantChange?: (variant: ProductVariant) => void;
+  // Customization props
   bulletPoints?: (string | null)[];
   ctaButtonText?: string;
   ctaExternalUrl?: string | null;
   showDiscountSignup?: boolean;
   discountSignupText?: string;
+  // Review badge props
+  reviewBadge?: string | null;
+  reviewBadgeEmoji?: string | null;
+  reviewBadgeBgColor?: string | null;
+  reviewBadgeTextColor?: string | null;
 }
 
 type AccordionSection = 'ritual' | 'ingredients' | 'shipping' | null;
@@ -53,11 +65,16 @@ export function PDPBuyBox({
   reviewCount,
   averageRating,
   onReviewsClick,
+  onVariantChange,
   bulletPoints,
   ctaButtonText = 'Buy Now on Amazon',
   ctaExternalUrl,
   showDiscountSignup = true,
   discountSignupText = 'Get 10% off your first order',
+  reviewBadge,
+  reviewBadgeEmoji,
+  reviewBadgeBgColor = '#bbdae9',
+  reviewBadgeTextColor = '#1a1a1a',
 }: PDPBuyBoxProps) {
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(
     variants.find((v) => v.isDefault) || variants[0] || null
@@ -76,6 +93,11 @@ export function PDPBuyBox({
 
   const toggleAccordion = (section: AccordionSection) => {
     setOpenAccordion(openAccordion === section ? null : section);
+  };
+
+  const handleVariantSelect = (variant: ProductVariant) => {
+    setSelectedVariant(variant);
+    onVariantChange?.(variant);
   };
 
   const handleNewsletterSubmit = async (e: React.FormEvent) => {
@@ -102,20 +124,19 @@ export function PDPBuyBox({
     }
   };
 
-  // Determine which variant to show "Best Value" badge
-  const bestValueVariant = variants.length > 1
-    ? variants.reduce((best, v) => {
-        if (!v.price || !best.price) return best;
-        return v.price > best.price ? v : best;
-      }, variants[0])
-    : null;
+  // Determine grid layout for variants
+  const getVariantGridCols = () => {
+    if (variants.length === 4) return 'grid-cols-2'; // 2x2 for 4 variants
+    if (variants.length <= 3) return 'grid-cols-3'; // 3 per row for 1-3
+    return 'grid-cols-3'; // Default to 3 per row
+  };
 
   return (
-    <div className="lg:sticky lg:top-28 space-y-6">
-      {/* Reviews Summary - Click anchors to reviews section */}
+    <div className="lg:sticky lg:top-28 space-y-5">
+      {/* Reviews Summary - Blue stars, bold rating, dot separator, badge */}
       <button
         onClick={onReviewsClick}
-        className="flex items-center gap-3 group"
+        className="flex items-center gap-3 group flex-wrap"
       >
         <div className="flex gap-0.5">
           {[1, 2, 3, 4, 5].map((i) => (
@@ -124,100 +145,105 @@ export function PDPBuyBox({
               className={cn(
                 'w-4 h-4',
                 i <= Math.round(averageRating)
-                  ? 'fill-[var(--foreground)] text-[var(--foreground)]'
-                  : 'fill-transparent text-[var(--foreground)]/30'
+                  ? 'fill-[#bbdae9] text-[#bbdae9]'
+                  : 'fill-transparent text-[#bbdae9]/30'
               )}
             />
           ))}
         </div>
-        <span className="text-sm text-[var(--muted-foreground)] group-hover:text-[var(--foreground)] transition-colors">
-          {averageRating.toFixed(1)} ({reviewCount.toLocaleString()} verified reviews)
+        <span className="text-sm text-[var(--foreground)] group-hover:text-[var(--foreground)] transition-colors">
+          <span className="font-semibold">{averageRating.toFixed(1)}</span>
+          <span className="mx-1.5 text-[var(--muted-foreground)]">·</span>
+          <span className="font-semibold">{reviewCount.toLocaleString()} verified reviews</span>
         </span>
+        {reviewBadge && (
+          <span
+            className="text-xs font-semibold px-2 py-0.5 rounded-full"
+            style={{
+              backgroundColor: reviewBadgeBgColor || '#bbdae9',
+              color: reviewBadgeTextColor || '#1a1a1a',
+            }}
+          >
+            {reviewBadgeEmoji && <span className="mr-1">{reviewBadgeEmoji}</span>}
+            {reviewBadge}
+          </span>
+        )}
       </button>
 
-      {/* Editorial Title + Subtitle */}
+      {/* Editorial Title (subtitle removed per user request) */}
       <div>
-        <h1 className="text-3xl md:text-4xl font-normal tracking-tight leading-[1.15] mb-2">
+        <h1 className="text-3xl md:text-4xl font-normal tracking-tight leading-[1.15]">
           {product.name}
         </h1>
-        {product.subtitle && (
-          <p className="text-lg text-[var(--muted-foreground)]">
-            {product.subtitle}
-          </p>
-        )}
       </div>
 
-      {/* Short Description */}
+      {/* Short Description - Larger font, narrower width */}
       {product.shortDescription && (
-        <p className="text-[var(--muted-foreground)] leading-relaxed">
+        <p className="text-lg text-[var(--muted-foreground)] leading-relaxed max-w-[85%]">
           {product.shortDescription}
         </p>
       )}
 
-      {/* Bullet Points / Key Benefits */}
+      {/* Bullet Points / Key Benefits - Bigger/bolder checkmarks, less gap from description */}
       {validBulletPoints.length > 0 && (
-        <ul className="space-y-2">
+        <ul className="space-y-2 -mt-1">
           {validBulletPoints.map((point, i) => (
             <li key={i} className="flex items-start gap-3">
-              <Check className="w-4 h-4 text-[#bbdae9] mt-0.5 flex-shrink-0" />
+              <Check className="w-5 h-5 text-[#bbdae9] mt-0.5 flex-shrink-0 stroke-[2.5]" />
               <span className="text-[var(--muted-foreground)]">{point}</span>
             </li>
           ))}
         </ul>
       )}
 
-      {/* Price */}
-      {displayPrice && (
-        <p className="text-2xl font-medium tracking-tight">
-          ${displayPrice.toFixed(2)}
-        </p>
-      )}
-
-      {/* Variant Tiles - Only show if more than 1 variant */}
-      {variants.length > 1 && (
+      {/* Variant Tiles - Show if variants exist */}
+      {variants.length > 0 && (
         <div className="space-y-3">
           <span className="text-xs font-semibold tracking-[0.15em] uppercase text-[var(--muted-foreground)]">
-            Select Size
+            Choose Size
           </span>
-          <div className="grid grid-cols-2 gap-3">
+          <div className={cn('grid gap-3', getVariantGridCols())}>
             {variants.map((variant) => {
-              const isBestValue = bestValueVariant?.id === variant.id;
               const isSelected = selectedVariant?.id === variant.id;
 
               return (
                 <button
                   key={variant.id}
-                  onClick={() => setSelectedVariant(variant)}
+                  onClick={() => handleVariantSelect(variant)}
                   className={cn(
-                    'relative px-5 py-4 rounded-xl border-2 transition-all duration-200 text-left',
+                    'relative flex flex-col items-center justify-center p-4 border-2 transition-all duration-200 text-center',
                     isSelected
-                      ? 'border-[var(--foreground)] bg-[var(--foreground)] text-white'
-                      : 'border-[var(--border)] hover:border-[var(--foreground)] bg-white'
+                      ? 'border-[#bbdae9] bg-[#bbdae9] text-[#1a1a1a]'
+                      : 'border-[#d1d5db] hover:border-[#bbdae9] hover:bg-[#bbdae9] hover:text-[#1a1a1a] bg-white'
                   )}
                 >
-                  {isBestValue && (
+                  {/* Variant Badge */}
+                  {variant.badge && (
                     <span
-                      className={cn(
-                        'absolute -top-2.5 left-4 text-[10px] font-semibold px-2 py-0.5 rounded-full',
-                        isSelected
-                          ? 'bg-[var(--primary)] text-[var(--foreground)]'
-                          : 'bg-[var(--primary)] text-[var(--foreground)]'
-                      )}
+                      className="absolute -top-2.5 left-1/2 -translate-x-1/2 text-[10px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap"
+                      style={{
+                        backgroundColor: variant.badgeBgColor || '#bbdae9',
+                        color: variant.badgeTextColor || '#1a1a1a',
+                      }}
                     >
-                      Best Value
+                      {variant.badge}
                     </span>
                   )}
-                  <span className="block font-medium">{variant.name}</span>
-                  {variant.price && (
-                    <span
-                      className={cn(
-                        'text-sm',
-                        isSelected ? 'text-white/70' : 'text-[var(--muted-foreground)]'
-                      )}
-                    >
-                      ${variant.price.toFixed(2)}
-                    </span>
+
+                  {/* Variant Thumbnail */}
+                  {variant.thumbnailUrl && (
+                    <div className="w-16 h-16 md:w-20 md:h-20 relative mb-2">
+                      <Image
+                        src={variant.thumbnailUrl}
+                        alt={variant.name}
+                        fill
+                        className="object-contain"
+                      />
+                    </div>
                   )}
+
+                  {/* Variant Name Only (price removed, shown in CTA) */}
+                  <span className="block font-medium text-sm">{variant.name}</span>
                 </button>
               );
             })}
@@ -225,7 +251,7 @@ export function PDPBuyBox({
         </div>
       )}
 
-      {/* Primary CTA - Full-width */}
+      {/* Primary CTA - White text, includes price */}
       <a
         href={amazonUrl}
         target="_blank"
@@ -246,6 +272,9 @@ export function PDPBuyBox({
         className="group flex items-center justify-center gap-3 w-full py-4 bg-[#1a1a1a] text-white font-medium hover:bg-[#bbdae9] hover:text-[#1a1a1a] transition-all duration-300"
       >
         {ctaButtonText}
+        {displayPrice && (
+          <span className="font-semibold">- ${displayPrice.toFixed(2)}</span>
+        )}
         <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
       </a>
 

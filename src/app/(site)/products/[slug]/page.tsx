@@ -7,7 +7,6 @@ import {
   reviews,
   reviewKeywords,
   productCertifications,
-  videoTestimonials,
   pages,
 } from '@/lib/db/schema';
 import { eq, desc, and } from 'drizzle-orm';
@@ -19,11 +18,6 @@ import { Footer } from '@/components/layout/footer';
 import { SitePopups } from '@/components/popups';
 import { PDPGallery } from '@/components/product/pdp-gallery';
 import { PDPBuyBox } from '@/components/product/pdp-buy-box';
-import { PDPReviews } from '@/components/product/pdp-reviews';
-import { BenefitsWidget } from '@/components/product/benefits-widget';
-import { MarqueeBar } from '@/components/widgets/marquee-bar';
-import { CertificationTrio } from '@/components/widgets/certification-trio';
-import { VideoTestimonialsGrid } from '@/components/widgets/video-testimonials-grid';
 import { getHeaderProps, getFooterProps } from '@/lib/get-header-props';
 import { getPopupSettings } from '@/lib/get-popup-settings';
 import { getWidgetData } from '@/lib/get-widget-data';
@@ -93,17 +87,6 @@ async function getProduct(slug: string, includeInactive: boolean = false) {
   };
 }
 
-async function getVideos() {
-  const videos = await db
-    .select()
-    .from(videoTestimonials)
-    .where(eq(videoTestimonials.isActive, true))
-    .orderBy(videoTestimonials.sortOrder)
-    .limit(4);
-
-  return videos;
-}
-
 // Get linked page for below-fold widgets
 async function getLinkedPage(productId: string) {
   const [page] = await db
@@ -144,10 +127,9 @@ export default async function ProductPage({ params }: PageProps) {
   // Check if user has preview access to show draft products
   const previewAccess = await hasPreviewAccess();
 
-  const [productData, headerProps, videos] = await Promise.all([
+  const [productData, headerProps] = await Promise.all([
     getProduct(slug, previewAccess),
     getHeaderProps(),
-    getVideos(),
   ]);
 
   if (!productData) {
@@ -183,9 +165,6 @@ export default async function ProductPage({ params }: PageProps) {
     instagramUrl: headerProps.settings?.instagramUrl,
   };
 
-  const positiveBenefits = product.benefits.filter((b) => b.isPositive);
-  const negativeBenefits = product.benefits.filter((b) => !b.isPositive);
-
   // Calculate average rating - use product.rating if set, otherwise calculate from reviews
   const validReviews = product.reviews.filter((r) => r.rating !== null);
   const averageRating =
@@ -206,27 +185,11 @@ export default async function ProductPage({ params }: PageProps) {
     product.bulletPoint5,
   ];
 
-  // Map certifications to the format expected by CertificationTrio
-  const certificationData = product.certifications.map((c) => ({
-    icon: c.icon as 'droplet' | 'eye' | 'flag' | 'leaf' | 'sparkle' | 'cross',
-    title: c.title,
-    description: c.description || undefined,
-  }));
-
-  // Map video testimonials
-  const videoData = videos.map((v) => ({
-    id: v.id,
-    thumbnailUrl: v.thumbnailUrl,
-    videoUrl: v.videoUrl,
-    title: v.title || undefined,
-    name: v.name || undefined,
-  }));
-
   return (
     <>
       <Header {...headerProps} />
 
-      <main className="pt-6 md:pt-8">
+      <main className="pt-12 md:pt-16">
         {/* Product Hero Section - Split Screen Layout (Buy Box Left, Gallery Right) */}
         <section className="container mb-12 md:mb-16">
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-16">
@@ -242,6 +205,10 @@ export default async function ProductPage({ params }: PageProps) {
                 ctaExternalUrl={product.ctaExternalUrl}
                 showDiscountSignup={product.showDiscountSignup ?? true}
                 discountSignupText={product.discountSignupText || undefined}
+                reviewBadge={product.reviewBadge}
+                reviewBadgeEmoji={product.reviewBadgeEmoji}
+                reviewBadgeBgColor={product.reviewBadgeBgColor}
+                reviewBadgeTextColor={product.reviewBadgeTextColor}
               />
             </div>
 
@@ -260,51 +227,8 @@ export default async function ProductPage({ params }: PageProps) {
           </div>
         </section>
 
-        {/* Marquee Bar */}
-        <MarqueeBar
-          text="Ophthalmologist Tested • Preservative Free • Clean Formula • Made in USA"
-          speed="medium"
-          size="large"
-          theme="baby-blue"
-        />
-
-        {/* Benefits Widget */}
-        {(positiveBenefits.length > 0 || negativeBenefits.length > 0) && (
-          <section className="py-16 md:py-20">
-            <div className="container">
-              <BenefitsWidget
-                positiveBenefits={positiveBenefits}
-                negativeBenefits={negativeBenefits}
-              />
-            </div>
-          </section>
-        )}
-
-        {/* Certification Trio */}
-        {certificationData.length > 0 && (
-          <CertificationTrio certifications={certificationData} />
-        )}
-
-        {/* Video Testimonials */}
-        {videoData.length > 0 && (
-          <VideoTestimonialsGrid
-            videos={videoData}
-            title="Real Results"
-            subtitle="Hear from our community"
-          />
-        )}
-
-        {/* Reviews Section */}
-        <PDPReviews
-          reviews={product.reviews}
-          keywords={product.keywords}
-          productName={product.name}
-        />
-
         {/* Below-Fold Widgets from CMS */}
-        {belowFoldWidgets.length > 0 && (
-          <WidgetRenderer widgets={belowFoldWidgets} data={widgetDataWithSettings} />
-        )}
+        <WidgetRenderer widgets={belowFoldWidgets} data={widgetDataWithSettings} />
       </main>
 
       <Footer {...await getFooterProps(headerProps.settings)} />

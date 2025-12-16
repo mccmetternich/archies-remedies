@@ -304,6 +304,12 @@ export const products = sqliteTable('products', {
   rating: real('rating').default(4.9), // Average rating (1-5)
   reviewCount: integer('review_count').default(2900), // Total number of reviews
 
+  // Review Badge (shown next to rating on PDP)
+  reviewBadge: text('review_badge'), // e.g., "Amazon Choice"
+  reviewBadgeEmoji: text('review_badge_emoji'), // e.g., "🏆"
+  reviewBadgeBgColor: text('review_badge_bg_color').default('#bbdae9'),
+  reviewBadgeTextColor: text('review_badge_text_color').default('#1a1a1a'),
+
   // Rotating Seal (slow-spinning circular badge on gallery)
   rotatingSealEnabled: integer('rotating_seal_enabled', { mode: 'boolean' }).default(false),
   rotatingSealImageUrl: text('rotating_seal_image_url'), // CMS uploadable PNG
@@ -365,6 +371,14 @@ export const productVariants = sqliteTable('product_variants', {
   heroImageUrl: text('hero_image_url'),
   secondaryImageUrl: text('secondary_image_url'),
   heroCarouselImages: text('hero_carousel_images'), // JSON array of up to 2 additional images/videos
+
+  // Variant thumbnail (shown in variant selection tiles)
+  thumbnailUrl: text('thumbnail_url'),
+
+  // Variant badge (e.g., "Best Value", "Most Popular")
+  badge: text('badge'),
+  badgeBgColor: text('badge_bg_color').default('#bbdae9'),
+  badgeTextColor: text('badge_text_color').default('#1a1a1a'),
 
   createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
 });

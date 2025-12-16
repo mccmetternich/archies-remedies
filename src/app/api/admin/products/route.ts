@@ -57,6 +57,12 @@ export async function POST(request: Request) {
       rating: product.rating ?? 4.9,
       reviewCount: product.reviewCount ?? 2900,
 
+      // Review Badge
+      reviewBadge: product.reviewBadge || null,
+      reviewBadgeEmoji: product.reviewBadgeEmoji || null,
+      reviewBadgeBgColor: product.reviewBadgeBgColor || '#bbdae9',
+      reviewBadgeTextColor: product.reviewBadgeTextColor || '#1a1a1a',
+
       // Rotating Seal
       rotatingSealEnabled: product.rotatingSealEnabled ?? false,
       rotatingSealImageUrl: product.rotatingSealImageUrl || null,
@@ -109,6 +115,10 @@ export async function POST(request: Request) {
           heroImageUrl: variant.heroImageUrl || null,
           secondaryImageUrl: variant.secondaryImageUrl || null,
           heroCarouselImages: variant.heroCarouselImages || null,
+          thumbnailUrl: variant.thumbnailUrl || null,
+          badge: variant.badge || null,
+          badgeBgColor: variant.badgeBgColor || '#bbdae9',
+          badgeTextColor: variant.badgeTextColor || '#1a1a1a',
         });
       }
     }
