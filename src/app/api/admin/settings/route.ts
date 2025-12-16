@@ -43,15 +43,37 @@ export async function PUT(request: Request) {
   try {
     const data = await request.json();
 
-    const updateData = {
-      ...data,
+    // Only update known fields to prevent errors from unknown columns
+    const updateData: Record<string, any> = {
       updatedAt: new Date().toISOString(),
     };
+
+    // Explicitly list allowed fields
+    const allowedFields = [
+      'siteName', 'tagline', 'logoUrl', 'faviconUrl',
+      'primaryColor', 'secondaryColor', 'accentColor',
+      'metaTitle', 'metaDescription', 'ogImageUrl',
+      'instagramUrl', 'facebookUrl', 'tiktokUrl', 'amazonStoreUrl',
+      'instagramIconUrl', 'facebookIconUrl', 'tiktokIconUrl', 'amazonIconUrl',
+      'facebookPixelId', 'googleAnalyticsId', 'tiktokPixelId',
+      'contactEmail', 'siteInDraftMode',
+      'draftModeTitle', 'draftModeSubtitle', 'draftModeBadgeUrl',
+      'draftModeFooterStyle', 'draftModeCallout1', 'draftModeCallout2', 'draftModeCallout3',
+      'draftModeBrandQuip', 'draftModeContactType',
+      'massiveFooterLogoUrl',
+      'defaultBlogAuthorName', 'defaultBlogAuthorAvatarUrl',
+    ];
+
+    for (const field of allowedFields) {
+      if (field in data) {
+        updateData[field] = data[field];
+      }
+    }
 
     // Ensure we have a valid ID to update
     const settingsId = data.id || 'default';
 
-    const result = await db
+    await db
       .update(siteSettings)
       .set(updateData)
       .where(eq(siteSettings.id, settingsId));
@@ -63,9 +85,9 @@ export async function PUT(request: Request) {
     revalidateTag('settings', 'max');
     revalidateTag('dynamic-page-data', 'max');
 
-    return NextResponse.json({ success: true, updated: updateData });
+    return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Failed to update settings:', error);
-    return NextResponse.json({ error: 'Failed to update settings' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to update settings', details: String(error) }, { status: 500 });
   }
 }
