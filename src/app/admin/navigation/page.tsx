@@ -2408,6 +2408,18 @@ export default function NavigationPage() {
                     <span>Full</span>
                   </div>
                 </div>
+                {/* Opacity Preview */}
+                {fullWidthLogoUrl && (
+                  <div className="mt-4 p-4 bg-[#1a1a1a] rounded-lg overflow-hidden">
+                    <p className="text-xs text-white/50 mb-2">Preview (dark background)</p>
+                    <img
+                      src={fullWidthLogoUrl}
+                      alt="Opacity preview"
+                      className="w-full h-auto object-contain"
+                      style={{ opacity: massiveLogoOpacity / 100 }}
+                    />
+                  </div>
+                )}
               </div>
             </div>
           </div>
