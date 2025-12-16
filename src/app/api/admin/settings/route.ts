@@ -43,20 +43,27 @@ export async function PUT(request: Request) {
   try {
     const data = await request.json();
 
-    await db
-      .update(siteSettings)
-      .set({
-        ...data,
-        updatedAt: new Date().toISOString(),
-      })
-      .where(eq(siteSettings.id, data.id || 'default'));
+    const updateData = {
+      ...data,
+      updatedAt: new Date().toISOString(),
+    };
 
-    // Invalidate all cached page data so popups and settings take effect immediately
+    // Ensure we have a valid ID to update
+    const settingsId = data.id || 'default';
+
+    const result = await db
+      .update(siteSettings)
+      .set(updateData)
+      .where(eq(siteSettings.id, settingsId));
+
+    // Invalidate all cached page data so changes take effect immediately
     revalidateTag('homepage-data', 'max');
     revalidateTag('page-data', 'max');
+    revalidateTag('header-data', 'max');
     revalidateTag('settings', 'max');
+    revalidateTag('dynamic-page-data', 'max');
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, updated: updateData });
   } catch (error) {
     console.error('Failed to update settings:', error);
     return NextResponse.json({ error: 'Failed to update settings' }, { status: 500 });
