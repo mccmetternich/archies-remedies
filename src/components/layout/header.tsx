@@ -181,7 +181,7 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
           showBumper ? 'lg:top-[44px]' : 'lg:top-0'
         )}
       >
-        <nav className="container">
+        <nav className="w-full px-6 md:px-12 lg:px-20 xl:px-28">
           {/* Nav row - lg:z-[70] ensures nav items float above the dropdown (z-50) on desktop only */}
           <div className={cn(
             "flex items-center relative lg:z-[70]",
@@ -261,7 +261,7 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
 
                   <div className="relative z-50 w-full bg-white shadow-[0_20px_40px_rgba(0,0,0,0.15)] overflow-visible">
                     {/* Shelf container with generous padding - pb-[30px] for whitespace below tiles */}
-                    <div className="container pt-8 pb-[30px] overflow-visible">
+                    <div className="w-full px-6 md:px-12 lg:px-20 xl:px-28 pt-8 pb-[30px] overflow-visible">
                       {/* Content grid - spacer between product tiles and marketing tile grows with viewport */}
                       <div className="grid lg:grid-cols-[1fr_auto_max-content] gap-8 items-center overflow-visible">
                         {/* Product tiles - flexible width */}
