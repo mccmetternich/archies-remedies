@@ -545,28 +545,28 @@ input[type="button"]:disabled,
     max-width: none !important;
     margin-left: auto;
     margin-right: auto;
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
+    padding-left: calc(1.5rem + 15px);
+    padding-right: calc(1.5rem + 15px);
   }
 
   @media (min-width: 768px) {
     .container {
-      padding-left: 3rem;
-      padding-right: 3rem;
+      padding-left: calc(3rem + 15px);
+      padding-right: calc(3rem + 15px);
     }
   }
 
   @media (min-width: 1024px) {
     .container {
-      padding-left: 5rem;
-      padding-right: 5rem;
+      padding-left: calc(5rem + 15px);
+      padding-right: calc(5rem + 15px);
     }
   }
 
   @media (min-width: 1280px) {
     .container {
-      padding-left: 7rem;
-      padding-right: 7rem;
+      padding-left: calc(7rem + 15px);
+      padding-right: calc(7rem + 15px);
     }
   }
 }
