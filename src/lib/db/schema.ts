@@ -341,6 +341,11 @@ export const products = sqliteTable('products', {
   showDiscountSignup: integer('show_discount_signup', { mode: 'boolean' }).default(true),
   discountSignupText: text('discount_signup_text').default('Get 10% off your first order'),
 
+  // Audio Player (mini player below CTA)
+  audioUrl: text('audio_url'), // Audio file URL
+  audioAvatarUrl: text('audio_avatar_url'), // Speaker avatar image
+  audioTitle: text('audio_title'), // Label (e.g., "Dr. Smith explains")
+
   // Widget System (JSON array of widget configs for below-fold content)
   widgets: text('widgets'),
 

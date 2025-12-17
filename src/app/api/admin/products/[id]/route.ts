@@ -115,6 +115,11 @@ export async function PUT(
         showDiscountSignup: product.showDiscountSignup ?? true,
         discountSignupText: product.discountSignupText || 'Get 10% off your first order',
 
+        // Audio Player
+        audioUrl: product.audioUrl || null,
+        audioAvatarUrl: product.audioAvatarUrl || null,
+        audioTitle: product.audioTitle || null,
+
         // Widgets
         widgets: product.widgets || null,
 

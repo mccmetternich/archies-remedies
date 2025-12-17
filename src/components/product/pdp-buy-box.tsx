@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Star, ChevronRight, ArrowRight, Mail, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { trackClick } from '@/lib/tracking';
+import { AudioPlayer } from './audio-player';
 
 interface ProductVariant {
   id: string;
@@ -55,6 +56,10 @@ interface PDPBuyBoxProps {
   reviewBadgeEmoji?: string | null;
   reviewBadgeBgColor?: string | null;
   reviewBadgeTextColor?: string | null;
+  // Audio player props
+  audioUrl?: string | null;
+  audioAvatarUrl?: string | null;
+  audioTitle?: string | null;
 }
 
 type AccordionSection = 'ritual' | 'ingredients' | 'shipping' | null;
@@ -75,6 +80,9 @@ export function PDPBuyBox({
   reviewBadgeEmoji,
   reviewBadgeBgColor = '#bbdae9',
   reviewBadgeTextColor = '#1a1a1a',
+  audioUrl,
+  audioAvatarUrl,
+  audioTitle,
 }: PDPBuyBoxProps) {
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(
     variants.find((v) => v.isDefault) || variants[0] || null
@@ -328,6 +336,17 @@ export function PDPBuyBox({
               </button>
             </motion.form>
           )}
+        </div>
+      )}
+
+      {/* Audio Player */}
+      {audioUrl && (
+        <div className="pt-2">
+          <AudioPlayer
+            audioUrl={audioUrl}
+            avatarUrl={audioAvatarUrl}
+            title={audioTitle}
+          />
         </div>
       )}
 

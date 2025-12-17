@@ -65,6 +65,10 @@ interface PDPHeroSectionProps {
   reviewBadgeEmoji?: string | null;
   reviewBadgeBgColor?: string | null;
   reviewBadgeTextColor?: string | null;
+  // Audio player
+  audioUrl?: string | null;
+  audioAvatarUrl?: string | null;
+  audioTitle?: string | null;
 }
 
 export function PDPHeroSection({
@@ -82,6 +86,9 @@ export function PDPHeroSection({
   reviewBadgeEmoji,
   reviewBadgeBgColor,
   reviewBadgeTextColor,
+  audioUrl,
+  audioAvatarUrl,
+  audioTitle,
 }: PDPHeroSectionProps) {
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(
     variants.find((v) => v.isDefault) || variants[0] || null
@@ -148,6 +155,9 @@ export function PDPHeroSection({
           reviewBadgeEmoji={reviewBadgeEmoji}
           reviewBadgeBgColor={reviewBadgeBgColor}
           reviewBadgeTextColor={reviewBadgeTextColor}
+          audioUrl={audioUrl}
+          audioAvatarUrl={audioAvatarUrl}
+          audioTitle={audioTitle}
           onVariantChange={handleVariantChange}
         />
       </div>

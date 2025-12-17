@@ -191,6 +191,9 @@ export default async function ProductPage({ params }: PageProps) {
             reviewBadgeEmoji={product.reviewBadgeEmoji}
             reviewBadgeBgColor={product.reviewBadgeBgColor}
             reviewBadgeTextColor={product.reviewBadgeTextColor}
+            audioUrl={product.audioUrl}
+            audioAvatarUrl={product.audioAvatarUrl}
+            audioTitle={product.audioTitle}
           />
         </section>
 

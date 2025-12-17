@@ -99,6 +99,10 @@ interface Product {
   ctaExternalUrl: string | null;
   showDiscountSignup: boolean | null;
   discountSignupText: string | null;
+  // Audio Player
+  audioUrl: string | null;
+  audioAvatarUrl: string | null;
+  audioTitle: string | null;
   widgets: string | null;
   metaTitle: string | null;
   metaDescription: string | null;
@@ -187,6 +191,9 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
         ctaExternalUrl: null,
         showDiscountSignup: true,
         discountSignupText: 'Get 10% off your first order',
+        audioUrl: null,
+        audioAvatarUrl: null,
+        audioTitle: null,
         widgets: null,
         metaTitle: null,
         metaDescription: null,
@@ -665,6 +672,39 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
                         </button>
                       )}
                     </div>
+
+                    {/* Default Variant Checkbox */}
+                    {variants.length > 1 && (
+                      <label className="flex items-center gap-2 cursor-pointer group">
+                        <input
+                          type="checkbox"
+                          checked={variant.isDefault || false}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              // Set this variant as default, clear others
+                              setVariants(
+                                variants.map((v) => ({
+                                  ...v,
+                                  isDefault: v.id === variant.id,
+                                }))
+                              );
+                            } else {
+                              // Uncheck this variant
+                              updateVariant(variant.id, 'isDefault', false);
+                            }
+                          }}
+                          className="w-4 h-4 rounded border-[var(--admin-border-light)] text-[var(--primary)] focus:ring-[var(--primary)] focus:ring-offset-0 bg-[var(--admin-input)]"
+                        />
+                        <span className="text-sm text-[var(--admin-text-secondary)] group-hover:text-[var(--admin-text-primary)] transition-colors">
+                          Default variant on page load
+                        </span>
+                        {variant.isDefault && (
+                          <span className="text-xs px-2 py-0.5 bg-green-500/10 text-green-400 rounded-full">
+                            Active
+                          </span>
+                        )}
+                      </label>
+                    )}
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
@@ -1181,7 +1221,46 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
             </div>
           </div>
 
-          {/* Section 6: SEO */}
+          {/* Section 6: Audio Player */}
+          <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6">
+            <h3 className="text-sm font-medium text-[var(--admin-text-primary)] mb-4">
+              Audio Player
+            </h3>
+            <p className="text-xs text-[var(--admin-text-muted)] mb-4">
+              Add an audio message below the CTA button for richer product storytelling
+            </p>
+            <div className="space-y-4">
+              <MediaPickerButton
+                label="Audio File"
+                value={product.audioUrl || null}
+                onChange={(url) => setProduct({ ...product, audioUrl: url || null })}
+                folder="products"
+                acceptVideo={true}
+                helpText="Upload an MP3 or audio file"
+              />
+              <MediaPickerButton
+                label="Speaker Avatar"
+                value={product.audioAvatarUrl || null}
+                onChange={(url) => setProduct({ ...product, audioAvatarUrl: url || null })}
+                folder="products"
+                aspectRatio="1/1"
+                helpText="Circular avatar for the audio player"
+              />
+              <div>
+                <label className="block text-sm text-[var(--admin-text-secondary)] mb-1.5">
+                  Title / Label
+                </label>
+                <Input
+                  value={product.audioTitle || ''}
+                  onChange={(e) => setProduct({ ...product, audioTitle: e.target.value || null })}
+                  placeholder="e.g., Dr. Smith explains the benefits"
+                  className="bg-[var(--admin-input)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)]"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Section 7: SEO */}
           <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6">
             <h3 className="text-sm font-medium text-[var(--admin-text-primary)] mb-4">
               SEO
