@@ -236,7 +236,7 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
               {/* Shop Dropdown - CSS hover based (no React state) */}
               <div className="relative group/shop inline-flex">
                 <button
-                  className="flex items-center gap-2 text-xs font-medium uppercase tracking-wider transition-colors py-3 text-[#1a1a1a] group-hover/shop:text-[#737373]"
+                  className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wider transition-colors py-3 text-[#1a1a1a] group-hover/shop:text-[#737373]"
                 >
                   Shop
                   <ChevronDown
@@ -538,7 +538,7 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                 <Link
                   key={page.id}
                   href={`/${page.slug}`}
-                  className="text-xs font-medium uppercase tracking-wider text-[#1a1a1a] hover:text-[#737373] transition-colors py-3"
+                  className="text-sm font-semibold uppercase tracking-wider text-[#1a1a1a] hover:text-[#737373] transition-colors py-3"
                 >
                   {page.title}
                 </Link>
@@ -548,7 +548,7 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
               {desktopNavPages.length === 0 && (
                 <Link
                   href="/our-story"
-                  className="text-xs font-medium uppercase tracking-wider text-[#1a1a1a] hover:text-[#737373] transition-colors py-3"
+                  className="text-sm font-semibold uppercase tracking-wider text-[#1a1a1a] hover:text-[#737373] transition-colors py-3"
                 >
                   Our Story
                 </Link>

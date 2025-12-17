@@ -215,7 +215,7 @@ function EditorialCard({
             {post.tags.slice(0, 3).map((tag) => (
               <span
                 key={tag.id}
-                className="px-3 py-1.5 bg-[#bad9ea] text-base font-medium text-black"
+                className="px-3 py-1.5 bg-[#bad9ea] text-xs font-medium text-black uppercase tracking-wider"
               >
                 {tag.name}
               </span>
@@ -239,7 +239,7 @@ function FeaturePost({ post, variant = 'full' }: { post: BlogPost; variant?: 'fu
               {post.tags.map((tag) => (
                 <span
                   key={tag.id}
-                  className="px-4 py-2 bg-[#bad9ea] text-sm font-semibold text-black uppercase tracking-wide"
+                  className="px-3 py-1.5 bg-[#bad9ea] text-xs font-medium text-black uppercase tracking-wider"
                 >
                   {tag.name}
                 </span>
@@ -334,7 +334,7 @@ function FeaturePost({ post, variant = 'full' }: { post: BlogPost; variant?: 'fu
               {post.tags.slice(0, 2).map((tag) => (
                 <span
                   key={tag.id}
-                  className="px-3 py-1.5 bg-[#bad9ea] text-sm font-semibold text-black"
+                  className="px-3 py-1.5 bg-[#bad9ea] text-xs font-medium text-black uppercase tracking-wider"
                 >
                   {tag.name}
                 </span>
@@ -588,7 +588,7 @@ function ListLayout({ posts }: { posts: BlogPost[] }) {
                 {post.tags.slice(0, 3).map((tag) => (
                   <span
                     key={tag.id}
-                    className="px-3 py-1.5 bg-[#bad9ea] text-sm font-medium text-black"
+                    className="px-3 py-1.5 bg-[#bad9ea] text-xs font-medium text-black uppercase tracking-wider"
                   >
                     {tag.name}
                   </span>
@@ -692,7 +692,7 @@ export default async function BlogPage() {
           </section>
         )}
 
-        {/* Tag Filter Bar - No "All", 2x larger tags, hex blue, hide count if ≤1 */}
+        {/* Tag Filter Bar */}
         {tagsWithPosts.length > 0 && (
           <section className="sticky top-[72px] z-40 bg-white border-y border-black py-4">
             <div className="overflow-x-auto scrollbar-hide px-4">
@@ -701,11 +701,11 @@ export default async function BlogPage() {
                   <Link
                     key={tag.id}
                     href={`/blog/tag/${tag.slug}`}
-                    className="px-8 py-4 bg-[#bad9ea] text-xl font-semibold text-black uppercase tracking-wide hover:bg-[#a5cce0] transition-colors flex items-center gap-2"
+                    className="px-6 py-3 bg-[#bad9ea] text-sm font-medium text-black uppercase tracking-wider hover:bg-[#a5cce0] transition-colors flex items-center gap-2"
                   >
                     {tag.name}
                     {tag.postCount > 1 && (
-                      <span className="text-lg font-normal opacity-70">({tag.postCount})</span>
+                      <span className="text-xs font-normal opacity-70">({tag.postCount})</span>
                     )}
                   </Link>
                 ))}

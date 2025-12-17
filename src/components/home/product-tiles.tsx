@@ -154,7 +154,7 @@ export function ProductTiles({ products, title, subtitle }: ProductTilesProps) {
 
                     {/* Quick view */}
                     <div className="absolute bottom-8 left-8 right-8 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
-                      <span className="inline-flex items-center gap-3 px-8 py-4 bg-white text-[var(--foreground)] text-sm font-medium shadow-2xl">
+                      <span className="inline-flex items-center gap-3 px-7 py-4 bg-white text-[var(--foreground)] text-sm font-medium uppercase tracking-wider shadow-2xl">
                         View Product
                         <ArrowRight className="w-4 h-4" />
                       </span>
@@ -203,9 +203,9 @@ export function ProductTiles({ products, title, subtitle }: ProductTilesProps) {
 
                     {/* Shop Now Button */}
                     <div className="pt-4">
-                      <span className="inline-flex items-center gap-3 px-8 py-4 bg-[var(--primary)] text-[var(--foreground)] text-base font-semibold hover:bg-[var(--primary-dark)] transition-all duration-300 shadow-md group-hover:shadow-lg">
+                      <span className="inline-flex items-center gap-3 px-7 py-4 bg-[var(--foreground)] text-white text-sm font-medium uppercase tracking-wider hover:bg-[var(--primary)] hover:text-[var(--foreground)] transition-all duration-300 shadow-md group-hover:shadow-lg">
                         Shop Now
-                        <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+                        <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                       </span>
                     </div>
                   </div>

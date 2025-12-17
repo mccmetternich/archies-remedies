@@ -410,13 +410,13 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
 
               {/* Bottom Area - Tags + Share + Read Time */}
               <div className="mt-auto pt-8">
-                {/* Tags - 4x bigger, not clickable (just for reference) */}
+                {/* Tags */}
                 {post.tags && post.tags.length > 0 && (
-                  <div className="flex flex-wrap justify-center gap-4 mb-6">
+                  <div className="flex flex-wrap justify-center gap-3 mb-6">
                     {post.tags.map((tag) => (
                       <span
                         key={tag.id}
-                        className={`px-10 py-5 ${colors.tagBg} ${colors.tagText} text-xl font-semibold uppercase tracking-wider`}
+                        className={`px-5 py-2.5 ${colors.tagBg} ${colors.tagText} text-sm font-medium uppercase tracking-wider`}
                       >
                         {tag.name}
                       </span>

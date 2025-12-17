@@ -7,7 +7,6 @@ import {
   reviews,
   reviewKeywords,
   productCertifications,
-  pages,
 } from '@/lib/db/schema';
 import { eq, desc, and } from 'drizzle-orm';
 import { notFound } from 'next/navigation';
@@ -86,17 +85,6 @@ async function getProduct(slug: string, includeInactive: boolean = false) {
   };
 }
 
-// Get linked page for below-fold widgets
-async function getLinkedPage(productId: string) {
-  const [page] = await db
-    .select()
-    .from(pages)
-    .where(eq(pages.productId, productId))
-    .limit(1);
-
-  return page;
-}
-
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const product = await getProduct(slug);
@@ -137,14 +125,11 @@ export default async function ProductPage({ params }: PageProps) {
 
   const product = productData;
 
-  // Fetch linked page for below-fold widgets
-  const linkedPage = await getLinkedPage(product.id);
-
-  // Parse below-fold widgets
+  // Parse below-fold widgets from product's widgets field
   let belowFoldWidgets: PageWidget[] = [];
-  if (linkedPage?.widgets) {
+  if (product.widgets) {
     try {
-      belowFoldWidgets = JSON.parse(linkedPage.widgets);
+      belowFoldWidgets = JSON.parse(product.widgets);
     } catch {
       belowFoldWidgets = [];
     }
