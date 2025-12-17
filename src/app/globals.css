@@ -533,7 +533,11 @@ input[type="button"]:disabled,
   transform: translateY(-8px);
 }
 
-/* Container - Full-width with consistent edge padding (matches footer) */
+/* =============================================
+   SITE WIDTH - SINGLE SOURCE OF TRUTH
+   Edit padding values below to adjust site-wide width.
+   All sections (nav, content, footer) use this container.
+   ============================================= */
 /* Using @layer utilities to override Tailwind's built-in container */
 @layer utilities {
   .container {
