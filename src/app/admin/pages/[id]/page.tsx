@@ -27,6 +27,7 @@ import { DevicePreviewToggle, type DeviceType } from '@/components/admin/widget-
 import { HeroCarouselConfig } from '@/components/admin/widget-configs/hero-carousel-config';
 import { WidgetLibrarySidebar } from '@/components/admin/widget-library-sidebar';
 import { WidgetConfigPanel } from '@/components/admin/widget-config-panel';
+import { useWidgetDragState, useWidgetExpandState } from '@/components/admin/widget-list-container';
 import { AdminPageHeader } from '@/components/admin/admin-page-header';
 
 interface PageWidget {
@@ -364,8 +365,8 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
   // Page is "draft" if: site is in draft mode OR page.isActive is false
   const isPageEffectivelyDraft = siteInDraftMode || !page.isActive;
 
-  // Drag state for library widgets
-  const [draggedWidgetType, setDraggedWidgetType] = useState<string | null>(null);
+  // Drag state for library widgets - using shared hook for consistency
+  const { draggedWidgetType, handleDragStart, handleDragEnd } = useWidgetDragState();
   const [dropTargetIndex, setDropTargetIndex] = useState<number | null>(null);
 
   // Track unsaved changes
@@ -568,7 +569,7 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
       const insertIndex = atIndex !== undefined ? atIndex : dropTargetIndex !== null ? dropTargetIndex : widgets.length;
       handleAddWidget(widgetType, insertIndex);
     }
-    setDraggedWidgetType(null);
+    handleDragEnd();
     setDropTargetIndex(null);
   };
 
@@ -921,8 +922,8 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
           <div className="sticky top-[73px] max-h-[calc(100vh-73px)] overflow-y-auto">
             <WidgetLibrarySidebar
               onAddWidget={handleAddWidget}
-              onDragStart={(type) => setDraggedWidgetType(type)}
-              onDragEnd={() => setDraggedWidgetType(null)}
+              onDragStart={handleDragStart}
+              onDragEnd={handleDragEnd}
               draggedWidgetType={draggedWidgetType}
               storageKey="page-editor-widget-order"
               showReorderControls={true}
