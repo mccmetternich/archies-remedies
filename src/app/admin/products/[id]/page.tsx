@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
-import { motion, Reorder, useDragControls } from 'framer-motion';
+import { motion, Reorder, useDragControls, AnimatePresence } from 'framer-motion';
 import {
   Loader2,
   Plus,
@@ -15,13 +15,17 @@ import {
   Trash2,
   Layers,
   Check,
+  ChevronDown,
+  FileText,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { RichTextEditor } from '@/components/admin/rich-text-editor';
 import { MediaPickerButton } from '@/components/admin/media-picker';
 import { AdminPageHeader } from '@/components/admin/admin-page-header';
 import { WidgetLibrarySidebar } from '@/components/admin/widget-library-sidebar';
+import { WidgetConfigPanel } from '@/components/admin/widget-config-panel';
 import { cn } from '@/lib/utils';
+import { WIDGET_TYPES } from '@/lib/widget-library';
 
 // Types
 interface ProductVariant {
@@ -113,32 +117,29 @@ interface Product {
 
 type TabType = 'details' | 'content';
 
-// Draggable Widget Row Component
+// Draggable Widget Row Component with Expandable Config
 function DraggableWidgetRow({
   widget,
   index,
+  isExpanded,
+  onToggleExpand,
   onUpdate,
   onDelete,
 }: {
   widget: ProductWidget;
   index: number;
+  isExpanded: boolean;
+  onToggleExpand: () => void;
   onUpdate: (id: string, updates: Partial<ProductWidget>) => void;
   onDelete: (id: string) => void;
 }) {
   const dragControls = useDragControls();
 
-  const widgetLabels: Record<string, string> = {
-    testimonials: 'Testimonials',
-    video_testimonials: 'Video Testimonials',
-    instagram: 'Instagram Feed',
-    faqs: 'FAQs',
-    benefits: 'Benefits Grid',
-    marquee: 'Marquee',
-    text: 'Text Block',
-    image_text: 'Image + Text',
-    cta: 'Call to Action',
-    newsletter: 'Newsletter Signup',
-  };
+  // Get widget info from centralized library
+  const widgetDef = WIDGET_TYPES.find((w) => w.type === widget.type);
+  const Icon = widgetDef?.icon || FileText;
+  const widgetLabel = widgetDef?.name || widget.type;
+  const widgetDescription = widgetDef?.description || '';
 
   return (
     <Reorder.Item
@@ -147,7 +148,13 @@ function DraggableWidgetRow({
       dragControls={dragControls}
       className="bg-[var(--admin-card)] border border-[var(--admin-border-light)] rounded-lg overflow-hidden"
     >
-      <div className="flex items-center gap-3 p-4">
+      <div
+        className={cn(
+          'flex items-center gap-3 p-4 transition-colors',
+          isExpanded ? 'bg-[var(--admin-sidebar)]' : 'hover:bg-[var(--admin-sidebar)]'
+        )}
+      >
+        {/* Drag Handle */}
         <div
           onPointerDown={(e) => dragControls.start(e)}
           className="cursor-grab active:cursor-grabbing p-1 hover:bg-[var(--admin-hover)] rounded"
@@ -155,67 +162,141 @@ function DraggableWidgetRow({
           <GripVertical className="w-4 h-4 text-[var(--admin-text-muted)]" />
         </div>
 
+        {/* Index */}
         <span className="w-6 h-6 flex items-center justify-center text-xs font-mono bg-[var(--admin-input)] rounded text-[var(--admin-text-primary)]">
           {index + 1}
         </span>
 
-        <div className="flex-1 min-w-0">
-          <h4 className="font-medium text-[var(--admin-text-primary)] truncate">
-            {widget.title || widgetLabels[widget.type] || widget.type}
-          </h4>
-          {widget.subtitle && (
-            <p className="text-xs text-[var(--admin-text-muted)] truncate">{widget.subtitle}</p>
-          )}
+        {/* Icon */}
+        <div className="w-10 h-10 rounded-lg bg-[var(--primary)]/10 flex items-center justify-center">
+          <Icon className="w-5 h-5 text-[var(--primary)]" />
         </div>
 
+        {/* Title & Description - Clickable to expand */}
+        <div
+          className="flex-1 min-w-0 cursor-pointer"
+          onClick={onToggleExpand}
+        >
+          <h4 className="font-medium text-[var(--admin-text-primary)] truncate">
+            {widget.title || widgetLabel}
+          </h4>
+          <p className="text-xs text-[var(--admin-text-muted)] truncate">
+            {widget.subtitle || widgetDescription}
+          </p>
+        </div>
+
+        {/* Controls */}
         <div className="flex items-center gap-2">
+          {/* Desktop visibility toggle */}
           <button
-            onClick={() => onUpdate(widget.id, { showOnDesktop: !widget.showOnDesktop })}
+            onClick={(e) => {
+              e.stopPropagation();
+              onUpdate(widget.id, { showOnDesktop: !widget.showOnDesktop });
+            }}
             className={cn(
-              'p-1.5 rounded transition-colors',
+              'flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium transition-all',
               widget.showOnDesktop
-                ? 'bg-[var(--primary)]/10 text-[var(--primary)]'
-                : 'text-[var(--admin-text-muted)] hover:bg-[var(--admin-hover)]'
+                ? 'text-green-400 bg-green-500/10 hover:bg-green-500/20'
+                : 'text-[var(--admin-text-muted)] bg-[var(--admin-input)] hover:bg-[var(--admin-hover)]'
             )}
-            title="Show on desktop"
+            title={widget.showOnDesktop ? 'Visible on desktop' : 'Hidden on desktop'}
           >
             <Monitor className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Desktop</span>
           </button>
 
+          {/* Mobile visibility toggle */}
           <button
-            onClick={() => onUpdate(widget.id, { showOnMobile: !widget.showOnMobile })}
+            onClick={(e) => {
+              e.stopPropagation();
+              onUpdate(widget.id, { showOnMobile: !widget.showOnMobile });
+            }}
             className={cn(
-              'p-1.5 rounded transition-colors',
+              'flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium transition-all',
               widget.showOnMobile
-                ? 'bg-[var(--primary)]/10 text-[var(--primary)]'
-                : 'text-[var(--admin-text-muted)] hover:bg-[var(--admin-hover)]'
+                ? 'text-green-400 bg-green-500/10 hover:bg-green-500/20'
+                : 'text-[var(--admin-text-muted)] bg-[var(--admin-input)] hover:bg-[var(--admin-hover)]'
             )}
-            title="Show on mobile"
+            title={widget.showOnMobile ? 'Visible on mobile' : 'Hidden on mobile'}
           >
             <Smartphone className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Mobile</span>
           </button>
 
+          {/* Live/Draft toggle */}
           <button
-            onClick={() => onUpdate(widget.id, { isVisible: !widget.isVisible })}
+            onClick={(e) => {
+              e.stopPropagation();
+              onUpdate(widget.id, { isVisible: !widget.isVisible });
+            }}
             className={cn(
-              'flex items-center gap-1 px-2 py-1 rounded text-xs font-medium transition-colors',
+              'flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium transition-all',
               widget.isVisible
-                ? 'bg-green-500/10 text-green-400'
-                : 'bg-orange-500/10 text-orange-400'
+                ? 'text-green-400 bg-green-500/10 hover:bg-green-500/20'
+                : 'text-amber-400 bg-amber-500/10 hover:bg-amber-500/20'
             )}
+            title={widget.isVisible ? 'Live' : 'Draft'}
           >
-            {widget.isVisible ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
-            {widget.isVisible ? 'Live' : 'Draft'}
+            {widget.isVisible ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+            <span className="hidden sm:inline">{widget.isVisible ? 'Live' : 'Draft'}</span>
           </button>
 
+          {/* Separator */}
+          <div className="w-px h-5 bg-[var(--admin-border)]" />
+
+          {/* Expand/Collapse Chevron */}
           <button
-            onClick={() => onDelete(widget.id)}
-            className="p-1.5 rounded text-red-400 hover:bg-red-500/10 transition-colors"
+            onClick={onToggleExpand}
+            className="p-1.5 rounded-md text-[var(--admin-text-muted)] hover:text-[var(--admin-text-primary)] hover:bg-[var(--admin-hover)] transition-colors"
+            title={isExpanded ? 'Collapse' : 'Expand'}
+          >
+            <ChevronDown className={cn(
+              'w-4 h-4 transition-transform duration-200',
+              isExpanded && 'rotate-180'
+            )} />
+          </button>
+
+          {/* Delete */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              if (confirm('Delete this widget?')) {
+                onDelete(widget.id);
+              }
+            }}
+            className="p-1.5 rounded-md text-[var(--admin-text-muted)] hover:text-red-400 hover:bg-red-500/10 transition-colors"
+            title="Delete widget"
           >
             <Trash2 className="w-4 h-4" />
           </button>
         </div>
       </div>
+
+      {/* Expanded Widget Config Panel */}
+      <AnimatePresence>
+        {isExpanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden"
+          >
+            <div className="border-t border-[var(--admin-border)] bg-[var(--admin-bg)] p-4">
+              <WidgetConfigPanel
+                widget={{
+                  id: widget.id,
+                  type: widget.type,
+                  title: widget.title,
+                  subtitle: widget.subtitle,
+                  config: widget.config,
+                }}
+                onUpdate={(updates) => onUpdate(widget.id, updates as Partial<ProductWidget>)}
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </Reorder.Item>
   );
 }
@@ -235,6 +316,7 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
   const [originalBenefits, setOriginalBenefits] = useState<ProductBenefit[]>([]);
   const [widgets, setWidgets] = useState<ProductWidget[]>([]);
   const [originalWidgets, setOriginalWidgets] = useState<ProductWidget[]>([]);
+  const [expandedWidget, setExpandedWidget] = useState<string | null>(null);
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -242,6 +324,10 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
   const [siteInDraftMode, setSiteInDraftMode] = useState(false);
   const [selectedVariantIndex, setSelectedVariantIndex] = useState(0);
   const [selectedMediaVariantIndex, setSelectedMediaVariantIndex] = useState(0);
+
+  // Drag state for library widgets
+  const [draggedWidgetType, setDraggedWidgetType] = useState<string | null>(null);
+  const [dropTargetIndex, setDropTargetIndex] = useState<number | null>(null);
 
   // Track changes
   const hasChanges =
@@ -485,16 +571,25 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
   };
 
   // Widget handlers
-  const addWidget = (type: string) => {
+  const addWidget = (type: string, atIndex?: number) => {
+    const widgetDef = WIDGET_TYPES.find((w) => w.type === type);
     const newWidget: ProductWidget = {
-      id: `widget-${Date.now()}`,
+      id: `widget-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       type,
+      title: widgetDef?.name || '',
       isVisible: true,
       showOnDesktop: true,
       showOnMobile: true,
       sortOrder: widgets.length,
     };
-    setWidgets([...widgets, newWidget]);
+
+    if (atIndex !== undefined) {
+      const newWidgets = [...widgets];
+      newWidgets.splice(atIndex, 0, newWidget);
+      setWidgets(newWidgets);
+    } else {
+      setWidgets([...widgets, newWidget]);
+    }
   };
 
   const updateWidget = (widgetId: string, updates: Partial<ProductWidget>) => {
@@ -503,19 +598,38 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
 
   const deleteWidget = (widgetId: string) => {
     setWidgets(widgets.filter((w) => w.id !== widgetId));
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    const widgetType = e.dataTransfer.getData('widget-type');
-    if (widgetType) {
-      addWidget(widgetType);
+    if (expandedWidget === widgetId) {
+      setExpandedWidget(null);
     }
   };
 
-  const handleDragOver = (e: React.DragEvent) => {
+  // Handle drop from library
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>, atIndex?: number) => {
     e.preventDefault();
-    e.dataTransfer.dropEffect = 'copy';
+    e.stopPropagation();
+    const widgetType = e.dataTransfer.getData('widget-type');
+    if (widgetType) {
+      const insertIndex = atIndex !== undefined ? atIndex : dropTargetIndex !== null ? dropTargetIndex : widgets.length;
+      addWidget(widgetType, insertIndex);
+    }
+    setDraggedWidgetType(null);
+    setDropTargetIndex(null);
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+  };
+
+  // Calculate drop position based on mouse Y position
+  const handleDragOverWidget = (e: React.DragEvent<HTMLDivElement>, index: number) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const rect = e.currentTarget.getBoundingClientRect();
+    const midY = rect.top + rect.height / 2;
+    const newIndex = e.clientY < midY ? index : index + 1;
+    if (newIndex !== dropTargetIndex) {
+      setDropTargetIndex(newIndex);
+    }
   };
 
   if (loading) {
@@ -1362,34 +1476,81 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
                 )}
               </div>
 
-              {widgets.length > 0 ? (
-                <Reorder.Group
-                  axis="y"
-                  values={widgets}
-                  onReorder={setWidgets}
-                  className="space-y-3"
-                >
-                  {widgets.map((widget, index) => (
-                    <DraggableWidgetRow
-                      key={widget.id}
-                      widget={widget}
-                      index={index}
-                      onUpdate={updateWidget}
-                      onDelete={deleteWidget}
-                    />
-                  ))}
-                </Reorder.Group>
-              ) : (
-                <div className="py-20 text-center border-2 border-dashed border-[var(--admin-border-light)] rounded-xl bg-[var(--admin-input)]/30">
-                  <Layers className="w-12 h-12 mx-auto mb-4 text-[var(--admin-text-muted)] opacity-50" />
-                  <p className="text-[var(--admin-text-muted)] font-medium mb-2">
-                    No widgets added yet
-                  </p>
-                  <p className="text-sm text-[var(--admin-text-muted)]">
-                    Drag widgets from the library on the right, or click to add
-                  </p>
-                </div>
-              )}
+              {/* Widget List Container */}
+              <div
+                className={cn(
+                  'bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] transition-all relative',
+                  draggedWidgetType && 'ring-2 ring-[var(--primary)] ring-opacity-50'
+                )}
+                onDragLeave={() => setDropTargetIndex(null)}
+              >
+                {widgets.length > 0 ? (
+                  <Reorder.Group
+                    axis="y"
+                    values={widgets}
+                    onReorder={setWidgets}
+                    className="divide-y divide-[var(--admin-border)]"
+                  >
+                    {widgets.map((widget, index) => (
+                      <div
+                        key={widget.id}
+                        onDragOver={(e) => draggedWidgetType && handleDragOverWidget(e, index)}
+                        onDrop={(e) => handleDrop(e, dropTargetIndex ?? index)}
+                      >
+                        {/* Drop indicator before this widget */}
+                        {draggedWidgetType && dropTargetIndex === index && (
+                          <div className="h-1 bg-[var(--primary)] mx-4 rounded-full animate-pulse" />
+                        )}
+                        <DraggableWidgetRow
+                          widget={widget}
+                          index={index}
+                          isExpanded={expandedWidget === widget.id}
+                          onToggleExpand={() => setExpandedWidget(expandedWidget === widget.id ? null : widget.id)}
+                          onUpdate={updateWidget}
+                          onDelete={deleteWidget}
+                        />
+                        {/* Drop indicator after last widget */}
+                        {draggedWidgetType && index === widgets.length - 1 && dropTargetIndex === widgets.length && (
+                          <div className="h-1 bg-[var(--primary)] mx-4 rounded-full animate-pulse" />
+                        )}
+                      </div>
+                    ))}
+                  </Reorder.Group>
+                ) : (
+                  <div
+                    className="py-16 text-center"
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      setDropTargetIndex(0);
+                    }}
+                    onDrop={(e) => handleDrop(e, 0)}
+                  >
+                    {draggedWidgetType ? (
+                      <>
+                        <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-[var(--primary)]/20 flex items-center justify-center">
+                          <Plus className="w-8 h-8 text-[var(--primary)]" />
+                        </div>
+                        <h3 className="font-medium text-lg text-[var(--primary)] mb-2">
+                          Drop here to add
+                        </h3>
+                        <p className="text-sm text-[var(--admin-text-muted)]">
+                          Release to add {WIDGET_TYPES.find(w => w.type === draggedWidgetType)?.name || 'widget'}
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <Layers className="w-12 h-12 mx-auto mb-4 text-[var(--admin-text-muted)] opacity-50" />
+                        <p className="text-[var(--admin-text-muted)] font-medium mb-2">
+                          No widgets added yet
+                        </p>
+                        <p className="text-sm text-[var(--admin-text-muted)]">
+                          Drag widgets from the library on the right, or click to add
+                        </p>
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
@@ -1399,7 +1560,14 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
               title="Widget Library"
               subtitle="Drag or click to add"
               onAddWidget={addWidget}
+              onDragStart={(type) => setDraggedWidgetType(type)}
+              onDragEnd={() => {
+                setDraggedWidgetType(null);
+                setDropTargetIndex(null);
+              }}
+              draggedWidgetType={draggedWidgetType}
               storageKey="product-widget-order"
+              showReorderControls={true}
             />
           </div>
         </div>

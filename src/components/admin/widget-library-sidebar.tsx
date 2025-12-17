@@ -263,13 +263,63 @@ export function WidgetLibrarySidebar({
                           onDragStart={(e) => {
                             e.dataTransfer.setData('widget-type', widget.type);
                             e.dataTransfer.effectAllowed = 'copy';
-                            // Set drag image
-                            const dragEl = e.currentTarget.cloneNode(true) as HTMLElement;
-                            dragEl.style.opacity = '0.8';
-                            dragEl.style.transform = 'scale(0.9)';
-                            document.body.appendChild(dragEl);
-                            e.dataTransfer.setDragImage(dragEl, 0, 0);
-                            setTimeout(() => document.body.removeChild(dragEl), 0);
+
+                            // Create a custom drag preview that looks like the widget tile
+                            const dragPreview = document.createElement('div');
+                            dragPreview.style.cssText = `
+                              position: fixed;
+                              top: -1000px;
+                              left: -1000px;
+                              padding: 12px 16px;
+                              background: var(--admin-card, #1a1a1a);
+                              border: 2px solid var(--primary, #bbdae9);
+                              border-radius: 12px;
+                              box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+                              display: flex;
+                              align-items: center;
+                              gap: 12px;
+                              font-family: inherit;
+                              z-index: 9999;
+                              pointer-events: none;
+                              min-width: 200px;
+                            `;
+
+                            // Icon container
+                            const iconContainer = document.createElement('div');
+                            iconContainer.style.cssText = `
+                              width: 32px;
+                              height: 32px;
+                              background: rgba(187, 218, 233, 0.2);
+                              border-radius: 8px;
+                              display: flex;
+                              align-items: center;
+                              justify-content: center;
+                            `;
+                            iconContainer.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary, #bbdae9)" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>`;
+
+                            // Text container
+                            const textContainer = document.createElement('div');
+                            textContainer.innerHTML = `
+                              <div style="font-weight: 500; font-size: 14px; color: var(--admin-text-primary, #fff);">${widget.label}</div>
+                              <div style="font-size: 11px; color: var(--admin-text-muted, #888); margin-top: 2px;">Drag to add</div>
+                            `;
+
+                            dragPreview.appendChild(iconContainer);
+                            dragPreview.appendChild(textContainer);
+                            document.body.appendChild(dragPreview);
+
+                            // Set the custom drag image
+                            e.dataTransfer.setDragImage(dragPreview, 100, 30);
+
+                            // Clean up after a short delay
+                            requestAnimationFrame(() => {
+                              setTimeout(() => {
+                                if (dragPreview.parentNode) {
+                                  document.body.removeChild(dragPreview);
+                                }
+                              }, 0);
+                            });
+
                             onDragStart?.(widget.type);
                           }}
                           onDragEnd={() => onDragEnd?.()}
