@@ -14,20 +14,14 @@ import {
   BarChart3,
   Search,
   User,
-  GripVertical,
-  Layers,
-  ChevronDown,
-  ChevronUp,
-  Monitor,
-  Smartphone,
   ImageIcon,
-  Trash2,
+  Layers,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { MediaPickerButton } from '@/components/admin/media-picker';
 import { RichTextEditor } from '@/components/admin/rich-text-editor';
 import { WidgetLibrarySidebar } from '@/components/admin/widget-library-sidebar';
-import { WidgetConfigPanel } from '@/components/admin/widget-config-panel';
+import { WidgetListContainer, useWidgetDragState, useWidgetExpandState } from '@/components/admin/widget-list-container';
 import { WIDGET_TYPES } from '@/lib/widget-library';
 import { AdminPageHeader } from '@/components/admin/admin-page-header';
 
@@ -121,12 +115,11 @@ export default function BlogPostEditorPage({ params }: { params: Promise<{ id: s
 
   const [originalPost, setOriginalPost] = useState<BlogPost | null>(null);
 
-  // Widget state
+  // Widget state - using shared hooks for consistency
   const [postWidgets, setPostWidgets] = useState<PostWidget[]>([]);
-  const [draggedWidgetType, setDraggedWidgetType] = useState<string | null>(null);
-  const [dropTargetIndex, setDropTargetIndex] = useState<number | null>(null);
   const [showWidgetLibrary, setShowWidgetLibrary] = useState(false);
-  const [expandedWidgetId, setExpandedWidgetId] = useState<string | null>(null);
+  const { draggedWidgetType, handleDragStart, handleDragEnd } = useWidgetDragState();
+  const { expandedWidget, toggleExpand } = useWidgetExpandState();
 
   // Global site draft mode - if true, entire site is behind coming soon page
   const [siteInDraftMode, setSiteInDraftMode] = useState(false);
@@ -180,8 +173,8 @@ export default function BlogPostEditorPage({ params }: { params: Promise<{ id: s
     }));
   };
 
-  // Widget handlers
-  const handleAddWidget = (type: string, index?: number) => {
+  // Widget handlers - simplified for shared WidgetListContainer
+  const handleAddWidget = (type: string, atIndex?: number) => {
     const widgetDef = WIDGET_TYPES.find(w => w.type === type);
     if (!widgetDef) return;
 
@@ -193,8 +186,8 @@ export default function BlogPostEditorPage({ params }: { params: Promise<{ id: s
     };
 
     const newWidgets = [...postWidgets];
-    if (index !== undefined) {
-      newWidgets.splice(index, 0, newWidget);
+    if (atIndex !== undefined) {
+      newWidgets.splice(atIndex, 0, newWidget);
     } else {
       newWidgets.push(newWidget);
     }
@@ -203,26 +196,15 @@ export default function BlogPostEditorPage({ params }: { params: Promise<{ id: s
 
   const handleDeleteWidget = (id: string) => {
     updatePostWidgets(postWidgets.filter(w => w.id !== id));
-  };
-
-  const handleToggleWidgetVisibility = (id: string) => {
-    updatePostWidgets(postWidgets.map(w =>
-      w.id === id ? { ...w, visible: !w.visible } : w
-    ));
+    if (expandedWidget === id) {
+      toggleExpand(null);
+    }
   };
 
   const handleUpdateWidget = (id: string, updates: Partial<PostWidget>) => {
     updatePostWidgets(postWidgets.map(w =>
       w.id === id ? { ...w, ...updates } : w
     ));
-  };
-
-  const handleWidgetDrop = (index: number) => {
-    if (draggedWidgetType) {
-      handleAddWidget(draggedWidgetType, index);
-    }
-    setDraggedWidgetType(null);
-    setDropTargetIndex(null);
   };
 
   const fetchPost = async () => {
@@ -506,8 +488,8 @@ export default function BlogPostEditorPage({ params }: { params: Promise<{ id: s
                     handleAddWidget(type);
                     setShowWidgetLibrary(false);
                   }}
-                  onDragStart={setDraggedWidgetType}
-                  onDragEnd={() => setDraggedWidgetType(null)}
+                  onDragStart={handleDragStart}
+                  onDragEnd={handleDragEnd}
                   draggedWidgetType={draggedWidgetType}
                   showReorderControls={false}
                   compact
@@ -517,173 +499,22 @@ export default function BlogPostEditorPage({ params }: { params: Promise<{ id: s
               </div>
             )}
 
-            {/* Widget Drop Zone & List */}
-            <div
-              className={cn(
-                'min-h-[100px] rounded-lg border-2 border-dashed transition-colors',
-                draggedWidgetType
-                  ? 'border-[var(--primary)] bg-[var(--primary)]/5'
-                  : 'border-[var(--admin-border-light)]',
-                postWidgets.length === 0 && 'flex items-center justify-center'
-              )}
-              onDragOver={(e) => {
-                e.preventDefault();
-                e.dataTransfer.dropEffect = 'copy';
-              }}
-              onDrop={(e) => {
-                e.preventDefault();
-                const type = e.dataTransfer.getData('widget-type');
-                if (type) {
-                  handleAddWidget(type);
-                  setDraggedWidgetType(null);
-                }
-              }}
-            >
-              {postWidgets.length === 0 ? (
-                <div className="text-center py-8">
-                  <Layers className="w-8 h-8 text-[var(--admin-text-muted)] mx-auto mb-2" />
-                  <p className="text-sm text-[var(--admin-text-muted)]">
-                    {draggedWidgetType ? 'Drop widget here' : 'No widgets added yet'}
-                  </p>
-                  <p className="text-xs text-[var(--admin-text-muted)] mt-1">
-                    Drag from the library or click "Add Widget"
-                  </p>
-                </div>
-              ) : (
-                <div className="divide-y divide-[var(--admin-border-light)]">
-                  {postWidgets.map((widget, index) => {
-                    const widgetDef = WIDGET_TYPES.find(w => w.type === widget.type);
-                    const Icon = widgetDef?.icon;
-                    const isExpanded = expandedWidgetId === widget.id;
-                    const config = (widget.config || {}) as Record<string, unknown>;
-
-                    return (
-                      <div key={widget.id} className="bg-[var(--admin-input)]">
-                        {/* Widget Header - Click to expand */}
-                        <div
-                          className={cn(
-                            'flex items-center gap-3 p-4 transition-colors cursor-pointer',
-                            isExpanded ? 'bg-[var(--admin-sidebar)]' : 'hover:bg-[var(--admin-sidebar)]',
-                            !widget.visible && 'opacity-60'
-                          )}
-                          onClick={() => setExpandedWidgetId(isExpanded ? null : widget.id)}
-                          draggable
-                          onDragStart={(e) => {
-                            e.dataTransfer.setData('widget-index', index.toString());
-                          }}
-                          onDragOver={(e) => {
-                            e.preventDefault();
-                            setDropTargetIndex(index);
-                          }}
-                          onDragLeave={() => setDropTargetIndex(null)}
-                          onDrop={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            const fromIndex = parseInt(e.dataTransfer.getData('widget-index'));
-                            if (!isNaN(fromIndex) && fromIndex !== index) {
-                              const newWidgets = [...postWidgets];
-                              const [moved] = newWidgets.splice(fromIndex, 1);
-                              newWidgets.splice(index, 0, moved);
-                              updatePostWidgets(newWidgets);
-                            }
-                            setDropTargetIndex(null);
-                          }}
-                        >
-                          <GripVertical className="w-4 h-4 text-[var(--admin-text-muted)] cursor-grab" />
-                          <span className="text-xs text-[var(--admin-text-muted)] font-mono w-5">{index + 1}</span>
-                          {Icon && (
-                            <div className="w-10 h-10 rounded-lg bg-[var(--primary)]/10 flex items-center justify-center">
-                              <Icon className="w-5 h-5 text-[var(--primary)]" />
-                            </div>
-                          )}
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-[var(--admin-text-primary)] truncate">
-                              {widgetDef?.name || widget.type}
-                            </p>
-                            <p className="text-xs text-[var(--admin-text-muted)] truncate">
-                              {widgetDef?.description}
-                            </p>
-                          </div>
-
-                          {/* Controls */}
-                          <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                            {/* Desktop toggle */}
-                            <button
-                              onClick={() => handleUpdateWidget(widget.id, {
-                                config: { ...config, showOnDesktop: config.showOnDesktop !== false ? false : true }
-                              })}
-                              className={cn(
-                                'flex items-center gap-1 px-2 py-1 rounded text-xs font-medium transition-all',
-                                config.showOnDesktop !== false
-                                  ? 'text-green-400 bg-green-500/10'
-                                  : 'text-[var(--admin-text-muted)] bg-[var(--admin-input)]'
-                              )}
-                              title={config.showOnDesktop !== false ? 'Hide on desktop' : 'Show on desktop'}
-                            >
-                              <Monitor className="w-3.5 h-3.5" />
-                            </button>
-                            {/* Mobile toggle */}
-                            <button
-                              onClick={() => handleUpdateWidget(widget.id, {
-                                config: { ...config, showOnMobile: config.showOnMobile !== false ? false : true }
-                              })}
-                              className={cn(
-                                'flex items-center gap-1 px-2 py-1 rounded text-xs font-medium transition-all',
-                                config.showOnMobile !== false
-                                  ? 'text-green-400 bg-green-500/10'
-                                  : 'text-[var(--admin-text-muted)] bg-[var(--admin-input)]'
-                              )}
-                              title={config.showOnMobile !== false ? 'Hide on mobile' : 'Show on mobile'}
-                            >
-                              <Smartphone className="w-3.5 h-3.5" />
-                            </button>
-                            {/* Visible toggle */}
-                            <button
-                              onClick={() => handleToggleWidgetVisibility(widget.id)}
-                              className={cn(
-                                'flex items-center gap-1 px-2 py-1 rounded text-xs font-medium transition-all',
-                                widget.visible
-                                  ? 'text-green-400 bg-green-500/10'
-                                  : 'text-amber-400 bg-amber-500/10'
-                              )}
-                              title={widget.visible ? 'Click to hide' : 'Click to show'}
-                            >
-                              {widget.visible ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
-                              <span>{widget.visible ? 'Live' : 'Draft'}</span>
-                            </button>
-                            <div className="w-px h-5 bg-[var(--admin-border)]" />
-                            {/* Delete */}
-                            <button
-                              onClick={() => handleDeleteWidget(widget.id)}
-                              className="p-1.5 rounded text-[var(--admin-text-muted)] hover:text-red-400 hover:bg-red-500/10 transition-colors"
-                              title="Delete widget"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                            {/* Expand/Collapse indicator */}
-                            {isExpanded ? (
-                              <ChevronUp className="w-4 h-4 text-[var(--admin-text-muted)]" />
-                            ) : (
-                              <ChevronDown className="w-4 h-4 text-[var(--admin-text-muted)]" />
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Expanded Config Panel - Uses shared component for consistency */}
-                        {isExpanded && (
-                          <div className="border-t border-[var(--admin-border)] bg-[var(--admin-bg)] p-4">
-                            <WidgetConfigPanel
-                              widget={widget}
-                              onUpdate={(updates) => handleUpdateWidget(widget.id, updates)}
-                            />
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
+            {/* Shared Widget List Container */}
+            <WidgetListContainer
+              widgets={postWidgets}
+              onReorder={updatePostWidgets}
+              onAddWidget={handleAddWidget}
+              onUpdateWidget={handleUpdateWidget}
+              onDeleteWidget={handleDeleteWidget}
+              draggedWidgetType={draggedWidgetType}
+              onDragEnd={handleDragEnd}
+              expandedWidget={expandedWidget}
+              onToggleExpand={toggleExpand}
+              showDeviceToggles={true}
+              showCount={false}
+              emptyTitle="No widgets added yet"
+              emptyDescription="Drag from the library or click 'Add Widget'"
+            />
           </div>
         </div>
 
