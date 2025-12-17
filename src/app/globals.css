@@ -534,34 +534,36 @@ input[type="button"]:disabled,
 }
 
 /* Container - Full-width with consistent edge padding (matches footer) */
-/* Override Tailwind's built-in container max-width with !important */
-.container {
-  width: 100%;
-  max-width: none !important;
-  margin-left: auto;
-  margin-right: auto;
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
-}
-
-@media (min-width: 768px) {
+/* Using @layer utilities to override Tailwind's built-in container */
+@layer utilities {
   .container {
-    padding-left: 3rem;
-    padding-right: 3rem;
+    width: 100%;
+    max-width: none !important;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
   }
-}
 
-@media (min-width: 1024px) {
-  .container {
-    padding-left: 5rem;
-    padding-right: 5rem;
+  @media (min-width: 768px) {
+    .container {
+      padding-left: 3rem;
+      padding-right: 3rem;
+    }
   }
-}
 
-@media (min-width: 1280px) {
-  .container {
-    padding-left: 7rem;
-    padding-right: 7rem;
+  @media (min-width: 1024px) {
+    .container {
+      padding-left: 5rem;
+      padding-right: 5rem;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .container {
+      padding-left: 7rem;
+      padding-right: 7rem;
+    }
   }
 }
 
