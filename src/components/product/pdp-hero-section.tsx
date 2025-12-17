@@ -115,8 +115,8 @@ export function PDPHeroSection({
   };
 
   return (
-    <div className="grid lg:grid-cols-[1fr_auto] gap-8 lg:gap-12">
-      {/* Left: Buy Box - expands with container, absorbs extra width */}
+    <div className="grid lg:grid-cols-[1fr_2fr] gap-8 lg:gap-12">
+      {/* Left: Buy Box - 1/3 width */}
       <div className="order-1">
         <PDPBuyBox
           product={product}
@@ -136,8 +136,8 @@ export function PDPHeroSection({
         />
       </div>
 
-      {/* Right: Gallery - fixed max-width, hero stays consistent size */}
-      <div className="order-2 lg:w-[550px] xl:w-[650px]">
+      {/* Right: Gallery - 2/3 width */}
+      <div className="order-2">
         <PDPGallery
           images={activeImages}
           heroImage={activeHeroImage}
