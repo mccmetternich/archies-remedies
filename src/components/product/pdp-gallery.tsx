@@ -148,10 +148,8 @@ export function PDPGallery({
                     }
                   }}
                   className={cn(
-                    'relative w-24 aspect-[4/5] rounded-xl overflow-hidden border-2 transition-all duration-200 shadow-lg bg-white',
-                    index === activeIndex
-                      ? 'border-[#bbdae9] ring-2 ring-[#bbdae9]/50'
-                      : 'border-white/80 hover:border-[#bbdae9]'
+                    'relative w-24 aspect-square overflow-hidden transition-all duration-200 shadow-lg bg-white',
+                    index === activeIndex && 'ring-2 ring-[#bbdae9]'
                   )}
                 >
                   {image.isVideo && image.videoUrl ? (
@@ -194,10 +192,8 @@ export function PDPGallery({
                 }
               }}
               className={cn(
-                'relative flex-shrink-0 w-20 aspect-square rounded-lg overflow-hidden border-2 transition-all duration-200',
-                index === activeIndex
-                  ? 'border-[#bbdae9]'
-                  : 'border-transparent'
+                'relative flex-shrink-0 w-20 aspect-square overflow-hidden transition-all duration-200',
+                index === activeIndex && 'ring-2 ring-[#bbdae9]'
               )}
             >
               {image.isVideo && image.videoUrl ? (

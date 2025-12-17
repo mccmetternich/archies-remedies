@@ -199,7 +199,7 @@ export function PDPBuyBox({
       {/* Variant Tiles - Show if variants exist */}
       {variants.length > 0 && (
         <div className="space-y-[15px]">
-          <span className="text-xs font-semibold tracking-[0.15em] uppercase text-[var(--muted-foreground)]">
+          <span className="text-xs font-bold tracking-[0.15em] uppercase text-[#1a1a1a]">
             Choose Size
           </span>
           <div className={cn('grid gap-3', getVariantGridCols())}>

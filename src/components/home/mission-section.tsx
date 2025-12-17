@@ -44,7 +44,7 @@ export function MissionSection({
       <div className="absolute top-0 left-0 w-1/3 h-full bg-gradient-to-r from-white to-transparent" />
 
       <div className="container relative">
-        <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
+        <div className="grid lg:grid-cols-2 gap-16 lg:gap-32 xl:gap-48 items-center">
           {/* Left: Editorial Image */}
           <div className="relative order-2 lg:order-1">
             <div className="relative">

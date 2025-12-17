@@ -262,10 +262,10 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                   <div className="relative z-50 w-full bg-white shadow-[0_20px_40px_rgba(0,0,0,0.15)] overflow-visible">
                     {/* Shelf container with generous padding - pb-[30px] for whitespace below tiles */}
                     <div className="container pt-8 pb-[30px] overflow-visible">
-                      {/* Content grid - center aligned so marketing tile sits in vertical middle */}
-                      <div className="grid lg:grid-cols-12 gap-8 items-center overflow-visible">
-                        {/* Product tiles - 2 columns */}
-                        <div className="lg:col-span-8">
+                      {/* Content grid - spacer between product tiles and marketing tile grows with viewport */}
+                      <div className="grid lg:grid-cols-[1fr_auto_max-content] gap-8 items-center overflow-visible">
+                        {/* Product tiles - flexible width */}
+                        <div>
                           <div className="grid md:grid-cols-2 gap-6">
                             {/* Product Tile 1 - pl-0 to align with container edge */}
                             {tile1Product && (
@@ -449,8 +449,11 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                           </div>
                         </div>
 
-                        {/* Marketing Tile (Clean Formulas) - Centered vertically in the dropdown */}
-                        <div className="lg:col-span-4 relative overflow-visible">
+                        {/* Spacer - grows with container width */}
+                        <div className="hidden lg:block w-8 xl:w-16 2xl:w-24" />
+
+                        {/* Marketing Tile (Clean Formulas) - Fixed max-width, centered vertically */}
+                        <div className="relative overflow-visible max-w-sm">
                           <div className="p-6 rounded-2xl bg-[var(--primary-light)] relative">
                             {/* Rotating Badge - Desktop only (respects desktop toggle) */}
                             {globalNav?.marketingTileRotatingBadgeEnabled &&

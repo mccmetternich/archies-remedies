@@ -533,12 +533,12 @@ input[type="button"]:disabled,
   transform: translateY(-8px);
 }
 
-/* Container - Generous Spacing */
+/* Container - Full-width with consistent edge padding (matches footer) */
 /* Using explicit padding and margin properties to allow Tailwind utilities to work */
 /* Shorthand like 'margin: 0 auto' or 'padding: 0 1.5rem' sets ALL values, overriding Tailwind */
 .container {
   width: 100%;
-  max-width: 1440px;
+  /* No max-width - full viewport with padding */
   margin-left: auto;
   margin-right: auto;
   padding-left: 1.5rem;
@@ -556,6 +556,13 @@ input[type="button"]:disabled,
   .container {
     padding-left: 5rem;
     padding-right: 5rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .container {
+    padding-left: 7rem;
+    padding-right: 7rem;
   }
 }
 
