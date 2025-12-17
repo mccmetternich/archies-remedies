@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Star, ChevronDown, ArrowRight, Mail, Check } from 'lucide-react';
+import { Star, ChevronRight, ArrowRight, Mail, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { trackClick } from '@/lib/tracking';
 
@@ -214,10 +214,10 @@ export function PDPBuyBox({
                   key={variant.id}
                   onClick={() => handleVariantSelect(variant)}
                   className={cn(
-                    'relative flex flex-col items-center justify-center p-4 transition-all duration-200 text-center bg-white',
+                    'relative flex flex-col items-center justify-center p-4 transition-all duration-200 text-center bg-white border',
                     isSelected
-                      ? 'border-[3px] border-[#bbdae9]'
-                      : 'border-2 border-[#d1d5db] hover:border-[#bbdae9]'
+                      ? 'border-[#bbdae9]'
+                      : 'border-[#e5e5e5] hover:border-[#bbdae9]'
                   )}
                 >
                   {/* Variant Badge */}
@@ -332,7 +332,7 @@ export function PDPBuyBox({
       )}
 
       {/* Accordion Drawers */}
-      <div className="border-t border-[var(--border)] pt-6 space-y-0">
+      <div className="pt-6 space-y-0">
         {/* The Ritual */}
         {product.ritualContent && (
           <AccordionItem
@@ -340,6 +340,7 @@ export function PDPBuyBox({
             content={product.ritualContent}
             isOpen={openAccordion === 'ritual'}
             onToggle={() => toggleAccordion('ritual')}
+            isFirst
           />
         )}
 
@@ -372,20 +373,24 @@ interface AccordionItemProps {
   content: string;
   isOpen: boolean;
   onToggle: () => void;
+  isFirst?: boolean;
 }
 
-function AccordionItem({ title, content, isOpen, onToggle }: AccordionItemProps) {
+function AccordionItem({ title, content, isOpen, onToggle, isFirst }: AccordionItemProps) {
   return (
-    <div className="border-b border-[var(--border)]">
+    <div className={cn(
+      "border-b border-[#bbdae9]",
+      isFirst && "border-t border-t-[#bbdae9]"
+    )}>
       <button
         onClick={onToggle}
         className="w-full flex items-center justify-between py-5 text-left"
       >
-        <span className="font-medium">{title}</span>
-        <ChevronDown
+        <span className="font-medium text-sm uppercase tracking-wider">{title}</span>
+        <ChevronRight
           className={cn(
-            'w-5 h-5 text-[var(--muted-foreground)] transition-transform duration-300',
-            isOpen && 'rotate-180'
+            'w-5 h-5 text-[#4a4a4a] stroke-[2.5] transition-transform duration-300',
+            isOpen && 'rotate-90'
           )}
         />
       </button>
