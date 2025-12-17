@@ -523,6 +523,20 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
               </div>
               <div>
                 <label className="block text-sm text-[var(--admin-text-secondary)] mb-1.5">
+                  Byline
+                </label>
+                <Input
+                  value={product.subtitle || ''}
+                  onChange={(e) => setProduct({ ...product, subtitle: e.target.value || null })}
+                  placeholder="Preservative-Free Eye Care"
+                  className="bg-[var(--admin-input)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)]"
+                />
+                <p className="text-xs text-[var(--admin-text-muted)] mt-1">
+                  Shows directly under the product title
+                </p>
+              </div>
+              <div>
+                <label className="block text-sm text-[var(--admin-text-secondary)] mb-1.5">
                   Short Description
                 </label>
                 <textarea
@@ -732,39 +746,22 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
               </div>
             )}
 
-            {/* Rating & Reviews */}
+            {/* Reviews */}
             <div className="mt-6 pt-6 border-t border-[var(--admin-border-light)]">
               <h4 className="text-sm font-medium text-[var(--admin-text-primary)] mb-4">
-                Rating & Reviews
+                Reviews
               </h4>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm text-[var(--admin-text-secondary)] mb-1.5">
-                    Rating (0-5)
-                  </label>
-                  <Input
-                    type="number"
-                    step="0.1"
-                    min="0"
-                    max="5"
-                    value={product.rating || ''}
-                    onChange={(e) => setProduct({ ...product, rating: parseFloat(e.target.value) || null })}
-                    placeholder="4.9"
-                    className="bg-[var(--admin-input)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)]"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm text-[var(--admin-text-secondary)] mb-1.5">
-                    Review Count
-                  </label>
-                  <Input
-                    type="number"
-                    value={product.reviewCount || ''}
-                    onChange={(e) => setProduct({ ...product, reviewCount: parseInt(e.target.value) || null })}
-                    placeholder="2900"
-                    className="bg-[var(--admin-input)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)]"
-                  />
-                </div>
+              <div>
+                <label className="block text-sm text-[var(--admin-text-secondary)] mb-1.5">
+                  Review Count
+                </label>
+                <Input
+                  type="number"
+                  value={product.reviewCount || ''}
+                  onChange={(e) => setProduct({ ...product, reviewCount: parseInt(e.target.value) || null })}
+                  placeholder="2900"
+                  className="bg-[var(--admin-input)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)]"
+                />
               </div>
               <p className="text-xs text-[var(--admin-text-muted)] mt-2">
                 Displayed in navigation, homepage tiles, and product page
@@ -871,7 +868,7 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
                   ))}
                 </div>
                 <p className="text-xs text-[var(--admin-text-muted)] mt-2">
-                  Each variant can have its own product images/videos
+                  Each variant can have its own images. Variants without images will use the first variant&apos;s images.
                 </p>
               </div>
             )}
@@ -978,7 +975,7 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
                         </div>
                       </div>
 
-                      {/* Gallery Media */}
+                      {/* Gallery Media - 10 slots */}
                       <MediaPickerButton
                         label="Media 1 - Featured"
                         value={selectedMediaVariant.heroImageUrl || null}
@@ -987,30 +984,17 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
                         aspectRatio="1/1"
                         acceptVideo
                       />
-                      <MediaPickerButton
-                        label="Media 2"
-                        value={variantCarouselImages[0] || null}
-                        onChange={(url) => updateVariantCarousel(0, url)}
-                        folder="products"
-                        aspectRatio="1/1"
-                        acceptVideo
-                      />
-                      <MediaPickerButton
-                        label="Media 3"
-                        value={variantCarouselImages[1] || null}
-                        onChange={(url) => updateVariantCarousel(1, url)}
-                        folder="products"
-                        aspectRatio="1/1"
-                        acceptVideo
-                      />
-                      <MediaPickerButton
-                        label="Media 4"
-                        value={variantCarouselImages[2] || null}
-                        onChange={(url) => updateVariantCarousel(2, url)}
-                        folder="products"
-                        aspectRatio="1/1"
-                        acceptVideo
-                      />
+                      {[...Array(9)].map((_, i) => (
+                        <MediaPickerButton
+                          key={i}
+                          label={`Media ${i + 2}`}
+                          value={variantCarouselImages[i] || null}
+                          onChange={(url) => updateVariantCarousel(i, url)}
+                          folder="products"
+                          aspectRatio="1/1"
+                          acceptVideo
+                        />
+                      ))}
                     </>
                   );
                 })()}

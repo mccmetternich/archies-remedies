@@ -87,28 +87,44 @@ export function PDPHeroSection({
     variants.find((v) => v.isDefault) || variants[0] || null
   );
 
-  // Determine which hero image to use - variant's image takes precedence
-  const activeHeroImage = selectedVariant?.heroImageUrl || product.heroImageUrl;
+  // Get first variant as fallback source for images
+  const firstVariant = variants[0];
 
-  // Parse variant carousel images if available
-  let activeCarouselImages: ProductImage[] = [];
-  if (selectedVariant?.heroCarouselImages) {
+  // Parse carousel images for a given variant
+  const parseCarouselImages = (variant: ProductVariant | null, fallbackName: string): ProductImage[] => {
+    if (!variant?.heroCarouselImages) return [];
     try {
-      const parsed = JSON.parse(selectedVariant.heroCarouselImages);
-      activeCarouselImages = parsed.map((url: string, idx: number) => ({
+      const parsed = JSON.parse(variant.heroCarouselImages);
+      return parsed.map((url: string, idx: number) => ({
         id: `variant-carousel-${idx}`,
         imageUrl: url,
-        altText: `${product.name} - ${selectedVariant.name} view ${idx + 1}`,
+        altText: `${product.name} - ${fallbackName} view ${idx + 1}`,
         isVideo: false,
         videoUrl: null,
       }));
     } catch {
-      // Fall back to product images if parsing fails
+      return [];
     }
-  }
+  };
 
-  // Use variant carousel images if available, otherwise fall back to product images
-  const activeImages = activeCarouselImages.length > 0 ? activeCarouselImages : images;
+  // Get selected variant's carousel images
+  const selectedCarouselImages = parseCarouselImages(selectedVariant, selectedVariant?.name || '');
+
+  // Get first variant's carousel images as fallback
+  const firstVariantCarouselImages = parseCarouselImages(firstVariant, firstVariant?.name || '');
+
+  // Determine which hero image to use:
+  // 1. Selected variant's image if it exists
+  // 2. First variant's image if it exists
+  // 3. Product's hero image as last resort
+  const activeHeroImage = selectedVariant?.heroImageUrl || firstVariant?.heroImageUrl || product.heroImageUrl;
+
+  // Use selected variant images if available, otherwise use first variant's images, then product images
+  const activeImages = selectedCarouselImages.length > 0
+    ? selectedCarouselImages
+    : firstVariantCarouselImages.length > 0
+      ? firstVariantCarouselImages
+      : images;
 
   const handleVariantChange = (variant: ProductVariant) => {
     setSelectedVariant(variant);

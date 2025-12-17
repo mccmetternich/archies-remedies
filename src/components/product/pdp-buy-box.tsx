@@ -133,7 +133,7 @@ export function PDPBuyBox({
 
   return (
     <div className="lg:sticky lg:top-28 space-y-5">
-      {/* Reviews Summary - Blue stars, bold rating, dot separator, badge */}
+      {/* Reviews Summary - Blue stars + review count */}
       <button
         onClick={onReviewsClick}
         className="flex items-center gap-3 group flex-wrap"
@@ -151,10 +151,8 @@ export function PDPBuyBox({
             />
           ))}
         </div>
-        <span className="text-sm text-[#1a1a1a] transition-colors">
-          <span className="font-semibold">{averageRating.toFixed(1)}</span>
-          <span className="mx-2 text-[#1a1a1a] text-base font-bold">•</span>
-          <span className="font-semibold">{reviewCount.toLocaleString()} verified reviews</span>
+        <span className="text-sm text-[#1a1a1a] font-normal transition-colors">
+          {reviewCount.toLocaleString()} verified reviews
         </span>
         {reviewBadge && (
           <span
@@ -170,11 +168,16 @@ export function PDPBuyBox({
         )}
       </button>
 
-      {/* Editorial Title - Reduced by ~30% */}
-      <div>
-        <h1 className="text-2xl md:text-[28px] font-normal tracking-tight leading-[1.15]">
+      {/* Editorial Title - 60% smaller with byline */}
+      <div className="space-y-1">
+        <h1 className="text-base md:text-lg font-normal tracking-tight leading-[1.15]">
           {product.name}
         </h1>
+        {product.subtitle && (
+          <p className="text-sm font-normal text-[#1a1a1a]/70 tracking-tight">
+            {product.subtitle}
+          </p>
+        )}
       </div>
 
       {/* Short Description - Same size as bullets, black text */}
@@ -269,7 +272,7 @@ export function PDPBuyBox({
             window.open(amazonUrl, '_blank', 'noopener,noreferrer');
           }, 100);
         }}
-        className="pdp-cta-button group flex items-center justify-center gap-3 w-full py-4 font-medium transition-all duration-300"
+        className="pdp-cta-button group flex items-center justify-center gap-3 w-full py-4 text-sm font-medium uppercase tracking-wider transition-all duration-300"
         style={{
           backgroundColor: '#1a1a1a',
           color: '#ffffff',

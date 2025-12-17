@@ -156,24 +156,24 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
             <Link
               href={slide.buttonUrl}
               className={cn(
-                "group inline-flex items-center justify-center gap-3 px-8 py-5 text-lg font-semibold transition-all duration-300 min-h-[60px]",
+                "group inline-flex items-center justify-center gap-3 px-7 py-4 text-sm font-medium uppercase tracking-wider transition-all duration-300",
                 isLightText ? "hero-btn-light" : "hero-btn-dark"
               )}
             >
               {slide.buttonText || 'Shop Now'}
-              <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
             </Link>
           )}
           {/* Secondary button - uses hero-btn-outline-dark/light classes */}
           <Link
             href={slide.secondaryButtonUrl || '/about'}
             className={cn(
-              "hidden md:inline-flex group items-center justify-center gap-3 px-8 py-5 text-lg font-semibold border-2 transition-all duration-300 min-h-[60px]",
+              "hidden md:inline-flex group items-center justify-center gap-3 px-7 py-4 text-sm font-medium uppercase tracking-wider border-2 transition-all duration-300",
               isLightText ? "hero-btn-outline-light" : "hero-btn-outline-dark"
             )}
           >
             {slide.secondaryButtonText || 'Learn More'}
-            <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
           </Link>
         </motion.div>
       </motion.div>

@@ -531,7 +531,7 @@ export function CustomPopup({ popup, enabled = true }: CustomPopupProps) {
                         <button
                           type="submit"
                           disabled={status === 'loading'}
-                          className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-[#1a1a1a] text-white font-medium text-base hover:bg-[#bbdae9] hover:text-[#1a1a1a] transition-colors disabled:opacity-50"
+                          className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-[#1a1a1a] text-white font-medium text-sm uppercase tracking-wider hover:bg-[#bbdae9] hover:text-[#1a1a1a] transition-colors disabled:opacity-50"
                         >
                           {status === 'loading' ? (
                             <Loader2 className="w-5 h-5 animate-spin" />
