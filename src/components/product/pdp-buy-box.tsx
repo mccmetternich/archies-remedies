@@ -176,13 +176,13 @@ export function PDPBuyBox({
         )}
       </button>
 
-      {/* Editorial Title - 60% smaller with byline */}
+      {/* Editorial Title - CTA-style uppercase with byline */}
       <div className="space-y-1">
-        <h1 className="text-base md:text-lg font-normal tracking-tight leading-[1.15]">
+        <h1 className="text-xs md:text-sm font-bold uppercase tracking-wider leading-[1.15]">
           {product.name}
         </h1>
         {product.subtitle && (
-          <p className="text-sm font-normal text-[#1a1a1a]/70 tracking-tight">
+          <p className="text-xs font-bold uppercase tracking-wider text-[#1a1a1a]">
             {product.subtitle}
           </p>
         )}
