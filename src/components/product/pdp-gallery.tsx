@@ -269,13 +269,13 @@ export function PDPGallery({
       </div>
 
       {/* Mobile Layout - Edge to edge, no gaps */}
-      <div className="md:hidden -mx-4">
+      <div className="md:hidden -mx-4 overflow-x-hidden">
         {/* Hero + Thumbnail row - no gap */}
         <div className="flex">
-          {/* Hero Image - fills remaining space */}
+          {/* Hero Image - fills remaining space, 18% taller */}
           <div
             className="relative bg-gradient-to-br from-[var(--primary-light)] to-[var(--cream)] overflow-hidden flex-1"
-            style={{ aspectRatio: '1 / 1' }}
+            style={{ aspectRatio: '1 / 1.18' }}
           >
             {/* Badges hidden on mobile */}
 
@@ -319,9 +319,9 @@ export function PDPGallery({
             </AnimatePresence>
           </div>
 
-          {/* Thumbnail Strip - fixed width, flush right, no gaps */}
+          {/* Thumbnail Strip - fixed width (10% wider), flush right, no gaps */}
           {allImages.length > 1 && (
-            <div className="flex flex-col w-[72px]">
+            <div className="flex flex-col w-[80px]">
               {/* Up Arrow - thin sliver, hex blue */}
               <button
                 onClick={() => {
@@ -378,7 +378,7 @@ export function PDPGallery({
                             alt={image.altText || `${productName} view ${actualIndex + 1}`}
                             fill
                             className="object-cover"
-                            sizes="72px"
+                            sizes="80px"
                           />
                         ) : null}
                       </button>
