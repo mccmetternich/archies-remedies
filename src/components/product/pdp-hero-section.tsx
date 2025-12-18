@@ -139,8 +139,9 @@ export function PDPHeroSection({
 
   return (
     <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
-      {/* Left: Buy Box - fixed width, doesn't scale with viewport */}
-      <div className="order-2 lg:order-1 w-full lg:w-[340px] xl:w-[380px] flex-shrink-0">
+      {/* Left: Buy Box - fixed width, centered in its column */}
+      <div className="order-2 lg:order-1 w-full lg:flex-1 flex justify-center">
+        <div className="w-full max-w-[340px] xl:max-w-[380px]">
         <PDPBuyBox
           product={product}
           variants={variants}
@@ -160,6 +161,7 @@ export function PDPHeroSection({
           audioTitle={audioTitle}
           onVariantChange={handleVariantChange}
         />
+        </div>
       </div>
 
       {/* Right: Gallery - scales with viewport */}
