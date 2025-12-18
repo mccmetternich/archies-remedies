@@ -325,13 +325,13 @@ export function PDPGallery({
 
           {/* Blue hex separator between hero and thumbnails */}
           {allImages.length > 1 && (
-            <div className="w-[2px] bg-[#bbdae9]" />
+            <div className="w-[5px] bg-[#bbdae9]" />
           )}
 
-          {/* Thumbnail Strip - fixed width (10% wider), flush right, no gaps */}
+          {/* Thumbnail Strip - wider for square thumbnails */}
           {allImages.length > 1 && (
-            <div className="flex flex-col w-[80px]">
-              {/* Up Arrow - thin sliver, hex blue */}
+            <div className="flex flex-col w-[100px]">
+              {/* Up Arrow - thin sliver, hex blue, hide icon on first image */}
               <button
                 onClick={() => {
                   if (canScrollUp) {
@@ -342,16 +342,14 @@ export function PDPGallery({
                     setActiveIndex(activeIndex - 1);
                   }
                 }}
-                className={cn(
-                  'w-full h-5 flex items-center justify-center bg-[#bbdae9] text-[#1a1a1a]',
-                  !canScrollUp && activeIndex === 0 && 'opacity-40'
-                )}
+                disabled={activeIndex === 0}
+                className="w-full h-5 flex items-center justify-center bg-[#bbdae9] text-[#1a1a1a]"
               >
-                <ChevronUp className="w-3.5 h-3.5" />
+                {activeIndex > 0 && <ChevronUp className="w-3.5 h-3.5" />}
               </button>
 
-              {/* Visible Thumbnails - no gaps */}
-              <div className="flex-1 flex flex-col">
+              {/* Visible Thumbnails - with gaps */}
+              <div className="flex-1 flex flex-col gap-[5px]">
                 {allImages
                   .slice(mobileScrollIndex, mobileScrollIndex + visibleMobileThumbnails)
                   .map((image, idx) => {

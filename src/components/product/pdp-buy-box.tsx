@@ -149,7 +149,7 @@ export function PDPBuyBox({
           <Star
             key={i}
             className={cn(
-              'w-3 h-3 md:w-4 md:h-4',
+              'w-4 h-4',
               i <= Math.round(averageRating)
                 ? 'fill-[#bbdae9] text-[#bbdae9]'
                 : 'fill-transparent text-[#bbdae9]/30'
@@ -183,12 +183,12 @@ export function PDPBuyBox({
       </div>
 
       {/* Title - really pops on mobile (Saie-style), refined on desktop */}
-      <div className="space-y-0.5 lg:space-y-1">
-        <h1 className="!text-2xl lg:!text-sm font-bold uppercase leading-tight tracking-tight">
+      <div className="space-y-0 lg:space-y-1">
+        <h1 className="!text-2xl lg:!text-sm !font-bold uppercase leading-tight tracking-tight">
           {product.name}
         </h1>
         {product.subtitle && (
-          <p className="!text-lg lg:!text-xs font-bold uppercase text-[#1a1a1a] tracking-tight">
+          <p className="!text-[17px] lg:!text-xs !font-bold uppercase text-[#1a1a1a] tracking-tight">
             {product.subtitle}
           </p>
         )}
@@ -271,7 +271,7 @@ export function PDPBuyBox({
 
                   {/* Variant Name - All caps, CTA font style */}
                   <span
-                    className="block font-medium text-[11px] md:text-sm text-[#1a1a1a] uppercase tracking-wider"
+                    className="block font-medium text-[11px] md:text-sm text-[#1a1a1a] uppercase tracking-wide lg:tracking-wider"
                   >
                     {variant.name}
                   </span>
@@ -298,7 +298,7 @@ export function PDPBuyBox({
             window.open(amazonUrl, '_blank', 'noopener,noreferrer');
           }, 100);
         }}
-        className="pdp-cta-button group flex items-center justify-center gap-2 md:gap-3 w-full py-3 md:py-4 text-xs md:text-sm font-medium uppercase tracking-wider transition-all duration-300"
+        className="pdp-cta-button group flex items-center justify-center gap-2 md:gap-3 w-full py-[18px] md:py-4 text-xs md:text-sm font-medium uppercase tracking-wide lg:tracking-wider transition-all duration-300"
         style={{
           backgroundColor: '#1a1a1a',
           color: '#ffffff',
