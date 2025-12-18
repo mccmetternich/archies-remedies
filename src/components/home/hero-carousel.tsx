@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, Star } from 'lucide-react';
+import { ArrowRight, Star, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 // Helper to detect if a URL is a video file
@@ -180,6 +180,69 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
     </AnimatePresence>
   );
 
+  // Mobile-specific text content (PDP-style: compact, reviews under title)
+  const MobileTextContent = () => (
+    <div className="space-y-3">
+      {/* Title - Bold, uppercase like PDP */}
+      <motion.h1
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1, duration: 0.5 }}
+        className="!text-2xl !font-bold uppercase leading-tight tracking-tight text-[#1a1a1a]"
+      >
+        {slide.title || 'Instant Relief, Clean Formula'}
+      </motion.h1>
+
+      {/* Reviews - PDP style with hex stars and checkmark */}
+      <motion.div
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2, duration: 0.5 }}
+        className="flex items-center gap-2"
+      >
+        <div className="flex gap-0.5">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <Star key={i} className="w-4 h-4 fill-[#bbdae9] text-[#bbdae9]" />
+          ))}
+        </div>
+        <span className="text-[11px] text-[#1a1a1a] font-normal inline-flex items-center gap-1">
+          2,500+
+          <span className="w-3.5 h-3.5 rounded-full bg-[#1a1a1a] flex items-center justify-center">
+            <Check className="w-2 h-2 text-white stroke-[4]" />
+          </span>
+          Verified Reviews
+        </span>
+      </motion.div>
+
+      {/* Body copy - smaller like PDP */}
+      <motion.p
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3, duration: 0.5 }}
+        className="text-[13px] text-[#1a1a1a]/70 leading-relaxed"
+      >
+        {slide.subtitle || 'Preservative-free eye drops crafted for sensitive eyes.'}
+      </motion.p>
+
+      {/* CTA - Full width, chunky, PDP style */}
+      {slide.buttonUrl && (
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4, duration: 0.5 }}
+        >
+          <Link
+            href={slide.buttonUrl}
+            className="group flex items-center justify-center gap-2 w-full py-[20px] bg-[#1a1a1a] text-white text-xs font-medium uppercase tracking-wide transition-all duration-300"
+          >
+            {slide.buttonText || 'Shop Now'}
+            <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+          </Link>
+        </motion.div>
+      )}
+    </div>
+  );
+
   // Use consistent height for all layouts to prevent jumping
   return (
     <section
@@ -287,9 +350,13 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
             isReversed && "lg:[&>*:first-child]:order-2 lg:[&>*:last-child]:order-1"
           )}>
             {/* Text column - split into two compartments */}
-            <div className="relative h-full px-6 lg:px-12 order-2 lg:order-none">
-              {/* COMPARTMENT 1: Main content - vertically centered */}
-              <div className="flex items-center justify-center h-full py-12 lg:py-16">
+            <div className="relative h-auto lg:h-full px-4 lg:px-12 order-2 lg:order-none">
+              {/* Mobile: Compact content */}
+              <div className="lg:hidden py-6">
+                <MobileTextContent />
+              </div>
+              {/* Desktop: Original centered content */}
+              <div className="hidden lg:flex items-center justify-center h-full py-16">
                 <div className="w-full max-w-xl">
                   <TextContent />
                 </div>
@@ -336,18 +403,16 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
             </div>
 
             {/* Media - Full width of column, full height */}
-            {/* Image sizing convention: object-cover fills container, object-position centers by default */}
-            {/* For product shots, use object-position: center to keep subject centered */}
-            {/* Recommended: Upload images at 1200x1600px (3:4 portrait) or 1600x1200px (4:3 landscape) */}
-            <AnimatePresence mode="sync">
-              <motion.div
-                key={`image-${currentIndex}`}
-                initial={{ opacity: 0, x: isReversed ? -30 : 30 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: isReversed ? 30 : -30 }}
-                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                className="relative w-full h-[40vh] lg:h-full min-h-[250px] lg:min-h-full overflow-hidden order-1 lg:order-none"
-              >
+            <div className="relative w-full h-[40vh] lg:h-full min-h-[250px] lg:min-h-full order-1 lg:order-none">
+              <AnimatePresence mode="sync">
+                <motion.div
+                  key={`image-${currentIndex}`}
+                  initial={{ opacity: 0, x: isReversed ? -30 : 30 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: isReversed ? 30 : -30 }}
+                  transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                  className="absolute inset-0 overflow-hidden"
+                >
                 {/* Video or Image - full width of column */}
                 {/* object-cover: scales to fill container, crops overflow */}
                 {/* object-position: center centers the subject (default behavior) */}
@@ -382,6 +447,44 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
                 )}
               </motion.div>
             </AnimatePresence>
+
+              {/* Mobile testimonial - overlaps bottom of media */}
+              {slide.testimonialText && slide.testimonialAvatarUrl && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.3 }}
+                  className="lg:hidden absolute -bottom-6 left-4 right-4 z-30"
+                >
+                  <div className="bg-white/95 backdrop-blur-sm px-4 py-3 shadow-lg border border-black/5">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full overflow-hidden bg-[var(--sand)] flex-shrink-0">
+                        <Image
+                          src={slide.testimonialAvatarUrl}
+                          alt={slide.testimonialAuthor || 'Customer'}
+                          width={40}
+                          height={40}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5 mb-0.5">
+                          <span className="font-semibold text-xs text-[#1a1a1a]">{slide.testimonialAuthor || 'Verified Buyer'}</span>
+                          <div className="flex gap-0.5">
+                            {[1, 2, 3, 4, 5].map((i) => (
+                              <Star key={i} className="w-3 h-3 fill-[#bbdae9] text-[#bbdae9]" />
+                            ))}
+                          </div>
+                        </div>
+                        <p className="text-[11px] text-[#1a1a1a]/70 leading-snug line-clamp-2">
+                          {slide.testimonialText}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </div>
           </div>
         </div>
       ) : (
@@ -397,9 +500,9 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
           </div>
 
           {/* Mobile: Stacked layout - media on top, content below */}
-          <div className="lg:hidden relative z-20 h-full flex flex-col">
-            {/* Full-bleed media - top 1/3 of screen */}
-            <div className="relative h-[35vh] min-h-[200px] w-full">
+          <div className="lg:hidden relative z-20 flex flex-col">
+            {/* Full-bleed media - 40vh */}
+            <div className="relative h-[40vh] min-h-[250px] w-full">
               <AnimatePresence mode="sync">
                 <motion.div
                   key={`mobile-media-${currentIndex}`}
@@ -430,13 +533,48 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
                   ) : null}
                 </motion.div>
               </AnimatePresence>
+
+              {/* Mobile testimonial - overlaps bottom of media */}
+              {slide.testimonialText && slide.testimonialAvatarUrl && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.3 }}
+                  className="absolute -bottom-6 left-4 right-4 z-30"
+                >
+                  <div className="bg-white/95 backdrop-blur-sm px-4 py-3 shadow-lg border border-black/5">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full overflow-hidden bg-[var(--sand)] flex-shrink-0">
+                        <Image
+                          src={slide.testimonialAvatarUrl}
+                          alt={slide.testimonialAuthor || 'Customer'}
+                          width={40}
+                          height={40}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5 mb-0.5">
+                          <span className="font-semibold text-xs text-[#1a1a1a]">{slide.testimonialAuthor || 'Verified Buyer'}</span>
+                          <div className="flex gap-0.5">
+                            {[1, 2, 3, 4, 5].map((i) => (
+                              <Star key={i} className="w-3 h-3 fill-[#bbdae9] text-[#bbdae9]" />
+                            ))}
+                          </div>
+                        </div>
+                        <p className="text-[11px] text-[#1a1a1a]/70 leading-snug line-clamp-2">
+                          {slide.testimonialText}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
             </div>
 
-            {/* Content below media - left aligned with padding */}
-            <div className="flex-1 bg-[var(--cream)] px-4 py-8 overflow-auto">
-              <div className="max-w-xl">
-                <TextContent />
-              </div>
+            {/* Content below media - compact PDP style */}
+            <div className="bg-[var(--cream)] px-4 pt-8 pb-6">
+              <MobileTextContent />
             </div>
           </div>
         </>
