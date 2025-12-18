@@ -182,7 +182,7 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
 
   // Mobile-specific text content - fixed height container, CTA floats down as body grows
   const MobileTextContent = () => (
-    <div className="flex flex-col min-h-[280px]">
+    <div className="flex flex-col min-h-[220px]">
       {/* Fixed: Title */}
       <h1 className="!text-[24px] !font-bold uppercase leading-tight tracking-tight text-[#1a1a1a]">
         {slide.title || 'Instant Relief, Clean Formula'}
