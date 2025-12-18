@@ -182,13 +182,13 @@ export function PDPBuyBox({
         <ReviewsDisplay />
       </div>
 
-      {/* Title - clean sizing that overrides global h1 styles */}
+      {/* Title - larger/bolder on mobile (Saie-style), smaller on desktop */}
       <div className="space-y-0.5 lg:space-y-1">
-        <h1 className="!text-base lg:!text-sm font-bold uppercase leading-tight tracking-tight">
+        <h1 className="!text-xl lg:!text-sm font-extrabold uppercase leading-tight tracking-tight">
           {product.name}
         </h1>
         {product.subtitle && (
-          <p className="!text-sm lg:!text-xs font-bold uppercase text-[#1a1a1a] tracking-tight">
+          <p className="!text-base lg:!text-xs font-bold uppercase text-[#1a1a1a] tracking-tight">
             {product.subtitle}
           </p>
         )}

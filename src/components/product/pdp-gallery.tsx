@@ -201,9 +201,9 @@ export function PDPGallery({
           </AnimatePresence>
         </div>
 
-        {/* Thumbnail Strip - in flow, flush right */}
+        {/* Thumbnail Strip - in flow, overlaps hero slightly */}
         {allImages.length > 1 && (
-          <div className="flex flex-col items-center flex-shrink-0 w-24">
+          <div className="flex flex-col items-center flex-shrink-0 w-24 -ml-4 relative z-10">
             {/* Up Arrow */}
             <button
               onClick={() => {
@@ -318,6 +318,11 @@ export function PDPGallery({
             </AnimatePresence>
           </div>
 
+          {/* Blue hex separator between hero and thumbnails */}
+          {allImages.length > 1 && (
+            <div className="w-[2px] bg-[#bbdae9]" />
+          )}
+
           {/* Thumbnail Strip - fixed width (10% wider), flush right, no gaps */}
           {allImages.length > 1 && (
             <div className="flex flex-col w-[80px]">
@@ -350,12 +355,9 @@ export function PDPGallery({
                       <button
                         key={image.id}
                         onClick={() => {
-                          if (image.isVideo && image.videoUrl) {
-                            handleVideoClick(image.videoUrl);
-                          } else {
-                            setDirection(actualIndex > activeIndex ? 1 : -1);
-                            setActiveIndex(actualIndex);
-                          }
+                          // Play video in hero instead of opening modal
+                          setDirection(actualIndex > activeIndex ? 1 : -1);
+                          setActiveIndex(actualIndex);
                         }}
                         className={cn(
                           'relative flex-1 min-h-0 overflow-hidden transition-all duration-200 bg-white',
