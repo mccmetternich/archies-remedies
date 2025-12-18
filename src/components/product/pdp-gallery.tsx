@@ -128,16 +128,18 @@ export function PDPGallery({
   return (
     <>
       {/* Desktop Layout */}
-      <div className="hidden md:block relative overflow-visible">
-        {/* Main Hero Image - scales with container width, maintains aspect ratio */}
-        <div
-          className="relative bg-gradient-to-br from-[var(--primary-light)] to-[var(--cream)] overflow-hidden w-full"
-          style={{
-            aspectRatio: '1 / 1',
-            maxHeight: 'calc(100vh - 120px)',
-            minHeight: '300px',
-          }}
-        >
+      <div className="hidden md:block relative">
+        {/* Hero container with right margin for thumbnails */}
+        <div className="mr-[7rem] xl:mr-[8rem] 2xl:mr-[9rem]">
+          {/* Main Hero Image - scales with container width, maintains aspect ratio */}
+          <div
+            className="relative bg-gradient-to-br from-[var(--primary-light)] to-[var(--cream)] overflow-hidden w-full"
+            style={{
+              aspectRatio: '1 / 1',
+              maxHeight: 'calc(100vh - 120px)',
+              minHeight: '300px',
+            }}
+          >
           {/* Product Badge */}
           {badge && (
             <div className="absolute top-5 left-5 z-20">
@@ -199,11 +201,12 @@ export function PDPGallery({
               )}
             </motion.div>
           </AnimatePresence>
+          </div>
         </div>
 
-        {/* Thumbnail Strip - Fixed right, aligned to top, outside hero */}
+        {/* Thumbnail Strip - positioned in the margin space */}
         {allImages.length > 1 && (
-          <div className="absolute -right-[6rem] xl:-right-[7rem] 2xl:-right-[8rem] top-0 flex flex-col items-center z-30">
+          <div className="absolute right-0 top-0 w-[5.5rem] xl:w-[6.5rem] 2xl:w-[7.5rem] flex flex-col items-center z-30">
             {/* Up Arrow - always visible, cycles to last image */}
             <button
               onClick={() => {
@@ -211,7 +214,7 @@ export function PDPGallery({
                 setDirection(-1);
                 setActiveIndex(newIndex);
               }}
-              className="w-20 xl:w-24 h-8 flex items-center justify-center bg-[#1a1a1a] text-white mb-2"
+              className="w-full h-8 flex items-center justify-center bg-[#1a1a1a] text-white mb-2"
             >
               <ChevronUp className="w-5 h-5" />
             </button>
@@ -226,7 +229,7 @@ export function PDPGallery({
                   key={image.id}
                   onMouseEnter={() => handleThumbnailHover(index)}
                   className={cn(
-                    'relative w-20 xl:w-24 aspect-square overflow-hidden transition-all duration-200 bg-white flex-shrink-0',
+                    'relative w-full aspect-square overflow-hidden transition-all duration-200 bg-white flex-shrink-0',
                     index === activeIndex && 'ring-2 ring-[#bbdae9]'
                   )}
                 >
@@ -259,7 +262,7 @@ export function PDPGallery({
                 setDirection(1);
                 setActiveIndex(newIndex);
               }}
-              className="w-20 xl:w-24 h-8 flex items-center justify-center bg-[#1a1a1a] text-white mt-2"
+              className="w-full h-8 flex items-center justify-center bg-[#1a1a1a] text-white mt-2"
             >
               <ChevronDown className="w-5 h-5" />
             </button>
@@ -271,10 +274,10 @@ export function PDPGallery({
       <div className="md:hidden">
         {/* Hero + Thumbnail tray row */}
         <div className="flex">
-          {/* Hero Image - fills remaining space */}
+          {/* Hero Image - fills remaining space, shorter aspect ratio */}
           <div
             className="relative bg-gradient-to-br from-[var(--primary-light)] to-[var(--cream)] overflow-hidden flex-1"
-            style={{ aspectRatio: '1 / 1' }}
+            style={{ aspectRatio: '5 / 4' }}
           >
             <AnimatePresence initial={false} custom={direction} mode="popLayout">
               <motion.div
@@ -319,9 +322,9 @@ export function PDPGallery({
           {/* Hex blue divider line between hero and thumbnails */}
           <div className="w-[3px] bg-[#bbdae9]" />
 
-          {/* Thumbnail Tray - hex blue background */}
+          {/* Thumbnail Tray - hex blue background, wider for squarer thumbs */}
           {allImages.length > 1 && (
-            <div className="flex flex-col w-[76px] bg-[#bbdae9]">
+            <div className="flex flex-col w-[90px] bg-[#bbdae9]">
               {/* Up Arrow */}
               <button
                 onClick={() => {

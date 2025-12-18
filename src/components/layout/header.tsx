@@ -177,7 +177,7 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
 
       <header
         className={cn(
-          'lg:fixed left-0 right-0 lg:z-50 bg-white shadow-[0_8px_30px_rgba(0,0,0,0.12)] py-2 md:py-5',
+          'lg:fixed left-0 right-0 lg:z-50 bg-white shadow-[0_8px_30px_rgba(0,0,0,0.12)] py-1.5 md:py-5',
           showBumper ? 'lg:top-[44px]' : 'lg:top-0'
         )}
       >

@@ -149,7 +149,7 @@ export function PDPBuyBox({
           <Star
             key={i}
             className={cn(
-              'w-3 h-3 md:w-4 md:h-4',
+              'w-3.5 h-3.5 md:w-4 md:h-4',
               i <= Math.round(averageRating)
                 ? 'fill-[#bbdae9] text-[#bbdae9]'
                 : 'fill-transparent text-[#bbdae9]/30'
@@ -157,7 +157,7 @@ export function PDPBuyBox({
           />
         ))}
       </div>
-      <span className="text-[11px] md:text-sm text-[#1a1a1a] font-normal transition-colors">
+      <span className="text-[13px] md:text-sm text-[#1a1a1a] font-normal transition-colors">
         {reviewCount.toLocaleString()} Verified Reviews
       </span>
       {reviewBadge && (
@@ -182,14 +182,14 @@ export function PDPBuyBox({
         <ReviewsDisplay />
       </div>
 
-      {/* Title - same font weight as subline, tight gap between */}
-      <div className="md:space-y-1" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+      {/* Title - extrabold, 5px gap to subline */}
+      <div className="md:space-y-1" style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
         <h1
-          className="font-semibold uppercase leading-tight"
+          className="font-extrabold uppercase leading-tight"
           style={{ letterSpacing: '-0.01em' }}
         >
           <span className="md:hidden" style={{ fontSize: '21px' }}>{product.name}</span>
-          <span className="hidden md:inline text-xs">{product.name}</span>
+          <span className="hidden md:inline text-sm">{product.name}</span>
         </h1>
         {product.subtitle && (
           <p
@@ -202,8 +202,8 @@ export function PDPBuyBox({
         )}
       </div>
 
-      {/* Mobile: Reviews under title */}
-      <div className="md:hidden">
+      {/* Mobile: Reviews under title - closer spacing */}
+      <div className="md:hidden -mt-2">
         <ReviewsDisplay />
       </div>
 
@@ -290,7 +290,7 @@ export function PDPBuyBox({
         </div>
       )}
 
-      {/* Primary CTA - edge-to-edge and taller on mobile */}
+      {/* Primary CTA - edge-to-edge, taller, tight letter-spacing */}
       <a
         href={amazonUrl}
         target="_blank"
@@ -306,10 +306,11 @@ export function PDPBuyBox({
             window.open(amazonUrl, '_blank', 'noopener,noreferrer');
           }, 100);
         }}
-        className="pdp-cta-button group flex items-center justify-center gap-2 md:gap-3 w-[calc(100%+30px)] md:w-full -mx-[15px] md:mx-0 py-4 md:py-4 text-xs md:text-sm font-medium uppercase tracking-wider transition-all duration-300"
+        className="pdp-cta-button group flex items-center justify-center gap-2 md:gap-3 w-[calc(100%+30px)] md:w-full -mx-[15px] md:mx-0 py-[18px] md:py-4 text-xs md:text-sm font-medium uppercase transition-all duration-300"
         style={{
           backgroundColor: '#1a1a1a',
           color: '#ffffff',
+          letterSpacing: '-0.01em',
         }}
         onMouseEnter={(e) => {
           e.currentTarget.style.backgroundColor = '#bbdae9';
@@ -428,7 +429,7 @@ function AccordionItem({ title, content, isOpen, onToggle, isFirst }: AccordionI
         onClick={onToggle}
         className="w-full flex items-center justify-between py-4 md:py-5 text-left px-[15px] md:px-0"
       >
-        <span className="font-semibold text-xs md:text-sm uppercase tracking-wider">{title}</span>
+        <span className="font-semibold text-[13px] md:text-sm uppercase" style={{ letterSpacing: '-0.01em' }}>{title}</span>
         <ChevronRight
           className={cn(
             'w-4 h-4 md:w-5 md:h-5 text-[#4a4a4a] stroke-[2.5] transition-transform duration-300',

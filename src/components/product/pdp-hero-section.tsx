@@ -138,11 +138,10 @@ export function PDPHeroSection({
   };
 
   return (
-    <div className="flex flex-col lg:grid lg:grid-cols-[minmax(340px,420px)_minmax(450px,1fr)] lg:gap-8 xl:gap-12 items-start">
-      {/* Left: Buy Box - fixed width column (340-420px), content centered within */}
-      <div className="order-2 lg:order-1 w-full flex lg:justify-center lg:py-4">
-        <div className="w-full">
-          <PDPBuyBox
+    <div className="flex flex-col lg:flex-row lg:gap-8 xl:gap-12 items-start">
+      {/* Left: Buy Box - fixed width, doesn't shrink */}
+      <div className="order-2 lg:order-1 w-full lg:w-[380px] lg:flex-shrink-0 lg:py-4">
+        <PDPBuyBox
             product={product}
             variants={variants}
             reviewCount={reviewCount}
@@ -161,11 +160,10 @@ export function PDPHeroSection({
             audioTitle={audioTitle}
             onVariantChange={handleVariantChange}
           />
-        </div>
       </div>
 
-      {/* Right: Gallery - flexible width (1fr), with space for external thumbnails */}
-      <div className="order-1 lg:order-2 w-full lg:pr-[7rem] xl:pr-[8rem] 2xl:pr-[9rem]">
+      {/* Right: Gallery - fills remaining space, handles its own thumbnail margin */}
+      <div className="order-1 lg:order-2 w-full lg:flex-1 lg:min-w-0">
         <PDPGallery
           images={activeImages}
           heroImage={activeHeroImage}
