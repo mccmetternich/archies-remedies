@@ -331,8 +331,8 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
           )}>
             {/* Text column - split into two compartments */}
             <div className="relative h-auto lg:h-full px-4 lg:px-12 order-2 lg:order-none bg-white lg:bg-transparent">
-              {/* Mobile: Compact content - fixed padding */}
-              <div className="lg:hidden pt-6 pb-6">
+              {/* Mobile: Compact content - min-height accommodates 3-4 lines of body copy */}
+              <div className="lg:hidden pt-6 pb-6 min-h-[280px]">
                 <MobileTextContent />
               </div>
               {/* Desktop: Original centered content */}
@@ -542,8 +542,8 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
               )}
             </div>
 
-            {/* Content below media - fixed padding */}
-            <div className="bg-white px-4 pt-6 pb-6">
+            {/* Content below media - min-height accommodates 3-4 lines of body copy */}
+            <div className="bg-white px-4 pt-6 pb-6 min-h-[280px]">
               <MobileTextContent />
             </div>
           </div>
