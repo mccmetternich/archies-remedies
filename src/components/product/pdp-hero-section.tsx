@@ -138,10 +138,10 @@ export function PDPHeroSection({
   };
 
   return (
-    <div className="flex flex-col lg:grid lg:grid-cols-[1fr_auto] lg:gap-8 xl:gap-12 items-start">
-      {/* Left: Buy Box - flexible width column, content centered within */}
+    <div className="flex flex-col lg:grid lg:grid-cols-[minmax(340px,420px)_minmax(450px,1fr)] lg:gap-8 xl:gap-12 items-start">
+      {/* Left: Buy Box - fixed width column (340-420px), content centered within */}
       <div className="order-2 lg:order-1 w-full flex lg:justify-center lg:py-4">
-        <div className="w-full lg:max-w-[380px] xl:max-w-[420px]">
+        <div className="w-full">
           <PDPBuyBox
             product={product}
             variants={variants}
@@ -164,8 +164,8 @@ export function PDPHeroSection({
         </div>
       </div>
 
-      {/* Right: Gallery - auto width based on content, with external thumbnails */}
-      <div className="order-1 lg:order-2 w-full lg:w-auto">
+      {/* Right: Gallery - flexible width (1fr), with space for external thumbnails */}
+      <div className="order-1 lg:order-2 w-full lg:pr-[7rem] xl:pr-[8rem] 2xl:pr-[9rem]">
         <PDPGallery
           images={activeImages}
           heroImage={activeHeroImage}

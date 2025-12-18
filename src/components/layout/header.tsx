@@ -223,9 +223,9 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
               )}
             </Link>
 
-            {/* Spacer for mobile when logo is centered - balances the hamburger on right */}
+            {/* Spacer for mobile when logo is centered - smaller than hamburger to nudge logo left */}
             {logoPositionMobile === 'center' && (
-              <div className="lg:hidden w-9 order-first" />
+              <div className="lg:hidden w-5 order-first" />
             )}
 
             {/* Desktop Navigation - Shop on left */}
