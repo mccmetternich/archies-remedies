@@ -125,17 +125,18 @@ export function PDPGallery({
   const canScrollUp = mobileScrollIndex > 0;
   const canScrollDown = mobileScrollIndex + visibleMobileThumbnails < allImages.length;
 
+  // Calculate thumbnail size based on image count
+  // Max height available: calc(100vh - 25px) minus arrows (2 * 40px = 80px) minus gaps
+  const imageCount = Math.min(allImages.length, 5);
+
   return (
     <>
-      {/* Desktop Layout - relative container constrains thumbnail panel height */}
-      <div
-        className="hidden lg:flex items-start relative"
-        style={{ height: 'calc(100vh - 25px)' }}
-      >
+      {/* Desktop Layout */}
+      <div className="hidden lg:block">
         {/* Hero Image Container - square, 25px from fold */}
         <div
-          className="relative bg-[var(--cream)] overflow-hidden aspect-square h-full"
-          style={{ maxWidth: 'calc(100vh - 25px)' }}
+          className="relative bg-[var(--cream)] overflow-hidden aspect-square"
+          style={{ maxHeight: 'calc(100vh - 25px)', maxWidth: 'calc(100vh - 25px)' }}
         >
           {/* Product Badge */}
           {badge && (
@@ -199,72 +200,85 @@ export function PDPGallery({
             </motion.div>
           </AnimatePresence>
         </div>
-
-        {/* Thumbnail Strip - absolute, right edge, height matches hero, scales with viewport */}
-        {allImages.length > 1 && (
-          <div className="absolute right-0 top-0 bottom-0 flex flex-col items-center z-30 w-64">
-            {/* Up Arrow */}
-            <button
-              onClick={() => {
-                const newIndex = activeIndex === 0 ? allImages.length - 1 : activeIndex - 1;
-                setDirection(-1);
-                setActiveIndex(newIndex);
-              }}
-              className="w-full h-10 flex items-center justify-center bg-[#1a1a1a] text-white flex-shrink-0"
-            >
-              <ChevronUp className="w-6 h-6" />
-            </button>
-
-            {/* Thumbnails - flex to fill available height, scale with viewport */}
-            <div
-              ref={thumbnailContainerRef}
-              className="flex-1 flex flex-col gap-2 py-2 min-h-0 w-full"
-            >
-              {allImages.slice(0, 5).map((image, index) => (
-                <button
-                  key={image.id}
-                  onMouseEnter={() => handleThumbnailHover(index)}
-                  className={cn(
-                    'relative flex-1 min-h-0 w-full overflow-hidden transition-all duration-200 bg-white',
-                    index === activeIndex && 'ring-2 ring-[#bbdae9]'
-                  )}
-                >
-                  {image.isVideo && image.videoUrl ? (
-                    <video
-                      src={image.videoUrl}
-                      autoPlay
-                      loop
-                      muted
-                      playsInline
-                      className="w-full h-full object-cover"
-                    />
-                  ) : image.imageUrl ? (
-                    <Image
-                      src={image.imageUrl}
-                      alt={image.altText || `${productName} view ${index + 1}`}
-                      fill
-                      className="object-cover"
-                      sizes="256px"
-                    />
-                  ) : null}
-                </button>
-              ))}
-            </div>
-
-            {/* Down Arrow */}
-            <button
-              onClick={() => {
-                const newIndex = activeIndex === allImages.length - 1 ? 0 : activeIndex + 1;
-                setDirection(1);
-                setActiveIndex(newIndex);
-              }}
-              className="w-full h-10 flex items-center justify-center bg-[#1a1a1a] text-white flex-shrink-0"
-            >
-              <ChevronDown className="w-6 h-6" />
-            </button>
-          </div>
-        )}
       </div>
+
+      {/* Thumbnail Strip - FIXED to viewport right edge, height matches hero, scales based on image count */}
+      {allImages.length > 1 && (
+        <div
+          className="hidden lg:flex fixed right-6 flex-col items-center z-30"
+          style={{
+            top: '25px',
+            height: 'calc(100vh - 50px)',
+          }}
+        >
+          {/* Up Arrow */}
+          <button
+            onClick={() => {
+              const newIndex = activeIndex === 0 ? allImages.length - 1 : activeIndex - 1;
+              setDirection(-1);
+              setActiveIndex(newIndex);
+            }}
+            className="w-full h-10 flex items-center justify-center bg-[#1a1a1a] text-white flex-shrink-0"
+          >
+            <ChevronUp className="w-6 h-6" />
+          </button>
+
+          {/* Thumbnails - scale based on image count to fit within hero height */}
+          <div
+            ref={thumbnailContainerRef}
+            className="flex-1 flex flex-col gap-2 py-2 min-h-0 w-48"
+          >
+            {allImages.slice(0, 5).map((image, index) => (
+              <button
+                key={image.id}
+                onMouseEnter={() => handleThumbnailHover(index)}
+                className={cn(
+                  'relative w-full overflow-hidden transition-all duration-200 bg-white',
+                  // Dynamic height based on image count: flex-1 distributes evenly
+                  // For 1 image: gets all space (capped by max-h)
+                  // For 2-5 images: space divided evenly
+                  'flex-1',
+                  // Max height per thumbnail to prevent single image from being too large
+                  imageCount === 1 && 'max-h-48',
+                  imageCount === 2 && 'max-h-40',
+                  index === activeIndex && 'ring-2 ring-[#bbdae9]'
+                )}
+              >
+                {image.isVideo && image.videoUrl ? (
+                  <video
+                    src={image.videoUrl}
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="w-full h-full object-cover"
+                  />
+                ) : image.imageUrl ? (
+                  <Image
+                    src={image.imageUrl}
+                    alt={image.altText || `${productName} view ${index + 1}`}
+                    fill
+                    className="object-cover"
+                    sizes="192px"
+                  />
+                ) : null}
+              </button>
+            ))}
+          </div>
+
+          {/* Down Arrow */}
+          <button
+            onClick={() => {
+              const newIndex = activeIndex === allImages.length - 1 ? 0 : activeIndex + 1;
+              setDirection(1);
+              setActiveIndex(newIndex);
+            }}
+            className="w-full h-10 flex items-center justify-center bg-[#1a1a1a] text-white flex-shrink-0"
+          >
+            <ChevronDown className="w-6 h-6" />
+          </button>
+        </div>
+      )}
 
       {/* Mobile Layout - Edge to edge, no gaps */}
       <div className="lg:hidden overflow-x-hidden">
