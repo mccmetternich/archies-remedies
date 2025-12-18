@@ -15,9 +15,9 @@ export function AnnouncementBar({ text, linkUrl, linkText, theme = 'light' }: An
   const isDark = theme === 'dark';
 
   return (
-    <div className={isDark ? "bg-black py-3" : "bg-[var(--primary)] py-3"}>
+    <div className={isDark ? "bg-black py-1.5 md:py-3" : "bg-[var(--primary)] py-1.5 md:py-3"}>
       <div className="container">
-        <div className={`flex items-center justify-center gap-3 text-sm ${isDark ? 'text-white' : 'text-[var(--foreground)]'}`}>
+        <div className={`flex items-center justify-center gap-3 text-xs md:text-sm ${isDark ? 'text-white' : 'text-[var(--foreground)]'}`}>
           <span className="text-center font-medium">{text}</span>
           {linkUrl && linkText && (
             <Link

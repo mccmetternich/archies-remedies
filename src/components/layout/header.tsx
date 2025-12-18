@@ -177,7 +177,7 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
 
       <header
         className={cn(
-          'lg:fixed left-0 right-0 lg:z-50 bg-white shadow-[0_8px_30px_rgba(0,0,0,0.12)] py-5',
+          'lg:fixed left-0 right-0 lg:z-50 bg-white shadow-[0_8px_30px_rgba(0,0,0,0.12)] py-2 md:py-5',
           showBumper ? 'lg:top-[44px]' : 'lg:top-0'
         )}
       >
@@ -187,13 +187,13 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
             "flex items-center relative lg:z-[70]",
             logoPosition === 'center' ? 'lg:justify-between' : 'justify-between'
           )}>
-            {/* Mobile Menu Button - Always on right for mobile */}
+            {/* Mobile Menu Button - Far right, bigger */}
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="lg:hidden p-2 -mr-2 rounded-full hover:bg-[var(--sand)] transition-colors order-last"
+              className="lg:hidden p-1 rounded-full hover:bg-[var(--sand)] transition-colors order-last ml-auto"
               aria-label="Toggle menu"
             >
-              <Menu className="w-5 h-5" />
+              <Menu className="w-7 h-7" />
             </button>
 
             {/* Logo */}
@@ -213,11 +213,11 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                   alt="Archie's Remedies"
                   width={200}
                   height={50}
-                  className="h-10 w-auto"
+                  className="h-7 md:h-10 w-auto"
                   priority
                 />
               ) : (
-                <span className="text-lg font-medium tracking-tight">
+                <span className="text-base md:text-lg font-medium tracking-tight">
                   Archie&apos;s Remedies
                 </span>
               )}

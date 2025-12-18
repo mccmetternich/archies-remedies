@@ -269,24 +269,16 @@ export function PDPGallery({
         </div>
       </div>
 
-      {/* Mobile Layout */}
-      <div className="md:hidden">
-        {/* Hero + Thumbnail row */}
-        <div className="flex gap-2">
-          {/* Hero Image - 75% width */}
+      {/* Mobile Layout - Edge to edge, no gaps */}
+      <div className="md:hidden -mx-4">
+        {/* Hero + Thumbnail row - no gap */}
+        <div className="flex">
+          {/* Hero Image - fills remaining space */}
           <div
-            className="relative bg-gradient-to-br from-[var(--primary-light)] to-[var(--cream)] overflow-hidden"
-            style={{ width: '75%', aspectRatio: '1 / 1' }}
+            className="relative bg-gradient-to-br from-[var(--primary-light)] to-[var(--cream)] overflow-hidden flex-1"
+            style={{ aspectRatio: '1 / 1' }}
           >
-            {/* Product Badge */}
-            {badge && (
-              <div className="absolute top-3 left-3 z-20">
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-[var(--foreground)] text-white rounded-full text-xs font-medium shadow-lg">
-                  {badgeEmoji && <span>{badgeEmoji}</span>}
-                  {badge}
-                </span>
-              </div>
-            )}
+            {/* Badges hidden on mobile */}
 
             <AnimatePresence initial={false} custom={direction} mode="popLayout">
               <motion.div
@@ -315,7 +307,7 @@ export function PDPGallery({
                     fill
                     className="object-cover"
                     priority={activeIndex === 0}
-                    sizes="75vw"
+                    sizes="80vw"
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
@@ -328,10 +320,10 @@ export function PDPGallery({
             </AnimatePresence>
           </div>
 
-          {/* Thumbnail Strip - 25% width with arrows */}
+          {/* Thumbnail Strip - fixed width, flush right, no gaps */}
           {allImages.length > 1 && (
-            <div className="flex flex-col" style={{ width: '25%' }}>
-              {/* Up Arrow - always has reserved space */}
+            <div className="flex flex-col w-[72px]">
+              {/* Up Arrow - thin sliver, hex blue */}
               <button
                 onClick={() => {
                   if (canScrollUp) {
@@ -343,15 +335,15 @@ export function PDPGallery({
                   }
                 }}
                 className={cn(
-                  'w-full aspect-[2/1] flex items-center justify-center bg-[#1a1a1a] text-white',
-                  !canScrollUp && activeIndex === 0 && 'opacity-30'
+                  'w-full h-5 flex items-center justify-center bg-[#bbdae9] text-[#1a1a1a]',
+                  !canScrollUp && activeIndex === 0 && 'opacity-40'
                 )}
               >
-                <ChevronUp className="w-4 h-4" />
+                <ChevronUp className="w-3.5 h-3.5" />
               </button>
 
-              {/* Visible Thumbnails */}
-              <div className="flex-1 flex flex-col gap-1 py-1">
+              {/* Visible Thumbnails - no gaps */}
+              <div className="flex-1 flex flex-col">
                 {allImages
                   .slice(mobileScrollIndex, mobileScrollIndex + visibleMobileThumbnails)
                   .map((image, idx) => {
@@ -369,7 +361,7 @@ export function PDPGallery({
                         }}
                         className={cn(
                           'relative flex-1 min-h-0 overflow-hidden transition-all duration-200 bg-white',
-                          actualIndex === activeIndex && 'ring-2 ring-[#bbdae9]'
+                          actualIndex === activeIndex && 'ring-2 ring-[#bbdae9] ring-inset'
                         )}
                       >
                         {image.isVideo && image.videoUrl ? (
@@ -387,7 +379,7 @@ export function PDPGallery({
                             alt={image.altText || `${productName} view ${actualIndex + 1}`}
                             fill
                             className="object-cover"
-                            sizes="25vw"
+                            sizes="72px"
                           />
                         ) : null}
                       </button>
@@ -395,7 +387,7 @@ export function PDPGallery({
                   })}
               </div>
 
-              {/* Down Arrow - always has reserved space */}
+              {/* Down Arrow - thin sliver, hex blue */}
               <button
                 onClick={() => {
                   if (canScrollDown) {
@@ -407,11 +399,11 @@ export function PDPGallery({
                   }
                 }}
                 className={cn(
-                  'w-full aspect-[2/1] flex items-center justify-center bg-[#1a1a1a] text-white',
-                  !canScrollDown && activeIndex === allImages.length - 1 && 'opacity-30'
+                  'w-full h-5 flex items-center justify-center bg-[#bbdae9] text-[#1a1a1a]',
+                  !canScrollDown && activeIndex === allImages.length - 1 && 'opacity-40'
                 )}
               >
-                <ChevronDown className="w-4 h-4" />
+                <ChevronDown className="w-3.5 h-3.5" />
               </button>
             </div>
           )}

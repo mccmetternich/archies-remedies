@@ -15,7 +15,6 @@ interface ProductVariant {
   compareAtPrice: number | null;
   amazonUrl: string;
   isDefault: boolean | null;
-  // Variant thumbnail and badge
   thumbnailUrl?: string | null;
   badge?: string | null;
   badgeBgColor?: string | null;
@@ -45,18 +44,15 @@ interface PDPBuyBoxProps {
   averageRating: number;
   onReviewsClick?: () => void;
   onVariantChange?: (variant: ProductVariant) => void;
-  // Customization props
   bulletPoints?: (string | null)[];
   ctaButtonText?: string;
   ctaExternalUrl?: string | null;
   showDiscountSignup?: boolean;
   discountSignupText?: string;
-  // Review badge props
   reviewBadge?: string | null;
   reviewBadgeEmoji?: string | null;
   reviewBadgeBgColor?: string | null;
   reviewBadgeTextColor?: string | null;
-  // Audio player props
   audioUrl?: string | null;
   audioAvatarUrl?: string | null;
   audioTitle?: string | null;
@@ -69,7 +65,6 @@ export function PDPBuyBox({
   variants,
   reviewCount,
   averageRating,
-  onReviewsClick,
   onVariantChange,
   bulletPoints,
   ctaButtonText = 'Buy Now on Amazon',
@@ -93,10 +88,7 @@ export function PDPBuyBox({
   const [emailStatus, setEmailStatus] = useState<'idle' | 'loading' | 'success'>('idle');
 
   const displayPrice = selectedVariant?.price ?? product.price;
-  // Use ctaExternalUrl if provided, otherwise fall back to variant's amazon URL
   const amazonUrl = ctaExternalUrl || selectedVariant?.amazonUrl || '#';
-
-  // Filter bullet points to only non-null/non-empty values
   const validBulletPoints = bulletPoints?.filter((bp): bp is string => Boolean(bp)) || [];
 
   const toggleAccordion = (section: AccordionSection) => {
@@ -132,94 +124,121 @@ export function PDPBuyBox({
     }
   };
 
-  // Determine grid layout for variants
   const getVariantGridCols = () => {
-    if (variants.length === 4) return 'grid-cols-2'; // 2x2 for 4 variants
-    if (variants.length <= 3) return 'grid-cols-3'; // 3 per row for 1-3
-    return 'grid-cols-3'; // Default to 3 per row
+    if (variants.length === 4) return 'grid-cols-2';
+    if (variants.length <= 3) return 'grid-cols-3';
+    return 'grid-cols-3';
   };
 
-  return (
-    <div className="lg:sticky lg:top-28 space-y-5">
-      {/* Reviews Summary - Blue stars + review count */}
-      <button
-        onClick={onReviewsClick}
-        className="flex items-center gap-3 group flex-wrap"
-      >
-        <div className="flex gap-0.5">
-          {[1, 2, 3, 4, 5].map((i) => (
-            <Star
-              key={i}
-              className={cn(
-                'w-4 h-4',
-                i <= Math.round(averageRating)
-                  ? 'fill-[#bbdae9] text-[#bbdae9]'
-                  : 'fill-transparent text-[#bbdae9]/30'
-              )}
-            />
-          ))}
-        </div>
-        <span className="text-sm text-[#1a1a1a] font-normal transition-colors">
-          {reviewCount.toLocaleString()} verified reviews
-        </span>
-        {reviewBadge && (
-          <span
-            className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full shadow-sm"
-            style={{
-              backgroundColor: reviewBadgeBgColor || '#bbdae9',
-              color: reviewBadgeTextColor || '#1a1a1a',
-            }}
-          >
-            {reviewBadgeEmoji && <span>{reviewBadgeEmoji}</span>}
-            {reviewBadge}
-          </span>
-        )}
-      </button>
+  // Scroll to reviews/testimonials section
+  const scrollToReviews = () => {
+    const reviewsSection = document.getElementById('reviews') || document.getElementById('testimonials');
+    if (reviewsSection) {
+      reviewsSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
-      {/* Editorial Title - CTA-style uppercase with byline */}
-      <div className="space-y-1">
-        <h1
-          className="font-bold uppercase tracking-wider leading-[1.15]"
-          style={{ fontSize: '0.75rem', letterSpacing: '0.05em' }}
+  // Reviews component - reusable for different positions
+  const ReviewsDisplay = ({ className = '' }: { className?: string }) => (
+    <button
+      onClick={scrollToReviews}
+      className={cn('flex items-center gap-2 md:gap-3 group flex-wrap', className)}
+    >
+      <div className="flex gap-0.5">
+        {[1, 2, 3, 4, 5].map((i) => (
+          <Star
+            key={i}
+            className={cn(
+              'w-3 h-3 md:w-4 md:h-4',
+              i <= Math.round(averageRating)
+                ? 'fill-[#bbdae9] text-[#bbdae9]'
+                : 'fill-transparent text-[#bbdae9]/30'
+            )}
+          />
+        ))}
+      </div>
+      <span className="text-[11px] md:text-sm text-[#1a1a1a] font-normal transition-colors">
+        {reviewCount.toLocaleString()} Verified Reviews
+      </span>
+      {reviewBadge && (
+        <span
+          className="hidden md:inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full shadow-sm"
+          style={{
+            backgroundColor: reviewBadgeBgColor || '#bbdae9',
+            color: reviewBadgeTextColor || '#1a1a1a',
+          }}
         >
-          {product.name}
+          {reviewBadgeEmoji && <span>{reviewBadgeEmoji}</span>}
+          {reviewBadge}
+        </span>
+      )}
+    </button>
+  );
+
+  return (
+    <div className="lg:sticky lg:top-28 space-y-4 md:space-y-5">
+      {/* Desktop: Reviews first */}
+      <div className="hidden md:block">
+        <ReviewsDisplay />
+      </div>
+
+      {/* Title - 100% bigger on mobile, bold, tight spacing */}
+      <div className="space-y-0.5 md:space-y-1">
+        <h1
+          className="font-bold uppercase leading-tight"
+          style={{
+            fontSize: 'clamp(1rem, 4vw, 0.75rem)',
+            letterSpacing: '-0.01em'
+          }}
+        >
+          <span className="md:hidden text-base">{product.name}</span>
+          <span className="hidden md:inline text-xs">{product.name}</span>
         </h1>
         {product.subtitle && (
           <p
-            className="font-bold uppercase tracking-wider text-[#1a1a1a]"
-            style={{ fontSize: '0.75rem', letterSpacing: '0.05em' }}
+            className="font-bold uppercase text-[#1a1a1a]"
+            style={{ letterSpacing: '-0.01em' }}
           >
-            {product.subtitle}
+            <span className="md:hidden text-sm">{product.subtitle}</span>
+            <span className="hidden md:inline text-xs">{product.subtitle}</span>
           </p>
         )}
       </div>
 
-      {/* Short Description - Same size as bullets, black text */}
+      {/* Mobile: Reviews under title */}
+      <div className="md:hidden">
+        <ReviewsDisplay />
+      </div>
+
+      {/* Mobile: Hex separator after reviews */}
+      <div className="md:hidden h-px bg-[#bbdae9] -mx-4 px-[10px]" style={{ marginLeft: '-6px', marginRight: '-6px' }} />
+
+      {/* Short Description - 15% smaller on mobile */}
       {product.shortDescription && (
-        <p className="text-base text-[#1a1a1a] leading-relaxed max-w-[85%]">
+        <p className="text-[13px] md:text-base text-[#1a1a1a] leading-relaxed max-w-[95%] md:max-w-[85%]">
           {product.shortDescription}
         </p>
       )}
 
-      {/* Bullet Points / Key Benefits - Same size as description, black text */}
+      {/* Bullet Points - 15% smaller on mobile, dark gray checkmarks */}
       {validBulletPoints.length > 0 && (
-        <ul className="space-y-2 -mt-1">
+        <ul className="space-y-1.5 md:space-y-2 -mt-1">
           {validBulletPoints.map((point, i) => (
-            <li key={i} className="flex items-start gap-3">
-              <Check className="w-5 h-5 text-[#bbdae9] mt-0.5 flex-shrink-0 stroke-[2.5]" />
-              <span className="text-base text-[#1a1a1a]">{point}</span>
+            <li key={i} className="flex items-start gap-2 md:gap-3">
+              <Check className="w-4 h-4 md:w-5 md:h-5 text-[#666666] mt-0.5 flex-shrink-0 stroke-[2.5]" />
+              <span className="text-[13px] md:text-base text-[#1a1a1a]">{point}</span>
             </li>
           ))}
         </ul>
       )}
 
-      {/* Variant Tiles - Show if variants exist */}
+      {/* Variant Tiles - radio buttons, dark gray borders, all caps CTA font */}
       {variants.length > 0 && (
-        <div className="space-y-[15px]">
-          <span className="text-xs font-bold tracking-[0.15em] uppercase text-[#1a1a1a]">
+        <div className="space-y-3 md:space-y-[15px]">
+          <span className="text-[10px] md:text-xs font-bold tracking-[0.15em] uppercase text-[#1a1a1a]">
             Choose Size
           </span>
-          <div className={cn('grid gap-3', getVariantGridCols())}>
+          <div className={cn('grid gap-2 md:gap-3', getVariantGridCols())}>
             {variants.map((variant) => {
               const isSelected = selectedVariant?.id === variant.id;
 
@@ -227,17 +246,19 @@ export function PDPBuyBox({
                 <button
                   key={variant.id}
                   onClick={() => handleVariantSelect(variant)}
-                  className={cn(
-                    'relative flex flex-col items-center justify-center p-4 transition-all duration-200 text-center bg-white border',
-                    isSelected
-                      ? 'border-[#bbdae9]'
-                      : 'border-[#e5e5e5] hover:border-[#bbdae9]'
-                  )}
+                  className="relative flex flex-col items-center justify-center p-3 md:p-4 transition-all duration-200 text-center bg-white border border-[#d0d0d0]"
                 >
+                  {/* Radio Button - top left */}
+                  <div className="absolute top-2 left-2 w-4 h-4 rounded-full border border-[#999999] flex items-center justify-center">
+                    {isSelected && (
+                      <div className="w-2.5 h-2.5 rounded-full bg-[#bbdae9]" />
+                    )}
+                  </div>
+
                   {/* Variant Badge */}
                   {variant.badge && (
                     <span
-                      className="absolute -top-2.5 left-1/2 -translate-x-1/2 text-[10px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap"
+                      className="absolute -top-2 left-1/2 -translate-x-1/2 text-[9px] md:text-[10px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap"
                       style={{
                         backgroundColor: variant.badgeBgColor || '#bbdae9',
                         color: variant.badgeTextColor || '#1a1a1a',
@@ -247,9 +268,9 @@ export function PDPBuyBox({
                     </span>
                   )}
 
-                  {/* Variant Thumbnail - 2x size */}
+                  {/* Variant Thumbnail */}
                   {variant.thumbnailUrl && (
-                    <div className="w-32 h-32 md:w-40 md:h-40 relative mb-2">
+                    <div className="w-24 h-24 md:w-32 md:h-32 lg:w-40 lg:h-40 relative mb-1 md:mb-2">
                       <Image
                         src={variant.thumbnailUrl}
                         alt={variant.name}
@@ -259,8 +280,12 @@ export function PDPBuyBox({
                     </div>
                   )}
 
-                  {/* Variant Name - Bold */}
-                  <span className="block font-bold text-sm text-[#1a1a1a]">{variant.name}</span>
+                  {/* Variant Name - All caps, CTA font style */}
+                  <span
+                    className="block font-medium text-[11px] md:text-sm text-[#1a1a1a] uppercase tracking-wider"
+                  >
+                    {variant.name}
+                  </span>
                 </button>
               );
             })}
@@ -268,25 +293,23 @@ export function PDPBuyBox({
         </div>
       )}
 
-      {/* Primary CTA - White text with inline styles to prevent overrides */}
+      {/* Primary CTA */}
       <a
         href={amazonUrl}
         target="_blank"
         rel="noopener noreferrer"
         onClick={(e) => {
           e.preventDefault();
-          // Track the click
           trackClick({
             destinationUrl: amazonUrl,
             productId: product.id,
             productSlug: product.slug,
           });
-          // Open in new tab after small delay to ensure tracking
           setTimeout(() => {
             window.open(amazonUrl, '_blank', 'noopener,noreferrer');
           }, 100);
         }}
-        className="pdp-cta-button group flex items-center justify-center gap-3 w-full py-4 text-sm font-medium uppercase tracking-wider transition-all duration-300"
+        className="pdp-cta-button group flex items-center justify-center gap-2 md:gap-3 w-full py-3 md:py-4 text-xs md:text-sm font-medium uppercase tracking-wider transition-all duration-300"
         style={{
           backgroundColor: '#1a1a1a',
           color: '#ffffff',
@@ -304,18 +327,18 @@ export function PDPBuyBox({
         {displayPrice && (
           <span className="font-semibold">- ${displayPrice.toFixed(2)}</span>
         )}
-        <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+        <ArrowRight className="w-3.5 h-3.5 md:w-4 md:h-4 transition-transform group-hover:translate-x-1" />
       </a>
 
-      {/* Newsletter Injection - Only show if enabled */}
+      {/* Newsletter */}
       {showDiscountSignup && (
         <div className="text-center">
           {!showNewsletterInput ? (
             <button
               onClick={() => setShowNewsletterInput(true)}
-              className="text-sm text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors inline-flex items-center gap-2"
+              className="text-[11px] md:text-sm text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors inline-flex items-center gap-2"
             >
-              <Mail className="w-4 h-4" />
+              <Mail className="w-3.5 h-3.5 md:w-4 md:h-4" />
               {discountSignupText}
             </button>
           ) : (
@@ -330,13 +353,13 @@ export function PDPBuyBox({
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email"
-                className="flex-1 px-4 py-2.5 text-sm border border-[var(--border)] focus:outline-none focus:border-[var(--primary)]"
+                className="flex-1 px-3 md:px-4 py-2 md:py-2.5 text-xs md:text-sm border border-[var(--border)] focus:outline-none focus:border-[var(--primary)]"
                 required
               />
               <button
                 type="submit"
                 disabled={emailStatus === 'loading'}
-                className="px-5 py-2.5 bg-[#1a1a1a] text-white text-sm font-medium hover:bg-[#bbdae9] hover:text-[#1a1a1a] transition-colors disabled:opacity-50"
+                className="px-4 md:px-5 py-2 md:py-2.5 bg-[#1a1a1a] text-white text-xs md:text-sm font-medium hover:bg-[#bbdae9] hover:text-[#1a1a1a] transition-colors disabled:opacity-50"
               >
                 {emailStatus === 'loading' ? '...' : emailStatus === 'success' ? <Check className="w-4 h-4" /> : 'Join'}
               </button>
@@ -356,9 +379,8 @@ export function PDPBuyBox({
         </div>
       )}
 
-      {/* Accordion Drawers */}
-      <div className="pt-6 space-y-0">
-        {/* The Ritual */}
+      {/* Accordion Drawers - wider on mobile (10px from edges) */}
+      <div className="pt-4 md:pt-6 space-y-0 -mx-[6px] md:mx-0">
         {product.ritualContent && (
           <AccordionItem
             title={product.ritualTitle || 'The Ritual'}
@@ -369,7 +391,6 @@ export function PDPBuyBox({
           />
         )}
 
-        {/* Ingredients */}
         {product.ingredientsContent && (
           <AccordionItem
             title={product.ingredientsTitle || 'Ingredients'}
@@ -379,7 +400,6 @@ export function PDPBuyBox({
           />
         )}
 
-        {/* Good to Know */}
         {product.shippingContent && (
           <AccordionItem
             title={product.shippingTitle || 'Good to Know'}
@@ -409,12 +429,12 @@ function AccordionItem({ title, content, isOpen, onToggle, isFirst }: AccordionI
     )}>
       <button
         onClick={onToggle}
-        className="w-full flex items-center justify-between py-5 text-left"
+        className="w-full flex items-center justify-between py-4 md:py-5 text-left px-[6px] md:px-0"
       >
-        <span className="font-medium text-sm uppercase tracking-wider">{title}</span>
+        <span className="font-medium text-xs md:text-sm uppercase tracking-wider">{title}</span>
         <ChevronRight
           className={cn(
-            'w-5 h-5 text-[#4a4a4a] stroke-[2.5] transition-transform duration-300',
+            'w-4 h-4 md:w-5 md:h-5 text-[#4a4a4a] stroke-[2.5] transition-transform duration-300',
             isOpen && 'rotate-90'
           )}
         />
@@ -429,7 +449,7 @@ function AccordionItem({ title, content, isOpen, onToggle, isFirst }: AccordionI
             className="overflow-hidden"
           >
             <div
-              className="pb-6 text-sm text-[var(--muted-foreground)] leading-relaxed prose prose-sm"
+              className="pb-4 md:pb-6 px-[6px] md:px-0 text-xs md:text-sm text-[var(--muted-foreground)] leading-relaxed prose prose-sm"
               dangerouslySetInnerHTML={{ __html: content }}
             />
           </motion.div>
