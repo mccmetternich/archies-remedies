@@ -197,9 +197,9 @@ export function PDPGallery({
           </AnimatePresence>
         </div>
 
-        {/* Thumbnail Strip - fixed to right side of screen */}
+        {/* Thumbnail Strip - fixed to right side of screen, aligned to top */}
         {allImages.length > 1 && (
-          <div className="fixed right-6 top-1/2 -translate-y-1/2 flex flex-col items-center z-30">
+          <div className="fixed right-6 top-[96px] flex flex-col items-center z-30">
             {/* Up Arrow */}
             <button
               onClick={() => {
@@ -222,7 +222,7 @@ export function PDPGallery({
                   key={image.id}
                   onMouseEnter={() => handleThumbnailHover(index)}
                   className={cn(
-                    'relative w-32 aspect-square overflow-hidden transition-all duration-200 bg-white flex-shrink-0',
+                    'relative w-64 aspect-square overflow-hidden transition-all duration-200 bg-white flex-shrink-0',
                     index === activeIndex && 'ring-2 ring-[#bbdae9]'
                   )}
                 >
@@ -241,7 +241,7 @@ export function PDPGallery({
                       alt={image.altText || `${productName} view ${index + 1}`}
                       fill
                       className="object-cover"
-                      sizes="128px"
+                      sizes="256px"
                     />
                   ) : null}
                 </button>
