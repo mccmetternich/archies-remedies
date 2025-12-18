@@ -140,7 +140,7 @@ export function PDPHeroSection({
   return (
     <div className="flex flex-col lg:flex-row lg:gap-8 xl:gap-12 items-start">
       {/* Buy Box - RIGID column, sticky on desktop, offset down ~96px for staggered look */}
-      <div className="order-2 lg:order-1 w-full lg:w-[450px] lg:flex-shrink-0 lg:sticky lg:top-4 lg:self-start mt-5 lg:pt-24 px-4 lg:px-0">
+      <div className="order-2 lg:order-1 w-full lg:w-[450px] lg:flex-shrink-0 lg:sticky lg:top-4 lg:self-start mt-[30px] lg:mt-0 lg:pt-24 px-4 lg:px-0">
         <PDPBuyBox
           product={product}
           variants={variants}

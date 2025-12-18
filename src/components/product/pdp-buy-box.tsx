@@ -188,7 +188,7 @@ export function PDPBuyBox({
           {product.name}
         </h1>
         {product.subtitle && (
-          <p className="!text-[17px] lg:!text-xs !font-bold uppercase text-[#1a1a1a] tracking-tight">
+          <p className="-mt-0.5 lg:mt-0 !text-[17px] lg:!text-xs !font-bold uppercase text-[#1a1a1a] tracking-tight">
             {product.subtitle}
           </p>
         )}
