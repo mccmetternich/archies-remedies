@@ -43,12 +43,9 @@ export function PDPGallery({
 
   // Desktop: Dynamic header height detection (95px without bumper, 135px with bumper)
   const [headerHeight, setHeaderHeight] = useState(95);
-  // Desktop: Track hero container dimensions for thumbnail panel sizing
+  // Desktop: Track hero container height for thumbnail sizing
   const heroContainerRef = useRef<HTMLDivElement>(null);
-  const [heroHeight, setHeroHeight] = useState(0);
-  const [heroTop, setHeroTop] = useState(0); // Track hero's top position relative to viewport
-  // Desktop: Track hero visibility to hide thumbnails on scroll
-  const [isHeroVisible, setIsHeroVisible] = useState(true);
+  const [heroHeight, setHeroHeight] = useState(500); // Start with reasonable default, not 0
 
   // Detect header height based on bumper bar presence
   useEffect(() => {
@@ -68,45 +65,19 @@ export function PDPGallery({
     return () => window.removeEventListener('resize', detectHeaderHeight);
   }, []);
 
-  // Track hero container dimensions with ResizeObserver + scroll position
+  // Track hero container height with ResizeObserver (no scroll tracking needed with sticky)
   useEffect(() => {
     const hero = heroContainerRef.current;
     if (!hero) return;
 
-    const updateHeroPosition = () => {
-      const rect = hero.getBoundingClientRect();
-      setHeroHeight(rect.height);
-      setHeroTop(rect.top);
-    };
-
-    const resizeObserver = new ResizeObserver(() => {
-      updateHeroPosition();
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        setHeroHeight(entry.contentRect.height);
+      }
     });
 
     resizeObserver.observe(hero);
-    // Also update on scroll to keep thumbnail panel aligned
-    window.addEventListener('scroll', updateHeroPosition);
-    // Initial position
-    updateHeroPosition();
-
-    return () => {
-      resizeObserver.disconnect();
-      window.removeEventListener('scroll', updateHeroPosition);
-    };
-  }, []);
-
-  // Track hero visibility with IntersectionObserver (hide thumbnails when scrolled past)
-  useEffect(() => {
-    const hero = heroContainerRef.current;
-    if (!hero) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => setIsHeroVisible(entry.isIntersecting),
-      { threshold: 0 }
-    );
-
-    observer.observe(hero);
-    return () => observer.disconnect();
+    return () => resizeObserver.disconnect();
   }, []);
 
   // Check if heroImage is a video
@@ -197,14 +168,27 @@ export function PDPGallery({
   // Max height available: calc(100vh - 25px) minus arrows (2 * 40px = 80px) minus gaps
   const imageCount = Math.min(allImages.length, 5);
 
+  // Calculate square thumbnail size based on available height and image count
+  const calculateThumbnailSize = () => {
+    const arrowsHeight = 80; // 2 × 40px
+    const paddingHeight = 16; // py-2 = 8px × 2
+    const gapsHeight = (imageCount - 1) * 8; // gap-2 = 8px per gap
+    const panelHeight = heroHeight > 0 ? heroHeight : 500;
+    const availableHeight = panelHeight - arrowsHeight - paddingHeight - gapsHeight;
+    return Math.floor(Math.max(60, Math.min(180, availableHeight / imageCount)));
+  };
+
+  const squareSize = calculateThumbnailSize();
+
   return (
     <>
-      {/* Desktop Layout */}
-      <div className="hidden lg:block">
-        {/* Hero Image Container - square, accounts for header height */}
+      {/* Desktop Layout - flex row with hero and thumbnails as siblings */}
+      {/* Natural height from hero's aspect-square; sticky thumbnails bounded by this container */}
+      <div className="hidden lg:flex gap-6 items-start">
+        {/* Hero Image Container - square, accounts for header height, shrinks to fit thumbnails */}
         <div
           ref={heroContainerRef}
-          className="relative bg-[var(--cream)] overflow-hidden aspect-square"
+          className="relative flex-1 min-w-0 bg-[var(--cream)] overflow-hidden aspect-square"
           style={{
             maxHeight: `calc(100vh - ${headerHeight}px)`,
             maxWidth: `calc(100vh - ${headerHeight}px)`
@@ -272,28 +256,14 @@ export function PDPGallery({
             </motion.div>
           </AnimatePresence>
         </div>
-      </div>
 
-      {/* Thumbnail Strip - FIXED to viewport right, aligned with hero top/bottom, hides on scroll */}
-      {allImages.length > 1 && isHeroVisible && (() => {
-        // Calculate square thumbnail size based on available height and image count
-        // Increased max from 140 to 180 (~30% larger)
-        const arrowsHeight = 80; // 2 × 40px
-        const paddingHeight = 16; // py-2 = 8px × 2
-        const gapsHeight = (imageCount - 1) * 8; // gap-2 = 8px per gap
-        const panelHeight = heroHeight > 0 ? heroHeight : (typeof window !== 'undefined' ? window.innerHeight - headerHeight - 25 : 600);
-        const availableHeight = panelHeight - arrowsHeight - paddingHeight - gapsHeight;
-        const squareSize = Math.floor(Math.max(60, Math.min(180, availableHeight / imageCount)));
-
-        // Use hero's actual top position (tracks with scroll) or fallback to header height
-        const panelTop = heroTop > 0 ? heroTop : headerHeight;
-
-        return (
+        {/* Thumbnail Strip - sticky, part of layout flow, pushes hero when viewport shrinks */}
+        {allImages.length > 1 && (
           <div
-            className="hidden lg:flex fixed right-6 flex-col items-start z-30 transition-opacity duration-200"
+            className="sticky top-0 self-start flex-shrink-0 flex flex-col items-start"
             style={{
-              top: `${panelTop}px`,
-              height: heroHeight > 0 ? `${heroHeight}px` : `calc(100vh - ${headerHeight}px - 25px)`,
+              top: `${headerHeight}px`,
+              maxHeight: `calc(100vh - ${headerHeight}px)`,
             }}
           >
             {/* Up Arrow */}
@@ -362,8 +332,8 @@ export function PDPGallery({
               <ChevronDown className="w-6 h-6" />
             </button>
           </div>
-        );
-      })()}
+        )}
+      </div>
 
       {/* Mobile Layout - Edge to edge, no gaps */}
       <div className="lg:hidden overflow-x-hidden">
