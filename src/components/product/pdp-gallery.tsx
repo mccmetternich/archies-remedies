@@ -43,9 +43,10 @@ export function PDPGallery({
 
   // Desktop: Dynamic header height detection (95px without bumper, 135px with bumper)
   const [headerHeight, setHeaderHeight] = useState(95);
-  // Desktop: Track hero container height for thumbnail panel sizing
+  // Desktop: Track hero container dimensions for thumbnail panel sizing
   const heroContainerRef = useRef<HTMLDivElement>(null);
   const [heroHeight, setHeroHeight] = useState(0);
+  const [heroTop, setHeroTop] = useState(0); // Track hero's top position relative to viewport
   // Desktop: Track hero visibility to hide thumbnails on scroll
   const [isHeroVisible, setIsHeroVisible] = useState(true);
 
@@ -67,19 +68,31 @@ export function PDPGallery({
     return () => window.removeEventListener('resize', detectHeaderHeight);
   }, []);
 
-  // Track hero container height with ResizeObserver
+  // Track hero container dimensions with ResizeObserver + scroll position
   useEffect(() => {
     const hero = heroContainerRef.current;
     if (!hero) return;
 
-    const resizeObserver = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        setHeroHeight(entry.contentRect.height);
-      }
+    const updateHeroPosition = () => {
+      const rect = hero.getBoundingClientRect();
+      setHeroHeight(rect.height);
+      setHeroTop(rect.top);
+    };
+
+    const resizeObserver = new ResizeObserver(() => {
+      updateHeroPosition();
     });
 
     resizeObserver.observe(hero);
-    return () => resizeObserver.disconnect();
+    // Also update on scroll to keep thumbnail panel aligned
+    window.addEventListener('scroll', updateHeroPosition);
+    // Initial position
+    updateHeroPosition();
+
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener('scroll', updateHeroPosition);
+    };
   }, []);
 
   // Track hero visibility with IntersectionObserver (hide thumbnails when scrolled past)
@@ -261,21 +274,25 @@ export function PDPGallery({
         </div>
       </div>
 
-      {/* Thumbnail Strip - FIXED to viewport right, height matches hero, hides on scroll */}
+      {/* Thumbnail Strip - FIXED to viewport right, aligned with hero top/bottom, hides on scroll */}
       {allImages.length > 1 && isHeroVisible && (() => {
         // Calculate square thumbnail size based on available height and image count
+        // Increased max from 140 to 180 (~30% larger)
         const arrowsHeight = 80; // 2 × 40px
         const paddingHeight = 16; // py-2 = 8px × 2
         const gapsHeight = (imageCount - 1) * 8; // gap-2 = 8px per gap
         const panelHeight = heroHeight > 0 ? heroHeight : (typeof window !== 'undefined' ? window.innerHeight - headerHeight - 25 : 600);
         const availableHeight = panelHeight - arrowsHeight - paddingHeight - gapsHeight;
-        const squareSize = Math.floor(Math.max(50, Math.min(140, availableHeight / imageCount)));
+        const squareSize = Math.floor(Math.max(60, Math.min(180, availableHeight / imageCount)));
+
+        // Use hero's actual top position (tracks with scroll) or fallback to header height
+        const panelTop = heroTop > 0 ? heroTop : headerHeight;
 
         return (
           <div
-            className="hidden lg:flex fixed right-6 flex-col items-center z-30 transition-opacity duration-200"
+            className="hidden lg:flex fixed right-6 flex-col items-start z-30 transition-opacity duration-200"
             style={{
-              top: `${headerHeight}px`,
+              top: `${panelTop}px`,
               height: heroHeight > 0 ? `${heroHeight}px` : `calc(100vh - ${headerHeight}px - 25px)`,
             }}
           >
@@ -292,10 +309,10 @@ export function PDPGallery({
               <ChevronUp className="w-6 h-6" />
             </button>
 
-            {/* Thumbnails - square, scale based on available height */}
+            {/* Thumbnails - square, top-aligned, scale based on available height */}
             <div
               ref={thumbnailContainerRef}
-              className="flex-1 flex flex-col gap-2 py-2 min-h-0 items-center justify-center"
+              className="flex flex-col gap-2 py-2 min-h-0 items-center justify-start"
             >
               {allImages.slice(0, 5).map((image, index) => (
                 <button
