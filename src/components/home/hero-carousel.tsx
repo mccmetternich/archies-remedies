@@ -233,7 +233,8 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
         >
           <Link
             href={slide.buttonUrl}
-            className="group flex items-center justify-center gap-2 w-full py-[20px] bg-[#1a1a1a] text-white text-xs font-medium uppercase tracking-wide transition-all duration-300"
+            className="group flex items-center justify-center gap-2 w-full py-[20px] text-xs font-medium uppercase tracking-wide transition-all duration-300"
+            style={{ backgroundColor: '#1a1a1a', color: '#ffffff' }}
           >
             {slide.buttonText || 'Shop Now'}
             <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
@@ -250,7 +251,7 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
       onMouseEnter={() => { isHoveredRef.current = true; }}
       onMouseLeave={() => { isHoveredRef.current = false; }}
     >
-      {/* Background for full-width layout */}
+      {/* Background for full-width layout - DESKTOP ONLY (mobile has stacked layout below) */}
       {!isTwoColumn && (
         <AnimatePresence mode="sync">
           <motion.div
@@ -259,7 +260,7 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            className="absolute inset-0"
+            className="hidden lg:block absolute inset-0"
             style={{ willChange: 'opacity' }}
           >
             {/* Video or Image background */}
@@ -362,7 +363,7 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
                 </div>
               </div>
 
-              {/* COMPARTMENT 2: Testimonial card - positioned to align with the max-w-xl content above */}
+              {/* COMPARTMENT 2: Testimonial card - DESKTOP ONLY (mobile has its own overlapping the media) */}
               {/* Uses same centering calculation: left-1/2 -translate-x-1/2 then offset to align with max-w-xl start */}
               {slide.testimonialText && slide.testimonialAvatarUrl && (
                 <motion.div
@@ -370,7 +371,7 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 10 }}
                   transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: 0.5 }}
-                  className="absolute bottom-16 lg:bottom-[79px] left-1/2 -translate-x-1/2 w-full max-w-xl px-6 lg:px-0 pointer-events-auto"
+                  className="hidden lg:block absolute bottom-16 lg:bottom-[79px] left-1/2 -translate-x-1/2 w-full max-w-xl px-6 lg:px-0 pointer-events-auto"
                 >
                   <div className="bg-white/95 backdrop-blur-sm px-5 py-4 shadow-xl border border-black/5 max-w-md">
                     <div className="flex items-center gap-4">
