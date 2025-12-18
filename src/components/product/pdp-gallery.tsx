@@ -328,9 +328,9 @@ export function PDPGallery({
             <div className="w-[5px] bg-[#bbdae9]" />
           )}
 
-          {/* Thumbnail Strip - wider for square thumbnails */}
+          {/* Thumbnail Strip - hex blue tray with thumbnails on top */}
           {allImages.length > 1 && (
-            <div className="flex flex-col w-[100px]">
+            <div className="flex flex-col w-[100px] bg-[#bbdae9]">
               {/* Up Arrow - thin sliver, hex blue, hide icon on first image */}
               <button
                 onClick={() => {
