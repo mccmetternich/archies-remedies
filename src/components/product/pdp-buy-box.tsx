@@ -178,40 +178,29 @@ export function PDPBuyBox({
   return (
     <div className="lg:sticky lg:top-28 space-y-4 md:space-y-5">
       {/* Desktop: Reviews first */}
-      <div className="hidden md:block">
+      <div className="hidden lg:block">
         <ReviewsDisplay />
       </div>
 
-      {/* Title - 100% bigger on mobile, bold, tight spacing */}
-      <div className="space-y-0.5 md:space-y-1">
-        <h1
-          className="font-bold uppercase leading-tight"
-          style={{
-            fontSize: 'clamp(1rem, 4vw, 0.75rem)',
-            letterSpacing: '-0.01em'
-          }}
-        >
-          <span className="md:hidden text-base">{product.name}</span>
-          <span className="hidden md:inline text-xs">{product.name}</span>
+      {/* Title - clean sizing that overrides global h1 styles */}
+      <div className="space-y-0.5 lg:space-y-1">
+        <h1 className="!text-base lg:!text-sm font-bold uppercase leading-tight tracking-tight">
+          {product.name}
         </h1>
         {product.subtitle && (
-          <p
-            className="font-bold uppercase text-[#1a1a1a]"
-            style={{ letterSpacing: '-0.01em' }}
-          >
-            <span className="md:hidden text-sm">{product.subtitle}</span>
-            <span className="hidden md:inline text-xs">{product.subtitle}</span>
+          <p className="!text-sm lg:!text-xs font-bold uppercase text-[#1a1a1a] tracking-tight">
+            {product.subtitle}
           </p>
         )}
       </div>
 
       {/* Mobile: Reviews under title */}
-      <div className="md:hidden">
+      <div className="lg:hidden">
         <ReviewsDisplay />
       </div>
 
       {/* Mobile: Hex separator after reviews */}
-      <div className="md:hidden h-px bg-[#bbdae9] -mx-4 px-[10px]" style={{ marginLeft: '-6px', marginRight: '-6px' }} />
+      <div className="lg:hidden h-px bg-[#bbdae9] -mx-4 px-[10px]" style={{ marginLeft: '-6px', marginRight: '-6px' }} />
 
       {/* Short Description - 15% smaller on mobile */}
       {product.shortDescription && (
