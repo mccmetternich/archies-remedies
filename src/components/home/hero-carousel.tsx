@@ -351,9 +351,9 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
             isReversed && "lg:[&>*:first-child]:order-2 lg:[&>*:last-child]:order-1"
           )}>
             {/* Text column - split into two compartments */}
-            <div className="relative h-auto lg:h-full px-4 lg:px-12 order-2 lg:order-none">
+            <div className="relative h-auto lg:h-full px-4 lg:px-12 order-2 lg:order-none bg-white lg:bg-transparent">
               {/* Mobile: Compact content */}
-              <div className="lg:hidden py-6">
+              <div className="lg:hidden pt-6 pb-2">
                 <MobileTextContent />
               </div>
               {/* Desktop: Original centered content */}
@@ -451,7 +451,7 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
 
               {/* Mobile testimonial - overlaps bottom of media, no animation, dynamic width */}
               {slide.testimonialText && slide.testimonialAvatarUrl && (
-                <div className="lg:hidden absolute bottom-[-80px] left-0 right-0 z-30 flex justify-center px-4">
+                <div className="lg:hidden absolute bottom-4 left-0 right-0 z-30 flex justify-center px-4">
                   <div className="inline-flex bg-white/95 backdrop-blur-sm px-5 py-3 shadow-lg border border-black/5">
                     <div className="flex items-center gap-3">
                       <div className="w-14 h-14 rounded-full overflow-hidden bg-[var(--sand)] flex-shrink-0">
@@ -532,7 +532,7 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
 
               {/* Mobile testimonial - overlaps bottom of media, no animation, dynamic width */}
               {slide.testimonialText && slide.testimonialAvatarUrl && (
-                <div className="absolute bottom-[-80px] left-0 right-0 z-30 flex justify-center px-4">
+                <div className="absolute bottom-4 left-0 right-0 z-30 flex justify-center px-4">
                   <div className="inline-flex bg-white/95 backdrop-blur-sm px-5 py-3 shadow-lg border border-black/5">
                     <div className="flex items-center gap-3">
                       <div className="w-14 h-14 rounded-full overflow-hidden bg-[var(--sand)] flex-shrink-0">
@@ -564,7 +564,7 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
             </div>
 
             {/* Content below media - compact PDP style */}
-            <div className="bg-[var(--cream)] px-4 pt-8 pb-6">
+            <div className="bg-white px-4 pt-6 pb-2">
               <MobileTextContent />
             </div>
           </div>
@@ -572,9 +572,9 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
       )}
 
 
-      {/* Minimal progress indicator */}
+      {/* Minimal progress indicator - desktop only */}
       {slides.length > 1 && (
-        <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex gap-3">
+        <div className="hidden lg:flex absolute bottom-12 left-1/2 -translate-x-1/2 gap-3">
           {slides.map((_, index) => (
             <button
               key={index}
