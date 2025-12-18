@@ -247,7 +247,7 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
   // Use consistent height for all layouts to prevent jumping
   return (
     <section
-      className="relative overflow-hidden h-[85vh] min-h-[600px] max-h-[850px]"
+      className="relative overflow-hidden h-auto lg:h-[85vh] lg:min-h-[600px] lg:max-h-[850px]"
       onMouseEnter={() => { isHoveredRef.current = true; }}
       onMouseLeave={() => { isHoveredRef.current = false; }}
     >
