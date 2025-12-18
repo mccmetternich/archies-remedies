@@ -138,9 +138,9 @@ export function PDPHeroSection({
   };
 
   return (
-    <div className="grid lg:grid-cols-[30%_60%] gap-8 lg:gap-[10%] items-start">
-      {/* Left: Buy Box - 30% width, indented ~100px from left */}
-      <div className="order-1 lg:pl-[100px] xl:pl-[120px]">
+    <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
+      {/* Left: Buy Box - fixed width, doesn't scale with viewport */}
+      <div className="order-2 lg:order-1 w-full lg:w-[340px] xl:w-[380px] flex-shrink-0">
         <PDPBuyBox
           product={product}
           variants={variants}
@@ -162,8 +162,8 @@ export function PDPHeroSection({
         />
       </div>
 
-      {/* Right: Gallery - 60% width, overflow visible for thumbnails in gutter, pulled up to sit 20px under nav */}
-      <div className="order-2 overflow-visible lg:-mt-[44px]">
+      {/* Right: Gallery - scales with viewport */}
+      <div className="order-1 lg:order-2 flex-1">
         <PDPGallery
           images={activeImages}
           heroImage={activeHeroImage}
