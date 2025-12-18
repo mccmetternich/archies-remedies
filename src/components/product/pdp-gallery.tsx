@@ -56,10 +56,6 @@ export function PDPGallery({
 
   const activeImage = allImages[activeIndex];
 
-  const handleThumbnailHover = (index: number) => {
-    setActiveIndex(index);
-  };
-
   const handleVideoClick = (videoUrl: string) => {
     setActiveVideoUrl(videoUrl);
     setVideoModalOpen(true);
@@ -142,22 +138,17 @@ export function PDPGallery({
 
         </div>
 
-        {/* Vertical Thumbnail Strip - Positioned in right gutter, top-aligned with hero */}
+        {/* Vertical Thumbnail Strip - Positioned in right gutter, centered vertically */}
         {allImages.length > 1 && (
-          <div className="hidden lg:flex flex-col gap-3 absolute -right-28 xl:-right-32 top-0 z-30">
+          <div className="hidden lg:flex flex-col gap-2 xl:gap-3 absolute -right-[5.5rem] xl:-right-[6.5rem] 2xl:-right-[7.5rem] top-1/2 -translate-y-1/2 z-30">
             {allImages.slice(0, 5).map((image, index) => (
               <button
                 key={image.id}
-                onMouseEnter={() => handleThumbnailHover(index)}
                 onClick={() => {
-                  if (image.isVideo && image.videoUrl) {
-                    handleVideoClick(image.videoUrl);
-                  } else {
-                    setActiveIndex(index);
-                  }
+                  setActiveIndex(index);
                 }}
                 className={cn(
-                  'relative w-20 xl:w-24 aspect-square overflow-hidden transition-all duration-200 shadow-lg bg-white',
+                  'relative w-16 lg:w-[4.5rem] xl:w-20 2xl:w-24 aspect-square overflow-hidden transition-all duration-200 shadow-lg bg-white',
                   index === activeIndex && 'ring-2 ring-[#bbdae9]'
                 )}
               >
