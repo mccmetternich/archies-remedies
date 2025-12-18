@@ -283,11 +283,11 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
         // Two-column layout - wide gap, full-width media
         <div className="relative z-20 h-full">
           <div className={cn(
-            "grid lg:grid-cols-2 h-full items-stretch",
+            "flex flex-col lg:grid lg:grid-cols-2 h-full items-stretch",
             isReversed && "lg:[&>*:first-child]:order-2 lg:[&>*:last-child]:order-1"
           )}>
             {/* Text column - split into two compartments */}
-            <div className="relative h-full px-6 lg:px-12">
+            <div className="relative h-full px-6 lg:px-12 order-2 lg:order-none">
               {/* COMPARTMENT 1: Main content - vertically centered */}
               <div className="flex items-center justify-center h-full py-12 lg:py-16">
                 <div className="w-full max-w-xl">
@@ -346,7 +346,7 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: isReversed ? 30 : -30 }}
                 transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                className="relative w-full h-full min-h-[400px] lg:min-h-full overflow-hidden"
+                className="relative w-full h-[40vh] lg:h-full min-h-[250px] lg:min-h-full overflow-hidden order-1 lg:order-none"
               >
                 {/* Video or Image - full width of column */}
                 {/* object-cover: scales to fill container, crops overflow */}
@@ -385,14 +385,61 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
           </div>
         </div>
       ) : (
-        // Full-width layout (original)
-        <div className="container relative z-20 h-full flex items-center pointer-events-none">
-          <div className="pointer-events-auto w-full">
-            <div className="max-w-xl">
-              <TextContent />
+        // Full-width layout
+        <>
+          {/* Desktop: Original overlay layout */}
+          <div className="hidden lg:flex container relative z-20 h-full items-center pointer-events-none">
+            <div className="pointer-events-auto w-full">
+              <div className="max-w-xl">
+                <TextContent />
+              </div>
             </div>
           </div>
-        </div>
+
+          {/* Mobile: Stacked layout - media on top, content below */}
+          <div className="lg:hidden relative z-20 h-full flex flex-col">
+            {/* Full-bleed media - top 1/3 of screen */}
+            <div className="relative h-[35vh] min-h-[200px] w-full">
+              <AnimatePresence mode="sync">
+                <motion.div
+                  key={`mobile-media-${currentIndex}`}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.6 }}
+                  className="absolute inset-0"
+                >
+                  {(slide.mobileVideoUrl || slide.videoUrl || isVideoUrl(slide.mobileImageUrl) || isVideoUrl(slide.imageUrl)) ? (
+                    <video
+                      src={slide.mobileVideoUrl || slide.videoUrl || slide.mobileImageUrl || slide.imageUrl}
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (slide.mobileImageUrl || slide.imageUrl) ? (
+                    <Image
+                      src={slide.mobileImageUrl || slide.imageUrl}
+                      alt={slide.title || 'Hero image'}
+                      fill
+                      className="object-cover"
+                      priority
+                      sizes="100vw"
+                    />
+                  ) : null}
+                </motion.div>
+              </AnimatePresence>
+            </div>
+
+            {/* Content below media - left aligned with padding */}
+            <div className="flex-1 bg-[var(--cream)] px-4 py-8 overflow-auto">
+              <div className="max-w-xl">
+                <TextContent />
+              </div>
+            </div>
+          </div>
+        </>
       )}
 
 

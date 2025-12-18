@@ -83,13 +83,13 @@ function renderWidget(widget: PageWidget, data: WidgetRendererProps['data']): Re
 
     case 'image_text':
       const imagePosition = (config.imagePosition as string) || (config.layout as string) || 'left';
-      const isImageLeft = imagePosition === 'left' || imagePosition === 'image-left';
+      const isImageRight = imagePosition === 'right' || imagePosition === 'image-right';
       return (
         <section key={widget.id} className="section">
           <div className="container">
-            <div className={`grid md:grid-cols-2 gap-12 items-center ${!isImageLeft ? 'md:[&>*:first-child]:order-2' : ''}`}>
-              {/* Image */}
-              <div className="aspect-[4/3] rounded-2xl overflow-hidden bg-[var(--sand)]">
+            <div className="grid lg:grid-cols-2 gap-12 items-center">
+              {/* Image - always first in DOM (top on mobile), uses lg:order-last when right */}
+              <div className={`aspect-[4/3] rounded-2xl overflow-hidden bg-[var(--sand)] ${isImageRight ? 'lg:order-last' : ''}`}>
                 {(config.imageUrl as string) && (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
