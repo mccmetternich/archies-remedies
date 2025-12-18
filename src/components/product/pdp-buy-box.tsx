@@ -301,7 +301,7 @@ export function PDPBuyBox({
             window.open(amazonUrl, '_blank', 'noopener,noreferrer');
           }, 100);
         }}
-        className="pdp-cta-button group flex items-center justify-center gap-2 md:gap-3 w-full py-[18px] md:py-4 text-xs md:text-sm font-medium uppercase tracking-wide lg:tracking-wider transition-all duration-300"
+        className="pdp-cta-button group flex items-center justify-center gap-2 md:gap-3 w-full py-[28px] md:py-4 text-xs md:text-sm font-medium uppercase tracking-wide lg:tracking-wider transition-all duration-300"
         style={{
           backgroundColor: '#1a1a1a',
           color: '#ffffff',
