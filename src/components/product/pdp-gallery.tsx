@@ -129,10 +129,10 @@ export function PDPGallery({
     <>
       {/* Desktop Layout - Flex with in-flow thumbnails */}
       <div className="hidden lg:flex items-start">
-        {/* Hero Image Container - fluid, viewport constrained */}
+        {/* Hero Image Container - square, 25px from fold */}
         <div
-          className="relative flex-1 min-w-0 bg-[var(--cream)] overflow-hidden"
-          style={{ maxHeight: 'calc(100vh - 40px)' }}
+          className="relative flex-1 min-w-0 bg-[var(--cream)] overflow-hidden aspect-square"
+          style={{ maxHeight: 'calc(100vh - 25px)', maxWidth: 'calc(100vh - 25px)' }}
         >
           {/* Product Badge */}
           {badge && (
@@ -166,8 +166,7 @@ export function PDPGallery({
               animate="center"
               exit="exit"
               transition={{ duration: 0.15, ease: 'easeOut' }}
-              className="relative w-full"
-              style={{ maxHeight: 'calc(100vh - 40px)' }}
+              className="absolute inset-0"
             >
               {activeImage?.isVideo && activeImage?.videoUrl ? (
                 <video
@@ -176,22 +175,19 @@ export function PDPGallery({
                   loop
                   muted
                   playsInline
-                  className="w-full h-auto object-contain"
-                  style={{ maxHeight: 'calc(100vh - 40px)' }}
+                  className="w-full h-full object-cover"
                 />
               ) : activeImage?.imageUrl ? (
                 <Image
                   src={activeImage.imageUrl}
                   alt={activeImage.altText || productName}
-                  width={800}
-                  height={800}
-                  className="w-full h-auto object-contain"
-                  style={{ maxHeight: 'calc(100vh - 40px)' }}
+                  fill
+                  className="object-cover"
                   priority={activeIndex === 0}
-                  sizes="(max-width: 1024px) 100vw, 60vw"
+                  sizes="(max-width: 1024px) 100vw, 50vw"
                 />
               ) : (
-                <div className="w-full aspect-square flex items-center justify-center">
+                <div className="w-full h-full flex items-center justify-center">
                   <span className="text-8xl opacity-20">
                     {productName.toLowerCase().includes('drop') ? '💧' : '🧴'}
                   </span>
@@ -201,14 +197,9 @@ export function PDPGallery({
           </AnimatePresence>
         </div>
 
-        {/* Blue hex separator - desktop */}
+        {/* Thumbnail Strip - fixed to right side of screen */}
         {allImages.length > 1 && (
-          <div className="w-[2px] bg-[#bbdae9] self-stretch" />
-        )}
-
-        {/* Thumbnail Strip - in flow, flush to browser edge */}
-        {allImages.length > 1 && (
-          <div className="flex flex-col items-center flex-shrink-0 w-24 -mr-8 relative z-10">
+          <div className="fixed right-6 top-1/2 -translate-y-1/2 flex flex-col items-center z-30">
             {/* Up Arrow */}
             <button
               onClick={() => {
@@ -216,22 +207,22 @@ export function PDPGallery({
                 setDirection(-1);
                 setActiveIndex(newIndex);
               }}
-              className="w-full h-8 flex items-center justify-center bg-[#1a1a1a] text-white mb-2"
+              className="w-full h-10 flex items-center justify-center bg-[#1a1a1a] text-white mb-3"
             >
-              <ChevronUp className="w-5 h-5" />
+              <ChevronUp className="w-6 h-6" />
             </button>
 
-            {/* Thumbnails */}
+            {/* Thumbnails - 3x larger */}
             <div
               ref={thumbnailContainerRef}
-              className="flex flex-col gap-2"
+              className="flex flex-col gap-3"
             >
               {allImages.slice(0, 5).map((image, index) => (
                 <button
                   key={image.id}
                   onMouseEnter={() => handleThumbnailHover(index)}
                   className={cn(
-                    'relative w-20 aspect-square overflow-hidden transition-all duration-200 bg-white flex-shrink-0',
+                    'relative w-32 aspect-square overflow-hidden transition-all duration-200 bg-white flex-shrink-0',
                     index === activeIndex && 'ring-2 ring-[#bbdae9]'
                   )}
                 >
@@ -250,7 +241,7 @@ export function PDPGallery({
                       alt={image.altText || `${productName} view ${index + 1}`}
                       fill
                       className="object-cover"
-                      sizes="80px"
+                      sizes="128px"
                     />
                   ) : null}
                 </button>
@@ -264,9 +255,9 @@ export function PDPGallery({
                 setDirection(1);
                 setActiveIndex(newIndex);
               }}
-              className="w-full h-8 flex items-center justify-center bg-[#1a1a1a] text-white mt-2"
+              className="w-full h-10 flex items-center justify-center bg-[#1a1a1a] text-white mt-3"
             >
-              <ChevronDown className="w-5 h-5" />
+              <ChevronDown className="w-6 h-6" />
             </button>
           </div>
         )}
