@@ -34,6 +34,7 @@ export function PDPGallery({
   rotatingSealImageUrl,
 }: PDPGalleryProps) {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [direction, setDirection] = useState(0);
   const [videoModalOpen, setVideoModalOpen] = useState(false);
   const [activeVideoUrl, setActiveVideoUrl] = useState<string | null>(null);
 
@@ -56,9 +57,30 @@ export function PDPGallery({
 
   const activeImage = allImages[activeIndex];
 
+  // Handle thumbnail hover - slides to that image
+  const handleThumbnailHover = (index: number) => {
+    if (index !== activeIndex) {
+      setDirection(index > activeIndex ? 1 : -1);
+      setActiveIndex(index);
+    }
+  };
+
   const handleVideoClick = (videoUrl: string) => {
     setActiveVideoUrl(videoUrl);
     setVideoModalOpen(true);
+  };
+
+  // Slide animation variants
+  const slideVariants = {
+    enter: (dir: number) => ({
+      x: dir > 0 ? '100%' : '-100%',
+    }),
+    center: {
+      x: 0,
+    },
+    exit: (dir: number) => ({
+      x: dir > 0 ? '-100%' : '100%',
+    }),
   };
 
   return (
@@ -97,17 +119,18 @@ export function PDPGallery({
               </div>
             )}
 
-            <AnimatePresence mode="wait">
+            <AnimatePresence initial={false} custom={direction} mode="popLayout">
               <motion.div
                 key={activeIndex}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.3, ease: 'easeOut' }}
+                custom={direction}
+                variants={slideVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{ duration: 0.15, ease: 'easeOut' }}
                 className="absolute inset-0"
               >
                 {activeImage?.isVideo && activeImage?.videoUrl ? (
-                  // Video with autoplay, loop, muted, no controls
                   <video
                     src={activeImage.videoUrl}
                     autoPlay
@@ -135,18 +158,15 @@ export function PDPGallery({
               </motion.div>
             </AnimatePresence>
           </div>
-
         </div>
 
-        {/* Vertical Thumbnail Strip - Positioned in right gutter, centered vertically */}
+        {/* Vertical Thumbnail Strip - Aligned to top of hero */}
         {allImages.length > 1 && (
-          <div className="hidden lg:flex flex-col gap-2 xl:gap-3 absolute -right-[5.5rem] xl:-right-[6.5rem] 2xl:-right-[7.5rem] top-1/2 -translate-y-1/2 z-30">
+          <div className="hidden lg:flex flex-col gap-2 xl:gap-3 absolute -right-[5.5rem] xl:-right-[6.5rem] 2xl:-right-[7.5rem] top-0 z-30">
             {allImages.slice(0, 5).map((image, index) => (
               <button
                 key={image.id}
-                onClick={() => {
-                  setActiveIndex(index);
-                }}
+                onMouseEnter={() => handleThumbnailHover(index)}
                 className={cn(
                   'relative w-16 lg:w-[4.5rem] xl:w-20 2xl:w-24 aspect-square overflow-hidden transition-all duration-200 shadow-lg bg-white',
                   index === activeIndex && 'ring-2 ring-[#bbdae9]'
@@ -176,7 +196,7 @@ export function PDPGallery({
         )}
       </div>
 
-      {/* Mobile Horizontal Thumbnails - 2x size */}
+      {/* Mobile Horizontal Thumbnails */}
       {allImages.length > 1 && (
         <div className="flex md:hidden gap-3 mt-4 overflow-x-auto scrollbar-hide pb-2">
           {allImages.map((image, index) => (
@@ -186,6 +206,7 @@ export function PDPGallery({
                 if (image.isVideo && image.videoUrl) {
                   handleVideoClick(image.videoUrl);
                 } else {
+                  setDirection(index > activeIndex ? 1 : -1);
                   setActiveIndex(index);
                 }
               }}
@@ -195,7 +216,6 @@ export function PDPGallery({
               )}
             >
               {image.isVideo && image.videoUrl ? (
-                // Video thumbnail - autoplay, loop, muted, no controls
                 <video
                   src={image.videoUrl}
                   autoPlay
