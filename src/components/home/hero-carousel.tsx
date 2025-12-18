@@ -182,44 +182,44 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
 
   // Mobile-specific text content (PDP-style: compact, reviews under title)
   const MobileTextContent = () => (
-    <div className="space-y-3">
-      {/* Title - Bold, uppercase like PDP */}
+    <div className="space-y-4 pt-5">
+      {/* Title - Bold, uppercase like PDP - increased by 3 font sizes */}
       <motion.h1
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1, duration: 0.5 }}
-        className="!text-2xl !font-bold uppercase leading-tight tracking-tight text-[#1a1a1a]"
+        className="!text-[30px] !font-bold uppercase leading-tight tracking-tight text-[#1a1a1a]"
       >
         {slide.title || 'Instant Relief, Clean Formula'}
       </motion.h1>
 
-      {/* Reviews - PDP style with hex stars and checkmark */}
+      {/* Reviews - PDP style with hex stars and checkmark - 1.75x size */}
       <motion.div
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2, duration: 0.5 }}
-        className="flex items-center gap-2"
+        className="flex items-center gap-3"
       >
         <div className="flex gap-0.5">
           {[1, 2, 3, 4, 5].map((i) => (
-            <Star key={i} className="w-4 h-4 fill-[#bbdae9] text-[#bbdae9]" />
+            <Star key={i} className="w-7 h-7 fill-[#bbdae9] text-[#bbdae9]" />
           ))}
         </div>
-        <span className="text-[11px] text-[#1a1a1a] font-normal inline-flex items-center gap-1">
+        <span className="text-[19px] text-[#1a1a1a] font-normal inline-flex items-center gap-1.5">
           2,500+
-          <span className="w-3.5 h-3.5 rounded-full bg-[#1a1a1a] flex items-center justify-center">
-            <Check className="w-2 h-2 text-white stroke-[4]" />
+          <span className="w-6 h-6 rounded-full bg-[#1a1a1a] flex items-center justify-center">
+            <Check className="w-3.5 h-3.5 text-white stroke-[4]" />
           </span>
           Verified Reviews
         </span>
       </motion.div>
 
-      {/* Body copy - smaller like PDP */}
+      {/* Body copy - 2x size */}
       <motion.p
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3, duration: 0.5 }}
-        className="text-[13px] text-[#1a1a1a]/70 leading-relaxed"
+        className="text-[26px] text-[#1a1a1a]/70 leading-relaxed"
       >
         {slide.subtitle || 'Preservative-free eye drops crafted for sensitive eyes.'}
       </motion.p>
@@ -449,41 +449,36 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
               </motion.div>
             </AnimatePresence>
 
-              {/* Mobile testimonial - overlaps bottom of media */}
+              {/* Mobile testimonial - overlaps bottom of media, no animation, dynamic width */}
               {slide.testimonialText && slide.testimonialAvatarUrl && (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.3 }}
-                  className="lg:hidden absolute -bottom-6 left-4 right-4 z-30"
-                >
-                  <div className="bg-white/95 backdrop-blur-sm px-4 py-3 shadow-lg border border-black/5">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full overflow-hidden bg-[var(--sand)] flex-shrink-0">
+                <div className="lg:hidden absolute bottom-[-44px] left-0 right-0 z-30 flex justify-center px-4">
+                  <div className="inline-flex bg-white/95 backdrop-blur-sm px-6 py-4 shadow-lg border border-black/5">
+                    <div className="flex items-center gap-4">
+                      <div className="w-20 h-20 rounded-full overflow-hidden bg-[var(--sand)] flex-shrink-0">
                         <Image
                           src={slide.testimonialAvatarUrl}
                           alt={slide.testimonialAuthor || 'Customer'}
-                          width={40}
-                          height={40}
+                          width={80}
+                          height={80}
                           className="w-full h-full object-cover"
                         />
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-1.5 mb-0.5">
-                          <span className="font-semibold text-xs text-[#1a1a1a]">{slide.testimonialAuthor || 'Verified Buyer'}</span>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="font-semibold text-lg text-[#1a1a1a]">{slide.testimonialAuthor || 'Verified Buyer'}</span>
                           <div className="flex gap-0.5">
                             {[1, 2, 3, 4, 5].map((i) => (
-                              <Star key={i} className="w-3 h-3 fill-[#bbdae9] text-[#bbdae9]" />
+                              <Star key={i} className="w-6 h-6 fill-[#bbdae9] text-[#bbdae9]" />
                             ))}
                           </div>
                         </div>
-                        <p className="text-[11px] text-[#1a1a1a]/70 leading-snug line-clamp-2">
+                        <p className="text-base text-[#1a1a1a]/70 leading-snug line-clamp-2">
                           {slide.testimonialText}
                         </p>
                       </div>
                     </div>
                   </div>
-                </motion.div>
+                </div>
               )}
             </div>
           </div>
@@ -535,41 +530,36 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
                 </motion.div>
               </AnimatePresence>
 
-              {/* Mobile testimonial - overlaps bottom of media */}
+              {/* Mobile testimonial - overlaps bottom of media, no animation, dynamic width */}
               {slide.testimonialText && slide.testimonialAvatarUrl && (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.3 }}
-                  className="absolute -bottom-6 left-4 right-4 z-30"
-                >
-                  <div className="bg-white/95 backdrop-blur-sm px-4 py-3 shadow-lg border border-black/5">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full overflow-hidden bg-[var(--sand)] flex-shrink-0">
+                <div className="absolute bottom-[-44px] left-0 right-0 z-30 flex justify-center px-4">
+                  <div className="inline-flex bg-white/95 backdrop-blur-sm px-6 py-4 shadow-lg border border-black/5">
+                    <div className="flex items-center gap-4">
+                      <div className="w-20 h-20 rounded-full overflow-hidden bg-[var(--sand)] flex-shrink-0">
                         <Image
                           src={slide.testimonialAvatarUrl}
                           alt={slide.testimonialAuthor || 'Customer'}
-                          width={40}
-                          height={40}
+                          width={80}
+                          height={80}
                           className="w-full h-full object-cover"
                         />
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-1.5 mb-0.5">
-                          <span className="font-semibold text-xs text-[#1a1a1a]">{slide.testimonialAuthor || 'Verified Buyer'}</span>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="font-semibold text-lg text-[#1a1a1a]">{slide.testimonialAuthor || 'Verified Buyer'}</span>
                           <div className="flex gap-0.5">
                             {[1, 2, 3, 4, 5].map((i) => (
-                              <Star key={i} className="w-3 h-3 fill-[#bbdae9] text-[#bbdae9]" />
+                              <Star key={i} className="w-6 h-6 fill-[#bbdae9] text-[#bbdae9]" />
                             ))}
                           </div>
                         </div>
-                        <p className="text-[11px] text-[#1a1a1a]/70 leading-snug line-clamp-2">
+                        <p className="text-base text-[#1a1a1a]/70 leading-snug line-clamp-2">
                           {slide.testimonialText}
                         </p>
                       </div>
                     </div>
                   </div>
-                </motion.div>
+                </div>
               )}
             </div>
 
