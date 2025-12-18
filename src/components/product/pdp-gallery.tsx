@@ -128,18 +128,16 @@ export function PDPGallery({
   return (
     <>
       {/* Desktop Layout */}
-      <div className="hidden md:block relative">
-        {/* Hero container with right margin for thumbnails */}
-        <div className="mr-[7rem] xl:mr-[8rem] 2xl:mr-[9rem]">
-          {/* Main Hero Image - scales with container width, maintains aspect ratio */}
-          <div
-            className="relative bg-gradient-to-br from-[var(--primary-light)] to-[var(--cream)] overflow-hidden w-full"
-            style={{
-              aspectRatio: '1 / 1',
-              maxHeight: 'calc(100vh - 120px)',
-              minHeight: '300px',
-            }}
-          >
+      <div className="hidden md:flex relative">
+        {/* Main Hero Image - fixed to container, height-based sizing */}
+        <div
+          className="relative bg-gradient-to-br from-[var(--primary-light)] to-[var(--cream)] overflow-hidden flex-1"
+          style={{
+            height: 'calc(100vh - 140px)',
+            maxHeight: '700px',
+            minHeight: '400px',
+          }}
+        >
           {/* Product Badge */}
           {badge && (
             <div className="absolute top-5 left-5 z-20">
@@ -201,12 +199,11 @@ export function PDPGallery({
               )}
             </motion.div>
           </AnimatePresence>
-          </div>
         </div>
 
-        {/* Thumbnail Strip - positioned in the margin space */}
+        {/* Thumbnail Strip - in flex layout next to hero */}
         {allImages.length > 1 && (
-          <div className="absolute right-0 top-0 w-[5.5rem] xl:w-[6.5rem] 2xl:w-[7.5rem] flex flex-col items-center z-30">
+          <div className="w-[5.5rem] xl:w-[6.5rem] 2xl:w-[7.5rem] flex flex-col items-center ml-3 flex-shrink-0">
             {/* Up Arrow - always visible, cycles to last image */}
             <button
               onClick={() => {
