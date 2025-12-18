@@ -214,12 +214,12 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
         </span>
       </motion.div>
 
-      {/* Body copy - readable but smaller than title */}
+      {/* Body copy - min-height for 3 lines to prevent jumping */}
       <motion.p
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3, duration: 0.5 }}
-        className="text-[15px] text-[#1a1a1a]/70 leading-relaxed"
+        className="text-[15px] text-[#1a1a1a]/70 leading-relaxed min-h-[72px]"
       >
         {slide.subtitle || 'Preservative-free eye drops crafted for sensitive eyes.'}
       </motion.p>
@@ -230,6 +230,7 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, duration: 0.5 }}
+          className="!mt-5"
         >
           <Link
             href={slide.buttonUrl}
