@@ -201,9 +201,14 @@ export function PDPGallery({
           </AnimatePresence>
         </div>
 
-        {/* Thumbnail Strip - in flow, overlaps hero slightly */}
+        {/* Blue hex separator - desktop */}
         {allImages.length > 1 && (
-          <div className="flex flex-col items-center flex-shrink-0 w-24 -ml-4 relative z-10">
+          <div className="w-[2px] bg-[#bbdae9] self-stretch" />
+        )}
+
+        {/* Thumbnail Strip - in flow, flush to browser edge */}
+        {allImages.length > 1 && (
+          <div className="flex flex-col items-center flex-shrink-0 w-24 -mr-8 relative z-10">
             {/* Up Arrow */}
             <button
               onClick={() => {
