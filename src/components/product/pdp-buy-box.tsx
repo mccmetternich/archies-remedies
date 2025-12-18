@@ -157,8 +157,11 @@ export function PDPBuyBox({
           />
         ))}
       </div>
-      <span className="text-[11px] md:text-sm text-[#1a1a1a] font-normal transition-colors">
+      <span className="text-[11px] md:text-sm text-[#1a1a1a] font-normal transition-colors inline-flex items-center gap-1.5">
         {reviewCount.toLocaleString()} Verified Reviews
+        <span className="w-4 h-4 rounded-full bg-[#1a1a1a] flex items-center justify-center">
+          <Check className="w-2.5 h-2.5 text-white stroke-[3]" />
+        </span>
       </span>
       {reviewBadge && (
         <span
@@ -188,14 +191,14 @@ export function PDPBuyBox({
           {product.name}
         </h1>
         {product.subtitle && (
-          <p className="-mt-0.5 lg:mt-0 !text-[17px] lg:!text-xs !font-bold uppercase text-[#1a1a1a] tracking-tight">
+          <p className="-mt-[5px] lg:mt-0 !text-[17px] lg:!text-xs !font-bold uppercase text-[#1a1a1a] tracking-tight">
             {product.subtitle}
           </p>
         )}
       </div>
 
       {/* Mobile: Reviews under title */}
-      <div className="lg:hidden">
+      <div className="lg:hidden -mt-[5px]">
         <ReviewsDisplay />
       </div>
 
