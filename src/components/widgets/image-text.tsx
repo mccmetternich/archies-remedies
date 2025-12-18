@@ -78,7 +78,10 @@ export function ImageText({
   };
 
   const imageSection = (
-    <div className="relative aspect-[4/3] lg:aspect-auto lg:h-full min-h-[300px] lg:min-h-[500px] rounded-2xl lg:rounded-3xl overflow-hidden">
+    <div className={cn(
+      "relative aspect-[4/3] lg:aspect-auto lg:h-full min-h-[300px] lg:min-h-[500px] rounded-2xl lg:rounded-3xl overflow-hidden",
+      imagePosition === 'right' && "lg:order-last"
+    )}>
       <Image
         src={imageUrl}
         alt={imageAlt}
@@ -133,17 +136,9 @@ export function ImageText({
     >
       <div className="container">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
-          {imagePosition === 'left' ? (
-            <>
-              {imageSection}
-              {textSection}
-            </>
-          ) : (
-            <>
-              {textSection}
-              {imageSection}
-            </>
-          )}
+          {/* Image always first in DOM (on top for mobile), uses lg:order-last when position='right' */}
+          {imageSection}
+          {textSection}
         </div>
       </div>
     </section>
