@@ -180,16 +180,16 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
     </AnimatePresence>
   );
 
-  // Mobile-specific text content (PDP-style: compact, reviews under title) - no animations
+  // Mobile-specific text content - fixed height container, CTA floats down as body grows
   const MobileTextContent = () => (
-    <div className="space-y-3 pt-3">
-      {/* Title - Bold, uppercase */}
+    <div className="flex flex-col min-h-[280px]">
+      {/* Fixed: Title */}
       <h1 className="!text-[24px] !font-bold uppercase leading-tight tracking-tight text-[#1a1a1a]">
         {slide.title || 'Instant Relief, Clean Formula'}
       </h1>
 
-      {/* Reviews - matches product tiles styling */}
-      <div className="flex items-center gap-2">
+      {/* Fixed: Reviews */}
+      <div className="flex items-center gap-2 mt-3">
         <div className="flex gap-0.5">
           {[1, 2, 3, 4, 5].map((i) => (
             <Star key={i} className="w-5 h-5 fill-[#bbdae9] text-[#bbdae9]" />
@@ -204,23 +204,24 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
         </span>
       </div>
 
-      {/* Body copy - min-height for ~4 lines to prevent layout jumping */}
-      <p className="text-[15px] text-[#1a1a1a]/70 leading-relaxed min-h-[100px]">
+      {/* Body copy - takes natural height, flex-grow pushes CTA down */}
+      <p className="text-[15px] text-[#1a1a1a]/70 leading-relaxed mt-3">
         {slide.subtitle || 'Preservative-free eye drops crafted for sensitive eyes.'}
       </p>
 
-      {/* CTA - Fixed small gap from body text, floats up with shorter copy */}
+      {/* Spacer - absorbs remaining space when body copy is short */}
+      <div className="flex-grow min-h-[16px]" />
+
+      {/* CTA - min-gap above (via spacer), sits at bottom of fixed container */}
       {slide.buttonUrl && (
-        <div className="!mt-4">
-          <Link
-            href={slide.buttonUrl}
-            className="group flex items-center justify-center gap-2 w-full py-[18px] text-xs font-medium uppercase tracking-wide transition-all duration-300"
-            style={{ backgroundColor: '#1a1a1a', color: '#ffffff' }}
-          >
-            {slide.buttonText || 'Shop Now'}
-            <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
-          </Link>
-        </div>
+        <Link
+          href={slide.buttonUrl}
+          className="group flex items-center justify-center gap-2 w-full py-[18px] text-xs font-medium uppercase tracking-wide transition-all duration-300"
+          style={{ backgroundColor: '#1a1a1a', color: '#ffffff' }}
+        >
+          {slide.buttonText || 'Shop Now'}
+          <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+        </Link>
       )}
     </div>
   );
@@ -334,7 +335,7 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
             {/* Text column - split into two compartments */}
             <div className="relative h-auto lg:h-full px-4 lg:px-12 order-2 lg:order-none bg-white lg:bg-transparent">
               {/* Mobile: Compact content */}
-              <div className="lg:hidden pt-6 pb-12">
+              <div className="lg:hidden pt-6 pb-4">
                 <MobileTextContent />
               </div>
               {/* Desktop: Original centered content */}
@@ -545,7 +546,7 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
             </div>
 
             {/* Content below media - compact PDP style */}
-            <div className="bg-white px-4 pt-6 pb-12">
+            <div className="bg-white px-4 pt-6 pb-4">
               <MobileTextContent />
             </div>
           </div>
