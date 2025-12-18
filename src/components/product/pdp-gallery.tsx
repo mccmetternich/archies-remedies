@@ -41,6 +41,61 @@ export function PDPGallery({
   const [showBottomArrow, setShowBottomArrow] = useState(false);
   const thumbnailContainerRef = useRef<HTMLDivElement>(null);
 
+  // Desktop: Dynamic header height detection (95px without bumper, 135px with bumper)
+  const [headerHeight, setHeaderHeight] = useState(95);
+  // Desktop: Track hero container height for thumbnail panel sizing
+  const heroContainerRef = useRef<HTMLDivElement>(null);
+  const [heroHeight, setHeroHeight] = useState(0);
+  // Desktop: Track hero visibility to hide thumbnails on scroll
+  const [isHeroVisible, setIsHeroVisible] = useState(true);
+
+  // Detect header height based on bumper bar presence
+  useEffect(() => {
+    const detectHeaderHeight = () => {
+      // Look for the header spacer div that indicates bumper presence
+      const spacer135 = document.querySelector('[class*="h-\\[135px\\]"]');
+      const spacer95 = document.querySelector('[class*="h-\\[95px\\]"]');
+      if (spacer135) {
+        setHeaderHeight(135);
+      } else if (spacer95) {
+        setHeaderHeight(95);
+      }
+    };
+    detectHeaderHeight();
+    // Re-check on resize in case bumper visibility changes
+    window.addEventListener('resize', detectHeaderHeight);
+    return () => window.removeEventListener('resize', detectHeaderHeight);
+  }, []);
+
+  // Track hero container height with ResizeObserver
+  useEffect(() => {
+    const hero = heroContainerRef.current;
+    if (!hero) return;
+
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        setHeroHeight(entry.contentRect.height);
+      }
+    });
+
+    resizeObserver.observe(hero);
+    return () => resizeObserver.disconnect();
+  }, []);
+
+  // Track hero visibility with IntersectionObserver (hide thumbnails when scrolled past)
+  useEffect(() => {
+    const hero = heroContainerRef.current;
+    if (!hero) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsHeroVisible(entry.isIntersecting),
+      { threshold: 0 }
+    );
+
+    observer.observe(hero);
+    return () => observer.disconnect();
+  }, []);
+
   // Check if heroImage is a video
   const isHeroVideo = heroImage && /\.(mp4|webm|mov|ogg)$/i.test(heroImage);
 
@@ -133,10 +188,14 @@ export function PDPGallery({
     <>
       {/* Desktop Layout */}
       <div className="hidden lg:block">
-        {/* Hero Image Container - square, 25px from fold */}
+        {/* Hero Image Container - square, accounts for header height */}
         <div
+          ref={heroContainerRef}
           className="relative bg-[var(--cream)] overflow-hidden aspect-square"
-          style={{ maxHeight: 'calc(100vh - 25px)', maxWidth: 'calc(100vh - 25px)' }}
+          style={{
+            maxHeight: `calc(100vh - ${headerHeight}px)`,
+            maxWidth: `calc(100vh - ${headerHeight}px)`
+          }}
         >
           {/* Product Badge */}
           {badge && (
@@ -202,83 +261,92 @@ export function PDPGallery({
         </div>
       </div>
 
-      {/* Thumbnail Strip - FIXED to viewport right edge, height matches hero, scales based on image count */}
-      {allImages.length > 1 && (
-        <div
-          className="hidden lg:flex fixed right-6 flex-col items-center z-30"
-          style={{
-            top: '25px',
-            height: 'calc(100vh - 50px)',
-          }}
-        >
-          {/* Up Arrow */}
-          <button
-            onClick={() => {
-              const newIndex = activeIndex === 0 ? allImages.length - 1 : activeIndex - 1;
-              setDirection(-1);
-              setActiveIndex(newIndex);
-            }}
-            className="w-full h-10 flex items-center justify-center bg-[#1a1a1a] text-white flex-shrink-0"
-          >
-            <ChevronUp className="w-6 h-6" />
-          </button>
+      {/* Thumbnail Strip - FIXED to viewport right, height matches hero, hides on scroll */}
+      {allImages.length > 1 && isHeroVisible && (() => {
+        // Calculate square thumbnail size based on available height and image count
+        const arrowsHeight = 80; // 2 × 40px
+        const paddingHeight = 16; // py-2 = 8px × 2
+        const gapsHeight = (imageCount - 1) * 8; // gap-2 = 8px per gap
+        const panelHeight = heroHeight > 0 ? heroHeight : (typeof window !== 'undefined' ? window.innerHeight - headerHeight - 25 : 600);
+        const availableHeight = panelHeight - arrowsHeight - paddingHeight - gapsHeight;
+        const squareSize = Math.floor(Math.max(50, Math.min(140, availableHeight / imageCount)));
 
-          {/* Thumbnails - scale based on image count to fit within hero height */}
+        return (
           <div
-            ref={thumbnailContainerRef}
-            className="flex-1 flex flex-col gap-2 py-2 min-h-0 w-48"
-          >
-            {allImages.slice(0, 5).map((image, index) => (
-              <button
-                key={image.id}
-                onMouseEnter={() => handleThumbnailHover(index)}
-                className={cn(
-                  'relative w-full overflow-hidden transition-all duration-200 bg-white',
-                  // Dynamic height based on image count: flex-1 distributes evenly
-                  // For 1 image: gets all space (capped by max-h)
-                  // For 2-5 images: space divided evenly
-                  'flex-1',
-                  // Max height per thumbnail to prevent single image from being too large
-                  imageCount === 1 && 'max-h-48',
-                  imageCount === 2 && 'max-h-40',
-                  index === activeIndex && 'ring-2 ring-[#bbdae9]'
-                )}
-              >
-                {image.isVideo && image.videoUrl ? (
-                  <video
-                    src={image.videoUrl}
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    className="w-full h-full object-cover"
-                  />
-                ) : image.imageUrl ? (
-                  <Image
-                    src={image.imageUrl}
-                    alt={image.altText || `${productName} view ${index + 1}`}
-                    fill
-                    className="object-cover"
-                    sizes="192px"
-                  />
-                ) : null}
-              </button>
-            ))}
-          </div>
-
-          {/* Down Arrow */}
-          <button
-            onClick={() => {
-              const newIndex = activeIndex === allImages.length - 1 ? 0 : activeIndex + 1;
-              setDirection(1);
-              setActiveIndex(newIndex);
+            className="hidden lg:flex fixed right-6 flex-col items-center z-30 transition-opacity duration-200"
+            style={{
+              top: `${headerHeight}px`,
+              height: heroHeight > 0 ? `${heroHeight}px` : `calc(100vh - ${headerHeight}px - 25px)`,
             }}
-            className="w-full h-10 flex items-center justify-center bg-[#1a1a1a] text-white flex-shrink-0"
           >
-            <ChevronDown className="w-6 h-6" />
-          </button>
-        </div>
-      )}
+            {/* Up Arrow */}
+            <button
+              onClick={() => {
+                const newIndex = activeIndex === 0 ? allImages.length - 1 : activeIndex - 1;
+                setDirection(-1);
+                setActiveIndex(newIndex);
+              }}
+              className="h-10 flex items-center justify-center bg-[#1a1a1a] text-white flex-shrink-0"
+              style={{ width: `${squareSize}px` }}
+            >
+              <ChevronUp className="w-6 h-6" />
+            </button>
+
+            {/* Thumbnails - square, scale based on available height */}
+            <div
+              ref={thumbnailContainerRef}
+              className="flex-1 flex flex-col gap-2 py-2 min-h-0 items-center justify-center"
+            >
+              {allImages.slice(0, 5).map((image, index) => (
+                <button
+                  key={image.id}
+                  onMouseEnter={() => handleThumbnailHover(index)}
+                  className={cn(
+                    'relative overflow-hidden transition-all duration-200 bg-white flex-shrink-0',
+                    index === activeIndex && 'ring-2 ring-[#bbdae9]'
+                  )}
+                  style={{
+                    width: `${squareSize}px`,
+                    height: `${squareSize}px`,
+                  }}
+                >
+                  {image.isVideo && image.videoUrl ? (
+                    <video
+                      src={image.videoUrl}
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      className="w-full h-full object-cover"
+                    />
+                  ) : image.imageUrl ? (
+                    <Image
+                      src={image.imageUrl}
+                      alt={image.altText || `${productName} view ${index + 1}`}
+                      fill
+                      className="object-cover"
+                      sizes={`${squareSize}px`}
+                    />
+                  ) : null}
+                </button>
+              ))}
+            </div>
+
+            {/* Down Arrow */}
+            <button
+              onClick={() => {
+                const newIndex = activeIndex === allImages.length - 1 ? 0 : activeIndex + 1;
+                setDirection(1);
+                setActiveIndex(newIndex);
+              }}
+              className="h-10 flex items-center justify-center bg-[#1a1a1a] text-white flex-shrink-0"
+              style={{ width: `${squareSize}px` }}
+            >
+              <ChevronDown className="w-6 h-6" />
+            </button>
+          </div>
+        );
+      })()}
 
       {/* Mobile Layout - Edge to edge, no gaps */}
       <div className="lg:hidden overflow-x-hidden">

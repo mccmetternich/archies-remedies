@@ -138,7 +138,7 @@ export function PDPHeroSection({
   };
 
   return (
-    <div className="flex flex-col lg:flex-row lg:gap-[82px] xl:gap-[100px] items-start">
+    <div className="flex flex-col lg:flex-row lg:gap-[182px] xl:gap-[200px] items-start">
       {/* Buy Box - RIGID column, sticky on desktop, pulled left 50px, up 25px, increased gap to hero */}
       <div className="order-2 lg:order-1 w-full lg:w-[450px] lg:flex-shrink-0 lg:sticky lg:top-4 lg:self-start mt-[30px] lg:mt-0 lg:pt-[46px] lg:-ml-[50px] px-4 lg:px-0">
         <PDPBuyBox
