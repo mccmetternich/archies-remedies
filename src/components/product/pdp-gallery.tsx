@@ -269,7 +269,7 @@ export function PDPGallery({
       </div>
 
       {/* Mobile Layout - Edge to edge, no gaps */}
-      <div className="md:hidden -mx-4 overflow-x-hidden">
+      <div className="md:hidden overflow-x-hidden">
         {/* Hero + Thumbnail row - no gap */}
         <div className="flex">
           {/* Hero Image - fills remaining space, 18% taller */}

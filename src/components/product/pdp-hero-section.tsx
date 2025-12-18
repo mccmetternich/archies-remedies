@@ -140,7 +140,7 @@ export function PDPHeroSection({
   return (
     <div className="flex flex-col lg:grid lg:grid-cols-[1fr_auto] lg:gap-8 xl:gap-12 items-start">
       {/* Left: Buy Box - flexible width column, content centered within */}
-      <div className="order-2 lg:order-1 w-full flex lg:justify-center lg:py-4">
+      <div className="order-2 lg:order-1 w-full flex lg:justify-center lg:py-4 px-4 md:px-0">
         <div className="w-full lg:max-w-[380px] xl:max-w-[420px]">
           <PDPBuyBox
             product={product}
