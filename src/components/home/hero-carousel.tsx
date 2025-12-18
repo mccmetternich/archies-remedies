@@ -180,15 +180,15 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
     </AnimatePresence>
   );
 
-  // Mobile-specific text content - fixed height container, CTA floats down as body grows
+  // Mobile-specific text content - fixed gaps, container grows with content
   const MobileTextContent = () => (
-    <div className="flex flex-col min-h-[220px]">
-      {/* Fixed: Title */}
+    <div className="flex flex-col">
+      {/* Title */}
       <h1 className="!text-[24px] !font-bold uppercase leading-tight tracking-tight text-[#1a1a1a]">
         {slide.title || 'Instant Relief, Clean Formula'}
       </h1>
 
-      {/* Fixed: Reviews */}
+      {/* Reviews */}
       <div className="flex items-center gap-2 mt-3">
         <div className="flex gap-0.5">
           {[1, 2, 3, 4, 5].map((i) => (
@@ -204,19 +204,16 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
         </span>
       </div>
 
-      {/* Body copy - takes natural height, flex-grow pushes CTA down */}
+      {/* Body copy - natural height */}
       <p className="text-[15px] text-[#1a1a1a]/70 leading-relaxed mt-3">
         {slide.subtitle || 'Preservative-free eye drops crafted for sensitive eyes.'}
       </p>
 
-      {/* Spacer - absorbs remaining space when body copy is short */}
-      <div className="flex-grow min-h-[16px]" />
-
-      {/* CTA - min-gap above (via spacer), sits at bottom of fixed container */}
+      {/* CTA - fixed 20px gap from body copy */}
       {slide.buttonUrl && (
         <Link
           href={slide.buttonUrl}
-          className="group flex items-center justify-center gap-2 w-full py-[18px] text-xs font-medium uppercase tracking-wide transition-all duration-300"
+          className="group flex items-center justify-center gap-2 w-full py-[18px] mt-5 text-xs font-medium uppercase tracking-wide transition-all duration-300"
           style={{ backgroundColor: '#1a1a1a', color: '#ffffff' }}
         >
           {slide.buttonText || 'Shop Now'}
@@ -334,8 +331,8 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
           )}>
             {/* Text column - split into two compartments */}
             <div className="relative h-auto lg:h-full px-4 lg:px-12 order-2 lg:order-none bg-white lg:bg-transparent">
-              {/* Mobile: Compact content */}
-              <div className="lg:hidden pt-6 pb-4">
+              {/* Mobile: Compact content - fixed padding */}
+              <div className="lg:hidden pt-6 pb-6">
                 <MobileTextContent />
               </div>
               {/* Desktop: Original centered content */}
@@ -545,8 +542,8 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
               )}
             </div>
 
-            {/* Content below media - compact PDP style */}
-            <div className="bg-white px-4 pt-6 pb-4">
+            {/* Content below media - fixed padding */}
+            <div className="bg-white px-4 pt-6 pb-6">
               <MobileTextContent />
             </div>
           </div>
