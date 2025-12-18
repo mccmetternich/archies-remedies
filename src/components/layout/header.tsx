@@ -177,7 +177,7 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
 
       <header
         className={cn(
-          'lg:fixed left-0 right-0 lg:z-50 bg-white shadow-[0_8px_30px_rgba(0,0,0,0.12)] py-1.5 md:py-5',
+          'lg:fixed left-0 right-0 lg:z-50 bg-white shadow-[0_8px_30px_rgba(0,0,0,0.12)] py-2 md:py-5',
           showBumper ? 'lg:top-[44px]' : 'lg:top-0'
         )}
       >
@@ -223,9 +223,9 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
               )}
             </Link>
 
-            {/* Spacer for mobile when logo is centered - smaller than hamburger to nudge logo left */}
+            {/* Spacer for mobile when logo is centered - balances the hamburger on right */}
             {logoPositionMobile === 'center' && (
-              <div className="lg:hidden w-5 order-first" />
+              <div className="lg:hidden w-9 order-first" />
             )}
 
             {/* Desktop Navigation - Shop on left */}
