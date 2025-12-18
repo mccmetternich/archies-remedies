@@ -180,26 +180,16 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
     </AnimatePresence>
   );
 
-  // Mobile-specific text content (PDP-style: compact, reviews under title)
+  // Mobile-specific text content (PDP-style: compact, reviews under title) - no animations
   const MobileTextContent = () => (
     <div className="space-y-3 pt-3">
       {/* Title - Bold, uppercase */}
-      <motion.h1
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1, duration: 0.5 }}
-        className="!text-[24px] !font-bold uppercase leading-tight tracking-tight text-[#1a1a1a]"
-      >
+      <h1 className="!text-[24px] !font-bold uppercase leading-tight tracking-tight text-[#1a1a1a]">
         {slide.title || 'Instant Relief, Clean Formula'}
-      </motion.h1>
+      </h1>
 
       {/* Reviews - matches product tiles styling */}
-      <motion.div
-        initial={{ opacity: 0, y: 15 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2, duration: 0.5 }}
-        className="flex items-center gap-2"
-      >
+      <div className="flex items-center gap-2">
         <div className="flex gap-0.5">
           {[1, 2, 3, 4, 5].map((i) => (
             <Star key={i} className="w-5 h-5 fill-[#bbdae9] text-[#bbdae9]" />
@@ -212,26 +202,16 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
           </span>
           Verified Reviews
         </span>
-      </motion.div>
+      </div>
 
       {/* Body copy - min-height for 3 lines to prevent jumping */}
-      <motion.p
-        initial={{ opacity: 0, y: 15 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3, duration: 0.5 }}
-        className="text-[15px] text-[#1a1a1a]/70 leading-relaxed min-h-[72px]"
-      >
+      <p className="text-[15px] text-[#1a1a1a]/70 leading-relaxed min-h-[72px]">
         {slide.subtitle || 'Preservative-free eye drops crafted for sensitive eyes.'}
-      </motion.p>
+      </p>
 
       {/* CTA - Full width, chunky */}
       {slide.buttonUrl && (
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, duration: 0.5 }}
-          className="!mt-5"
-        >
+        <div className="!mt-10">
           <Link
             href={slide.buttonUrl}
             className="group flex items-center justify-center gap-2 w-full py-[18px] text-xs font-medium uppercase tracking-wide transition-all duration-300"
@@ -240,7 +220,7 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
             {slide.buttonText || 'Shop Now'}
             <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
           </Link>
-        </motion.div>
+        </div>
       )}
     </div>
   );
@@ -354,7 +334,7 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
             {/* Text column - split into two compartments */}
             <div className="relative h-auto lg:h-full px-4 lg:px-12 order-2 lg:order-none bg-white lg:bg-transparent">
               {/* Mobile: Compact content */}
-              <div className="lg:hidden pt-6 pb-6">
+              <div className="lg:hidden pt-6 pb-12">
                 <MobileTextContent />
               </div>
               {/* Desktop: Original centered content */}
@@ -409,10 +389,10 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
               <AnimatePresence mode="sync">
                 <motion.div
                   key={`image-${currentIndex}`}
-                  initial={{ opacity: 0, x: isReversed ? -30 : 30 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: isReversed ? 30 : -30 }}
-                  transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.4 }}
                   className="absolute inset-0 overflow-hidden"
                 >
                 {/* Video or Image - full width of column */}
@@ -506,7 +486,7 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  transition={{ duration: 0.6 }}
+                  transition={{ duration: 0.4 }}
                   className="absolute inset-0"
                 >
                   {(slide.mobileVideoUrl || slide.videoUrl || isVideoUrl(slide.mobileImageUrl) || isVideoUrl(slide.imageUrl)) ? (
@@ -565,7 +545,7 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
             </div>
 
             {/* Content below media - compact PDP style */}
-            <div className="bg-white px-4 pt-6 pb-6">
+            <div className="bg-white px-4 pt-6 pb-12">
               <MobileTextContent />
             </div>
           </div>
