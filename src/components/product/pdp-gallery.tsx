@@ -128,145 +128,144 @@ export function PDPGallery({
   return (
     <>
       {/* Desktop Layout */}
-      <div className="hidden md:block relative">
-        <div className="flex items-start gap-4">
-          {/* Main Hero Image - scales with viewport height */}
-          <div
-            className="relative bg-gradient-to-br from-[var(--primary-light)] to-[var(--cream)] overflow-hidden flex-shrink-0"
-            style={{
-              // Scale with viewport, min 300px, max 85vh, always 25px from fold
-              height: 'calc(100vh - 120px)',
-              maxHeight: '85vh',
-              minHeight: '300px',
-              aspectRatio: '1 / 1',
-            }}
-          >
-            {/* Product Badge */}
-            {badge && (
-              <div className="absolute top-5 left-5 z-20">
-                <span className="inline-flex items-center gap-1.5 px-4 py-2 bg-[var(--foreground)] text-white rounded-full text-sm font-medium shadow-lg">
-                  {badgeEmoji && <span>{badgeEmoji}</span>}
-                  {badge}
-                </span>
-              </div>
-            )}
-
-            {/* Rotating Seal */}
-            {rotatingSealEnabled && rotatingSealImageUrl && (
-              <div className="absolute bottom-6 right-6 z-20 w-24 h-24 md:w-28 md:h-28">
-                <Image
-                  src={rotatingSealImageUrl}
-                  alt="Product seal"
-                  width={112}
-                  height={112}
-                  className="w-full h-full animate-spin-slow"
-                />
-              </div>
-            )}
-
-            <AnimatePresence initial={false} custom={direction} mode="popLayout">
-              <motion.div
-                key={activeIndex}
-                custom={direction}
-                variants={slideVariants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                transition={{ duration: 0.15, ease: 'easeOut' }}
-                className="absolute inset-0"
-              >
-                {activeImage?.isVideo && activeImage?.videoUrl ? (
-                  <video
-                    src={activeImage.videoUrl}
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    className="w-full h-full object-cover"
-                  />
-                ) : activeImage?.imageUrl ? (
-                  <Image
-                    src={activeImage.imageUrl}
-                    alt={activeImage.altText || productName}
-                    fill
-                    className="object-cover"
-                    priority={activeIndex === 0}
-                    sizes="(max-width: 768px) 100vw, 50vw"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <span className="text-8xl opacity-20">
-                      {productName.toLowerCase().includes('drop') ? '💧' : '🧴'}
-                    </span>
-                  </div>
-                )}
-              </motion.div>
-            </AnimatePresence>
-          </div>
-
-          {/* Thumbnail Strip - Fixed size, fixed right */}
-          {allImages.length > 1 && (
-            <div className="relative flex flex-col items-center">
-              {/* Up Arrow - appears when thumbnails overflow top */}
-              <button
-                onClick={() => scrollToThumbnail('up')}
-                className={cn(
-                  'w-16 h-8 flex items-center justify-center bg-[#1a1a1a] text-white mb-2 transition-opacity',
-                  showTopArrow || activeIndex > 0 ? 'opacity-100' : 'opacity-0 pointer-events-none'
-                )}
-              >
-                <ChevronUp className="w-5 h-5" />
-              </button>
-
-              {/* Thumbnails */}
-              <div
-                ref={thumbnailContainerRef}
-                className="flex flex-col gap-2"
-              >
-                {allImages.map((image, index) => (
-                  <button
-                    key={image.id}
-                    onMouseEnter={() => handleThumbnailHover(index)}
-                    className={cn(
-                      'relative w-16 h-16 overflow-hidden transition-all duration-200 bg-white flex-shrink-0',
-                      index === activeIndex && 'ring-2 ring-[#bbdae9]'
-                    )}
-                  >
-                    {image.isVideo && image.videoUrl ? (
-                      <video
-                        src={image.videoUrl}
-                        autoPlay
-                        loop
-                        muted
-                        playsInline
-                        className="w-full h-full object-cover"
-                      />
-                    ) : image.imageUrl ? (
-                      <Image
-                        src={image.imageUrl}
-                        alt={image.altText || `${productName} view ${index + 1}`}
-                        fill
-                        className="object-cover"
-                        sizes="64px"
-                      />
-                    ) : null}
-                  </button>
-                ))}
-              </div>
-
-              {/* Down Arrow - appears when thumbnails overflow bottom */}
-              <button
-                onClick={() => scrollToThumbnail('down')}
-                className={cn(
-                  'w-16 h-8 flex items-center justify-center bg-[#1a1a1a] text-white mt-2 transition-opacity',
-                  showBottomArrow || activeIndex < allImages.length - 1 ? 'opacity-100' : 'opacity-0 pointer-events-none'
-                )}
-              >
-                <ChevronDown className="w-5 h-5" />
-              </button>
+      <div className="hidden md:block relative overflow-visible">
+        {/* Main Hero Image - scales with viewport height */}
+        <div
+          className="relative bg-gradient-to-br from-[var(--primary-light)] to-[var(--cream)] overflow-hidden"
+          style={{
+            height: 'calc(100vh - 120px)',
+            maxHeight: '85vh',
+            minHeight: '300px',
+            aspectRatio: '1 / 1',
+          }}
+        >
+          {/* Product Badge */}
+          {badge && (
+            <div className="absolute top-5 left-5 z-20">
+              <span className="inline-flex items-center gap-1.5 px-4 py-2 bg-[var(--foreground)] text-white rounded-full text-sm font-medium shadow-lg">
+                {badgeEmoji && <span>{badgeEmoji}</span>}
+                {badge}
+              </span>
             </div>
           )}
+
+          {/* Rotating Seal */}
+          {rotatingSealEnabled && rotatingSealImageUrl && (
+            <div className="absolute bottom-6 right-6 z-20 w-24 h-24 md:w-28 md:h-28">
+              <Image
+                src={rotatingSealImageUrl}
+                alt="Product seal"
+                width={112}
+                height={112}
+                className="w-full h-full animate-spin-slow"
+              />
+            </div>
+          )}
+
+          <AnimatePresence initial={false} custom={direction} mode="popLayout">
+            <motion.div
+              key={activeIndex}
+              custom={direction}
+              variants={slideVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{ duration: 0.15, ease: 'easeOut' }}
+              className="absolute inset-0"
+            >
+              {activeImage?.isVideo && activeImage?.videoUrl ? (
+                <video
+                  src={activeImage.videoUrl}
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="w-full h-full object-cover"
+                />
+              ) : activeImage?.imageUrl ? (
+                <Image
+                  src={activeImage.imageUrl}
+                  alt={activeImage.altText || productName}
+                  fill
+                  className="object-cover"
+                  priority={activeIndex === 0}
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <span className="text-8xl opacity-20">
+                    {productName.toLowerCase().includes('drop') ? '💧' : '🧴'}
+                  </span>
+                </div>
+              )}
+            </motion.div>
+          </AnimatePresence>
         </div>
+
+        {/* Thumbnail Strip - Fixed right, aligned to top, outside hero */}
+        {allImages.length > 1 && (
+          <div className="absolute -right-[6rem] xl:-right-[7rem] 2xl:-right-[8rem] top-0 flex flex-col items-center z-30">
+            {/* Up Arrow - always visible, cycles to last image */}
+            <button
+              onClick={() => {
+                const newIndex = activeIndex === 0 ? allImages.length - 1 : activeIndex - 1;
+                setDirection(-1);
+                setActiveIndex(newIndex);
+              }}
+              className="w-20 xl:w-24 h-8 flex items-center justify-center bg-[#1a1a1a] text-white mb-2"
+            >
+              <ChevronUp className="w-5 h-5" />
+            </button>
+
+            {/* Thumbnails */}
+            <div
+              ref={thumbnailContainerRef}
+              className="flex flex-col gap-2"
+            >
+              {allImages.slice(0, 5).map((image, index) => (
+                <button
+                  key={image.id}
+                  onMouseEnter={() => handleThumbnailHover(index)}
+                  className={cn(
+                    'relative w-20 xl:w-24 aspect-square overflow-hidden transition-all duration-200 bg-white flex-shrink-0',
+                    index === activeIndex && 'ring-2 ring-[#bbdae9]'
+                  )}
+                >
+                  {image.isVideo && image.videoUrl ? (
+                    <video
+                      src={image.videoUrl}
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      className="w-full h-full object-cover"
+                    />
+                  ) : image.imageUrl ? (
+                    <Image
+                      src={image.imageUrl}
+                      alt={image.altText || `${productName} view ${index + 1}`}
+                      fill
+                      className="object-cover"
+                      sizes="96px"
+                    />
+                  ) : null}
+                </button>
+              ))}
+            </div>
+
+            {/* Down Arrow - always visible, cycles to first image */}
+            <button
+              onClick={() => {
+                const newIndex = activeIndex === allImages.length - 1 ? 0 : activeIndex + 1;
+                setDirection(1);
+                setActiveIndex(newIndex);
+              }}
+              className="w-20 xl:w-24 h-8 flex items-center justify-center bg-[#1a1a1a] text-white mt-2"
+            >
+              <ChevronDown className="w-5 h-5" />
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Mobile Layout - Edge to edge, no gaps */}

@@ -138,34 +138,34 @@ export function PDPHeroSection({
   };
 
   return (
-    <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
-      {/* Left: Buy Box - fixed width, centered in its column */}
-      <div className="order-2 lg:order-1 w-full lg:flex-1 flex justify-center">
-        <div className="w-full max-w-[340px] xl:max-w-[380px]">
-        <PDPBuyBox
-          product={product}
-          variants={variants}
-          reviewCount={reviewCount}
-          averageRating={averageRating}
-          bulletPoints={bulletPoints}
-          ctaButtonText={ctaButtonText}
-          ctaExternalUrl={ctaExternalUrl}
-          showDiscountSignup={showDiscountSignup}
-          discountSignupText={discountSignupText}
-          reviewBadge={reviewBadge}
-          reviewBadgeEmoji={reviewBadgeEmoji}
-          reviewBadgeBgColor={reviewBadgeBgColor}
-          reviewBadgeTextColor={reviewBadgeTextColor}
-          audioUrl={audioUrl}
-          audioAvatarUrl={audioAvatarUrl}
-          audioTitle={audioTitle}
-          onVariantChange={handleVariantChange}
-        />
+    <div className="flex flex-col lg:grid lg:grid-cols-[1fr_auto] lg:gap-8 xl:gap-12 items-start">
+      {/* Left: Buy Box - flexible width column, content centered within */}
+      <div className="order-2 lg:order-1 w-full flex lg:justify-center lg:py-4">
+        <div className="w-full lg:max-w-[380px] xl:max-w-[420px]">
+          <PDPBuyBox
+            product={product}
+            variants={variants}
+            reviewCount={reviewCount}
+            averageRating={averageRating}
+            bulletPoints={bulletPoints}
+            ctaButtonText={ctaButtonText}
+            ctaExternalUrl={ctaExternalUrl}
+            showDiscountSignup={showDiscountSignup}
+            discountSignupText={discountSignupText}
+            reviewBadge={reviewBadge}
+            reviewBadgeEmoji={reviewBadgeEmoji}
+            reviewBadgeBgColor={reviewBadgeBgColor}
+            reviewBadgeTextColor={reviewBadgeTextColor}
+            audioUrl={audioUrl}
+            audioAvatarUrl={audioAvatarUrl}
+            audioTitle={audioTitle}
+            onVariantChange={handleVariantChange}
+          />
         </div>
       </div>
 
-      {/* Right: Gallery - scales with viewport */}
-      <div className="order-1 lg:order-2 flex-1">
+      {/* Right: Gallery - auto width based on content, with external thumbnails */}
+      <div className="order-1 lg:order-2 w-full lg:w-auto">
         <PDPGallery
           images={activeImages}
           heroImage={activeHeroImage}
