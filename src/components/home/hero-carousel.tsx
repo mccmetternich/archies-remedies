@@ -204,14 +204,14 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
         </span>
       </div>
 
-      {/* Body copy - min-height for 3 lines to prevent jumping */}
-      <p className="text-[15px] text-[#1a1a1a]/70 leading-relaxed min-h-[72px]">
+      {/* Body copy - min-height for ~4 lines to prevent layout jumping */}
+      <p className="text-[15px] text-[#1a1a1a]/70 leading-relaxed min-h-[100px]">
         {slide.subtitle || 'Preservative-free eye drops crafted for sensitive eyes.'}
       </p>
 
-      {/* CTA - Full width, chunky */}
+      {/* CTA - Fixed small gap from body text, floats up with shorter copy */}
       {slide.buttonUrl && (
-        <div className="!mt-10">
+        <div className="!mt-4">
           <Link
             href={slide.buttonUrl}
             className="group flex items-center justify-center gap-2 w-full py-[18px] text-xs font-medium uppercase tracking-wide transition-all duration-300"
