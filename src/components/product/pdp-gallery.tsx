@@ -70,7 +70,14 @@ export function PDPGallery({
       <div className="relative overflow-visible">
         {/* Main Image Container */}
         <div className="relative">
-          <div className="relative aspect-square max-h-[calc(100vh-120px)] w-auto mx-auto bg-gradient-to-br from-[var(--primary-light)] to-[var(--cream)] overflow-hidden">
+          <div
+            className="relative bg-gradient-to-br from-[var(--primary-light)] to-[var(--cream)] overflow-hidden"
+            style={{
+              height: 'min(calc(100vh - 150px), 100%)',
+              width: 'min(calc(100vh - 150px), 100%)',
+              aspectRatio: '1 / 1',
+            }}
+          >
             {/* Product Badge */}
             {badge && (
               <div className="absolute top-5 left-5 z-20">
