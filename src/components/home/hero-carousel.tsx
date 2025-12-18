@@ -404,7 +404,7 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
             </div>
 
             {/* Media - Full width of column, full height */}
-            <div className="relative w-full h-[40vh] lg:h-full min-h-[250px] lg:min-h-full order-1 lg:order-none">
+            <div className="relative w-full h-[35vh] lg:h-full min-h-[220px] lg:min-h-full order-1 lg:order-none">
               <AnimatePresence mode="sync">
                 <motion.div
                   key={`image-${currentIndex}`}
@@ -451,7 +451,7 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
 
               {/* Mobile testimonial - overlaps bottom of media, no animation, dynamic width */}
               {slide.testimonialText && slide.testimonialAvatarUrl && (
-                <div className="lg:hidden absolute bottom-[-60px] left-0 right-0 z-30 flex justify-center px-4">
+                <div className="lg:hidden absolute bottom-[-80px] left-0 right-0 z-30 flex justify-center px-4">
                   <div className="inline-flex bg-white/95 backdrop-blur-sm px-5 py-3 shadow-lg border border-black/5">
                     <div className="flex items-center gap-3">
                       <div className="w-14 h-14 rounded-full overflow-hidden bg-[var(--sand)] flex-shrink-0">
@@ -498,7 +498,7 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
           {/* Mobile: Stacked layout - media on top, content below */}
           <div className="lg:hidden relative z-20 flex flex-col">
             {/* Full-bleed media - 40vh */}
-            <div className="relative h-[40vh] min-h-[250px] w-full">
+            <div className="relative h-[35vh] min-h-[220px] w-full">
               <AnimatePresence mode="sync">
                 <motion.div
                   key={`mobile-media-${currentIndex}`}
@@ -532,7 +532,7 @@ export function HeroCarousel({ slides, isPaused = false, autoAdvanceInterval = 5
 
               {/* Mobile testimonial - overlaps bottom of media, no animation, dynamic width */}
               {slide.testimonialText && slide.testimonialAvatarUrl && (
-                <div className="absolute bottom-[-60px] left-0 right-0 z-30 flex justify-center px-4">
+                <div className="absolute bottom-[-80px] left-0 right-0 z-30 flex justify-center px-4">
                   <div className="inline-flex bg-white/95 backdrop-blur-sm px-5 py-3 shadow-lg border border-black/5">
                     <div className="flex items-center gap-3">
                       <div className="w-14 h-14 rounded-full overflow-hidden bg-[var(--sand)] flex-shrink-0">
