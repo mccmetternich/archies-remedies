@@ -157,11 +157,12 @@ export function PDPBuyBox({
           />
         ))}
       </div>
-      <span className="text-[11px] md:text-sm text-[#1a1a1a] font-normal transition-colors inline-flex items-center gap-1.5">
-        {reviewCount.toLocaleString()} Verified Reviews
-        <span className="w-4 h-4 rounded-full bg-[#1a1a1a] flex items-center justify-center">
-          <Check className="w-2.5 h-2.5 text-white stroke-[3]" />
+      <span className="text-[11px] md:text-sm text-[#1a1a1a] font-normal transition-colors inline-flex items-center gap-1">
+        {reviewCount.toLocaleString()}
+        <span className="w-3.5 h-3.5 rounded-full bg-[#1a1a1a] flex items-center justify-center">
+          <Check className="w-2 h-2 text-white stroke-[4]" />
         </span>
+        Verified Reviews
       </span>
       {reviewBadge && (
         <span
