@@ -67,10 +67,10 @@ export function PDPGallery({
 
   return (
     <>
-      <div className="relative">
-        {/* Main Image Container with Floating Thumbnails */}
+      <div className="relative overflow-visible">
+        {/* Main Image Container */}
         <div className="relative">
-          <div className="relative aspect-[4/5] bg-gradient-to-br from-[var(--primary-light)] to-[var(--cream)] rounded-2xl overflow-hidden">
+          <div className="relative aspect-square max-h-[calc(100vh-120px)] w-auto mx-auto bg-gradient-to-br from-[var(--primary-light)] to-[var(--cream)] overflow-hidden">
             {/* Product Badge */}
             {badge && (
               <div className="absolute top-5 left-5 z-20">
@@ -133,49 +133,49 @@ export function PDPGallery({
             </AnimatePresence>
           </div>
 
-          {/* Vertical Thumbnail Strip - Floating on Right Edge, 2x size */}
-          {allImages.length > 1 && (
-            <div className="hidden md:flex flex-col gap-3 absolute right-4 top-1/2 -translate-y-1/2 z-30">
-              {allImages.slice(0, 5).map((image, index) => (
-                <button
-                  key={image.id}
-                  onMouseEnter={() => handleThumbnailHover(index)}
-                  onClick={() => {
-                    if (image.isVideo && image.videoUrl) {
-                      handleVideoClick(image.videoUrl);
-                    } else {
-                      setActiveIndex(index);
-                    }
-                  }}
-                  className={cn(
-                    'relative w-24 aspect-square overflow-hidden transition-all duration-200 shadow-lg bg-white',
-                    index === activeIndex && 'ring-2 ring-[#bbdae9]'
-                  )}
-                >
-                  {image.isVideo && image.videoUrl ? (
-                    // Video thumbnail - autoplay, loop, muted, no controls
-                    <video
-                      src={image.videoUrl}
-                      autoPlay
-                      loop
-                      muted
-                      playsInline
-                      className="w-full h-full object-cover"
-                    />
-                  ) : image.imageUrl ? (
-                    <Image
-                      src={image.imageUrl}
-                      alt={image.altText || `${productName} view ${index + 1}`}
-                      fill
-                      className="object-cover"
-                      sizes="96px"
-                    />
-                  ) : null}
-                </button>
-              ))}
-            </div>
-          )}
         </div>
+
+        {/* Vertical Thumbnail Strip - Positioned in right gutter, top-aligned with hero */}
+        {allImages.length > 1 && (
+          <div className="hidden lg:flex flex-col gap-3 absolute -right-28 xl:-right-32 top-0 z-30">
+            {allImages.slice(0, 5).map((image, index) => (
+              <button
+                key={image.id}
+                onMouseEnter={() => handleThumbnailHover(index)}
+                onClick={() => {
+                  if (image.isVideo && image.videoUrl) {
+                    handleVideoClick(image.videoUrl);
+                  } else {
+                    setActiveIndex(index);
+                  }
+                }}
+                className={cn(
+                  'relative w-20 xl:w-24 aspect-square overflow-hidden transition-all duration-200 shadow-lg bg-white',
+                  index === activeIndex && 'ring-2 ring-[#bbdae9]'
+                )}
+              >
+                {image.isVideo && image.videoUrl ? (
+                  <video
+                    src={image.videoUrl}
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="w-full h-full object-cover"
+                  />
+                ) : image.imageUrl ? (
+                  <Image
+                    src={image.imageUrl}
+                    alt={image.altText || `${productName} view ${index + 1}`}
+                    fill
+                    className="object-cover"
+                    sizes="96px"
+                  />
+                ) : null}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Mobile Horizontal Thumbnails - 2x size */}

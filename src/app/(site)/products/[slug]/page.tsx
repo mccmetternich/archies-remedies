@@ -175,7 +175,7 @@ export default async function ProductPage({ params }: PageProps) {
 
       <main className="pt-12 md:pt-16">
         {/* Product Hero Section - Split Screen Layout (Buy Box Left, Gallery Right) */}
-        <section className="container mb-12 md:mb-16">
+        <section className="container mb-12 md:mb-16 overflow-visible">
           <PDPHeroSection
             product={product}
             variants={product.variants}
