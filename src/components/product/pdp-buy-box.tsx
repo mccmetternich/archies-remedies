@@ -178,11 +178,17 @@ export function PDPBuyBox({
 
       {/* Editorial Title - CTA-style uppercase with byline */}
       <div className="space-y-1">
-        <h1 className="text-xs md:text-sm font-bold uppercase tracking-wider leading-[1.15]">
+        <h1
+          className="font-bold uppercase tracking-wider leading-[1.15]"
+          style={{ fontSize: '0.75rem', letterSpacing: '0.05em' }}
+        >
           {product.name}
         </h1>
         {product.subtitle && (
-          <p className="text-xs font-bold uppercase tracking-wider text-[#1a1a1a]">
+          <p
+            className="font-bold uppercase tracking-wider text-[#1a1a1a]"
+            style={{ fontSize: '0.75rem', letterSpacing: '0.05em' }}
+          >
             {product.subtitle}
           </p>
         )}
