@@ -1115,61 +1115,7 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
             </div>
           </div>
 
-          {/* Section 4: Benefit Drawers */}
-          <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6">
-            <h3 className="text-sm font-medium text-[var(--admin-text-primary)] mb-2">
-              Benefit Drawers
-            </h3>
-            <p className="text-xs text-[var(--admin-text-muted)] mb-4">
-              Expandable sections on the product page. Only populated drawers will appear.
-            </p>
-            <div className="space-y-4">
-              {/* Drawer 1 */}
-              <div className="p-4 border border-[var(--admin-border-light)] rounded-lg space-y-3">
-                <Input
-                  value={product.ritualTitle || ''}
-                  onChange={(e) => setProduct({ ...product, ritualTitle: e.target.value })}
-                  placeholder="Drawer 1 Title (e.g., The Ritual)"
-                  className="bg-[var(--admin-input)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)]"
-                />
-                <RichTextEditor
-                  value={product.ritualContent || ''}
-                  onChange={(value) => setProduct({ ...product, ritualContent: value })}
-                  placeholder="Content..."
-                />
-              </div>
-              {/* Drawer 2 */}
-              <div className="p-4 border border-[var(--admin-border-light)] rounded-lg space-y-3">
-                <Input
-                  value={product.ingredientsTitle || ''}
-                  onChange={(e) => setProduct({ ...product, ingredientsTitle: e.target.value })}
-                  placeholder="Drawer 2 Title (e.g., Ingredients)"
-                  className="bg-[var(--admin-input)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)]"
-                />
-                <RichTextEditor
-                  value={product.ingredientsContent || ''}
-                  onChange={(value) => setProduct({ ...product, ingredientsContent: value })}
-                  placeholder="Content..."
-                />
-              </div>
-              {/* Drawer 3 */}
-              <div className="p-4 border border-[var(--admin-border-light)] rounded-lg space-y-3">
-                <Input
-                  value={product.shippingTitle || ''}
-                  onChange={(e) => setProduct({ ...product, shippingTitle: e.target.value })}
-                  placeholder="Drawer 3 Title (e.g., Good to Know)"
-                  className="bg-[var(--admin-input)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)]"
-                />
-                <RichTextEditor
-                  value={product.shippingContent || ''}
-                  onChange={(value) => setProduct({ ...product, shippingContent: value })}
-                  placeholder="Content..."
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Section 5: CTA Configuration */}
+          {/* Section 4: CTA Configuration */}
           <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6">
             <h3 className="text-sm font-medium text-[var(--admin-text-primary)] mb-4">
               CTA Button
@@ -1221,7 +1167,7 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
             </div>
           </div>
 
-          {/* Section 6: Audio Player */}
+          {/* Section 5: Audio Player */}
           <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6">
             <h3 className="text-sm font-medium text-[var(--admin-text-primary)] mb-4">
               Audio Player
@@ -1255,6 +1201,60 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
                   onChange={(e) => setProduct({ ...product, audioTitle: e.target.value || null })}
                   placeholder="e.g., Dr. Smith explains the benefits"
                   className="bg-[var(--admin-input)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)]"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Section 6: Benefit Drawers */}
+          <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6">
+            <h3 className="text-sm font-medium text-[var(--admin-text-primary)] mb-2">
+              Benefit Drawers
+            </h3>
+            <p className="text-xs text-[var(--admin-text-muted)] mb-4">
+              Expandable sections on the product page. Only populated drawers will appear.
+            </p>
+            <div className="space-y-4">
+              {/* Drawer 1 */}
+              <div className="p-4 border border-[var(--admin-border-light)] rounded-lg space-y-3">
+                <Input
+                  value={product.ritualTitle || ''}
+                  onChange={(e) => setProduct({ ...product, ritualTitle: e.target.value })}
+                  placeholder="Drawer 1 Title (e.g., The Ritual)"
+                  className="bg-[var(--admin-input)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)]"
+                />
+                <RichTextEditor
+                  value={product.ritualContent || ''}
+                  onChange={(value) => setProduct({ ...product, ritualContent: value })}
+                  placeholder="Content..."
+                />
+              </div>
+              {/* Drawer 2 */}
+              <div className="p-4 border border-[var(--admin-border-light)] rounded-lg space-y-3">
+                <Input
+                  value={product.ingredientsTitle || ''}
+                  onChange={(e) => setProduct({ ...product, ingredientsTitle: e.target.value })}
+                  placeholder="Drawer 2 Title (e.g., Ingredients)"
+                  className="bg-[var(--admin-input)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)]"
+                />
+                <RichTextEditor
+                  value={product.ingredientsContent || ''}
+                  onChange={(value) => setProduct({ ...product, ingredientsContent: value })}
+                  placeholder="Content..."
+                />
+              </div>
+              {/* Drawer 3 */}
+              <div className="p-4 border border-[var(--admin-border-light)] rounded-lg space-y-3">
+                <Input
+                  value={product.shippingTitle || ''}
+                  onChange={(e) => setProduct({ ...product, shippingTitle: e.target.value })}
+                  placeholder="Drawer 3 Title (e.g., Good to Know)"
+                  className="bg-[var(--admin-input)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)]"
+                />
+                <RichTextEditor
+                  value={product.shippingContent || ''}
+                  onChange={(value) => setProduct({ ...product, shippingContent: value })}
+                  placeholder="Content..."
                 />
               </div>
             </div>
