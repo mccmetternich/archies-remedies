@@ -298,7 +298,7 @@ export function PDPGallery({
               className={cn(
                 'flex-1 flex flex-col',
                 'gap-[var(--pdp-gap)]', // 5px gaps between thumbnails
-                'pt-0 px-[20px] pb-[20px]', // Same padding globally (first thumb gets mt-[20px])
+                'pt-0 px-[5px] lg:px-[20px] pb-[20px]', // 5px side padding on mobile, 20px on desktop
                 'overflow-y-auto overflow-x-hidden'
               )}
             >
