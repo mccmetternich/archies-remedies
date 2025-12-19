@@ -452,7 +452,7 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                         </div>
 
                         {/* Spacer - grows with container width */}
-                        <div className="hidden lg:block w-8 xl:w-12 2xl:w-16" />
+                        <div className="hidden lg:block w-8 xl:w-14 2xl:w-20" />
 
                         {/* Marketing Tile (Clean Formulas) - Fixed max-width, centered vertically */}
                         <div className="relative overflow-visible max-w-sm">
