@@ -50,7 +50,7 @@ export function PDPMarquee({
       <div className="flex animate-marquee-slow">
         <div className="flex shrink-0 items-center">
           <span
-            className="text-[11px] lg:text-xs font-medium uppercase tracking-[0.2em]"
+            className="text-[9px] lg:text-[11px] font-medium uppercase tracking-[0.05em]"
             style={{ color: textColor || '#ffffff' }}
           >
             {marqueeContent}
@@ -58,7 +58,7 @@ export function PDPMarquee({
         </div>
         <div className="flex shrink-0 items-center" aria-hidden="true">
           <span
-            className="text-[11px] lg:text-xs font-medium uppercase tracking-[0.2em]"
+            className="text-[9px] lg:text-[11px] font-medium uppercase tracking-[0.05em]"
             style={{ color: textColor || '#ffffff' }}
           >
             {marqueeContent}
