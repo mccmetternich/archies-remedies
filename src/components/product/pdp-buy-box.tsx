@@ -323,6 +323,17 @@ export function PDPBuyBox({
         <ArrowRight className="w-3.5 h-3.5 md:w-4 md:h-4 transition-transform group-hover:translate-x-1" />
       </a>
 
+      {/* Audio Player - between CTA and newsletter */}
+      {audioUrl && (
+        <div className="pt-3">
+          <AudioPlayer
+            audioUrl={audioUrl}
+            avatarUrl={audioAvatarUrl}
+            title={audioTitle}
+          />
+        </div>
+      )}
+
       {/* Newsletter */}
       {showDiscountSignup && (
         <div className="text-center">
@@ -358,17 +369,6 @@ export function PDPBuyBox({
               </button>
             </motion.form>
           )}
-        </div>
-      )}
-
-      {/* Audio Player */}
-      {audioUrl && (
-        <div className="pt-2">
-          <AudioPlayer
-            audioUrl={audioUrl}
-            avatarUrl={audioAvatarUrl}
-            title={audioTitle}
-          />
         </div>
       )}
 

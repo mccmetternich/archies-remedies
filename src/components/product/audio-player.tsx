@@ -97,12 +97,46 @@ export function AudioPlayer({ audioUrl, avatarUrl, title }: AudioPlayerProps) {
       {/* Hidden audio element */}
       <audio ref={audioRef} src={audioUrl} preload="metadata" />
 
-      {/* Player Container - Elegant pill shape */}
-      <div className="relative bg-gradient-to-r from-[#f8fbfc] to-[#f0f7fa] border border-[#bbdae9]/60 rounded-full px-3 py-2 shadow-sm hover:shadow-md transition-shadow duration-300">
-        <div className="flex items-center gap-3">
-          {/* Avatar */}
+      {/* Player Container - Sharp edges, compact, sleek */}
+      <div className="relative bg-[#f8f8f8] border border-[#e5e5e5] px-2.5 py-2">
+        <div className="flex items-center gap-2.5">
+          {/* Play/Pause Button - Now on the left */}
+          <button
+            onClick={togglePlay}
+            className={cn(
+              'flex-shrink-0 w-8 h-8 flex items-center justify-center transition-all duration-200',
+              'bg-[#1a1a1a] text-white hover:bg-[#bbdae9] hover:text-[#1a1a1a]',
+              'active:scale-95'
+            )}
+          >
+            <AnimatePresence mode="wait">
+              {isPlaying ? (
+                <motion.div
+                  key="pause"
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  exit={{ scale: 0 }}
+                  transition={{ duration: 0.15 }}
+                >
+                  <Pause className="w-3.5 h-3.5" fill="currentColor" />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="play"
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  exit={{ scale: 0 }}
+                  transition={{ duration: 0.15 }}
+                >
+                  <Play className="w-3.5 h-3.5 ml-0.5" fill="currentColor" />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </button>
+
+          {/* Avatar - smaller */}
           <div className="relative flex-shrink-0">
-            <div className="w-12 h-12 rounded-full overflow-hidden bg-[#bbdae9]/30 ring-2 ring-white shadow-md">
+            <div className="w-8 h-8 overflow-hidden bg-[#bbdae9]/30">
               {avatarUrl ? (
                 <Image
                   src={avatarUrl}
@@ -114,7 +148,7 @@ export function AudioPlayer({ audioUrl, avatarUrl, title }: AudioPlayerProps) {
                 <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#bbdae9] to-[#8ec4db]">
                   <svg
                     viewBox="0 0 24 24"
-                    className="w-6 h-6 text-white"
+                    className="w-4 h-4 text-white"
                     fill="currentColor"
                   >
                     <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z" />
@@ -129,10 +163,10 @@ export function AudioPlayer({ audioUrl, avatarUrl, title }: AudioPlayerProps) {
               {isPlaying && (
                 <motion.div
                   initial={{ scale: 1, opacity: 0.6 }}
-                  animate={{ scale: 1.3, opacity: 0 }}
+                  animate={{ scale: 1.4, opacity: 0 }}
                   exit={{ opacity: 0 }}
-                  transition={{ duration: 1.5, repeat: Infinity, ease: 'easeOut' }}
-                  className="absolute inset-0 rounded-full border-2 border-[#bbdae9]"
+                  transition={{ duration: 1.2, repeat: Infinity, ease: 'easeOut' }}
+                  className="absolute inset-0 border border-[#bbdae9]"
                 />
               )}
             </AnimatePresence>
@@ -142,16 +176,16 @@ export function AudioPlayer({ audioUrl, avatarUrl, title }: AudioPlayerProps) {
           <div className="flex-1 min-w-0">
             {/* Title */}
             {title && (
-              <p className="text-xs font-medium text-[#1a1a1a]/70 mb-1.5 truncate">
+              <p className="text-[10px] font-medium text-[#1a1a1a]/60 mb-1 truncate leading-tight">
                 {title}
               </p>
             )}
 
-            {/* Waveform Progress Bar */}
+            {/* Waveform Progress Bar - more compact */}
             <div
               ref={progressRef}
               onClick={handleProgressClick}
-              className="relative h-8 flex items-center gap-[2px] cursor-pointer group"
+              className="relative h-5 flex items-center gap-[1.5px] cursor-pointer group"
             >
               {waveformBars.map((height, i) => {
                 const barProgress = (i / waveformBars.length) * 100;
@@ -162,7 +196,7 @@ export function AudioPlayer({ audioUrl, avatarUrl, title }: AudioPlayerProps) {
                   <motion.div
                     key={i}
                     className={cn(
-                      'flex-1 rounded-full transition-colors duration-150',
+                      'flex-1 transition-colors duration-150',
                       isActive ? 'bg-[#bbdae9]' : 'bg-[#1a1a1a]/10 group-hover:bg-[#1a1a1a]/15'
                     )}
                     style={{ height: `${height * 100}%` }}
@@ -176,52 +210,16 @@ export function AudioPlayer({ audioUrl, avatarUrl, title }: AudioPlayerProps) {
               })}
             </div>
 
-            {/* Time Display */}
-            <div className="flex justify-between items-center mt-1">
-              <span className="text-[10px] font-medium text-[#1a1a1a]/50 tabular-nums">
+            {/* Time Display - inline */}
+            <div className="flex justify-between items-center mt-0.5">
+              <span className="text-[9px] font-medium text-[#1a1a1a]/40 tabular-nums">
                 {formatTime(currentTime)}
               </span>
-              <span className="text-[10px] font-medium text-[#1a1a1a]/50 tabular-nums">
+              <span className="text-[9px] font-medium text-[#1a1a1a]/40 tabular-nums">
                 {formatTime(duration)}
               </span>
             </div>
           </div>
-
-          {/* Play/Pause Button */}
-          <button
-            onClick={togglePlay}
-            disabled={!isLoaded}
-            className={cn(
-              'flex-shrink-0 w-11 h-11 rounded-full flex items-center justify-center transition-all duration-300',
-              'bg-[#1a1a1a] text-white hover:bg-[#bbdae9] hover:text-[#1a1a1a]',
-              'shadow-lg hover:shadow-xl active:scale-95',
-              !isLoaded && 'opacity-50 cursor-not-allowed'
-            )}
-          >
-            <AnimatePresence mode="wait">
-              {isPlaying ? (
-                <motion.div
-                  key="pause"
-                  initial={{ scale: 0, rotate: -90 }}
-                  animate={{ scale: 1, rotate: 0 }}
-                  exit={{ scale: 0, rotate: 90 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <Pause className="w-5 h-5" fill="currentColor" />
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="play"
-                  initial={{ scale: 0, rotate: 90 }}
-                  animate={{ scale: 1, rotate: 0 }}
-                  exit={{ scale: 0, rotate: -90 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <Play className="w-5 h-5 ml-0.5" fill="currentColor" />
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </button>
         </div>
       </div>
     </div>
