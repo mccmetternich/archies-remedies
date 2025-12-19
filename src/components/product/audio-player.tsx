@@ -249,12 +249,49 @@ export function AudioPlayer({ audioUrl, avatarUrl, title, quote }: AudioPlayerPr
           </div>
         </div>
 
-        {/* Quote Capsule */}
+        {/* Quote Section with L-shaped connector */}
         {quote && (
-          <div className="mt-2 px-3 py-2 bg-[#bbdae9]/30 border border-[#bbdae9]/40 rounded-full">
-            <p className="text-[10px] text-[#1a1a1a]/70 italic text-center leading-tight">
-              &ldquo;{quote}&rdquo;
-            </p>
+          <div className="relative flex items-center mt-2">
+            {/* L-shaped connector SVG */}
+            <svg
+              className="absolute text-[#bbdae9] pointer-events-none"
+              style={{
+                left: '22px', // Center of thumbnail (44px / 2)
+                top: '-8px',
+                width: 'calc(22px + 12px)', // Half thumbnail + gap
+                height: 'calc(100% + 8px)',
+              }}
+              preserveAspectRatio="none"
+            >
+              {/* Vertical line down from thumbnail center */}
+              <line
+                x1="0"
+                y1="0"
+                x2="0"
+                y2="calc(100% - 12px)"
+                stroke="currentColor"
+                strokeWidth="1.5"
+              />
+              {/* Horizontal line to capsule */}
+              <line
+                x1="0"
+                y1="calc(100% - 12px)"
+                x2="100%"
+                y2="calc(100% - 12px)"
+                stroke="currentColor"
+                strokeWidth="1.5"
+              />
+            </svg>
+            {/* Spacer for thumbnail + gap width */}
+            <div className="flex-shrink-0 w-11 mr-3" />
+            {/* Quote Capsule - aligned with content area */}
+            <div className="flex-1 min-w-0">
+              <div className="px-3 py-2 bg-[#bbdae9]/30 border border-[#bbdae9]/40 rounded-full">
+                <p className="text-[11px] text-[#1a1a1a]/70 italic text-center leading-tight">
+                  &ldquo;{quote}&rdquo;
+                </p>
+              </div>
+            </div>
           </div>
         )}
       </div>
