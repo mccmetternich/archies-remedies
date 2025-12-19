@@ -125,13 +125,14 @@ export function PDPGallery({
               animate="center"
               exit="exit"
               transition={{ duration: 0.15, ease: 'easeOut' }}
-              className="absolute inset-0"
+              className="absolute inset-0 touch-pan-y"
               drag={allImages.length > 1 ? 'x' : false}
               dragConstraints={{ left: 0, right: 0 }}
-              dragElastic={0.2}
+              dragElastic={0.3}
+              dragMomentum={false}
               onDragEnd={(_, info) => {
-                const swipeThreshold = 50;
-                const velocityThreshold = 500;
+                const swipeThreshold = 40;
+                const velocityThreshold = 300;
 
                 // Determine swipe direction based on velocity or distance
                 if (info.offset.x < -swipeThreshold || info.velocity.x < -velocityThreshold) {
@@ -152,19 +153,21 @@ export function PDPGallery({
                   loop
                   muted
                   playsInline
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover pointer-events-none select-none"
+                  draggable={false}
                 />
               ) : activeImage?.imageUrl ? (
                 <Image
                   src={activeImage.imageUrl}
                   alt={activeImage.altText || productName}
                   fill
-                  className="object-cover"
+                  className="object-cover pointer-events-none select-none"
                   priority={activeIndex === 0}
                   sizes="(max-width: 1024px) 80vw, 50vw"
+                  draggable={false}
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center">
+                <div className="w-full h-full flex items-center justify-center pointer-events-none select-none">
                   <span className="text-4xl lg:text-8xl opacity-20">
                     {productName.toLowerCase().includes('drop') ? '💧' : '🧴'}
                   </span>
