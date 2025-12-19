@@ -259,7 +259,7 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                   style={{ top: showBumper ? '109px' : '72px' }}
                 >
 
-                  <div className="relative z-50 w-full bg-white shadow-[0_20px_40px_rgba(0,0,0,0.15)] overflow-visible">
+                  <div className="relative z-50 w-full bg-white shadow-[0_4px_16px_rgba(0,0,0,0.12)] overflow-visible">
                     {/* Shelf container with generous padding - pb-[30px] for whitespace below tiles */}
                     <div className="container pt-8 pb-[30px] overflow-visible">
                       {/* Content grid - spacer between product tiles and marketing tile grows with viewport */}
