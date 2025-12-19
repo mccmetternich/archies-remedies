@@ -152,7 +152,7 @@ export function PDPHeroSection({
   return (
     <div className="flex flex-col lg:flex-row w-full max-w-full px-4 lg:pr-0 lg:pl-[390px]">
       {/* Buy Box - RIGID column, scrolls freely, editorial stagger, fixed 192px gap */}
-      <div className="order-2 lg:order-1 w-full lg:w-[450px] lg:flex-shrink-0 lg:self-start mt-8 lg:mt-0 lg:pt-[68px] lg:mr-[192px]">
+      <div className="order-2 lg:order-1 w-full lg:w-[450px] lg:flex-shrink-0 lg:self-start mt-8 lg:mt-0 lg:pt-[68px] lg:mr-[192px] lg:relative lg:z-20">
         <PDPBuyBox
           product={product}
           variants={variants}
@@ -176,7 +176,7 @@ export function PDPHeroSection({
       </div>
 
       {/* Media Lane - Pinned console: Gallery + Marquee locked to viewport */}
-      <div className="order-1 lg:order-2 w-full lg:flex-1 lg:min-w-0 flex flex-col lg:sticky lg:top-[80px] lg:h-[calc(100vh-80px)]">
+      <div className="order-1 lg:order-2 w-full lg:flex-1 lg:min-w-0 flex flex-col lg:sticky lg:top-[var(--pdp-header-height)] lg:h-[calc(100vh-var(--pdp-header-height))] lg:overflow-hidden lg:isolate lg:z-10">
         <PDPGallery
           images={activeImages}
           heroImage={activeHeroImage}
@@ -188,13 +188,13 @@ export function PDPHeroSection({
           marqueeEnabled={marqueeEnabled}
         />
 
-        {/* Marquee - INSIDE Media Lane, sticky bottom anchor */}
+        {/* Marquee - INSIDE Media Lane, flexbox floor via mt-auto */}
         <PDPMarquee
           text={marqueeText || ''}
           enabled={marqueeEnabled}
           backgroundColor={marqueeBackgroundColor}
           textColor={marqueeTextColor}
-          className="w-full lg:sticky lg:bottom-0 lg:z-10"
+          className="w-full lg:mt-auto"
         />
       </div>
     </div>

@@ -31,6 +31,7 @@
   --pdp-header-height: 80px; /* nav only, updated by JS if bumper present */
   --pdp-marquee-height: 44px;
   --pdp-fold-buffer: 80px; /* breathing room above marquee */
+  --pdp-hero-min-width: 400px; /* horizontal squish floor */
   --pdp-gutter: 65px;
   --pdp-gap: 5px; /* mobile puzzle gap */
 }

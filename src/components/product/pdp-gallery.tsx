@@ -140,11 +140,11 @@ export function PDPGallery({
   };
 
   // CSS-only height calculations using CSS variables
-  // Hero max-height: 100vh - header - marquee - 80px buffer
+  // Hero max-height: 100vh - header - marquee - buffer - 40px stagger margin
   // Gallery height: 100vh - header - marquee (extends to marquee floor)
   const heroMaxHeight = marqueeEnabled
-    ? 'lg:max-h-[calc(100vh-var(--pdp-header-height)-var(--pdp-marquee-height)-var(--pdp-fold-buffer))]'
-    : 'lg:max-h-[calc(100vh-var(--pdp-header-height)-var(--pdp-fold-buffer))]';
+    ? 'lg:max-h-[calc(100vh-var(--pdp-header-height)-var(--pdp-marquee-height)-var(--pdp-fold-buffer)-40px)]'
+    : 'lg:max-h-[calc(100vh-var(--pdp-header-height)-var(--pdp-fold-buffer)-40px)]';
 
   const galleryHeight = marqueeEnabled
     ? 'lg:h-[calc(100vh-var(--pdp-header-height)-var(--pdp-marquee-height))]'
@@ -165,9 +165,10 @@ export function PDPGallery({
         <div
           className={cn(
             'relative bg-white',
-            'flex-[1_1_auto] lg:flex-[1_1_0%] min-w-0', // Flex-basis 0% ensures gap shrinks first
+            'flex-[1_1_auto] lg:flex-[1_1_0%] min-w-0 lg:min-w-[var(--pdp-hero-min-width)]', // 400px floor on desktop
             'aspect-[1/1.18] lg:aspect-square',
             heroMaxHeight,
+            'lg:mt-[40px]', // Editorial Stagger: Hero sits 40px below Nav
             'mb-[40px] lg:mb-[80px]', // Physical margin creates breathing gap above marquee
             allImages.length > 1 && 'cursor-grab active:cursor-grabbing'
           )}
@@ -308,7 +309,7 @@ export function PDPGallery({
               className={cn(
                 'flex-1 flex flex-col',
                 'gap-[var(--pdp-gap)]', // 5px gaps
-                'p-[var(--pdp-gap)] lg:p-[20px]',
+                'p-[var(--pdp-gap)] lg:pt-0 lg:px-[20px] lg:pb-[20px]', // Desktop: no top padding (first thumb gets mt-[5px])
                 'overflow-y-auto overflow-x-hidden'
               )}
             >
@@ -321,6 +322,7 @@ export function PDPGallery({
                     'relative overflow-hidden bg-white transition-all duration-200',
                     'flex-1 min-h-0', // Fill available space equally (puzzle)
                     'lg:flex-none lg:aspect-square', // Desktop: fixed squares
+                    index === 0 && 'lg:mt-[20px]', // First thumbnail: 20px top margin to match side padding
                     index === activeIndex && 'ring-2 ring-[#bbdae9]'
                   )}
                 >
