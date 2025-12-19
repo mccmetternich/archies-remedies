@@ -255,7 +255,7 @@ export function PDPGallery({
         </div>
 
         {/* Thumbnails - Vertical tray, unified styling globally */}
-        {allImages.length > 1 && (
+        {allImages.length >= 1 && ( // Show tray even with 1 image for testing
           <div
             className={cn(
               'relative flex flex-col self-stretch',
