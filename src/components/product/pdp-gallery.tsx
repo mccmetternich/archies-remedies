@@ -164,11 +164,10 @@ export function PDPGallery({
         <div
           className={cn(
             'relative bg-red-500', // DEBUG: red background to verify square
+            'flex-1', // Grow to push tray right
             'aspect-square', // ALWAYS a square - media uses object-contain inside
-            'h-[calc(100vh-280px)]', // Height drives the square (width follows from aspect-square)
+            'max-h-[calc(100vh-280px)]', // Cap height (width follows from aspect-square)
             'min-h-[400px]', // Floor prevents collapse
-            'max-h-[calc(100vh-280px)]', // Cap to prevent overflow
-            'flex-shrink-0', // Don't shrink below aspect ratio
             'mt-[40px]', // Editorial Stagger
             'mb-[80px]', // Breathing room above marquee
             allImages.length > 1 && 'cursor-grab active:cursor-grabbing'
@@ -259,7 +258,7 @@ export function PDPGallery({
         {allImages.length > 1 && (
           <div
             className={cn(
-              'relative flex flex-col h-full ml-auto', // ml-auto forces right anchor, h-full spans top to bottom
+              'relative flex flex-col h-full', // h-full spans top to bottom, hero's flex-1 pushes tray right
               'bg-[#1a1a1a]', // Dark background globally
               'flex-none w-[200px]', // Fixed 200px width globally
               'flex-shrink-0',
