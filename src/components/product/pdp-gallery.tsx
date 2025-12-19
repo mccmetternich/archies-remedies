@@ -163,8 +163,9 @@ export function PDPGallery({
         {/* Hero Container - unified geometry across all breakpoints */}
         <div
           className={cn(
-            'relative flex-none aspect-square',
+            'relative flex-none aspect-square bg-gray-100', // DEBUG: gray bg to see bounds
             'h-[calc(100vh-294px)]', // Hard height anchor - forces width via aspect-square
+            'min-w-[400px]', // Floor prevents width collapse
             'mt-[40px]', // Editorial Stagger
             'mb-[60px]', // Breathing room above marquee
             allImages.length > 1 && 'cursor-grab active:cursor-grabbing'
@@ -256,7 +257,7 @@ export function PDPGallery({
           <div
             className={cn(
               'relative flex-none flex flex-col h-full w-[200px] ml-auto', // Hard 200px width, ml-auto anchors right
-              'bg-[#1a1a1a]', // Dark background globally
+              'bg-red-500', // DEBUG: red bg to see tray
               'overflow-hidden' // Strict clipping - nothing escapes to marquee
             )}
           >
