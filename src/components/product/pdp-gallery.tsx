@@ -140,11 +140,11 @@ export function PDPGallery({
   };
 
   // CSS-only height calculations using CSS variables - GLOBAL (no lg: prefix)
-  // Hero max-height: 100vh - header - marquee - buffer - 40px stagger margin
+  // Hero max-height: 100vh - header - marquee - buffer - 120px (40px top margin + 80px bottom margin)
   // Gallery height: 100vh - header - marquee (extends to marquee floor)
   const heroMaxHeight = marqueeEnabled
-    ? 'max-h-[calc(100vh-var(--pdp-header-height)-var(--pdp-marquee-height)-var(--pdp-fold-buffer)-40px)]'
-    : 'max-h-[calc(100vh-var(--pdp-header-height)-var(--pdp-fold-buffer)-40px)]';
+    ? 'max-h-[calc(100vh-var(--pdp-header-height)-var(--pdp-marquee-height)-var(--pdp-fold-buffer)-120px)]'
+    : 'max-h-[calc(100vh-var(--pdp-header-height)-var(--pdp-fold-buffer)-120px)]';
 
   const galleryHeight = marqueeEnabled
     ? 'h-[calc(100vh-var(--pdp-header-height)-var(--pdp-marquee-height))]'
