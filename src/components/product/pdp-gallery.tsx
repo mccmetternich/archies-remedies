@@ -57,7 +57,7 @@ export function PDPGallery({
 
   const activeImage = allImages[activeIndex];
 
-  // Handle thumbnail hover - slides to that image
+  // Handle thumbnail interaction
   const handleThumbnailHover = (index: number) => {
     if (index !== activeIndex) {
       setDirection(index > activeIndex ? 1 : -1);
@@ -78,21 +78,21 @@ export function PDPGallery({
     }),
   };
 
-  // Mobile scroll state
-  const [mobileScrollIndex, setMobileScrollIndex] = useState(0);
-  const visibleMobileThumbnails = 3;
-  const canScrollUp = mobileScrollIndex > 0;
-  const canScrollDown = mobileScrollIndex + visibleMobileThumbnails < allImages.length;
-
   return (
     <>
-      {/* Desktop Layout - Pure CSS, no JavaScript sizing */}
-      <div className="hidden lg:flex gap-4 items-start">
-        {/* Hero Media - viewport height constrained */}
-        <div className="relative flex-1 min-w-0 bg-[var(--cream)] overflow-hidden h-[calc(100vh-20px)] w-auto max-w-full">
-          {/* Product Badge */}
+      {/* Unified Layout - Single responsive component */}
+      <div className="flex items-start">
+        {/* Hero Container - square on desktop, taller on mobile */}
+        <div
+          className={cn(
+            'relative overflow-hidden bg-[var(--cream)]',
+            'flex-1 min-w-0',
+            'aspect-[1/1.18] lg:aspect-square lg:max-h-[calc(100vh-20px)] lg:w-auto'
+          )}
+        >
+          {/* Badge - desktop only */}
           {badge && (
-            <div className="absolute top-5 left-5 z-20">
+            <div className="absolute top-5 left-5 z-20 hidden lg:block">
               <span className="inline-flex items-center gap-1.5 px-4 py-2 bg-[var(--foreground)] text-white rounded-full text-sm font-medium shadow-lg">
                 {badgeEmoji && <span>{badgeEmoji}</span>}
                 {badge}
@@ -100,9 +100,9 @@ export function PDPGallery({
             </div>
           )}
 
-          {/* Rotating Seal */}
+          {/* Rotating Seal - desktop only */}
           {rotatingSealEnabled && rotatingSealImageUrl && (
-            <div className="absolute bottom-6 right-6 z-20 w-28 h-28">
+            <div className="absolute bottom-6 right-6 z-20 w-28 h-28 hidden lg:block">
               <Image
                 src={rotatingSealImageUrl}
                 alt="Product seal"
@@ -141,11 +141,11 @@ export function PDPGallery({
                   fill
                   className="object-cover"
                   priority={activeIndex === 0}
-                  sizes="50vw"
+                  sizes="(max-width: 1024px) 80vw, 50vw"
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
-                  <span className="text-8xl opacity-20">
+                  <span className="text-4xl lg:text-8xl opacity-20">
                     {productName.toLowerCase().includes('drop') ? '💧' : '🧴'}
                   </span>
                 </div>
@@ -154,28 +154,47 @@ export function PDPGallery({
           </AnimatePresence>
         </div>
 
-        {/* Thumbnails - Pure CSS w-24 aspect-square */}
+        {/* Separator - mobile only */}
         {allImages.length > 1 && (
-          <div className="sticky top-24 self-start flex-shrink-0 flex flex-col items-center">
+          <div className="w-[5px] bg-[#bbdae9] self-stretch lg:hidden" />
+        )}
+
+        {/* Thumbnails - responsive sizing */}
+        {allImages.length > 1 && (
+          <div
+            className={cn(
+              'flex flex-col self-stretch lg:self-start',
+              'bg-[#bbdae9] lg:bg-transparent',
+              'w-[115px] lg:w-32',
+              'lg:ml-4 lg:sticky lg:top-24 lg:flex-shrink-0'
+            )}
+          >
             {/* Up Arrow */}
             <button
               onClick={() => {
                 setDirection(-1);
                 setActiveIndex(activeIndex === 0 ? allImages.length - 1 : activeIndex - 1);
               }}
-              className="w-24 h-10 flex items-center justify-center bg-[#1a1a1a] text-white"
+              disabled={activeIndex === 0}
+              className={cn(
+                'w-full h-5 lg:h-10 flex items-center justify-center',
+                'bg-[#bbdae9] lg:bg-[#1a1a1a]',
+                'text-[#1a1a1a] lg:text-white'
+              )}
             >
-              <ChevronUp className="w-6 h-6" />
+              {activeIndex > 0 && <ChevronUp className="w-3.5 h-3.5 lg:w-6 lg:h-6" />}
             </button>
 
             {/* Thumbnail buttons */}
-            <div className="flex flex-col gap-2 py-2">
+            <div className="flex-1 lg:flex-none flex flex-col gap-[5px] lg:gap-2 lg:py-2">
               {allImages.slice(0, 5).map((image, index) => (
                 <button
                   key={image.id}
+                  onClick={() => handleThumbnailHover(index)}
                   onMouseEnter={() => handleThumbnailHover(index)}
                   className={cn(
-                    'w-24 aspect-square flex-shrink-0 relative overflow-hidden bg-white transition-all duration-200',
+                    'relative overflow-hidden bg-white transition-all duration-200',
+                    'flex-1 min-h-0 lg:flex-none lg:w-32 lg:aspect-square lg:flex-shrink-0',
                     index === activeIndex && 'ring-2 ring-[#bbdae9]'
                   )}
                 >
@@ -194,7 +213,7 @@ export function PDPGallery({
                       alt={image.altText || `${productName} view ${index + 1}`}
                       fill
                       className="object-cover"
-                      sizes="96px"
+                      sizes="(max-width: 1024px) 80px, 128px"
                     />
                   ) : null}
                 </button>
@@ -207,153 +226,17 @@ export function PDPGallery({
                 setDirection(1);
                 setActiveIndex(activeIndex === allImages.length - 1 ? 0 : activeIndex + 1);
               }}
-              className="w-24 h-10 flex items-center justify-center bg-[#1a1a1a] text-white"
+              className={cn(
+                'w-full h-5 lg:h-10 flex items-center justify-center',
+                'bg-[#bbdae9] lg:bg-[#1a1a1a]',
+                'text-[#1a1a1a] lg:text-white',
+                activeIndex === allImages.length - 1 && 'opacity-40'
+              )}
             >
-              <ChevronDown className="w-6 h-6" />
+              <ChevronDown className="w-3.5 h-3.5 lg:w-6 lg:h-6" />
             </button>
           </div>
         )}
-      </div>
-
-      {/* Mobile Layout - Edge to edge, no gaps */}
-      <div className="lg:hidden overflow-x-hidden">
-        {/* Hero + Thumbnail row - no gap */}
-        <div className="flex">
-          {/* Hero Image - fills remaining space, 18% taller */}
-          <div
-            className="relative bg-gradient-to-br from-[var(--primary-light)] to-[var(--cream)] overflow-hidden flex-1"
-            style={{ aspectRatio: '1 / 1.18' }}
-          >
-            {/* Badges hidden on mobile */}
-
-            <AnimatePresence initial={false} custom={direction} mode="popLayout">
-              <motion.div
-                key={activeIndex}
-                custom={direction}
-                variants={slideVariants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                transition={{ duration: 0.15, ease: 'easeOut' }}
-                className="absolute inset-0"
-              >
-                {activeImage?.isVideo && activeImage?.videoUrl ? (
-                  <video
-                    src={activeImage.videoUrl}
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    className="w-full h-full object-cover"
-                  />
-                ) : activeImage?.imageUrl ? (
-                  <Image
-                    src={activeImage.imageUrl}
-                    alt={activeImage.altText || productName}
-                    fill
-                    className="object-cover"
-                    priority={activeIndex === 0}
-                    sizes="80vw"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <span className="text-4xl opacity-20">
-                      {productName.toLowerCase().includes('drop') ? '💧' : '🧴'}
-                    </span>
-                  </div>
-                )}
-              </motion.div>
-            </AnimatePresence>
-          </div>
-
-          {/* Blue hex separator between hero and thumbnails */}
-          {allImages.length > 1 && (
-            <div className="w-[5px] bg-[#bbdae9]" />
-          )}
-
-          {/* Thumbnail Strip - hex blue tray with thumbnails on top */}
-          {allImages.length > 1 && (
-            <div className="flex flex-col w-[115px] bg-[#bbdae9]">
-              {/* Up Arrow - thin sliver, hex blue, hide icon on first image */}
-              <button
-                onClick={() => {
-                  if (canScrollUp) {
-                    setMobileScrollIndex(mobileScrollIndex - 1);
-                  }
-                  if (activeIndex > 0) {
-                    setDirection(-1);
-                    setActiveIndex(activeIndex - 1);
-                  }
-                }}
-                disabled={activeIndex === 0}
-                className="w-full h-5 flex items-center justify-center bg-[#bbdae9] text-[#1a1a1a]"
-              >
-                {activeIndex > 0 && <ChevronUp className="w-3.5 h-3.5" />}
-              </button>
-
-              {/* Visible Thumbnails - with gaps */}
-              <div className="flex-1 flex flex-col gap-[5px]">
-                {allImages
-                  .slice(mobileScrollIndex, mobileScrollIndex + visibleMobileThumbnails)
-                  .map((image, idx) => {
-                    const actualIndex = mobileScrollIndex + idx;
-                    return (
-                      <button
-                        key={image.id}
-                        onClick={() => {
-                          // Play video in hero instead of opening modal
-                          setDirection(actualIndex > activeIndex ? 1 : -1);
-                          setActiveIndex(actualIndex);
-                        }}
-                        className={cn(
-                          'relative flex-1 min-h-0 overflow-hidden transition-all duration-200 bg-white',
-                          actualIndex === activeIndex && 'ring-2 ring-[#bbdae9] ring-inset'
-                        )}
-                      >
-                        {image.isVideo && image.videoUrl ? (
-                          <video
-                            src={image.videoUrl}
-                            autoPlay
-                            loop
-                            muted
-                            playsInline
-                            className="w-full h-full object-cover"
-                          />
-                        ) : image.imageUrl ? (
-                          <Image
-                            src={image.imageUrl}
-                            alt={image.altText || `${productName} view ${actualIndex + 1}`}
-                            fill
-                            className="object-cover"
-                            sizes="80px"
-                          />
-                        ) : null}
-                      </button>
-                    );
-                  })}
-              </div>
-
-              {/* Down Arrow - thin sliver, hex blue */}
-              <button
-                onClick={() => {
-                  if (canScrollDown) {
-                    setMobileScrollIndex(mobileScrollIndex + 1);
-                  }
-                  if (activeIndex < allImages.length - 1) {
-                    setDirection(1);
-                    setActiveIndex(activeIndex + 1);
-                  }
-                }}
-                className={cn(
-                  'w-full h-5 flex items-center justify-center bg-[#bbdae9] text-[#1a1a1a]',
-                  !canScrollDown && activeIndex === allImages.length - 1 && 'opacity-40'
-                )}
-              >
-                <ChevronDown className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          )}
-        </div>
       </div>
 
       {/* Video Modal */}
