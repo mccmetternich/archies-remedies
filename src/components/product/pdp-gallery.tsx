@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronUp, ChevronDown, X } from 'lucide-react';
@@ -57,43 +57,25 @@ export function PDPGallery({
       ]
     : images;
 
-  // Overflow detection for arrow visibility
-  const thumbnailContainerRef = useRef<HTMLDivElement>(null);
-  const [showUpArrow, setShowUpArrow] = useState(false);
-  const [showDownArrow, setShowDownArrow] = useState(false);
-
-  // Detect overflow and scroll position for arrow visibility
-  useEffect(() => {
-    const container = thumbnailContainerRef.current;
-    if (!container) return;
-
-    const checkOverflow = () => {
-      const hasOverflow = container.scrollHeight > container.clientHeight;
-      const atTop = container.scrollTop <= 5;
-      const atBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 5;
-
-      setShowUpArrow(hasOverflow && !atTop);
-      setShowDownArrow(hasOverflow && !atBottom);
-    };
-
-    checkOverflow();
-    container.addEventListener('scroll', checkOverflow);
-    window.addEventListener('resize', checkOverflow);
-
-    return () => {
-      container.removeEventListener('scroll', checkOverflow);
-      window.removeEventListener('resize', checkOverflow);
-    };
-  }, [allImages.length]);
-
   const activeImage = allImages[activeIndex];
 
   // Handle thumbnail interaction
-  const handleThumbnailHover = (index: number) => {
+  const handleThumbnailClick = (index: number) => {
     if (index !== activeIndex) {
       setDirection(index > activeIndex ? 1 : -1);
       setActiveIndex(index);
     }
+  };
+
+  // Navigate to previous/next
+  const goToPrevious = () => {
+    setDirection(-1);
+    setActiveIndex(activeIndex === 0 ? allImages.length - 1 : activeIndex - 1);
+  };
+
+  const goToNext = () => {
+    setDirection(1);
+    setActiveIndex(activeIndex === allImages.length - 1 ? 0 : activeIndex + 1);
   };
 
   // Slide animation variants
@@ -109,28 +91,34 @@ export function PDPGallery({
     }),
   };
 
-  // Dynamic heights based on marquee state
-  // Nav: 80px, Marquee: 44px, Buffer/Gap: 50px
-  // Hero max-height creates 50px gap above marquee
+  // CSS-only height calculations using CSS variables
+  // Hero max-height: 100vh - header - marquee - 80px buffer
+  // Gallery height: 100vh - header - marquee (extends to marquee floor)
   const heroMaxHeight = marqueeEnabled
-    ? 'lg:max-h-[calc(100vh-174px)]' // 80 + 44 + 50 = 174px reserved
-    : 'lg:max-h-[calc(100vh-130px)]'; // 80 + 50 = 130px reserved
+    ? 'lg:max-h-[calc(100vh-var(--pdp-header-height)-var(--pdp-marquee-height)-var(--pdp-fold-buffer))]'
+    : 'lg:max-h-[calc(100vh-var(--pdp-header-height)-var(--pdp-fold-buffer))]';
 
-  // Gallery container height - extends to marquee floor
   const galleryHeight = marqueeEnabled
-    ? 'lg:h-[calc(100vh-124px)]' // 80 + 44 = 124px (nav + marquee)
-    : 'lg:h-[calc(100vh-80px)]'; // just nav
+    ? 'lg:h-[calc(100vh-var(--pdp-header-height)-var(--pdp-marquee-height))]'
+    : 'lg:h-[calc(100vh-var(--pdp-header-height))]';
 
   return (
     <>
-      {/* Unified Layout - Single responsive component */}
-      <div className={cn('flex items-start', galleryHeight)}>
-        {/* Hero Container - square on desktop, taller on mobile */}
+      {/* Unified Layout - CSS-only vertical rhythm, no JS dependencies */}
+      <div
+        className={cn(
+          'flex items-stretch',
+          'gap-[var(--pdp-gap)] lg:gap-[var(--pdp-gutter)]', // Gap shrinks before hero
+          'pt-[40px] lg:pt-[40px]', // Static top padding
+          galleryHeight
+        )}
+      >
+        {/* Hero Container - true scaling, not cropping */}
         <div
           className={cn(
-            'relative overflow-hidden bg-[var(--cream)]',
-            'flex-1 min-w-0',
-            'aspect-[1/1.18] lg:aspect-square lg:w-auto',
+            'relative bg-[var(--cream)]',
+            'flex-[1_1_auto] min-w-0', // Hero can shrink but prefers natural size
+            'aspect-[1/1.18] lg:aspect-square',
             heroMaxHeight,
             allImages.length > 1 && 'cursor-grab active:cursor-grabbing'
           )}
@@ -168,7 +156,7 @@ export function PDPGallery({
               animate="center"
               exit="exit"
               transition={{ duration: 0.15, ease: 'easeOut' }}
-              className="absolute inset-0 touch-pan-y"
+              className="absolute inset-0 touch-pan-y overflow-hidden"
               drag={allImages.length > 1 ? 'x' : false}
               dragConstraints={{ left: 0, right: 0 }}
               dragElastic={0.3}
@@ -177,15 +165,10 @@ export function PDPGallery({
                 const swipeThreshold = 40;
                 const velocityThreshold = 300;
 
-                // Determine swipe direction based on velocity or distance
                 if (info.offset.x < -swipeThreshold || info.velocity.x < -velocityThreshold) {
-                  // Swiped left - go to next
-                  setDirection(1);
-                  setActiveIndex(activeIndex === allImages.length - 1 ? 0 : activeIndex + 1);
+                  goToNext();
                 } else if (info.offset.x > swipeThreshold || info.velocity.x > velocityThreshold) {
-                  // Swiped right - go to previous
-                  setDirection(-1);
-                  setActiveIndex(activeIndex === 0 ? allImages.length - 1 : activeIndex - 1);
+                  goToPrevious();
                 }
               }}
             >
@@ -196,7 +179,7 @@ export function PDPGallery({
                   loop
                   muted
                   playsInline
-                  className="w-full h-full object-cover pointer-events-none select-none"
+                  className="w-full h-full object-contain pointer-events-none select-none bg-[var(--cream)]"
                   draggable={false}
                 />
               ) : activeImage?.imageUrl ? (
@@ -204,7 +187,8 @@ export function PDPGallery({
                   src={activeImage.imageUrl}
                   alt={activeImage.altText || productName}
                   fill
-                  className="object-cover pointer-events-none select-none"
+                  className="object-contain pointer-events-none select-none"
+                  style={{ backgroundColor: 'var(--cream)' }}
                   priority={activeIndex === 0}
                   sizes="(max-width: 1024px) 80vw, 50vw"
                   draggable={false}
@@ -220,65 +204,48 @@ export function PDPGallery({
           </AnimatePresence>
         </div>
 
-        {/* Blue Hex Separator - mobile only */}
-        {allImages.length > 1 && (
-          <div className="w-[5px] bg-[#bbdae9] self-stretch lg:hidden" />
-        )}
-
-        {/* Thumbnails - Saie-style vertical tray with CSS variable gutter */}
+        {/* Thumbnails - Vertical tray for ALL screen widths (puzzle layout) */}
         {allImages.length > 1 && (
           <div
             className={cn(
               'flex flex-col self-stretch',
               'bg-[#bbdae9] lg:bg-[#1a1a1a]',
               'w-[115px] lg:w-[200px]',
-              'lg:ml-[var(--pdp-gutter)] lg:flex-shrink-0 lg:h-full lg:sticky lg:top-[80px]'
+              'flex-shrink-0' // Tray never shrinks
             )}
           >
-            {/* Up Arrow - mobile: always visible when not at start, desktop: inside 20px grid, overflow-aware */}
+            {/* Up Arrow - always visible, navigates images */}
             <button
-              onClick={() => {
-                // Mobile: navigate to previous
-                if (window.innerWidth < 1024) {
-                  setDirection(-1);
-                  setActiveIndex(activeIndex === 0 ? allImages.length - 1 : activeIndex - 1);
-                } else {
-                  // Desktop: scroll up
-                  thumbnailContainerRef.current?.scrollBy({ top: -180, behavior: 'smooth' });
-                }
-              }}
+              onClick={goToPrevious}
               className={cn(
                 'flex items-center justify-center transition-opacity',
-                // Mobile styling
-                'h-5 lg:h-auto',
+                'h-6 lg:h-8',
                 'bg-[#bbdae9] lg:bg-transparent',
                 'text-[#1a1a1a] lg:text-white/60 lg:hover:text-white',
-                // Desktop: inside 20px padding, hide when no overflow
-                'lg:mx-[20px] lg:mt-[20px] lg:mb-2',
-                // Visibility
-                activeIndex === 0 && 'lg:hidden',
-                !showUpArrow && 'lg:opacity-0 lg:pointer-events-none'
+                activeIndex === 0 && 'opacity-30'
               )}
             >
-              <ChevronUp className="w-3.5 h-3.5 lg:w-5 lg:h-5" />
+              <ChevronUp className="w-4 h-4 lg:w-5 lg:h-5" />
             </button>
 
-            {/* Thumbnail buttons - scrollable container with 20px padding */}
+            {/* Thumbnail buttons - equal gaps for puzzle effect */}
             <div
-              ref={thumbnailContainerRef}
               className={cn(
-                'flex-1 flex flex-col gap-[5px] lg:gap-[20px]',
-                'lg:px-[20px] lg:overflow-y-auto lg:scrollbar-hide'
+                'flex-1 flex flex-col',
+                'gap-[var(--pdp-gap)]', // 5px gaps everywhere
+                'p-[var(--pdp-gap)] lg:p-[20px]',
+                'overflow-hidden'
               )}
             >
               {allImages.slice(0, 5).map((image, index) => (
                 <button
                   key={image.id}
-                  onClick={() => handleThumbnailHover(index)}
-                  onMouseEnter={() => handleThumbnailHover(index)}
+                  onClick={() => handleThumbnailClick(index)}
+                  onMouseEnter={() => handleThumbnailClick(index)}
                   className={cn(
                     'relative overflow-hidden bg-white transition-all duration-200',
-                    'flex-1 min-h-0 lg:flex-none lg:w-full lg:aspect-square lg:flex-shrink-0',
+                    'flex-1 min-h-0', // Fill available space equally (puzzle)
+                    'lg:flex-none lg:aspect-square', // Desktop: fixed squares
                     index === activeIndex && 'ring-2 ring-[#bbdae9]'
                   )}
                 >
@@ -304,32 +271,18 @@ export function PDPGallery({
               ))}
             </div>
 
-            {/* Down Arrow - mobile: always visible when not at end, desktop: inside 20px grid, overflow-aware */}
+            {/* Down Arrow - always visible, navigates images */}
             <button
-              onClick={() => {
-                // Mobile: navigate to next
-                if (window.innerWidth < 1024) {
-                  setDirection(1);
-                  setActiveIndex(activeIndex === allImages.length - 1 ? 0 : activeIndex + 1);
-                } else {
-                  // Desktop: scroll down
-                  thumbnailContainerRef.current?.scrollBy({ top: 180, behavior: 'smooth' });
-                }
-              }}
+              onClick={goToNext}
               className={cn(
                 'flex items-center justify-center transition-opacity',
-                // Mobile styling
-                'h-5 lg:h-auto',
+                'h-6 lg:h-8',
                 'bg-[#bbdae9] lg:bg-transparent',
                 'text-[#1a1a1a] lg:text-white/60 lg:hover:text-white',
-                // Desktop: inside 20px padding, hide when no overflow
-                'lg:mx-[20px] lg:mb-[20px] lg:mt-2',
-                // Visibility
-                activeIndex === allImages.length - 1 && 'opacity-40 lg:opacity-100',
-                !showDownArrow && 'lg:opacity-0 lg:pointer-events-none'
+                activeIndex === allImages.length - 1 && 'opacity-30'
               )}
             >
-              <ChevronDown className="w-3.5 h-3.5 lg:w-5 lg:h-5" />
+              <ChevronDown className="w-4 h-4 lg:w-5 lg:h-5" />
             </button>
           </div>
         )}
