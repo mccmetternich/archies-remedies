@@ -152,7 +152,7 @@ export function PDPHeroSection({
   return (
     <div className="flex flex-col lg:flex-row w-full max-w-full px-0 lg:pr-0 lg:pl-[390px]"> {/* No side padding on mobile */}
       {/* Buy Box - RIGID column, scrolls freely, editorial stagger, fixed 192px gap */}
-      <div className="order-2 lg:order-1 w-full lg:w-[450px] lg:flex-shrink-0 lg:self-start mt-8 lg:mt-0 lg:pt-[68px] lg:mr-[192px] lg:relative lg:z-20">
+      <div className="order-2 lg:order-1 w-full lg:w-[450px] lg:flex-shrink-0 lg:self-start mt-8 lg:mt-0 lg:pt-[68px] lg:mr-[192px] lg:relative lg:z-20 px-4 lg:px-0"> {/* Side padding on mobile only */}
         <PDPBuyBox
           product={product}
           variants={variants}
