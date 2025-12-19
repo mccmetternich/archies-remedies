@@ -140,11 +140,11 @@ export function PDPGallery({
   };
 
   // CSS-only height calculations using CSS variables - GLOBAL (no lg: prefix)
-  // Hero max-height: 100vh - 274px (shaved extra 20px to pull marquee into view)
+  // Hero max-height: 100vh - header - marquee - buffer - 40px stagger margin
   // Gallery height: 100vh - header - marquee (extends to marquee floor)
   const heroMaxHeight = marqueeEnabled
-    ? 'max-h-[calc(100vh-274px)]'
-    : 'max-h-[calc(100vh-194px)]'; // Without marquee: same 274px less marquee height
+    ? 'max-h-[calc(100vh-var(--pdp-header-height)-var(--pdp-marquee-height)-var(--pdp-fold-buffer)-40px)]'
+    : 'max-h-[calc(100vh-var(--pdp-header-height)-var(--pdp-fold-buffer)-40px)]';
 
   const galleryHeight = marqueeEnabled
     ? 'h-[calc(100vh-var(--pdp-header-height)-var(--pdp-marquee-height))]'
@@ -155,7 +155,7 @@ export function PDPGallery({
       {/* Unified Layout - CSS-only vertical rhythm, no JS dependencies */}
       <div
         className={cn(
-          'flex flex-row items-stretch justify-between', // flex-row + justify-between for Hero/Tray layout
+          'flex items-start', // items-start allows max-height to create visible whitespace
           'gap-[var(--pdp-gutter)]', // Same gutter globally (CSS var handles responsive squish)
           galleryHeight
         )}
@@ -163,11 +163,13 @@ export function PDPGallery({
         {/* Hero Container - unified geometry across all breakpoints */}
         <div
           className={cn(
-            'relative flex-none aspect-square bg-gray-100', // DEBUG: gray bg to see bounds
-            'h-[calc(100vh-294px)]', // Hard height anchor - forces width via aspect-square
-            'min-w-[400px]', // Floor prevents width collapse
-            'mt-[40px]', // Editorial Stagger
-            'mb-[60px]', // Breathing room above marquee
+            'relative bg-white',
+            'flex-[1_1_0%] min-w-[var(--pdp-hero-min-width)]', // Same flex math and 400px floor globally
+            'aspect-square', // Square on ALL breakpoints
+            heroMaxHeight,
+            'min-h-[400px]', // Floor prevents collapse on small screens
+            'mt-[40px]', // Editorial Stagger: Hero sits 40px below Nav (global)
+            'mb-[80px]', // 80px breathing room above marquee (global)
             allImages.length > 1 && 'cursor-grab active:cursor-grabbing'
           )}
         >
@@ -256,8 +258,10 @@ export function PDPGallery({
         {allImages.length > 1 && (
           <div
             className={cn(
-              'relative flex-none flex flex-col h-full w-[200px] ml-auto', // Hard 200px width, ml-auto anchors right
-              'bg-red-500', // DEBUG: red bg to see tray
+              'relative flex flex-col self-stretch',
+              'bg-[#1a1a1a]', // Dark background globally
+              'flex-none w-[200px]', // Fixed 200px width globally
+              'flex-shrink-0',
               'overflow-hidden' // Strict clipping - nothing escapes to marquee
             )}
           >
