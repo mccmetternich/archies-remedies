@@ -310,6 +310,7 @@ export function PDPGallery({
                   className={cn(
                     'relative overflow-hidden bg-white transition-all duration-200',
                     'flex-none aspect-square', // Fixed squares on ALL breakpoints
+                    'w-[70px] lg:w-full', // 70px on mobile/tablet, full width on desktop
                     index === 0 && 'mt-[20px]', // First thumbnail: 20px top margin globally
                     index === activeIndex && 'ring-2 ring-[#bbdae9]'
                   )}
