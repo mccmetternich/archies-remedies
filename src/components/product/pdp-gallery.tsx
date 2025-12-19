@@ -140,11 +140,11 @@ export function PDPGallery({
   };
 
   // CSS-only height calculations using CSS variables - GLOBAL (no lg: prefix)
-  // Hero max-height: 100vh - 280px (aggressive to force marquee visible, tune back to 254px once confirmed)
+  // Hero max-height: 100vh - 274px (shaved extra 20px to pull marquee into view)
   // Gallery height: 100vh - header - marquee (extends to marquee floor)
   const heroMaxHeight = marqueeEnabled
-    ? 'max-h-[calc(100vh-280px)]'
-    : 'max-h-[calc(100vh-200px)]'; // Without marquee: aggressive subtraction to test
+    ? 'max-h-[calc(100vh-274px)]'
+    : 'max-h-[calc(100vh-194px)]'; // Without marquee: same 274px less marquee height
 
   const galleryHeight = marqueeEnabled
     ? 'h-[calc(100vh-var(--pdp-header-height)-var(--pdp-marquee-height))]'
@@ -163,10 +163,9 @@ export function PDPGallery({
         {/* Hero Container - unified geometry across all breakpoints */}
         <div
           className={cn(
-            'relative bg-red-500', // DEBUG: red background to verify square
-            'flex-1', // Grow to push tray right
-            'aspect-square', // ALWAYS a square - media uses object-contain inside
-            'max-h-[calc(100vh-280px)]', // Cap height (width follows from aspect-square)
+            'relative bg-red-500/50', // DEBUG: semi-transparent red to verify square
+            'aspect-square h-full w-auto mx-auto flex-none', // Centered square based on height
+            heroMaxHeight,
             'min-h-[400px]', // Floor prevents collapse
             'mt-[40px]', // Editorial Stagger
             'mb-[80px]', // Breathing room above marquee
@@ -258,7 +257,7 @@ export function PDPGallery({
         {allImages.length > 1 && (
           <div
             className={cn(
-              'relative flex flex-col h-full', // h-full spans top to bottom, hero's flex-1 pushes tray right
+              'relative flex flex-col h-full ml-auto', // ml-auto anchors tray to right wall
               'bg-[#1a1a1a]', // Dark background globally
               'flex-none w-[200px]', // Fixed 200px width globally
               'flex-shrink-0',
