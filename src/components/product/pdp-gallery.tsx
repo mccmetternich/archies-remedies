@@ -163,12 +163,11 @@ export function PDPGallery({
         {/* Hero Container - unified geometry across all breakpoints */}
         <div
           className={cn(
-            'relative bg-red-500/50', // DEBUG: semi-transparent red to verify square
-            'aspect-square h-full w-auto mx-auto flex-none', // Centered square based on height
-            heroMaxHeight,
+            'relative flex-1 aspect-square',
+            'max-h-[calc(100vh-284px)]', // 284px shave to reveal marquee
             'min-h-[400px]', // Floor prevents collapse
             'mt-[40px]', // Editorial Stagger
-            'mb-[80px]', // Breathing room above marquee
+            'mb-[60px]', // Breathing room above marquee
             allImages.length > 1 && 'cursor-grab active:cursor-grabbing'
           )}
         >
