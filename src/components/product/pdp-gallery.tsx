@@ -155,7 +155,7 @@ export function PDPGallery({
       {/* Unified Layout - CSS-only vertical rhythm, no JS dependencies */}
       <div
         className={cn(
-          'flex items-stretch', // items-stretch so Tray fills full height (top to marquee)
+          'flex flex-row items-stretch justify-between', // flex-row + justify-between for Hero/Tray layout
           'gap-[var(--pdp-gutter)]', // Same gutter globally (CSS var handles responsive squish)
           galleryHeight
         )}
@@ -163,9 +163,8 @@ export function PDPGallery({
         {/* Hero Container - unified geometry across all breakpoints */}
         <div
           className={cn(
-            'relative flex-1 aspect-square',
-            'max-h-[calc(100vh-284px)]', // 284px shave to reveal marquee
-            'min-h-[400px]', // Floor prevents collapse
+            'relative flex-none aspect-square',
+            'h-[calc(100vh-294px)]', // Hard height anchor - forces width via aspect-square
             'mt-[40px]', // Editorial Stagger
             'mb-[60px]', // Breathing room above marquee
             allImages.length > 1 && 'cursor-grab active:cursor-grabbing'
@@ -256,10 +255,8 @@ export function PDPGallery({
         {allImages.length > 1 && (
           <div
             className={cn(
-              'relative flex flex-col h-full ml-auto', // ml-auto anchors tray to right wall
+              'relative flex-none flex flex-col h-full w-[200px] ml-auto', // Hard 200px width, ml-auto anchors right
               'bg-[#1a1a1a]', // Dark background globally
-              'flex-none w-[200px]', // Fixed 200px width globally
-              'flex-shrink-0',
               'overflow-hidden' // Strict clipping - nothing escapes to marquee
             )}
           >
