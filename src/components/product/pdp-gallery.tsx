@@ -260,7 +260,7 @@ export function PDPGallery({
             className={cn(
               'relative flex flex-col self-stretch',
               'bg-red-500', // DEBUG: red to see tray bounds
-              'flex-none w-[200px]', // Fixed 200px width globally
+              'flex-none w-[80px] lg:w-[200px]', // 80px on mobile, 200px on desktop
               'flex-shrink-0',
               'overflow-hidden' // Strict clipping - nothing escapes to marquee
             )}
