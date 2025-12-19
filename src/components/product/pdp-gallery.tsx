@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronUp, ChevronDown, X } from 'lucide-react';
@@ -22,6 +22,7 @@ interface PDPGalleryProps {
   badgeEmoji?: string | null;
   rotatingSealEnabled?: boolean;
   rotatingSealImageUrl?: string | null;
+  marqueeEnabled?: boolean;
 }
 
 export function PDPGallery({
@@ -32,6 +33,7 @@ export function PDPGallery({
   badgeEmoji,
   rotatingSealEnabled,
   rotatingSealImageUrl,
+  marqueeEnabled = false,
 }: PDPGalleryProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [direction, setDirection] = useState(0);
@@ -54,6 +56,35 @@ export function PDPGallery({
         ...images,
       ]
     : images;
+
+  // Overflow detection for arrow visibility
+  const thumbnailContainerRef = useRef<HTMLDivElement>(null);
+  const [showUpArrow, setShowUpArrow] = useState(false);
+  const [showDownArrow, setShowDownArrow] = useState(false);
+
+  // Detect overflow and scroll position for arrow visibility
+  useEffect(() => {
+    const container = thumbnailContainerRef.current;
+    if (!container) return;
+
+    const checkOverflow = () => {
+      const hasOverflow = container.scrollHeight > container.clientHeight;
+      const atTop = container.scrollTop <= 5;
+      const atBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 5;
+
+      setShowUpArrow(hasOverflow && !atTop);
+      setShowDownArrow(hasOverflow && !atBottom);
+    };
+
+    checkOverflow();
+    container.addEventListener('scroll', checkOverflow);
+    window.addEventListener('resize', checkOverflow);
+
+    return () => {
+      container.removeEventListener('scroll', checkOverflow);
+      window.removeEventListener('resize', checkOverflow);
+    };
+  }, [allImages.length]);
 
   const activeImage = allImages[activeIndex];
 
@@ -78,16 +109,27 @@ export function PDPGallery({
     }),
   };
 
+  // Dynamic heights based on marquee state
+  // Nav: 80px, Marquee: 44px, Buffer: 50px
+  const heroMaxHeight = marqueeEnabled
+    ? 'lg:max-h-[calc(100vh-174px)]' // 80 + 44 + 50
+    : 'lg:max-h-[calc(100vh-130px)]'; // 80 + 50
+
+  const trayHeight = marqueeEnabled
+    ? 'lg:h-[calc(100vh-124px)]' // 80 + 44
+    : 'lg:h-[calc(100vh-80px)]'; // just nav
+
   return (
     <>
       {/* Unified Layout - Single responsive component */}
-      <div className="flex items-start lg:h-[calc(100vh-80px)]">
+      <div className={cn('flex items-start', trayHeight)}>
         {/* Hero Container - square on desktop, taller on mobile */}
         <div
           className={cn(
             'relative overflow-hidden bg-[var(--cream)]',
             'flex-1 min-w-0',
-            'aspect-[1/1.18] lg:aspect-square lg:max-h-[calc(100vh-20px)] lg:w-auto',
+            'aspect-[1/1.18] lg:aspect-square lg:w-auto',
+            heroMaxHeight,
             'lg:mt-8',
             allImages.length > 1 && 'cursor-grab active:cursor-grabbing'
           )}
@@ -182,34 +224,52 @@ export function PDPGallery({
           <div className="w-[5px] bg-[#bbdae9] self-stretch lg:hidden" />
         )}
 
-        {/* Thumbnails - Saie-style vertical tray */}
+        {/* Thumbnails - Saie-style vertical tray with CSS variable gutter */}
         {allImages.length > 1 && (
           <div
             className={cn(
               'flex flex-col self-stretch',
               'bg-[#bbdae9] lg:bg-[#1a1a1a]',
               'w-[115px] lg:w-[200px]',
-              'lg:ml-[65px] lg:flex-shrink-0 lg:h-full lg:sticky lg:top-[80px]'
+              'lg:ml-[var(--pdp-gutter)] lg:flex-shrink-0 lg:h-full lg:sticky lg:top-[80px]'
             )}
           >
-            {/* Up Arrow - mobile only */}
+            {/* Up Arrow - mobile: always visible when not at start, desktop: inside 20px grid, overflow-aware */}
             <button
               onClick={() => {
-                setDirection(-1);
-                setActiveIndex(activeIndex === 0 ? allImages.length - 1 : activeIndex - 1);
+                // Mobile: navigate to previous
+                if (window.innerWidth < 1024) {
+                  setDirection(-1);
+                  setActiveIndex(activeIndex === 0 ? allImages.length - 1 : activeIndex - 1);
+                } else {
+                  // Desktop: scroll up
+                  thumbnailContainerRef.current?.scrollBy({ top: -180, behavior: 'smooth' });
+                }
               }}
-              disabled={activeIndex === 0}
               className={cn(
-                'w-full h-5 flex items-center justify-center lg:hidden',
-                'bg-[#bbdae9]',
-                'text-[#1a1a1a]'
+                'flex items-center justify-center transition-opacity',
+                // Mobile styling
+                'h-5 lg:h-auto',
+                'bg-[#bbdae9] lg:bg-transparent',
+                'text-[#1a1a1a] lg:text-white/60 lg:hover:text-white',
+                // Desktop: inside 20px padding, hide when no overflow
+                'lg:mx-[20px] lg:mt-[20px] lg:mb-2',
+                // Visibility
+                activeIndex === 0 && 'lg:hidden',
+                !showUpArrow && 'lg:opacity-0 lg:pointer-events-none'
               )}
             >
-              {activeIndex > 0 && <ChevronUp className="w-3.5 h-3.5" />}
+              <ChevronUp className="w-3.5 h-3.5 lg:w-5 lg:h-5" />
             </button>
 
-            {/* Thumbnail buttons - U-frame padding (20px uniform grid) */}
-            <div className="flex-1 lg:flex-none flex flex-col gap-[5px] lg:gap-[20px] lg:p-[20px]">
+            {/* Thumbnail buttons - scrollable container with 20px padding */}
+            <div
+              ref={thumbnailContainerRef}
+              className={cn(
+                'flex-1 flex flex-col gap-[5px] lg:gap-[20px]',
+                'lg:px-[20px] lg:overflow-y-auto lg:scrollbar-hide'
+              )}
+            >
               {allImages.slice(0, 5).map((image, index) => (
                 <button
                   key={image.id}
@@ -243,20 +303,32 @@ export function PDPGallery({
               ))}
             </div>
 
-            {/* Down Arrow - mobile only */}
+            {/* Down Arrow - mobile: always visible when not at end, desktop: inside 20px grid, overflow-aware */}
             <button
               onClick={() => {
-                setDirection(1);
-                setActiveIndex(activeIndex === allImages.length - 1 ? 0 : activeIndex + 1);
+                // Mobile: navigate to next
+                if (window.innerWidth < 1024) {
+                  setDirection(1);
+                  setActiveIndex(activeIndex === allImages.length - 1 ? 0 : activeIndex + 1);
+                } else {
+                  // Desktop: scroll down
+                  thumbnailContainerRef.current?.scrollBy({ top: 180, behavior: 'smooth' });
+                }
               }}
               className={cn(
-                'w-full h-5 flex items-center justify-center lg:hidden',
-                'bg-[#bbdae9]',
-                'text-[#1a1a1a]',
-                activeIndex === allImages.length - 1 && 'opacity-40'
+                'flex items-center justify-center transition-opacity',
+                // Mobile styling
+                'h-5 lg:h-auto',
+                'bg-[#bbdae9] lg:bg-transparent',
+                'text-[#1a1a1a] lg:text-white/60 lg:hover:text-white',
+                // Desktop: inside 20px padding, hide when no overflow
+                'lg:mx-[20px] lg:mb-[20px] lg:mt-2',
+                // Visibility
+                activeIndex === allImages.length - 1 && 'opacity-40 lg:opacity-100',
+                !showDownArrow && 'lg:opacity-0 lg:pointer-events-none'
               )}
             >
-              <ChevronDown className="w-3.5 h-3.5" />
+              <ChevronDown className="w-3.5 h-3.5 lg:w-5 lg:h-5" />
             </button>
           </div>
         )}

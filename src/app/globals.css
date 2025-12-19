@@ -24,6 +24,21 @@
   /* Semantic */
   --success: #22c55e;
   --error: #ef4444;
+
+  /* PDP Layout Constants */
+  --pdp-nav-height: 80px;
+  --pdp-marquee-height: 44px;
+  --pdp-fold-buffer: 50px;
+  --pdp-gutter: 65px;
+}
+
+/* PDP Gutter Progressive Squish */
+@media (max-width: 1280px) {
+  :root { --pdp-gutter: 45px; }
+}
+
+@media (max-width: 1100px) {
+  :root { --pdp-gutter: 25px; }
 }
 
 /* =============================================
@@ -578,6 +593,15 @@ input[type="button"]:disabled,
       padding-left: calc(7rem + 150px);
       padding-right: calc(7rem + 150px);
     }
+  }
+
+  /* Hide scrollbar but keep functionality */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
   }
 }
 

@@ -185,17 +185,18 @@ export function PDPHeroSection({
           badgeEmoji={product.badgeEmoji}
           rotatingSealEnabled={product.rotatingSealEnabled || false}
           rotatingSealImageUrl={product.rotatingSealImageUrl}
-        />
-
-        {/* Marquee - below gallery, full width on mobile */}
-        <PDPMarquee
-          text={marqueeText || ''}
-          enabled={marqueeEnabled}
-          backgroundColor={marqueeBackgroundColor}
-          textColor={marqueeTextColor}
-          className="-mx-4 lg:mx-0 lg:mt-6"
+          marqueeEnabled={marqueeEnabled}
         />
       </div>
+
+      {/* Marquee - SIBLING to gallery, sticky bottom anchor */}
+      <PDPMarquee
+        text={marqueeText || ''}
+        enabled={marqueeEnabled}
+        backgroundColor={marqueeBackgroundColor}
+        textColor={marqueeTextColor}
+        className="order-3 w-full -mx-4 lg:mx-0 lg:sticky lg:bottom-0 lg:z-10"
+      />
     </div>
   );
 }

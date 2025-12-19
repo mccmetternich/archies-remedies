@@ -182,6 +182,8 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
         )}
       >
         <nav className="container">
+          {/* Scoped max-width for centered nav behavior */}
+          <div className="max-w-[1600px] mx-auto">
           {/* Nav row - lg:z-[70] ensures nav items float above the dropdown (z-50) on desktop only */}
           <div className={cn(
             "flex items-center relative lg:z-[70]",
@@ -567,6 +569,7 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
             </div>
 
           </div>
+          </div>{/* Close max-width wrapper */}
         </nav>
 
       </header>
