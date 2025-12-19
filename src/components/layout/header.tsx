@@ -182,11 +182,13 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
         )}
       >
         <nav className="container">
-          {/* Nav row - lg:z-[70] ensures nav items float above the dropdown (z-50) on desktop only */}
-          <div className={cn(
-            "flex items-center relative lg:z-[70]",
-            logoPosition === 'center' ? 'lg:justify-between' : 'justify-between'
-          )}>
+          {/* Max-width wrapper to prevent nav from spreading too wide on ultra-wide screens */}
+          <div className="max-w-[1440px] mx-auto w-full">
+            {/* Nav row - lg:z-[70] ensures nav items float above the dropdown (z-50) on desktop only */}
+            <div className={cn(
+              "flex items-center relative lg:z-[70]",
+              logoPosition === 'center' ? 'lg:justify-between' : 'justify-between'
+            )}>
             {/* Mobile Menu Button - Far right, bigger */}
             <button
               onClick={() => setIsOpen(!isOpen)}
@@ -450,7 +452,7 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                         </div>
 
                         {/* Spacer - grows with container width */}
-                        <div className="hidden lg:block w-8 xl:w-16 2xl:w-24" />
+                        <div className="hidden lg:block w-8 xl:w-12 2xl:w-16" />
 
                         {/* Marketing Tile (Clean Formulas) - Fixed max-width, centered vertically */}
                         <div className="relative overflow-visible max-w-sm">
@@ -566,6 +568,7 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
               )}
             </div>
 
+            </div>
           </div>
         </nav>
 
