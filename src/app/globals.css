@@ -568,8 +568,15 @@ input[type="button"]:disabled,
 
   @media (min-width: 1280px) {
     .container {
-      padding-left: calc(7rem + 15px);
-      padding-right: calc(7rem + 15px);
+      padding-left: calc(7rem + 90px);
+      padding-right: calc(7rem + 90px);
+    }
+  }
+
+  @media (min-width: 1536px) {
+    .container {
+      padding-left: calc(7rem + 150px);
+      padding-right: calc(7rem + 150px);
     }
   }
 }
