@@ -138,9 +138,9 @@ export function PDPHeroSection({
   };
 
   return (
-    <div className="flex flex-col lg:flex-row lg:gap-[182px] xl:gap-[200px] items-start">
-      {/* Buy Box - RIGID column, sticky on desktop, pulled left 50px, up 25px, increased gap to hero */}
-      <div className="order-2 lg:order-1 w-full lg:w-[450px] lg:flex-shrink-0 lg:sticky lg:top-4 lg:self-start mt-[30px] lg:mt-0 lg:pt-[46px] lg:-ml-[50px] px-4 lg:px-0">
+    <div className="flex flex-col lg:flex-row lg:justify-between w-full max-w-full px-4 lg:px-8 xl:px-16">
+      {/* Buy Box - RIGID column, sticky on desktop, editorial stagger */}
+      <div className="order-2 lg:order-1 w-full lg:w-[450px] lg:flex-shrink-0 lg:sticky lg:top-4 lg:self-start mt-8 lg:mt-0 lg:pt-[46px]">
         <PDPBuyBox
           product={product}
           variants={variants}
@@ -162,8 +162,8 @@ export function PDPHeroSection({
         />
       </div>
 
-      {/* Gallery - FLUID column */}
-      <div className="order-1 lg:order-2 w-full lg:flex-1 lg:min-w-0">
+      {/* Gallery - FLUID column, constrained to viewport height */}
+      <div className="order-1 lg:order-2 w-full lg:flex-1 lg:min-w-0 lg:max-w-[calc(100vh-20px)]">
         <PDPGallery
           images={activeImages}
           heroImage={activeHeroImage}

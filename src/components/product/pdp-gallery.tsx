@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronUp, ChevronDown, X } from 'lucide-react';
@@ -37,48 +37,6 @@ export function PDPGallery({
   const [direction, setDirection] = useState(0);
   const [videoModalOpen, setVideoModalOpen] = useState(false);
   const [activeVideoUrl, setActiveVideoUrl] = useState<string | null>(null);
-  const [showTopArrow, setShowTopArrow] = useState(false);
-  const [showBottomArrow, setShowBottomArrow] = useState(false);
-  const thumbnailContainerRef = useRef<HTMLDivElement>(null);
-
-  // Desktop: Dynamic header height detection (95px without bumper, 135px with bumper)
-  const [headerHeight, setHeaderHeight] = useState(95);
-  // Desktop: Track hero container height for thumbnail sizing
-  const heroContainerRef = useRef<HTMLDivElement>(null);
-  const [heroHeight, setHeroHeight] = useState(500); // Start with reasonable default, not 0
-
-  // Detect header height based on bumper bar presence
-  useEffect(() => {
-    const detectHeaderHeight = () => {
-      // Look for the header spacer div that indicates bumper presence
-      const spacer135 = document.querySelector('[class*="h-\\[135px\\]"]');
-      const spacer95 = document.querySelector('[class*="h-\\[95px\\]"]');
-      if (spacer135) {
-        setHeaderHeight(135);
-      } else if (spacer95) {
-        setHeaderHeight(95);
-      }
-    };
-    detectHeaderHeight();
-    // Re-check on resize in case bumper visibility changes
-    window.addEventListener('resize', detectHeaderHeight);
-    return () => window.removeEventListener('resize', detectHeaderHeight);
-  }, []);
-
-  // Track hero container height with ResizeObserver (no scroll tracking needed with sticky)
-  useEffect(() => {
-    const hero = heroContainerRef.current;
-    if (!hero) return;
-
-    const resizeObserver = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        setHeroHeight(entry.contentRect.height);
-      }
-    });
-
-    resizeObserver.observe(hero);
-    return () => resizeObserver.disconnect();
-  }, []);
 
   // Check if heroImage is a video
   const isHeroVideo = heroImage && /\.(mp4|webm|mov|ogg)$/i.test(heroImage);
@@ -99,50 +57,12 @@ export function PDPGallery({
 
   const activeImage = allImages[activeIndex];
 
-  // Check if thumbnails overflow viewport
-  useEffect(() => {
-    const checkOverflow = () => {
-      if (!thumbnailContainerRef.current) return;
-      const container = thumbnailContainerRef.current;
-      const rect = container.getBoundingClientRect();
-      const viewportHeight = window.innerHeight;
-
-      // Show top arrow if first thumbnail is above viewport
-      setShowTopArrow(rect.top < 80); // 80px accounts for header
-
-      // Show bottom arrow if last thumbnail is below viewport
-      setShowBottomArrow(rect.bottom > viewportHeight - 25);
-    };
-
-    checkOverflow();
-    window.addEventListener('scroll', checkOverflow);
-    window.addEventListener('resize', checkOverflow);
-    return () => {
-      window.removeEventListener('scroll', checkOverflow);
-      window.removeEventListener('resize', checkOverflow);
-    };
-  }, [allImages.length]);
-
   // Handle thumbnail hover - slides to that image
   const handleThumbnailHover = (index: number) => {
     if (index !== activeIndex) {
       setDirection(index > activeIndex ? 1 : -1);
       setActiveIndex(index);
     }
-  };
-
-  const handleVideoClick = (videoUrl: string) => {
-    setActiveVideoUrl(videoUrl);
-    setVideoModalOpen(true);
-  };
-
-  // Navigate thumbnails
-  const scrollToThumbnail = (direction: 'up' | 'down') => {
-    const newIndex = direction === 'up'
-      ? Math.max(0, activeIndex - 1)
-      : Math.min(allImages.length - 1, activeIndex + 1);
-    setDirection(direction === 'up' ? -1 : 1);
-    setActiveIndex(newIndex);
   };
 
   // Slide animation variants
@@ -164,36 +84,12 @@ export function PDPGallery({
   const canScrollUp = mobileScrollIndex > 0;
   const canScrollDown = mobileScrollIndex + visibleMobileThumbnails < allImages.length;
 
-  // Calculate thumbnail size based on image count
-  // Max height available: calc(100vh - 25px) minus arrows (2 * 40px = 80px) minus gaps
-  const imageCount = Math.min(allImages.length, 5);
-
-  // Calculate square thumbnail size based on available height and image count
-  const calculateThumbnailSize = () => {
-    const arrowsHeight = 80; // 2 × 40px
-    const paddingHeight = 16; // py-2 = 8px × 2
-    const gapsHeight = (imageCount - 1) * 8; // gap-2 = 8px per gap
-    const panelHeight = heroHeight > 0 ? heroHeight : 500;
-    const availableHeight = panelHeight - arrowsHeight - paddingHeight - gapsHeight;
-    return Math.floor(Math.max(60, Math.min(180, availableHeight / imageCount)));
-  };
-
-  const squareSize = calculateThumbnailSize();
-
   return (
     <>
-      {/* Desktop Layout - flex row with hero and thumbnails as siblings */}
-      {/* Natural height from hero's aspect-square; sticky thumbnails bounded by this container */}
-      <div className="hidden lg:flex gap-6 items-start">
-        {/* Hero Image Container - square, accounts for header height, shrinks to fit thumbnails */}
-        <div
-          ref={heroContainerRef}
-          className="relative flex-1 min-w-0 bg-[var(--cream)] overflow-hidden aspect-square"
-          style={{
-            maxHeight: `calc(100vh - ${headerHeight}px)`,
-            maxWidth: `calc(100vh - ${headerHeight}px)`
-          }}
-        >
+      {/* Desktop Layout - Pure CSS, no JavaScript sizing */}
+      <div className="hidden lg:flex gap-4 items-start">
+        {/* Hero Media - viewport height constrained */}
+        <div className="relative flex-1 min-w-0 bg-[var(--cream)] overflow-hidden h-[calc(100vh-20px)] w-auto max-w-full">
           {/* Product Badge */}
           {badge && (
             <div className="absolute top-5 left-5 z-20">
@@ -206,7 +102,7 @@ export function PDPGallery({
 
           {/* Rotating Seal */}
           {rotatingSealEnabled && rotatingSealImageUrl && (
-            <div className="absolute bottom-6 right-6 z-20 w-24 h-24 lg:w-28 lg:h-28">
+            <div className="absolute bottom-6 right-6 z-20 w-28 h-28">
               <Image
                 src={rotatingSealImageUrl}
                 alt="Product seal"
@@ -217,6 +113,7 @@ export function PDPGallery({
             </div>
           )}
 
+          {/* Animated Image/Video */}
           <AnimatePresence initial={false} custom={direction} mode="popLayout">
             <motion.div
               key={activeIndex}
@@ -244,7 +141,7 @@ export function PDPGallery({
                   fill
                   className="object-cover"
                   priority={activeIndex === 0}
-                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  sizes="50vw"
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
@@ -257,45 +154,30 @@ export function PDPGallery({
           </AnimatePresence>
         </div>
 
-        {/* Thumbnail Strip - sticky, part of layout flow, pushes hero when viewport shrinks */}
+        {/* Thumbnails - Pure CSS w-24 aspect-square */}
         {allImages.length > 1 && (
-          <div
-            className="sticky top-0 self-start flex-shrink-0 flex flex-col items-start"
-            style={{
-              top: `${headerHeight}px`,
-              maxHeight: `calc(100vh - ${headerHeight}px)`,
-            }}
-          >
+          <div className="sticky top-24 self-start flex-shrink-0 flex flex-col items-center">
             {/* Up Arrow */}
             <button
               onClick={() => {
-                const newIndex = activeIndex === 0 ? allImages.length - 1 : activeIndex - 1;
                 setDirection(-1);
-                setActiveIndex(newIndex);
+                setActiveIndex(activeIndex === 0 ? allImages.length - 1 : activeIndex - 1);
               }}
-              className="h-10 flex items-center justify-center bg-[#1a1a1a] text-white flex-shrink-0"
-              style={{ width: `${squareSize}px` }}
+              className="w-24 h-10 flex items-center justify-center bg-[#1a1a1a] text-white"
             >
               <ChevronUp className="w-6 h-6" />
             </button>
 
-            {/* Thumbnails - square, top-aligned, scale based on available height */}
-            <div
-              ref={thumbnailContainerRef}
-              className="flex flex-col gap-2 py-2 min-h-0 items-center justify-start"
-            >
+            {/* Thumbnail buttons */}
+            <div className="flex flex-col gap-2 py-2">
               {allImages.slice(0, 5).map((image, index) => (
                 <button
                   key={image.id}
                   onMouseEnter={() => handleThumbnailHover(index)}
                   className={cn(
-                    'relative overflow-hidden transition-all duration-200 bg-white flex-shrink-0',
+                    'w-24 aspect-square flex-shrink-0 relative overflow-hidden bg-white transition-all duration-200',
                     index === activeIndex && 'ring-2 ring-[#bbdae9]'
                   )}
-                  style={{
-                    width: `${squareSize}px`,
-                    height: `${squareSize}px`,
-                  }}
                 >
                   {image.isVideo && image.videoUrl ? (
                     <video
@@ -312,7 +194,7 @@ export function PDPGallery({
                       alt={image.altText || `${productName} view ${index + 1}`}
                       fill
                       className="object-cover"
-                      sizes={`${squareSize}px`}
+                      sizes="96px"
                     />
                   ) : null}
                 </button>
@@ -322,12 +204,10 @@ export function PDPGallery({
             {/* Down Arrow */}
             <button
               onClick={() => {
-                const newIndex = activeIndex === allImages.length - 1 ? 0 : activeIndex + 1;
                 setDirection(1);
-                setActiveIndex(newIndex);
+                setActiveIndex(activeIndex === allImages.length - 1 ? 0 : activeIndex + 1);
               }}
-              className="h-10 flex items-center justify-center bg-[#1a1a1a] text-white flex-shrink-0"
-              style={{ width: `${squareSize}px` }}
+              className="w-24 h-10 flex items-center justify-center bg-[#1a1a1a] text-white"
             >
               <ChevronDown className="w-6 h-6" />
             </button>
