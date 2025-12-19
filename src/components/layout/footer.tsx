@@ -193,7 +193,7 @@ export function Footer({
       {/* ROW 1: Community Invitation - Full Width with wider spread */}
       {emailSignupEnabled && (
         <div className="py-20 md:py-24">
-          <div className="w-full px-6 md:px-12 lg:px-20 xl:px-28">
+          <div className="container">
             {status === 'success' ? (
               <div className="text-center py-8 animate-fade-in">
                 {/* Success checkmark */}
@@ -281,7 +281,7 @@ export function Footer({
 
       {/* ROW 2: Navigation Grid */}
       <div className="py-16 md:py-20">
-        <div className="w-full px-6 md:px-12 lg:px-20 xl:px-28">
+        <div className="container">
           {/* Desktop Grid - 5 Columns with wider spread */}
           <div className="hidden md:grid md:grid-cols-12 gap-8 lg:gap-12">
             {/* Column 1: Brand Anchor - pushed left */}

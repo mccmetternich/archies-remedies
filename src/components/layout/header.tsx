@@ -271,10 +271,10 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                             {tile1Product && (
                               <Link
                                 href={`/products/${tile1Product.slug}`}
-                                className="group/tile block p-5 pl-0 rounded-2xl bg-white hover:shadow-md hover:bg-[var(--cream)] transition-all duration-300"
+                                className="group/tile block p-5 pl-0 rounded-2xl bg-transparent transition-all duration-300"
                               >
                                 <div className="relative mb-4">
-                                  <div className="aspect-square w-full rounded-xl overflow-hidden bg-[var(--cream)] relative">
+                                  <div className="aspect-square w-full rounded-xl overflow-hidden bg-[var(--cream)] relative group-hover/tile:scale-[1.03] transition-transform duration-300">
                                     {/* Primary Media - video or image, visible by default */}
                                     {(() => {
                                       const primaryUrl = globalNav?.tile1ImageUrl || tile1Product.heroImageUrl || PRODUCT_IMAGES['eye-drops'];
@@ -300,7 +300,7 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                                           height={400}
                                           className={cn(
                                             "w-full h-full object-cover transition-opacity duration-300",
-                                            globalNav?.tile1HoverImageUrl ? "group-hover/tile:opacity-0" : "group-hover/tile:scale-105"
+                                            globalNav?.tile1HoverImageUrl ? "group-hover/tile:opacity-0" : ""
                                           )}
                                         />
                                       );
@@ -361,10 +361,10 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                             {tile2Product && (
                               <Link
                                 href={`/products/${tile2Product.slug}`}
-                                className="group/tile block p-5 pl-0 rounded-2xl bg-white hover:shadow-md hover:bg-[var(--cream)] transition-all duration-300"
+                                className="group/tile block p-5 pl-0 rounded-2xl bg-transparent transition-all duration-300"
                               >
                                 <div className="relative mb-4">
-                                  <div className="aspect-square w-full rounded-xl overflow-hidden bg-[var(--cream)] relative">
+                                  <div className="aspect-square w-full rounded-xl overflow-hidden bg-[var(--cream)] relative group-hover/tile:scale-[1.03] transition-transform duration-300">
                                     {/* Primary Media - video or image, visible by default */}
                                     {(() => {
                                       const primaryUrl = globalNav?.tile2ImageUrl || tile2Product.heroImageUrl || PRODUCT_IMAGES['eye-wipes'];
@@ -390,7 +390,7 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                                           height={400}
                                           className={cn(
                                             "w-full h-full object-cover transition-opacity duration-300",
-                                            globalNav?.tile2HoverImageUrl ? "group-hover/tile:opacity-0" : "group-hover/tile:scale-105"
+                                            globalNav?.tile2HoverImageUrl ? "group-hover/tile:opacity-0" : ""
                                           )}
                                         />
                                       );
@@ -453,7 +453,7 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                         <div className="hidden lg:block w-8 xl:w-16 2xl:w-24" />
 
                         {/* Marketing Tile (Clean Formulas) - Fixed max-width, centered vertically */}
-                        <div className="relative overflow-visible max-w-sm">
+                        <div className="relative overflow-visible max-w-[434px]">
                           <div className="p-6 rounded-2xl bg-[var(--primary-light)] relative">
                             {/* Rotating Badge - Desktop only (respects desktop toggle) */}
                             {globalNav?.marketingTileRotatingBadgeEnabled &&
