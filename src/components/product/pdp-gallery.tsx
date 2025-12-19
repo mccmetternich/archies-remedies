@@ -110,19 +110,21 @@ export function PDPGallery({
   };
 
   // Dynamic heights based on marquee state
-  // Nav: 80px, Marquee: 44px, Buffer: 50px
+  // Nav: 80px, Marquee: 44px, Buffer/Gap: 50px
+  // Hero max-height creates 50px gap above marquee
   const heroMaxHeight = marqueeEnabled
-    ? 'lg:max-h-[calc(100vh-174px)]' // 80 + 44 + 50
-    : 'lg:max-h-[calc(100vh-130px)]'; // 80 + 50
+    ? 'lg:max-h-[calc(100vh-174px)]' // 80 + 44 + 50 = 174px reserved
+    : 'lg:max-h-[calc(100vh-130px)]'; // 80 + 50 = 130px reserved
 
-  const trayHeight = marqueeEnabled
-    ? 'lg:h-[calc(100vh-124px)]' // 80 + 44
+  // Gallery container height - extends to marquee floor
+  const galleryHeight = marqueeEnabled
+    ? 'lg:h-[calc(100vh-124px)]' // 80 + 44 = 124px (nav + marquee)
     : 'lg:h-[calc(100vh-80px)]'; // just nav
 
   return (
     <>
       {/* Unified Layout - Single responsive component */}
-      <div className={cn('flex items-start', trayHeight)}>
+      <div className={cn('flex items-start', galleryHeight)}>
         {/* Hero Container - square on desktop, taller on mobile */}
         <div
           className={cn(
@@ -130,7 +132,6 @@ export function PDPGallery({
             'flex-1 min-w-0',
             'aspect-[1/1.18] lg:aspect-square lg:w-auto',
             heroMaxHeight,
-            'lg:mt-8',
             allImages.length > 1 && 'cursor-grab active:cursor-grabbing'
           )}
         >

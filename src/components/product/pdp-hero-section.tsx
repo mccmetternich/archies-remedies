@@ -150,56 +150,53 @@ export function PDPHeroSection({
   };
 
   return (
-    <div className="flex flex-col w-full">
-      {/* Main Row Container */}
-      <div className="flex flex-col lg:flex-row w-full max-w-full px-4 lg:pr-0 lg:pl-[390px]">
-        {/* Buy Box - RIGID column, sticky on desktop, editorial stagger, fixed 192px gap */}
-        <div className="order-2 lg:order-1 w-full lg:w-[450px] lg:flex-shrink-0 lg:sticky lg:top-4 lg:self-start mt-8 lg:mt-0 lg:pt-[68px] lg:mr-[192px]">
-          <PDPBuyBox
-            product={product}
-            variants={variants}
-            reviewCount={reviewCount}
-            averageRating={averageRating}
-            bulletPoints={bulletPoints}
-            ctaButtonText={ctaButtonText}
-            ctaExternalUrl={ctaExternalUrl}
-            showDiscountSignup={showDiscountSignup}
-            discountSignupText={discountSignupText}
-            reviewBadge={reviewBadge}
-            reviewBadgeEmoji={reviewBadgeEmoji}
-            reviewBadgeBgColor={reviewBadgeBgColor}
-            reviewBadgeTextColor={reviewBadgeTextColor}
-            audioUrl={audioUrl}
-            audioAvatarUrl={audioAvatarUrl}
-            audioTitle={audioTitle}
-            audioQuote={audioQuote}
-            onVariantChange={handleVariantChange}
-          />
-        </div>
-
-        {/* Gallery - FLUID column, no max-width bottleneck */}
-        <div className="order-1 lg:order-2 w-full lg:flex-1 lg:min-w-0">
-          <PDPGallery
-            images={activeImages}
-            heroImage={activeHeroImage}
-            productName={product.name}
-            badge={product.badge}
-            badgeEmoji={product.badgeEmoji}
-            rotatingSealEnabled={product.rotatingSealEnabled || false}
-            rotatingSealImageUrl={product.rotatingSealImageUrl}
-            marqueeEnabled={marqueeEnabled}
-          />
-        </div>
+    <div className="flex flex-col lg:flex-row w-full max-w-full px-4 lg:pr-0 lg:pl-[390px]">
+      {/* Buy Box - RIGID column, sticky on desktop, editorial stagger, fixed 192px gap */}
+      <div className="order-2 lg:order-1 w-full lg:w-[450px] lg:flex-shrink-0 lg:sticky lg:top-4 lg:self-start mt-8 lg:mt-0 lg:pt-[68px] lg:mr-[192px]">
+        <PDPBuyBox
+          product={product}
+          variants={variants}
+          reviewCount={reviewCount}
+          averageRating={averageRating}
+          bulletPoints={bulletPoints}
+          ctaButtonText={ctaButtonText}
+          ctaExternalUrl={ctaExternalUrl}
+          showDiscountSignup={showDiscountSignup}
+          discountSignupText={discountSignupText}
+          reviewBadge={reviewBadge}
+          reviewBadgeEmoji={reviewBadgeEmoji}
+          reviewBadgeBgColor={reviewBadgeBgColor}
+          reviewBadgeTextColor={reviewBadgeTextColor}
+          audioUrl={audioUrl}
+          audioAvatarUrl={audioAvatarUrl}
+          audioTitle={audioTitle}
+          audioQuote={audioQuote}
+          onVariantChange={handleVariantChange}
+        />
       </div>
 
-      {/* Marquee - OUTSIDE row container, sticky bottom anchor */}
-      <PDPMarquee
-        text={marqueeText || ''}
-        enabled={marqueeEnabled}
-        backgroundColor={marqueeBackgroundColor}
-        textColor={marqueeTextColor}
-        className="w-full lg:sticky lg:bottom-0 lg:z-10"
-      />
+      {/* Media Lane - Gallery + Marquee constrained to this column */}
+      <div className="order-1 lg:order-2 w-full lg:flex-1 lg:min-w-0 flex flex-col">
+        <PDPGallery
+          images={activeImages}
+          heroImage={activeHeroImage}
+          productName={product.name}
+          badge={product.badge}
+          badgeEmoji={product.badgeEmoji}
+          rotatingSealEnabled={product.rotatingSealEnabled || false}
+          rotatingSealImageUrl={product.rotatingSealImageUrl}
+          marqueeEnabled={marqueeEnabled}
+        />
+
+        {/* Marquee - INSIDE Media Lane, sticky bottom anchor */}
+        <PDPMarquee
+          text={marqueeText || ''}
+          enabled={marqueeEnabled}
+          backgroundColor={marqueeBackgroundColor}
+          textColor={marqueeTextColor}
+          className="w-full lg:sticky lg:bottom-0 lg:z-10"
+        />
+      </div>
     </div>
   );
 }
