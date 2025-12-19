@@ -155,8 +155,8 @@ export function PDPGallery({
       {/* Unified Layout - CSS-only vertical rhythm, no JS dependencies */}
       <div
         className={cn(
-          'flex items-start', // items-start allows max-height to create visible whitespace
-          'gap-[var(--pdp-gutter)]', // Same gutter globally (CSS var handles responsive squish)
+          'flex items-start w-full max-w-full overflow-hidden', // Constrain to viewport
+          'gap-0 lg:gap-[var(--pdp-gutter)]', // No gap on mobile, gutter on desktop
           galleryHeight
         )}
       >
