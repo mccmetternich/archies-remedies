@@ -154,9 +154,9 @@ export function PDPGallery({
           </AnimatePresence>
         </div>
 
-        {/* Separator - mobile only */}
+        {/* Blue Hex Separator - 5px mobile, 2px desktop */}
         {allImages.length > 1 && (
-          <div className="w-[5px] bg-[#bbdae9] self-stretch lg:hidden" />
+          <div className="w-[5px] lg:w-[2px] bg-[#bbdae9] self-stretch" />
         )}
 
         {/* Thumbnails - responsive sizing */}
