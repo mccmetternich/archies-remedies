@@ -261,45 +261,46 @@ export function PDPGallery({
               'bg-[#bbdae9] lg:bg-[#1a1a1a]',
               'w-[115px] lg:flex-none lg:w-[200px]',
               'flex-shrink-0',
-              'overflow-hidden' // Contain the gradient overlays
+              'overflow-hidden' // Strict clipping - nothing escapes to marquee
             )}
           >
-            {/* Top Gradient Overlay + Up Arrow - separate div for fade effect */}
+            {/* Top Gradient Fade - click-through overlay */}
             <div
               className={cn(
-                'absolute top-0 left-0 right-0 z-40',
-                'h-16 lg:h-20',
-                'bg-gradient-to-b from-[#bbdae9] via-[#bbdae9]/60 to-transparent',
-                'lg:from-[#1a1a1a] lg:via-[#1a1a1a]/60 lg:to-transparent',
-                'flex items-start justify-center pt-2',
-                'transition-opacity duration-200',
+                'absolute top-0 left-0 right-0 z-30',
+                'h-12 lg:h-16',
+                'bg-gradient-to-b from-[#bbdae9] to-transparent',
+                'lg:from-[#1a1a1a] lg:to-transparent',
                 'pointer-events-none',
-                // Mobile: hide when at first image
-                activeIndex === 0 && 'opacity-0 lg:opacity-100',
-                // Desktop: hide when can't scroll up
+                'transition-opacity duration-200',
+                // Desktop: only show when can scroll up
                 !canScrollUp && 'lg:opacity-0'
               )}
+            />
+
+            {/* Up Arrow - original style, inside tray */}
+            <button
+              onClick={() => {
+                if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+                  goToPrevious();
+                } else {
+                  scrollThumbnails('up');
+                }
+              }}
+              className={cn(
+                'absolute top-1 left-0 right-0 z-40',
+                'flex items-center justify-center',
+                'h-8 lg:h-10',
+                'text-[#1a1a1a] lg:text-white/70 lg:hover:text-white',
+                'transition-opacity duration-200',
+                // Mobile: hide when at first image
+                activeIndex === 0 && 'opacity-0 pointer-events-none lg:opacity-100 lg:pointer-events-auto',
+                // Desktop: hide when can't scroll up
+                !canScrollUp && 'lg:opacity-0 lg:pointer-events-none'
+              )}
             >
-              <button
-                onClick={() => {
-                  if (typeof window !== 'undefined' && window.innerWidth < 1024) {
-                    goToPrevious();
-                  } else {
-                    scrollThumbnails('up');
-                  }
-                }}
-                className={cn(
-                  'pointer-events-auto',
-                  'w-8 h-8 lg:w-10 lg:h-10 rounded-full',
-                  'flex items-center justify-center',
-                  'bg-white/20 lg:bg-white/10 hover:bg-white/30',
-                  'text-[#1a1a1a] lg:text-white',
-                  'transition-colors duration-200'
-                )}
-              >
-                <ChevronUp className="w-5 h-5 lg:w-6 lg:h-6" />
-              </button>
-            </div>
+              <ChevronUp className="w-5 h-5 lg:w-6 lg:h-6" />
+            </button>
 
             {/* Thumbnail buttons - scrollable container, flush edges */}
             <div
@@ -307,7 +308,7 @@ export function PDPGallery({
               className={cn(
                 'flex-1 flex flex-col',
                 'gap-[var(--pdp-gap)]', // 5px gaps
-                'p-[var(--pdp-gap)] lg:p-[20px]', // Flush with tray edges
+                'p-[var(--pdp-gap)] lg:p-[20px]',
                 'overflow-y-auto overflow-x-hidden'
               )}
             >
@@ -345,42 +346,43 @@ export function PDPGallery({
               ))}
             </div>
 
-            {/* Bottom Gradient Overlay + Down Arrow - separate div for fade effect */}
+            {/* Bottom Gradient Fade - click-through overlay */}
             <div
               className={cn(
-                'absolute bottom-0 left-0 right-0 z-40',
-                'h-16 lg:h-20',
-                'bg-gradient-to-t from-[#bbdae9] via-[#bbdae9]/60 to-transparent',
-                'lg:from-[#1a1a1a] lg:via-[#1a1a1a]/60 lg:to-transparent',
-                'flex items-end justify-center pb-2',
-                'transition-opacity duration-200',
+                'absolute bottom-0 left-0 right-0 z-30',
+                'h-12 lg:h-16',
+                'bg-gradient-to-t from-[#bbdae9] to-transparent',
+                'lg:from-[#1a1a1a] lg:to-transparent',
                 'pointer-events-none',
-                // Mobile: hide when at last image
-                activeIndex === allImages.length - 1 && 'opacity-0 lg:opacity-100',
-                // Desktop: hide when can't scroll down
+                'transition-opacity duration-200',
+                // Desktop: only show when can scroll down
                 !canScrollDown && 'lg:opacity-0'
               )}
+            />
+
+            {/* Down Arrow - original style, inside tray */}
+            <button
+              onClick={() => {
+                if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+                  goToNext();
+                } else {
+                  scrollThumbnails('down');
+                }
+              }}
+              className={cn(
+                'absolute bottom-1 left-0 right-0 z-40',
+                'flex items-center justify-center',
+                'h-8 lg:h-10',
+                'text-[#1a1a1a] lg:text-white/70 lg:hover:text-white',
+                'transition-opacity duration-200',
+                // Mobile: hide when at last image
+                activeIndex === allImages.length - 1 && 'opacity-0 pointer-events-none lg:opacity-100 lg:pointer-events-auto',
+                // Desktop: hide when can't scroll down
+                !canScrollDown && 'lg:opacity-0 lg:pointer-events-none'
+              )}
             >
-              <button
-                onClick={() => {
-                  if (typeof window !== 'undefined' && window.innerWidth < 1024) {
-                    goToNext();
-                  } else {
-                    scrollThumbnails('down');
-                  }
-                }}
-                className={cn(
-                  'pointer-events-auto',
-                  'w-8 h-8 lg:w-10 lg:h-10 rounded-full',
-                  'flex items-center justify-center',
-                  'bg-white/20 lg:bg-white/10 hover:bg-white/30',
-                  'text-[#1a1a1a] lg:text-white',
-                  'transition-colors duration-200'
-                )}
-              >
-                <ChevronDown className="w-5 h-5 lg:w-6 lg:h-6" />
-              </button>
-            </div>
+              <ChevronDown className="w-5 h-5 lg:w-6 lg:h-6" />
+            </button>
           </div>
         )}
       </div>
