@@ -186,8 +186,8 @@ export function PDPGallery({
               {activeIndex > 0 && <ChevronUp className="w-3.5 h-3.5" />}
             </button>
 
-            {/* Thumbnail buttons - U-frame padding (10px top/sides/gap) */}
-            <div className="flex-1 lg:flex-none flex flex-col gap-[5px] lg:gap-[10px] lg:p-[10px]">
+            {/* Thumbnail buttons - U-frame padding (20px uniform grid) */}
+            <div className="flex-1 lg:flex-none flex flex-col gap-[5px] lg:gap-[20px] lg:p-[20px]">
               {allImages.slice(0, 5).map((image, index) => (
                 <button
                   key={image.id}
