@@ -195,6 +195,10 @@ export default async function ProductPage({ params }: PageProps) {
             audioUrl={product.audioUrl}
             audioAvatarUrl={product.audioAvatarUrl}
             audioTitle={product.audioTitle}
+            marqueeEnabled={product.marqueeEnabled ?? false}
+            marqueeText={product.marqueeText}
+            marqueeBackgroundColor={product.marqueeBackgroundColor}
+            marqueeTextColor={product.marqueeTextColor}
           />
         </section>
 

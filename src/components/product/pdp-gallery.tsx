@@ -22,6 +22,7 @@ interface PDPGalleryProps {
   badgeEmoji?: string | null;
   rotatingSealEnabled?: boolean;
   rotatingSealImageUrl?: string | null;
+  marqueeEnabled?: boolean;
 }
 
 export function PDPGallery({
@@ -32,6 +33,7 @@ export function PDPGallery({
   badgeEmoji,
   rotatingSealEnabled,
   rotatingSealImageUrl,
+  marqueeEnabled = false,
 }: PDPGalleryProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [direction, setDirection] = useState(0);
@@ -81,14 +83,28 @@ export function PDPGallery({
   return (
     <>
       {/* Unified Layout - Single responsive component */}
-      <div className="flex items-start lg:h-[calc(100vh-80px)]">
+      <div className="flex items-start">
         {/* Hero Container - square on desktop, taller on mobile */}
+        {/* When marquee enabled: height-constrained to leave room for marquee + gutter */}
+        {/* When marquee disabled: larger hero without constraint */}
         <div
+          onClick={() => {
+            if (allImages.length > 1) {
+              setDirection(1);
+              setActiveIndex(activeIndex === allImages.length - 1 ? 0 : activeIndex + 1);
+            }
+          }}
           className={cn(
             'relative overflow-hidden bg-[var(--cream)]',
             'flex-1 min-w-0',
-            'aspect-[1/1.18] lg:aspect-square lg:max-h-[calc(100vh-20px)] lg:w-auto',
-            'lg:mt-8'
+            'aspect-[1/1.18]',
+            'lg:flex-none lg:aspect-square',
+            'lg:mt-8',
+            // When marquee is enabled: constrain height and add gutter
+            marqueeEnabled
+              ? 'lg:h-[calc(100vh-200px)] lg:mb-[25px]'
+              : 'lg:h-[calc(100vh-120px)]',
+            allImages.length > 1 && 'cursor-pointer'
           )}
         >
           {/* Badge - desktop only */}
@@ -167,7 +183,12 @@ export function PDPGallery({
               'flex flex-col self-stretch',
               'bg-[#bbdae9] lg:bg-[#1a1a1a]',
               'w-[115px] lg:w-[200px]',
-              'lg:ml-[65px] lg:flex-shrink-0 lg:h-full lg:sticky lg:top-[80px]'
+              'lg:ml-[65px] lg:flex-shrink-0 lg:sticky lg:top-[80px]',
+              'lg:mt-8',
+              // Match hero height and gutter when marquee enabled
+              marqueeEnabled
+                ? 'lg:h-[calc(100vh-200px)] lg:mb-[25px]'
+                : 'lg:h-[calc(100vh-120px)]'
             )}
           >
             {/* Up Arrow - mobile only */}

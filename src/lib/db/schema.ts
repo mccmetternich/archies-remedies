@@ -346,6 +346,12 @@ export const products = sqliteTable('products', {
   audioAvatarUrl: text('audio_avatar_url'), // Speaker avatar image
   audioTitle: text('audio_title'), // Label (e.g., "Dr. Smith explains")
 
+  // PDP Marquee (scrolling text below hero)
+  marqueeEnabled: integer('marquee_enabled', { mode: 'boolean' }).default(false),
+  marqueeText: text('marquee_text'), // Scrolling text content
+  marqueeBackgroundColor: text('marquee_background_color').default('#1a1a1a'),
+  marqueeTextColor: text('marquee_text_color').default('#ffffff'),
+
   // Widget System (JSON array of widget configs for below-fold content)
   widgets: text('widgets'),
 

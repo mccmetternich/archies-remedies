@@ -103,6 +103,11 @@ interface Product {
   audioUrl: string | null;
   audioAvatarUrl: string | null;
   audioTitle: string | null;
+  // Marquee
+  marqueeEnabled: boolean | null;
+  marqueeText: string | null;
+  marqueeBackgroundColor: string | null;
+  marqueeTextColor: string | null;
   widgets: string | null;
   metaTitle: string | null;
   metaDescription: string | null;
@@ -194,6 +199,10 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
         audioUrl: null,
         audioAvatarUrl: null,
         audioTitle: null,
+        marqueeEnabled: false,
+        marqueeText: null,
+        marqueeBackgroundColor: '#1a1a1a',
+        marqueeTextColor: '#ffffff',
         widgets: null,
         metaTitle: null,
         metaDescription: null,
@@ -1206,7 +1215,91 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
             </div>
           </div>
 
-          {/* Section 6: Benefit Drawers */}
+          {/* Section 6: PDP Marquee */}
+          <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="text-sm font-medium text-[var(--admin-text-primary)]">
+                  Hero Marquee
+                </h3>
+                <p className="text-xs text-[var(--admin-text-muted)] mt-0.5">
+                  Scrolling text banner beneath the hero media
+                </p>
+              </div>
+              <button
+                onClick={() => setProduct({ ...product, marqueeEnabled: !product.marqueeEnabled })}
+                className={cn(
+                  'relative inline-flex h-6 w-11 items-center rounded-full transition-colors',
+                  product.marqueeEnabled ? 'bg-green-500' : 'bg-[var(--admin-hover)]'
+                )}
+              >
+                <span
+                  className={cn(
+                    'inline-block h-4 w-4 transform rounded-full bg-white transition-transform',
+                    product.marqueeEnabled ? 'translate-x-6' : 'translate-x-1'
+                  )}
+                />
+              </button>
+            </div>
+            {product.marqueeEnabled && (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm text-[var(--admin-text-secondary)] mb-1.5">
+                    Marquee Text
+                  </label>
+                  <Input
+                    value={product.marqueeText || ''}
+                    onChange={(e) => setProduct({ ...product, marqueeText: e.target.value || null })}
+                    placeholder="Free Shipping on All Orders • Doctor Recommended • 100% Natural"
+                    className="bg-[var(--admin-input)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)]"
+                  />
+                  <p className="text-xs text-[var(--admin-text-muted)] mt-1">
+                    Text scrolls continuously in uppercase with elegant letter-spacing
+                  </p>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm text-[var(--admin-text-secondary)] mb-1.5">
+                      Background Color
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        type="color"
+                        value={product.marqueeBackgroundColor || '#1a1a1a'}
+                        onChange={(e) => setProduct({ ...product, marqueeBackgroundColor: e.target.value })}
+                        className="w-10 h-10 rounded cursor-pointer border border-[var(--admin-border-light)]"
+                      />
+                      <Input
+                        value={product.marqueeBackgroundColor || '#1a1a1a'}
+                        onChange={(e) => setProduct({ ...product, marqueeBackgroundColor: e.target.value })}
+                        className="flex-1 bg-[var(--admin-input)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)]"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm text-[var(--admin-text-secondary)] mb-1.5">
+                      Text Color
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        type="color"
+                        value={product.marqueeTextColor || '#ffffff'}
+                        onChange={(e) => setProduct({ ...product, marqueeTextColor: e.target.value })}
+                        className="w-10 h-10 rounded cursor-pointer border border-[var(--admin-border-light)]"
+                      />
+                      <Input
+                        value={product.marqueeTextColor || '#ffffff'}
+                        onChange={(e) => setProduct({ ...product, marqueeTextColor: e.target.value })}
+                        className="flex-1 bg-[var(--admin-input)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)]"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Section 7: Benefit Drawers */}
           <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6">
             <h3 className="text-sm font-medium text-[var(--admin-text-primary)] mb-2">
               Benefit Drawers

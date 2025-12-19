@@ -869,6 +869,12 @@ input[type="button"]:disabled,
   will-change: transform;
 }
 
+/* Slow marquee for PDP - elegant, leisurely scroll */
+.animate-marquee-slow {
+  animation: marquee 60s linear infinite;
+  will-change: transform;
+}
+
 /* Scrolling text bar animations */
 @keyframes scroll-left {
   0% { transform: translateX(0); }

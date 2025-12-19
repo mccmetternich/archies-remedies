@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { PDPBuyBox } from './pdp-buy-box';
 import { PDPGallery } from './pdp-gallery';
+import { PDPMarquee } from './pdp-marquee';
 
 interface ProductImage {
   id: string;
@@ -69,6 +70,11 @@ interface PDPHeroSectionProps {
   audioUrl?: string | null;
   audioAvatarUrl?: string | null;
   audioTitle?: string | null;
+  // Marquee
+  marqueeEnabled?: boolean;
+  marqueeText?: string | null;
+  marqueeBackgroundColor?: string | null;
+  marqueeTextColor?: string | null;
 }
 
 export function PDPHeroSection({
@@ -89,6 +95,10 @@ export function PDPHeroSection({
   audioUrl,
   audioAvatarUrl,
   audioTitle,
+  marqueeEnabled,
+  marqueeText,
+  marqueeBackgroundColor,
+  marqueeTextColor,
 }: PDPHeroSectionProps) {
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(
     variants.find((v) => v.isDefault) || variants[0] || null
@@ -162,8 +172,8 @@ export function PDPHeroSection({
         />
       </div>
 
-      {/* Gallery - FLUID column, no max-width bottleneck */}
-      <div className="order-1 lg:order-2 w-full lg:flex-1 lg:min-w-0">
+      {/* Gallery + Marquee - FLUID column, no max-width bottleneck */}
+      <div className="order-1 lg:order-2 w-full lg:flex-1 lg:min-w-0 flex flex-col lg:h-[calc(100vh-80px)]">
         <PDPGallery
           images={activeImages}
           heroImage={activeHeroImage}
@@ -172,6 +182,16 @@ export function PDPHeroSection({
           badgeEmoji={product.badgeEmoji}
           rotatingSealEnabled={product.rotatingSealEnabled || false}
           rotatingSealImageUrl={product.rotatingSealImageUrl}
+          marqueeEnabled={marqueeEnabled}
+        />
+
+        {/* Marquee - viewport-pinned to bottom, spans gallery width */}
+        <PDPMarquee
+          text={marqueeText || ''}
+          enabled={marqueeEnabled}
+          backgroundColor={marqueeBackgroundColor}
+          textColor={marqueeTextColor}
+          className="-mx-4 lg:mx-0 lg:sticky lg:bottom-0"
         />
       </div>
     </div>
