@@ -159,17 +159,17 @@ export function PDPGallery({
           <div className="w-[5px] lg:w-[2px] bg-[#bbdae9] self-stretch" />
         )}
 
-        {/* Thumbnails - responsive sizing */}
+        {/* Thumbnails - Saie-style vertical tray */}
         {allImages.length > 1 && (
           <div
             className={cn(
-              'flex flex-col self-stretch lg:self-start',
-              'bg-[#bbdae9] lg:bg-transparent',
-              'w-[115px] lg:w-[256px]',
-              'lg:ml-4 lg:sticky lg:top-24 lg:flex-shrink-0'
+              'flex flex-col self-stretch',
+              'bg-[#bbdae9] lg:bg-[#f8f8f8]',
+              'w-[115px] lg:w-[200px]',
+              'lg:ml-10 lg:flex-shrink-0 lg:min-h-[calc(100vh-80px)] lg:pt-12'
             )}
           >
-            {/* Up Arrow */}
+            {/* Up Arrow - mobile only */}
             <button
               onClick={() => {
                 setDirection(-1);
@@ -177,16 +177,16 @@ export function PDPGallery({
               }}
               disabled={activeIndex === 0}
               className={cn(
-                'w-full h-5 lg:h-10 flex items-center justify-center',
-                'bg-[#bbdae9] lg:bg-[#1a1a1a]',
-                'text-[#1a1a1a] lg:text-white'
+                'w-full h-5 flex items-center justify-center lg:hidden',
+                'bg-[#bbdae9]',
+                'text-[#1a1a1a]'
               )}
             >
-              {activeIndex > 0 && <ChevronUp className="w-3.5 h-3.5 lg:w-6 lg:h-6" />}
+              {activeIndex > 0 && <ChevronUp className="w-3.5 h-3.5" />}
             </button>
 
             {/* Thumbnail buttons */}
-            <div className="flex-1 lg:flex-none flex flex-col gap-[5px] lg:gap-2 lg:py-2">
+            <div className="flex-1 lg:flex-none flex flex-col gap-[5px] lg:gap-3 lg:px-4">
               {allImages.slice(0, 5).map((image, index) => (
                 <button
                   key={image.id}
@@ -194,7 +194,7 @@ export function PDPGallery({
                   onMouseEnter={() => handleThumbnailHover(index)}
                   className={cn(
                     'relative overflow-hidden bg-white transition-all duration-200',
-                    'flex-1 min-h-0 lg:flex-none lg:w-[256px] lg:aspect-square lg:flex-shrink-0',
+                    'flex-1 min-h-0 lg:flex-none lg:w-full lg:aspect-square lg:flex-shrink-0',
                     index === activeIndex && 'ring-2 ring-[#bbdae9]'
                   )}
                 >
@@ -213,27 +213,27 @@ export function PDPGallery({
                       alt={image.altText || `${productName} view ${index + 1}`}
                       fill
                       className="object-cover"
-                      sizes="(max-width: 1024px) 80px, 256px"
+                      sizes="(max-width: 1024px) 80px, 200px"
                     />
                   ) : null}
                 </button>
               ))}
             </div>
 
-            {/* Down Arrow */}
+            {/* Down Arrow - mobile only */}
             <button
               onClick={() => {
                 setDirection(1);
                 setActiveIndex(activeIndex === allImages.length - 1 ? 0 : activeIndex + 1);
               }}
               className={cn(
-                'w-full h-5 lg:h-10 flex items-center justify-center',
-                'bg-[#bbdae9] lg:bg-[#1a1a1a]',
-                'text-[#1a1a1a] lg:text-white',
+                'w-full h-5 flex items-center justify-center lg:hidden',
+                'bg-[#bbdae9]',
+                'text-[#1a1a1a]',
                 activeIndex === allImages.length - 1 && 'opacity-40'
               )}
             >
-              <ChevronDown className="w-3.5 h-3.5 lg:w-6 lg:h-6" />
+              <ChevronDown className="w-3.5 h-3.5" />
             </button>
           </div>
         )}
