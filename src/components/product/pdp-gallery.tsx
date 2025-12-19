@@ -155,7 +155,7 @@ export function PDPGallery({
       {/* Unified Layout - CSS-only vertical rhythm, no JS dependencies */}
       <div
         className={cn(
-          'flex items-start', // items-start allows max-height to create visible whitespace
+          'flex items-stretch', // items-stretch so Tray fills full height (top to marquee)
           'gap-[var(--pdp-gutter)]', // Same gutter globally (CSS var handles responsive squish)
           galleryHeight
         )}
@@ -258,7 +258,7 @@ export function PDPGallery({
         {allImages.length > 1 && (
           <div
             className={cn(
-              'relative flex flex-col self-stretch',
+              'relative flex flex-col h-full', // h-full anchors from header to marquee floor
               'bg-[#1a1a1a]', // Dark background globally
               'flex-none w-[200px]', // Fixed 200px width globally
               'flex-shrink-0',
