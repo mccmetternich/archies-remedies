@@ -99,44 +99,14 @@ export function AudioPlayer({ audioUrl, avatarUrl, title }: AudioPlayerProps) {
 
       {/* Player Container - Sharp edges, compact, sleek */}
       <div className="relative bg-[#f8f8f8] border border-[#e5e5e5] px-2.5 py-2">
-        <div className="flex items-center gap-2.5">
-          {/* Play/Pause Button - Now on the left */}
+        <div className="flex items-center gap-3">
+          {/* Combined Avatar + Play Button */}
           <button
             onClick={togglePlay}
-            className={cn(
-              'flex-shrink-0 w-8 h-8 flex items-center justify-center transition-all duration-200',
-              'bg-[#1a1a1a] text-white hover:bg-[#bbdae9] hover:text-[#1a1a1a]',
-              'active:scale-95'
-            )}
+            className="relative flex-shrink-0 w-11 h-11 group"
           >
-            <AnimatePresence mode="wait">
-              {isPlaying ? (
-                <motion.div
-                  key="pause"
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  exit={{ scale: 0 }}
-                  transition={{ duration: 0.15 }}
-                >
-                  <Pause className="w-3.5 h-3.5" fill="currentColor" />
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="play"
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  exit={{ scale: 0 }}
-                  transition={{ duration: 0.15 }}
-                >
-                  <Play className="w-3.5 h-3.5 ml-0.5" fill="currentColor" />
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </button>
-
-          {/* Avatar - smaller */}
-          <div className="relative flex-shrink-0">
-            <div className="w-8 h-8 overflow-hidden bg-[#bbdae9]/30">
+            {/* Avatar Image */}
+            <div className="w-full h-full overflow-hidden bg-[#bbdae9]/30">
               {avatarUrl ? (
                 <Image
                   src={avatarUrl}
@@ -148,7 +118,7 @@ export function AudioPlayer({ audioUrl, avatarUrl, title }: AudioPlayerProps) {
                 <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#bbdae9] to-[#8ec4db]">
                   <svg
                     viewBox="0 0 24 24"
-                    className="w-4 h-4 text-white"
+                    className="w-5 h-5 text-white"
                     fill="currentColor"
                   >
                     <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z" />
@@ -158,19 +128,53 @@ export function AudioPlayer({ audioUrl, avatarUrl, title }: AudioPlayerProps) {
               )}
             </div>
 
+            {/* Play/Pause Icon - Bottom Right Corner */}
+            <div
+              className={cn(
+                'absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full flex items-center justify-center',
+                'bg-[#1a1a1a] text-white shadow-md',
+                'group-hover:bg-[#bbdae9] group-hover:text-[#1a1a1a]',
+                'transition-colors duration-200'
+              )}
+            >
+              <AnimatePresence mode="wait">
+                {isPlaying ? (
+                  <motion.div
+                    key="pause"
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    exit={{ scale: 0 }}
+                    transition={{ duration: 0.15 }}
+                  >
+                    <Pause className="w-2.5 h-2.5" fill="currentColor" />
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="play"
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    exit={{ scale: 0 }}
+                    transition={{ duration: 0.15 }}
+                  >
+                    <Play className="w-2.5 h-2.5 ml-0.5" fill="currentColor" />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
             {/* Animated ring when playing */}
             <AnimatePresence>
               {isPlaying && (
                 <motion.div
                   initial={{ scale: 1, opacity: 0.6 }}
-                  animate={{ scale: 1.4, opacity: 0 }}
+                  animate={{ scale: 1.3, opacity: 0 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 1.2, repeat: Infinity, ease: 'easeOut' }}
                   className="absolute inset-0 border border-[#bbdae9]"
                 />
               )}
             </AnimatePresence>
-          </div>
+          </button>
 
           {/* Content Area */}
           <div className="flex-1 min-w-0">
