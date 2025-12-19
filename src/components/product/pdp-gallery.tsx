@@ -168,7 +168,7 @@ export function PDPGallery({
             'aspect-square', // Square on ALL breakpoints
             heroMaxHeight,
             'min-h-[400px]', // Floor prevents collapse on small screens
-            'mt-[40px]', // Editorial Stagger: Hero sits 40px below Nav (global)
+            'lg:mt-[40px]', // Editorial Stagger: Hero sits 40px below Nav (desktop only)
             'mb-[80px]', // 80px breathing room above marquee (global)
             allImages.length > 1 && 'cursor-grab active:cursor-grabbing'
           )}
