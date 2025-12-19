@@ -165,7 +165,7 @@ export function PDPGallery({
             className={cn(
               'flex flex-col self-stretch lg:self-start',
               'bg-[#bbdae9] lg:bg-transparent',
-              'w-[115px] lg:w-32',
+              'w-[115px] lg:w-[256px]',
               'lg:ml-4 lg:sticky lg:top-24 lg:flex-shrink-0'
             )}
           >
@@ -194,7 +194,7 @@ export function PDPGallery({
                   onMouseEnter={() => handleThumbnailHover(index)}
                   className={cn(
                     'relative overflow-hidden bg-white transition-all duration-200',
-                    'flex-1 min-h-0 lg:flex-none lg:w-32 lg:aspect-square lg:flex-shrink-0',
+                    'flex-1 min-h-0 lg:flex-none lg:w-[256px] lg:aspect-square lg:flex-shrink-0',
                     index === activeIndex && 'ring-2 ring-[#bbdae9]'
                   )}
                 >
@@ -213,7 +213,7 @@ export function PDPGallery({
                       alt={image.altText || `${productName} view ${index + 1}`}
                       fill
                       className="object-cover"
-                      sizes="(max-width: 1024px) 80px, 128px"
+                      sizes="(max-width: 1024px) 80px, 256px"
                     />
                   ) : null}
                 </button>
