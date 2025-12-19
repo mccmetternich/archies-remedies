@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronUp, ChevronDown, X } from 'lucide-react';
@@ -58,6 +58,47 @@ export function PDPGallery({
     : images;
 
   const activeImage = allImages[activeIndex];
+
+  // Thumbnail tray scroll detection
+  const thumbnailContainerRef = useRef<HTMLDivElement>(null);
+  const [canScrollUp, setCanScrollUp] = useState(false);
+  const [canScrollDown, setCanScrollDown] = useState(false);
+
+  // Detect overflow and scroll position for smart arrow visibility (desktop)
+  useEffect(() => {
+    const container = thumbnailContainerRef.current;
+    if (!container) return;
+
+    const updateScrollState = () => {
+      const { scrollTop, scrollHeight, clientHeight } = container;
+      const hasOverflow = scrollHeight > clientHeight + 5;
+      const atTop = scrollTop <= 5;
+      const atBottom = scrollTop + clientHeight >= scrollHeight - 5;
+
+      setCanScrollUp(hasOverflow && !atTop);
+      setCanScrollDown(hasOverflow && !atBottom);
+    };
+
+    updateScrollState();
+    container.addEventListener('scroll', updateScrollState);
+    window.addEventListener('resize', updateScrollState);
+
+    return () => {
+      container.removeEventListener('scroll', updateScrollState);
+      window.removeEventListener('resize', updateScrollState);
+    };
+  }, [allImages.length]);
+
+  // Scroll thumbnail container
+  const scrollThumbnails = (direction: 'up' | 'down') => {
+    const container = thumbnailContainerRef.current;
+    if (!container) return;
+    const scrollAmount = 200;
+    container.scrollBy({
+      top: direction === 'up' ? -scrollAmount : scrollAmount,
+      behavior: 'smooth',
+    });
+  };
 
   // Handle thumbnail interaction
   const handleThumbnailClick = (index: number) => {
@@ -209,33 +250,49 @@ export function PDPGallery({
         {allImages.length > 1 && (
           <div
             className={cn(
-              'flex flex-col self-stretch',
+              'relative flex flex-col self-stretch',
               'bg-[#bbdae9] lg:bg-[#1a1a1a]',
-              'w-[115px] lg:flex-none lg:w-[200px]', // flex-none ensures tray is protected
-              'flex-shrink-0' // Tray never shrinks
+              'w-[115px] lg:flex-none lg:w-[200px]',
+              'flex-shrink-0'
             )}
           >
-            {/* Up Arrow - always visible, navigates images */}
+            {/* Up Arrow - absolute positioned with gradient, smart visibility */}
             <button
-              onClick={goToPrevious}
+              onClick={() => {
+                // Mobile: navigate images, Desktop: scroll tray
+                if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+                  goToPrevious();
+                } else {
+                  scrollThumbnails('up');
+                }
+              }}
               className={cn(
-                'flex items-center justify-center transition-opacity',
-                'h-6 lg:h-8',
-                'bg-[#bbdae9] lg:bg-transparent',
-                'text-[#1a1a1a] lg:text-white/60 lg:hover:text-white',
-                activeIndex === 0 && 'opacity-30'
+                'absolute top-0 left-0 right-0 z-10',
+                'flex items-center justify-center',
+                'h-10 lg:h-12',
+                // Gradient backgrounds for legibility
+                'bg-gradient-to-b from-[#bbdae9] via-[#bbdae9]/80 to-transparent',
+                'lg:from-[#1a1a1a] lg:via-[#1a1a1a]/80 lg:to-transparent',
+                'text-[#1a1a1a] lg:text-white/80 lg:hover:text-white',
+                'transition-opacity duration-200',
+                // Mobile: hide when at first image
+                activeIndex === 0 && 'opacity-0 pointer-events-none lg:opacity-100 lg:pointer-events-auto',
+                // Desktop: hide when can't scroll up
+                !canScrollUp && 'lg:opacity-0 lg:pointer-events-none'
               )}
             >
-              <ChevronUp className="w-4 h-4 lg:w-5 lg:h-5" />
+              <ChevronUp className="w-5 h-5 lg:w-6 lg:h-6" />
             </button>
 
-            {/* Thumbnail buttons - equal gaps for puzzle effect */}
+            {/* Thumbnail buttons - scrollable container */}
             <div
+              ref={thumbnailContainerRef}
               className={cn(
                 'flex-1 flex flex-col',
-                'gap-[var(--pdp-gap)]', // 5px gaps everywhere
+                'gap-[var(--pdp-gap)]',
                 'p-[var(--pdp-gap)] lg:p-[20px]',
-                'overflow-hidden'
+                'pt-12 pb-12 lg:pt-14 lg:pb-14', // Space for absolute arrows
+                'overflow-y-auto'
               )}
             >
               {allImages.slice(0, 5).map((image, index) => (
@@ -272,18 +329,32 @@ export function PDPGallery({
               ))}
             </div>
 
-            {/* Down Arrow - always visible, navigates images */}
+            {/* Down Arrow - absolute positioned with gradient, smart visibility */}
             <button
-              onClick={goToNext}
+              onClick={() => {
+                // Mobile: navigate images, Desktop: scroll tray
+                if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+                  goToNext();
+                } else {
+                  scrollThumbnails('down');
+                }
+              }}
               className={cn(
-                'flex items-center justify-center transition-opacity',
-                'h-6 lg:h-8',
-                'bg-[#bbdae9] lg:bg-transparent',
-                'text-[#1a1a1a] lg:text-white/60 lg:hover:text-white',
-                activeIndex === allImages.length - 1 && 'opacity-30'
+                'absolute bottom-0 left-0 right-0 z-10',
+                'flex items-center justify-center',
+                'h-10 lg:h-12',
+                // Gradient backgrounds for legibility
+                'bg-gradient-to-t from-[#bbdae9] via-[#bbdae9]/80 to-transparent',
+                'lg:from-[#1a1a1a] lg:via-[#1a1a1a]/80 lg:to-transparent',
+                'text-[#1a1a1a] lg:text-white/80 lg:hover:text-white',
+                'transition-opacity duration-200',
+                // Mobile: hide when at last image
+                activeIndex === allImages.length - 1 && 'opacity-0 pointer-events-none lg:opacity-100 lg:pointer-events-auto',
+                // Desktop: hide when can't scroll down
+                !canScrollDown && 'lg:opacity-0 lg:pointer-events-none'
               )}
             >
-              <ChevronDown className="w-4 h-4 lg:w-5 lg:h-5" />
+              <ChevronDown className="w-5 h-5 lg:w-6 lg:h-6" />
             </button>
           </div>
         )}
