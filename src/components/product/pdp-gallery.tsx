@@ -167,7 +167,7 @@ export function PDPGallery({
               'flex flex-col self-stretch',
               'bg-[#bbdae9] lg:bg-[#1a1a1a]',
               'w-[115px] lg:w-[200px]',
-              'lg:ml-10 lg:flex-shrink-0 lg:h-full lg:sticky lg:top-[80px]'
+              'lg:ml-[65px] lg:flex-shrink-0 lg:h-full lg:sticky lg:top-[80px]'
             )}
           >
             {/* Up Arrow - mobile only */}
