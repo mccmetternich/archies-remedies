@@ -84,18 +84,12 @@ export function PDPGallery({
       <div className="flex items-start lg:h-[calc(100vh-80px)]">
         {/* Hero Container - square on desktop, taller on mobile */}
         <div
-          onClick={() => {
-            if (allImages.length > 1) {
-              setDirection(1);
-              setActiveIndex(activeIndex === allImages.length - 1 ? 0 : activeIndex + 1);
-            }
-          }}
           className={cn(
             'relative overflow-hidden bg-[var(--cream)]',
             'flex-1 min-w-0',
             'aspect-[1/1.18] lg:aspect-square lg:max-h-[calc(100vh-20px)] lg:w-auto',
             'lg:mt-8',
-            allImages.length > 1 && 'cursor-pointer'
+            allImages.length > 1 && 'cursor-grab active:cursor-grabbing'
           )}
         >
           {/* Badge - desktop only */}
@@ -121,7 +115,7 @@ export function PDPGallery({
             </div>
           )}
 
-          {/* Animated Image/Video */}
+          {/* Animated Image/Video with drag/swipe support */}
           <AnimatePresence initial={false} custom={direction} mode="popLayout">
             <motion.div
               key={activeIndex}
@@ -132,6 +126,24 @@ export function PDPGallery({
               exit="exit"
               transition={{ duration: 0.15, ease: 'easeOut' }}
               className="absolute inset-0"
+              drag={allImages.length > 1 ? 'x' : false}
+              dragConstraints={{ left: 0, right: 0 }}
+              dragElastic={0.2}
+              onDragEnd={(_, info) => {
+                const swipeThreshold = 50;
+                const velocityThreshold = 500;
+
+                // Determine swipe direction based on velocity or distance
+                if (info.offset.x < -swipeThreshold || info.velocity.x < -velocityThreshold) {
+                  // Swiped left - go to next
+                  setDirection(1);
+                  setActiveIndex(activeIndex === allImages.length - 1 ? 0 : activeIndex + 1);
+                } else if (info.offset.x > swipeThreshold || info.velocity.x > velocityThreshold) {
+                  // Swiped right - go to previous
+                  setDirection(-1);
+                  setActiveIndex(activeIndex === 0 ? allImages.length - 1 : activeIndex - 1);
+                }
+              }}
             >
               {activeImage?.isVideo && activeImage?.videoUrl ? (
                 <video
