@@ -10,9 +10,10 @@ interface AudioPlayerProps {
   audioUrl: string;
   avatarUrl?: string | null;
   title?: string | null;
+  quote?: string | null;
 }
 
-export function AudioPlayer({ audioUrl, avatarUrl, title }: AudioPlayerProps) {
+export function AudioPlayer({ audioUrl, avatarUrl, title, quote }: AudioPlayerProps) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -178,11 +179,27 @@ export function AudioPlayer({ audioUrl, avatarUrl, title }: AudioPlayerProps) {
 
           {/* Content Area */}
           <div className="flex-1 min-w-0">
-            {/* Title */}
+            {/* Title with Verified Badge */}
             {title && (
-              <p className="text-[10px] font-medium text-[#1a1a1a]/60 mb-1 truncate leading-tight">
-                {title}
-              </p>
+              <div className="flex items-center gap-1.5 mb-1">
+                {/* Verified Badge */}
+                <span className="flex-shrink-0 w-3.5 h-3.5 rounded-full bg-[#1a1a1a] flex items-center justify-center">
+                  <svg
+                    viewBox="0 0 24 24"
+                    className="w-2 h-2 text-white"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={4}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                </span>
+                <p className="text-[10px] font-medium text-[#1a1a1a]/60 truncate leading-tight">
+                  {title}
+                </p>
+              </div>
             )}
 
             {/* Waveform Progress Bar - more compact */}
@@ -225,6 +242,15 @@ export function AudioPlayer({ audioUrl, avatarUrl, title }: AudioPlayerProps) {
             </div>
           </div>
         </div>
+
+        {/* Quote Capsule */}
+        {quote && (
+          <div className="mt-2 px-3 py-2 bg-[#bbdae9]/30 border border-[#bbdae9]/40 rounded-full">
+            <p className="text-[10px] text-[#1a1a1a]/70 italic text-center leading-tight">
+              &ldquo;{quote}&rdquo;
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

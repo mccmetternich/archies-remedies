@@ -119,6 +119,7 @@ export async function PUT(
         audioUrl: product.audioUrl || null,
         audioAvatarUrl: product.audioAvatarUrl || null,
         audioTitle: product.audioTitle || null,
+        audioQuote: product.audioQuote || null,
 
         // Marquee
         marqueeEnabled: product.marqueeEnabled ?? false,

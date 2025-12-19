@@ -56,6 +56,7 @@ interface PDPBuyBoxProps {
   audioUrl?: string | null;
   audioAvatarUrl?: string | null;
   audioTitle?: string | null;
+  audioQuote?: string | null;
 }
 
 type AccordionSection = 'ritual' | 'ingredients' | 'shipping' | null;
@@ -78,6 +79,7 @@ export function PDPBuyBox({
   audioUrl,
   audioAvatarUrl,
   audioTitle,
+  audioQuote,
 }: PDPBuyBoxProps) {
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(
     variants.find((v) => v.isDefault) || variants[0] || null
@@ -330,6 +332,7 @@ export function PDPBuyBox({
             audioUrl={audioUrl}
             avatarUrl={audioAvatarUrl}
             title={audioTitle}
+            quote={audioQuote}
           />
         </div>
       )}

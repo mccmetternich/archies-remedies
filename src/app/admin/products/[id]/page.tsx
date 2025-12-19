@@ -103,6 +103,7 @@ interface Product {
   audioUrl: string | null;
   audioAvatarUrl: string | null;
   audioTitle: string | null;
+  audioQuote: string | null;
   // Marquee
   marqueeEnabled: boolean | null;
   marqueeText: string | null;
@@ -199,6 +200,7 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
         audioUrl: null,
         audioAvatarUrl: null,
         audioTitle: null,
+        audioQuote: null,
         marqueeEnabled: false,
         marqueeText: null,
         marqueeBackgroundColor: '#1a1a1a',
@@ -1211,6 +1213,20 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
                   placeholder="e.g., Dr. Smith explains the benefits"
                   className="bg-[var(--admin-input)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)]"
                 />
+              </div>
+              <div className="col-span-2">
+                <label className="block text-sm text-[var(--admin-text-secondary)] mb-1.5">
+                  Quote (Optional)
+                </label>
+                <Input
+                  value={product.audioQuote || ''}
+                  onChange={(e) => setProduct({ ...product, audioQuote: e.target.value || null })}
+                  placeholder="e.g., This completely changed my morning routine!"
+                  className="bg-[var(--admin-input)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)]"
+                />
+                <p className="text-xs text-[var(--admin-text-muted)] mt-1">
+                  Displays in a styled capsule below the audio player
+                </p>
               </div>
             </div>
           </div>

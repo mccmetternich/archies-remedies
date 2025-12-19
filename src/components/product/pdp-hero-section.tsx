@@ -70,6 +70,7 @@ interface PDPHeroSectionProps {
   audioUrl?: string | null;
   audioAvatarUrl?: string | null;
   audioTitle?: string | null;
+  audioQuote?: string | null;
   // Marquee
   marqueeEnabled?: boolean;
   marqueeText?: string | null;
@@ -95,6 +96,7 @@ export function PDPHeroSection({
   audioUrl,
   audioAvatarUrl,
   audioTitle,
+  audioQuote,
   marqueeEnabled,
   marqueeText,
   marqueeBackgroundColor,
@@ -168,6 +170,7 @@ export function PDPHeroSection({
           audioUrl={audioUrl}
           audioAvatarUrl={audioAvatarUrl}
           audioTitle={audioTitle}
+          audioQuote={audioQuote}
           onVariantChange={handleVariantChange}
         />
       </div>

@@ -345,6 +345,7 @@ export const products = sqliteTable('products', {
   audioUrl: text('audio_url'), // Audio file URL
   audioAvatarUrl: text('audio_avatar_url'), // Speaker avatar image
   audioTitle: text('audio_title'), // Label (e.g., "Dr. Smith explains")
+  audioQuote: text('audio_quote'), // Optional quote displayed below audio player
 
   // PDP Marquee (scrolling text below hero)
   marqueeEnabled: integer('marquee_enabled', { mode: 'boolean' }).default(false),
