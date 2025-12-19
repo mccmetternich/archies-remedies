@@ -154,9 +154,9 @@ export function PDPGallery({
           </AnimatePresence>
         </div>
 
-        {/* Blue Hex Separator - 5px mobile, 2px desktop */}
+        {/* Blue Hex Separator - mobile only */}
         {allImages.length > 1 && (
-          <div className="w-[5px] lg:w-[2px] bg-[#bbdae9] self-stretch" />
+          <div className="w-[5px] bg-[#bbdae9] self-stretch lg:hidden" />
         )}
 
         {/* Thumbnails - Saie-style vertical tray */}
