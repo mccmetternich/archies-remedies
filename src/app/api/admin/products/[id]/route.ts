@@ -120,6 +120,12 @@ export async function PUT(
         audioAvatarUrl: product.audioAvatarUrl || null,
         audioTitle: product.audioTitle || null,
 
+        // Marquee
+        marqueeEnabled: product.marqueeEnabled ?? false,
+        marqueeText: product.marqueeText || null,
+        marqueeBackgroundColor: product.marqueeBackgroundColor || '#1a1a1a',
+        marqueeTextColor: product.marqueeTextColor || '#ffffff',
+
         // Widgets
         widgets: product.widgets || null,
 
