@@ -109,7 +109,7 @@ export function PDPGallery({
         className={cn(
           'flex items-start', // items-start allows max-height to create visible whitespace
           'gap-[var(--pdp-gap)] lg:gap-[var(--pdp-gutter)]', // Gap shrinks before hero
-          'pt-[40px] lg:pt-[140px]', // 80px header + 23px bumper + 37px aesthetic gap
+          'pt-0 lg:pt-0', // No additional top padding - header spacer handles clearance
           galleryHeight
         )}
       >
