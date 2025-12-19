@@ -163,13 +163,14 @@ export function PDPGallery({
         {/* Hero Container - unified geometry across all breakpoints */}
         <div
           className={cn(
-            'relative bg-red-500', // DEBUG: red background to visualize hero bounds
-            'flex-1 min-w-[400px] w-[calc(100vh-280px)]', // DEBUG: explicit width to force visibility
-            'aspect-square', // Square on ALL breakpoints
-            heroMaxHeight,
-            'min-h-[400px]', // Floor prevents collapse on small screens
-            'mt-[40px]', // Editorial Stagger: Hero sits 40px below Nav (global)
-            'mb-[80px]', // 80px breathing room above marquee (global)
+            'relative bg-red-500', // DEBUG: red background to verify square
+            'aspect-square', // ALWAYS a square - media uses object-contain inside
+            'h-[calc(100vh-280px)]', // Height drives the square (width follows from aspect-square)
+            'min-h-[400px]', // Floor prevents collapse
+            'max-h-[calc(100vh-280px)]', // Cap to prevent overflow
+            'flex-shrink-0', // Don't shrink below aspect ratio
+            'mt-[40px]', // Editorial Stagger
+            'mb-[80px]', // Breathing room above marquee
             allImages.length > 1 && 'cursor-grab active:cursor-grabbing'
           )}
         >
