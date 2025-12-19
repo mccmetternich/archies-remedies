@@ -12,6 +12,8 @@ import {
   Link as LinkIcon,
   FolderOpen,
   Play,
+  Pause,
+  Music,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -84,6 +86,39 @@ export function MediaPickerButton({
     value.match(/\.(mp4|webm|mov)(\?|$)/i) ||
     value.includes('video/')
   );
+
+  // Check if value is an audio file
+  const isAudio = value && (
+    value.match(/\.(mp3|wav|ogg|m4a|aac|flac)(\?|$)/i) ||
+    value.includes('/audio/') ||
+    value.includes('audio/')
+  );
+
+  // Audio preview state
+  const [isPlaying, setIsPlaying] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Toggle audio playback
+  const toggleAudioPlayback = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!audioRef.current) return;
+
+    if (isPlaying) {
+      audioRef.current.pause();
+    } else {
+      audioRef.current.play();
+    }
+    setIsPlaying(!isPlaying);
+  };
+
+  // Reset audio state when value changes
+  useEffect(() => {
+    setIsPlaying(false);
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+  }, [value]);
 
   // Clear success message after 3 seconds
   useEffect(() => {
@@ -257,6 +292,7 @@ export function MediaPickerButton({
               onChangeRef.current(url);
               setShowModal(false);
             }}
+            filterType={acceptAudio ? 'audio' : acceptVideo ? 'video' : null}
           />
         )}
       </div>
@@ -279,7 +315,28 @@ export function MediaPickerButton({
         >
           {value ? (
             <>
-              {isVideo ? (
+              {isAudio ? (
+                /* Audio preview with play button */
+                <div className="w-full h-full flex flex-col items-center justify-center p-2 gap-2">
+                  <audio
+                    ref={audioRef}
+                    src={value}
+                    onEnded={() => setIsPlaying(false)}
+                    className="hidden"
+                  />
+                  <Music className="w-6 h-6 text-[var(--admin-text-muted)]" />
+                  <button
+                    onClick={toggleAudioPlayback}
+                    className="w-8 h-8 bg-[var(--primary)] rounded-full flex items-center justify-center hover:bg-[var(--primary-dark)] transition-colors"
+                  >
+                    {isPlaying ? (
+                      <Pause className="w-4 h-4 text-white" />
+                    ) : (
+                      <Play className="w-4 h-4 text-white ml-0.5" />
+                    )}
+                  </button>
+                </div>
+              ) : isVideo ? (
                 <video
                   src={value}
                   className="w-full h-full object-contain p-2"
@@ -379,24 +436,17 @@ export function MediaPickerButton({
         </div>
       </div>
 
-      {/* Media Library Modal - Don't filter by folder, show all media for browsing */}
+      {/* Media Library Modal - Filter by type when audio/video only */}
       {showModal && (
         <MediaLibraryModal
           isOpen={showModal}
           onClose={() => setShowModal(false)}
           onSelect={(url) => {
             console.log('[MediaPicker] Selected from library for:', label, 'url:', url);
-            console.log('[MediaPicker] Calling onChangeRef.current...');
-            console.log('[MediaPicker] onChangeRef.current is:', typeof onChangeRef.current);
-            try {
-              onChangeRef.current(url);
-              console.log('[MediaPicker] onChangeRef.current completed successfully');
-            } catch (err) {
-              console.error('[MediaPicker] onChangeRef.current threw error:', err);
-            }
-            console.log('[MediaPicker] Closing modal');
+            onChangeRef.current(url);
             setShowModal(false);
           }}
+          filterType={acceptAudio ? 'audio' : acceptVideo ? 'video' : null}
         />
       )}
     </div>
@@ -407,13 +457,16 @@ interface MediaLibraryModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSelect: (url: string) => void;
+  filterType?: 'audio' | 'video' | 'image' | null; // Filter by media type
 }
 
-function MediaLibraryModal({ isOpen, onClose, onSelect }: MediaLibraryModalProps) {
+function MediaLibraryModal({ isOpen, onClose, onSelect, filterType }: MediaLibraryModalProps) {
   const [files, setFiles] = useState<MediaFile[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFile, setSelectedFile] = useState<MediaFile | null>(null);
+  const [playingAudioId, setPlayingAudioId] = useState<string | null>(null);
+  const audioRefs = useRef<{ [key: string]: HTMLAudioElement | null }>({});
 
   const fetchMedia = useCallback(async () => {
     setLoading(true);
@@ -421,17 +474,56 @@ function MediaLibraryModal({ isOpen, onClose, onSelect }: MediaLibraryModalProps
       const params = new URLSearchParams();
       // Don't filter by folder - always show all media in library
       if (searchQuery) params.set('search', searchQuery);
+      if (filterType) params.set('type', filterType);
       params.set('limit', '100'); // Increased limit for better browsing
 
       const res = await fetch(`/api/admin/media?${params}`);
       const data = await res.json();
-      setFiles(data.files || []);
+
+      // Client-side filter as backup if API doesn't support type filter
+      let filteredFiles = data.files || [];
+      if (filterType === 'audio') {
+        filteredFiles = filteredFiles.filter((f: MediaFile) =>
+          f.mimeType?.startsWith('audio/') ||
+          f.url?.match(/\.(mp3|wav|ogg|m4a|aac|flac)(\?|$)/i)
+        );
+      } else if (filterType === 'video') {
+        filteredFiles = filteredFiles.filter((f: MediaFile) =>
+          f.mimeType?.startsWith('video/') ||
+          f.url?.match(/\.(mp4|webm|mov)(\?|$)/i)
+        );
+      } else if (filterType === 'image') {
+        filteredFiles = filteredFiles.filter((f: MediaFile) =>
+          f.mimeType?.startsWith('image/')
+        );
+      }
+
+      setFiles(filteredFiles);
     } catch (error) {
       console.error('Failed to fetch media:', error);
     } finally {
       setLoading(false);
     }
-  }, [searchQuery]);
+  }, [searchQuery, filterType]);
+
+  // Toggle audio playback in library
+  const toggleLibraryAudio = (fileId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const audio = audioRefs.current[fileId];
+    if (!audio) return;
+
+    if (playingAudioId === fileId) {
+      audio.pause();
+      setPlayingAudioId(null);
+    } else {
+      // Stop any currently playing audio
+      if (playingAudioId && audioRefs.current[playingAudioId]) {
+        audioRefs.current[playingAudioId]?.pause();
+      }
+      audio.play();
+      setPlayingAudioId(fileId);
+    }
+  };
 
   useEffect(() => {
     if (isOpen) {
@@ -487,8 +579,10 @@ function MediaLibraryModal({ isOpen, onClose, onSelect }: MediaLibraryModalProps
           ) : (
             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
               {files.map((file) => {
-                const isVideo = file.mimeType?.startsWith('video/') ||
+                const isFileVideo = file.mimeType?.startsWith('video/') ||
                   file.url?.match(/\.(mp4|webm|mov)$/i);
+                const isFileAudio = file.mimeType?.startsWith('audio/') ||
+                  file.url?.match(/\.(mp3|wav|ogg|m4a|aac|flac)(\?|$)/i);
 
                 return (
                   <button
@@ -502,7 +596,30 @@ function MediaLibraryModal({ isOpen, onClose, onSelect }: MediaLibraryModalProps
                         : 'border-transparent hover:border-[var(--admin-border)]'
                     )}
                   >
-                    {isVideo ? (
+                    {isFileAudio ? (
+                      <>
+                        {/* Audio file with play button */}
+                        <audio
+                          ref={(el) => { audioRefs.current[file.id] = el; }}
+                          src={file.url}
+                          onEnded={() => setPlayingAudioId(null)}
+                          className="hidden"
+                        />
+                        <div className="w-full h-full flex flex-col items-center justify-center gap-2">
+                          <Music className="w-8 h-8 text-[var(--admin-text-muted)]" />
+                          <div
+                            onClick={(e) => toggleLibraryAudio(file.id, e)}
+                            className="w-10 h-10 bg-[var(--primary)] rounded-full flex items-center justify-center hover:bg-[var(--primary-dark)] transition-colors cursor-pointer"
+                          >
+                            {playingAudioId === file.id ? (
+                              <Pause className="w-5 h-5 text-white" />
+                            ) : (
+                              <Play className="w-5 h-5 text-white ml-0.5" />
+                            )}
+                          </div>
+                        </div>
+                      </>
+                    ) : isFileVideo ? (
                       <>
                         {/* Video thumbnail with autoplay on hover */}
                         <video
