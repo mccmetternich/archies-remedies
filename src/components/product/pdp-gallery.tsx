@@ -139,16 +139,16 @@ export function PDPGallery({
     }),
   };
 
-  // CSS-only height calculations using CSS variables
+  // CSS-only height calculations using CSS variables - GLOBAL (no lg: prefix)
   // Hero max-height: 100vh - header - marquee - buffer - 40px stagger margin
   // Gallery height: 100vh - header - marquee (extends to marquee floor)
   const heroMaxHeight = marqueeEnabled
-    ? 'lg:max-h-[calc(100vh-var(--pdp-header-height)-var(--pdp-marquee-height)-var(--pdp-fold-buffer)-40px)]'
-    : 'lg:max-h-[calc(100vh-var(--pdp-header-height)-var(--pdp-fold-buffer)-40px)]';
+    ? 'max-h-[calc(100vh-var(--pdp-header-height)-var(--pdp-marquee-height)-var(--pdp-fold-buffer)-40px)]'
+    : 'max-h-[calc(100vh-var(--pdp-header-height)-var(--pdp-fold-buffer)-40px)]';
 
   const galleryHeight = marqueeEnabled
-    ? 'lg:h-[calc(100vh-var(--pdp-header-height)-var(--pdp-marquee-height))]'
-    : 'lg:h-[calc(100vh-var(--pdp-header-height))]';
+    ? 'h-[calc(100vh-var(--pdp-header-height)-var(--pdp-marquee-height))]'
+    : 'h-[calc(100vh-var(--pdp-header-height))]';
 
   return (
     <>
@@ -156,20 +156,20 @@ export function PDPGallery({
       <div
         className={cn(
           'flex items-start', // items-start allows max-height to create visible whitespace
-          'gap-[var(--pdp-gap)] lg:gap-[var(--pdp-gutter)]', // Gap shrinks before hero
-          'pt-0 lg:pt-0', // No additional top padding - header spacer handles clearance
+          'gap-[var(--pdp-gutter)]', // Same gutter globally (CSS var handles responsive squish)
           galleryHeight
         )}
       >
-        {/* Hero Container - true scaling, repelling margin from marquee */}
+        {/* Hero Container - unified geometry across all breakpoints */}
         <div
           className={cn(
             'relative bg-white',
-            'flex-[1_1_auto] lg:flex-[1_1_0%] min-w-0 lg:min-w-[var(--pdp-hero-min-width)]', // 400px floor on desktop
-            'aspect-[1/1.18] lg:aspect-square',
+            'flex-[1_1_0%] min-w-[var(--pdp-hero-min-width)]', // Same flex math and 400px floor globally
+            'aspect-square', // Square on ALL breakpoints
             heroMaxHeight,
-            'lg:mt-[40px]', // Editorial Stagger: Hero sits 40px below Nav
-            'mb-[40px] lg:mb-[80px]', // Physical margin creates breathing gap above marquee
+            'min-h-[400px]', // Floor prevents collapse on small screens
+            'mt-[40px]', // Editorial Stagger: Hero sits 40px below Nav (global)
+            'mb-[80px]', // 80px breathing room above marquee (global)
             allImages.length > 1 && 'cursor-grab active:cursor-grabbing'
           )}
         >
@@ -254,13 +254,13 @@ export function PDPGallery({
           </AnimatePresence>
         </div>
 
-        {/* Thumbnails - Vertical tray for ALL screen widths (puzzle layout) */}
+        {/* Thumbnails - Vertical tray, unified styling globally */}
         {allImages.length > 1 && (
           <div
             className={cn(
               'relative flex flex-col self-stretch',
-              'bg-[#bbdae9] lg:bg-[#1a1a1a]',
-              'w-[115px] lg:flex-none lg:w-[200px]',
+              'bg-[#1a1a1a]', // Dark background globally
+              'flex-none w-[200px]', // Fixed 200px width globally
               'flex-shrink-0',
               'overflow-hidden' // Strict clipping - nothing escapes to marquee
             )}
@@ -269,47 +269,36 @@ export function PDPGallery({
             <div
               className={cn(
                 'absolute top-0 left-0 right-0 z-30',
-                'h-12 lg:h-16',
-                'bg-gradient-to-b from-[#bbdae9] to-transparent',
-                'lg:from-[#1a1a1a] lg:to-transparent',
+                'h-16', // Same height globally
+                'bg-gradient-to-b from-[#1a1a1a] to-transparent', // Dark gradient globally
                 'pointer-events-none',
                 'transition-opacity duration-200',
-                // Desktop: only show when can scroll up
-                !canScrollUp && 'lg:opacity-0'
+                !canScrollUp && 'opacity-0' // Hide when can't scroll up
               )}
             />
 
-            {/* Up Arrow - original style, inside tray */}
+            {/* Up Arrow - unified styling */}
             <button
-              onClick={() => {
-                if (typeof window !== 'undefined' && window.innerWidth < 1024) {
-                  goToPrevious();
-                } else {
-                  scrollThumbnails('up');
-                }
-              }}
+              onClick={() => scrollThumbnails('up')}
               className={cn(
                 'absolute top-1 left-0 right-0 z-40',
                 'flex items-center justify-center',
-                'h-8 lg:h-10',
-                'text-[#1a1a1a] lg:text-white/70 lg:hover:text-white',
+                'h-10', // Same height globally
+                'text-white/70 hover:text-white', // White on dark globally
                 'transition-opacity duration-200',
-                // Mobile: hide when at first image
-                activeIndex === 0 && 'opacity-0 pointer-events-none lg:opacity-100 lg:pointer-events-auto',
-                // Desktop: hide when can't scroll up
-                !canScrollUp && 'lg:opacity-0 lg:pointer-events-none'
+                !canScrollUp && 'opacity-0 pointer-events-none' // Hide when can't scroll
               )}
             >
-              <ChevronUp className="w-5 h-5 lg:w-6 lg:h-6" />
+              <ChevronUp className="w-6 h-6" />
             </button>
 
-            {/* Thumbnail buttons - scrollable container, flush edges */}
+            {/* Thumbnail buttons - scrollable container, unified padding */}
             <div
               ref={thumbnailContainerRef}
               className={cn(
                 'flex-1 flex flex-col',
-                'gap-[var(--pdp-gap)]', // 5px gaps
-                'p-[var(--pdp-gap)] lg:pt-0 lg:px-[20px] lg:pb-[20px]', // Desktop: no top padding (first thumb gets mt-[5px])
+                'gap-[var(--pdp-gap)]', // 5px gaps between thumbnails
+                'pt-0 px-[20px] pb-[20px]', // Same padding globally (first thumb gets mt-[20px])
                 'overflow-y-auto overflow-x-hidden'
               )}
             >
@@ -320,9 +309,8 @@ export function PDPGallery({
                   onMouseEnter={() => handleThumbnailClick(index)}
                   className={cn(
                     'relative overflow-hidden bg-white transition-all duration-200',
-                    'flex-1 min-h-0', // Fill available space equally (puzzle)
-                    'lg:flex-none lg:aspect-square', // Desktop: fixed squares
-                    index === 0 && 'lg:mt-[20px]', // First thumbnail: 20px top margin to match side padding
+                    'flex-none aspect-square', // Fixed squares on ALL breakpoints
+                    index === 0 && 'mt-[20px]', // First thumbnail: 20px top margin globally
                     index === activeIndex && 'ring-2 ring-[#bbdae9]'
                   )}
                 >
@@ -352,38 +340,27 @@ export function PDPGallery({
             <div
               className={cn(
                 'absolute bottom-0 left-0 right-0 z-30',
-                'h-12 lg:h-16',
-                'bg-gradient-to-t from-[#bbdae9] to-transparent',
-                'lg:from-[#1a1a1a] lg:to-transparent',
+                'h-16', // Same height globally
+                'bg-gradient-to-t from-[#1a1a1a] to-transparent', // Dark gradient globally
                 'pointer-events-none',
                 'transition-opacity duration-200',
-                // Desktop: only show when can scroll down
-                !canScrollDown && 'lg:opacity-0'
+                !canScrollDown && 'opacity-0' // Hide when can't scroll down
               )}
             />
 
-            {/* Down Arrow - original style, inside tray */}
+            {/* Down Arrow - unified styling */}
             <button
-              onClick={() => {
-                if (typeof window !== 'undefined' && window.innerWidth < 1024) {
-                  goToNext();
-                } else {
-                  scrollThumbnails('down');
-                }
-              }}
+              onClick={() => scrollThumbnails('down')}
               className={cn(
                 'absolute bottom-1 left-0 right-0 z-40',
                 'flex items-center justify-center',
-                'h-8 lg:h-10',
-                'text-[#1a1a1a] lg:text-white/70 lg:hover:text-white',
+                'h-10', // Same height globally
+                'text-white/70 hover:text-white', // White on dark globally
                 'transition-opacity duration-200',
-                // Mobile: hide when at last image
-                activeIndex === allImages.length - 1 && 'opacity-0 pointer-events-none lg:opacity-100 lg:pointer-events-auto',
-                // Desktop: hide when can't scroll down
-                !canScrollDown && 'lg:opacity-0 lg:pointer-events-none'
+                !canScrollDown && 'opacity-0 pointer-events-none' // Hide when can't scroll
               )}
             >
-              <ChevronDown className="w-5 h-5 lg:w-6 lg:h-6" />
+              <ChevronDown className="w-6 h-6" />
             </button>
           </div>
         )}

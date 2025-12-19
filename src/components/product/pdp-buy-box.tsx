@@ -182,31 +182,24 @@ export function PDPBuyBox({
   );
 
   return (
-    <div className="lg:sticky lg:top-28 space-y-4 md:space-y-5">
-      {/* Desktop: Reviews first */}
-      <div className="hidden lg:block">
-        <ReviewsDisplay />
-      </div>
-
-      {/* Title - really pops on mobile (Saie-style), refined on desktop */}
-      <div className="space-y-0 lg:space-y-1">
-        <h1 className="!text-2xl lg:!text-sm !font-bold uppercase leading-tight tracking-tight">
+    <div className="lg:sticky lg:top-28 space-y-4">
+      {/* Title & Subtitle - tight leading, unified typography */}
+      <div className="space-y-0">
+        <h1 className="text-2xl font-bold uppercase leading-tight tracking-tight">
           {product.name}
         </h1>
         {product.subtitle && (
-          <p className="-mt-[5px] lg:mt-0 !text-[17px] lg:!text-xs !font-bold uppercase text-[#1a1a1a] tracking-tight">
+          <p className="text-[17px] font-bold uppercase text-[#1a1a1a] tracking-tight">
             {product.subtitle}
           </p>
         )}
       </div>
 
-      {/* Mobile: Reviews under title */}
-      <div className="lg:hidden -mt-[5px]">
-        <ReviewsDisplay />
-      </div>
+      {/* Reviews - immediately after title (single render) */}
+      <ReviewsDisplay className="-mt-1" />
 
-      {/* Mobile: Hex separator after reviews */}
-      <div className="lg:hidden h-px bg-[#bbdae9] -mx-4 px-[10px]" style={{ marginLeft: '-6px', marginRight: '-6px' }} />
+      {/* Horizontal Rule - clean 1px separator on ALL breakpoints */}
+      <div className="h-px bg-[#bbdae9]" />
 
       {/* Short Description - 15% smaller on mobile */}
       {product.shortDescription && (
