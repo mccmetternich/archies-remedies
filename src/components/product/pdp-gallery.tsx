@@ -296,7 +296,7 @@ export function PDPGallery({
             <div
               ref={thumbnailContainerRef}
               className={cn(
-                'flex-1 flex flex-col',
+                'flex-1 flex flex-col items-center lg:items-stretch', // Center thumbnails on mobile
                 'gap-[var(--pdp-gap)]', // 5px gaps between thumbnails
                 'pt-0 px-[5px] lg:px-[20px] pb-[20px]', // 5px side padding on mobile, 20px on desktop
                 'overflow-y-auto overflow-x-hidden'
