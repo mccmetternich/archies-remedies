@@ -33,6 +33,7 @@ interface MediaPickerButtonProps {
   aspectRatio?: string;
   folder?: string;
   acceptVideo?: boolean; // Allow video files (mp4, webm)
+  acceptAudio?: boolean; // Allow audio files (mp3, wav, etc.)
   buttonText?: string; // Custom text for the upload button
   compact?: boolean; // Compact mode with smaller buttons
 }
@@ -49,6 +50,7 @@ export function MediaPickerButton({
   aspectRatio = '1/1',
   folder,
   acceptVideo = false,
+  acceptAudio = false,
   buttonText,
   compact = false,
 }: MediaPickerButtonProps) {
@@ -68,7 +70,13 @@ export function MediaPickerButton({
   onChangeRef.current = onChange;
 
   // Determine file accept types
-  const acceptTypes = acceptVideo ? 'image/*,video/mp4,video/webm' : 'image/*';
+  const getAcceptTypes = () => {
+    const types = ['image/*'];
+    if (acceptVideo) types.push('video/mp4', 'video/webm');
+    if (acceptAudio) types.push('audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/ogg', 'audio/*');
+    return types.join(',');
+  };
+  const acceptTypes = getAcceptTypes();
 
   // Check if value is a video - check extension, Cloudinary path, and mime type pattern
   const isVideo = value && (

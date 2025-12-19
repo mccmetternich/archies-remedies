@@ -1190,7 +1190,7 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
                 value={product.audioUrl || null}
                 onChange={(url) => setProduct({ ...product, audioUrl: url || null })}
                 folder="products"
-                acceptVideo={true}
+                acceptAudio={true}
                 helpText="Upload an MP3 or audio file"
               />
               <MediaPickerButton
