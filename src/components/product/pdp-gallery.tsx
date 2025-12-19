@@ -164,7 +164,7 @@ export function PDPGallery({
         <div
           className={cn(
             'relative bg-gray-200', // DEBUG: gray to see hero bounds
-            'flex-[1_1_0%] min-w-[var(--pdp-hero-min-width)]', // Same flex math and 400px floor globally
+            'flex-[1_1_0%] lg:min-w-[var(--pdp-hero-min-width)]', // 400px floor on desktop only
             'aspect-square', // Square on ALL breakpoints
             heroMaxHeight,
             'min-h-[400px]', // Floor prevents collapse on small screens
