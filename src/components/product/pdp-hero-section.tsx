@@ -151,8 +151,8 @@ export function PDPHeroSection({
 
   return (
     <div className="flex flex-col lg:flex-row w-full max-w-full px-4 lg:pr-0 lg:pl-[390px]">
-      {/* Buy Box - RIGID column, sticky on desktop, editorial stagger, fixed 192px gap */}
-      <div className="order-2 lg:order-1 w-full lg:w-[450px] lg:flex-shrink-0 lg:sticky lg:top-4 lg:self-start mt-8 lg:mt-0 lg:pt-[68px] lg:mr-[192px]">
+      {/* Buy Box - RIGID column, scrolls freely, editorial stagger, fixed 192px gap */}
+      <div className="order-2 lg:order-1 w-full lg:w-[450px] lg:flex-shrink-0 lg:self-start mt-8 lg:mt-0 lg:pt-[68px] lg:mr-[192px]">
         <PDPBuyBox
           product={product}
           variants={variants}
@@ -175,8 +175,8 @@ export function PDPHeroSection({
         />
       </div>
 
-      {/* Media Lane - Gallery + Marquee constrained to this column */}
-      <div className="order-1 lg:order-2 w-full lg:flex-1 lg:min-w-0 flex flex-col">
+      {/* Media Lane - Pinned console: Gallery + Marquee locked to viewport */}
+      <div className="order-1 lg:order-2 w-full lg:flex-1 lg:min-w-0 flex flex-col lg:sticky lg:top-[80px] lg:h-[calc(100vh-80px)]">
         <PDPGallery
           images={activeImages}
           heroImage={activeHeroImage}
