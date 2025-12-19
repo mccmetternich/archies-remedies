@@ -179,10 +179,16 @@ export function AudioPlayer({ audioUrl, avatarUrl, title, quote }: AudioPlayerPr
 
           {/* Content Area */}
           <div className="flex-1 min-w-0">
-            {/* Title with Verified Badge */}
-            {title && (
-              <div className="flex items-center gap-1.5 mb-1">
-                {/* Verified Badge */}
+            {/* Title Row: Name left, Verified Customer right */}
+            <div className="flex items-center justify-between mb-1">
+              {/* Title - left */}
+              {title && (
+                <p className="text-[12px] font-medium text-[#1a1a1a]/70 truncate leading-tight">
+                  {title}
+                </p>
+              )}
+              {/* Verified Customer - right */}
+              <div className="flex items-center gap-1 flex-shrink-0 ml-2">
                 <span className="flex-shrink-0 w-3.5 h-3.5 rounded-full bg-[#1a1a1a] flex items-center justify-center">
                   <svg
                     viewBox="0 0 24 24"
@@ -196,11 +202,11 @@ export function AudioPlayer({ audioUrl, avatarUrl, title, quote }: AudioPlayerPr
                     <polyline points="20 6 9 17 4 12" />
                   </svg>
                 </span>
-                <p className="text-[10px] font-medium text-[#1a1a1a]/60 truncate leading-tight">
-                  {title}
-                </p>
+                <span className="text-[12px] font-medium text-[#1a1a1a]/70 leading-tight">
+                  Verified Customer
+                </span>
               </div>
-            )}
+            </div>
 
             {/* Waveform Progress Bar - more compact */}
             <div
