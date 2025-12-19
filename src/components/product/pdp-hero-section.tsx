@@ -172,8 +172,8 @@ export function PDPHeroSection({
         />
       </div>
 
-      {/* Gallery + Marquee - FLUID column, no max-width bottleneck */}
-      <div className="order-1 lg:order-2 w-full lg:flex-1 lg:min-w-0 flex flex-col lg:h-[calc(100vh-80px)]">
+      {/* Gallery - FLUID column, no max-width bottleneck */}
+      <div className="order-1 lg:order-2 w-full lg:flex-1 lg:min-w-0">
         <PDPGallery
           images={activeImages}
           heroImage={activeHeroImage}
@@ -182,16 +182,15 @@ export function PDPHeroSection({
           badgeEmoji={product.badgeEmoji}
           rotatingSealEnabled={product.rotatingSealEnabled || false}
           rotatingSealImageUrl={product.rotatingSealImageUrl}
-          marqueeEnabled={marqueeEnabled}
         />
 
-        {/* Marquee - viewport-pinned to bottom, spans gallery width */}
+        {/* Marquee - below gallery, full width on mobile */}
         <PDPMarquee
           text={marqueeText || ''}
           enabled={marqueeEnabled}
           backgroundColor={marqueeBackgroundColor}
           textColor={marqueeTextColor}
-          className="-mx-4 lg:mx-0 lg:sticky lg:bottom-0"
+          className="-mx-4 lg:mx-0 lg:mt-6"
         />
       </div>
     </div>
