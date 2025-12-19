@@ -561,22 +561,15 @@ input[type="button"]:disabled,
 
   @media (min-width: 1024px) {
     .container {
-      padding-left: calc(5.5rem + 15px);
-      padding-right: calc(5.5rem + 15px);
+      padding-left: calc(5rem + 15px);
+      padding-right: calc(5rem + 15px);
     }
   }
 
   @media (min-width: 1280px) {
     .container {
-      padding-left: calc(7.7rem + 15px);
-      padding-right: calc(7.7rem + 15px);
-    }
-  }
-
-  @media (min-width: 1536px) {
-    .container {
-      padding-left: calc(9.5rem + 15px);
-      padding-right: calc(9.5rem + 15px);
+      padding-left: calc(7rem + 15px);
+      padding-right: calc(7rem + 15px);
     }
   }
 }
