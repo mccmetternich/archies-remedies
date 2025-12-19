@@ -163,7 +163,7 @@ export function PDPGallery({
         {/* Hero Container - unified geometry across all breakpoints */}
         <div
           className={cn(
-            'relative bg-white',
+            'relative bg-gray-200', // DEBUG: gray to see hero bounds
             'flex-[1_1_0%] min-w-[var(--pdp-hero-min-width)]', // Same flex math and 400px floor globally
             'aspect-square', // Square on ALL breakpoints
             heroMaxHeight,
@@ -259,7 +259,7 @@ export function PDPGallery({
           <div
             className={cn(
               'relative flex flex-col self-stretch',
-              'bg-[#1a1a1a]', // Dark background globally
+              'bg-red-500', // DEBUG: red to see tray bounds
               'flex-none w-[200px]', // Fixed 200px width globally
               'flex-shrink-0',
               'overflow-hidden' // Strict clipping - nothing escapes to marquee
