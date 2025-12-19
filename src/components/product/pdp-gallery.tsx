@@ -87,7 +87,8 @@ export function PDPGallery({
           className={cn(
             'relative overflow-hidden bg-[var(--cream)]',
             'flex-1 min-w-0',
-            'aspect-[1/1.18] lg:aspect-square lg:max-h-[calc(100vh-20px)] lg:w-auto'
+            'aspect-[1/1.18] lg:aspect-square lg:max-h-[calc(100vh-20px)] lg:w-auto',
+            'lg:mt-8'
           )}
         >
           {/* Badge - desktop only */}
@@ -185,8 +186,8 @@ export function PDPGallery({
               {activeIndex > 0 && <ChevronUp className="w-3.5 h-3.5" />}
             </button>
 
-            {/* Thumbnail buttons - U-frame padding (16px top/sides) */}
-            <div className="flex-1 lg:flex-none flex flex-col gap-[5px] lg:gap-3 lg:pt-4 lg:px-4">
+            {/* Thumbnail buttons - U-frame padding (10px top/sides/gap) */}
+            <div className="flex-1 lg:flex-none flex flex-col gap-[5px] lg:gap-[10px] lg:p-[10px]">
               {allImages.slice(0, 5).map((image, index) => (
                 <button
                   key={image.id}
