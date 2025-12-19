@@ -177,8 +177,8 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
 
       <header
         className={cn(
-          'lg:fixed left-0 right-0 lg:z-50 bg-white shadow-[0_8px_30px_rgba(0,0,0,0.12)] py-2 md:py-5',
-          showBumper ? 'lg:top-[44px]' : 'lg:top-0'
+          'lg:fixed left-0 right-0 lg:z-50 bg-white shadow-[0_4px_16px_rgba(0,0,0,0.12)] py-2 md:py-3',
+          showBumper ? 'lg:top-[37px]' : 'lg:top-0'
         )}
       >
         <nav className="container">
@@ -213,7 +213,7 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                   alt="Archie's Remedies"
                   width={200}
                   height={50}
-                  className="h-7 md:h-10 w-auto"
+                  className="h-7 md:h-8 w-auto"
                   priority
                 />
               ) : (
@@ -248,7 +248,7 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                 <div
                   className="absolute top-full left-0 right-0"
                   style={{
-                    height: showBumper ? '95px' : '51px',
+                    height: showBumper ? '80px' : '36px',
                     background: 'transparent'
                   }}
                 />
@@ -256,7 +256,7 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                 {/* Mega Nav Dropdown - CSS transitions, z-40 to sit below nav bar (z-50) */}
                 <div
                   className="hidden lg:block fixed left-0 right-0 z-40 opacity-0 invisible translate-y-2 group-hover/shop:opacity-100 group-hover/shop:visible group-hover/shop:translate-y-0 transition-all duration-300 ease-out pointer-events-none group-hover/shop:pointer-events-auto"
-                  style={{ top: showBumper ? '131px' : '87px' }}
+                  style={{ top: showBumper ? '109px' : '72px' }}
                 >
 
                   <div className="relative z-50 w-full bg-white shadow-[0_20px_40px_rgba(0,0,0,0.15)] overflow-visible">
@@ -766,7 +766,7 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
       {/* Spacer for fixed header + bumper - only on desktop */}
       <div className={cn(
         'hidden lg:block',
-        showBumper ? 'h-[135px]' : 'h-[95px]'
+        showBumper ? 'h-[113px]' : 'h-[80px]'
       )} />
     </>
   );
