@@ -81,7 +81,7 @@ export function PDPGallery({
   return (
     <>
       {/* Unified Layout - Single responsive component */}
-      <div className="flex items-start">
+      <div className="flex items-start lg:h-[calc(100vh-80px)]">
         {/* Hero Container - square on desktop, taller on mobile */}
         <div
           className={cn(
@@ -166,7 +166,7 @@ export function PDPGallery({
               'flex flex-col self-stretch',
               'bg-[#bbdae9] lg:bg-[#f8f8f8]',
               'w-[115px] lg:w-[200px]',
-              'lg:ml-10 lg:flex-shrink-0 lg:min-h-[calc(100vh-80px)] lg:pt-12'
+              'lg:ml-10 lg:flex-shrink-0 lg:h-full lg:sticky lg:top-[80px] lg:pt-12'
             )}
           >
             {/* Up Arrow - mobile only */}
