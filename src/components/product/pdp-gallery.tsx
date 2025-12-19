@@ -166,7 +166,7 @@ export function PDPGallery({
               'flex flex-col self-stretch',
               'bg-[#bbdae9] lg:bg-[#1a1a1a]',
               'w-[115px] lg:w-[200px]',
-              'lg:ml-10 lg:flex-shrink-0 lg:h-full lg:sticky lg:top-[80px] lg:pt-12'
+              'lg:ml-10 lg:flex-shrink-0 lg:h-full lg:sticky lg:top-[80px]'
             )}
           >
             {/* Up Arrow - mobile only */}
@@ -185,8 +185,8 @@ export function PDPGallery({
               {activeIndex > 0 && <ChevronUp className="w-3.5 h-3.5" />}
             </button>
 
-            {/* Thumbnail buttons */}
-            <div className="flex-1 lg:flex-none flex flex-col gap-[5px] lg:gap-3 lg:px-4">
+            {/* Thumbnail buttons - U-frame padding (16px top/sides) */}
+            <div className="flex-1 lg:flex-none flex flex-col gap-[5px] lg:gap-3 lg:pt-4 lg:px-4">
               {allImages.slice(0, 5).map((image, index) => (
                 <button
                   key={image.id}
