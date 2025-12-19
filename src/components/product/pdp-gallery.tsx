@@ -163,8 +163,8 @@ export function PDPGallery({
         {/* Hero Container - unified geometry across all breakpoints */}
         <div
           className={cn(
-            'relative bg-red-500 box-content', // DEBUG: red background to visualize hero bounds
-            'flex-[1_1_0%] min-w-[var(--pdp-hero-min-width)]', // flex-1 pushes tray to far right
+            'relative bg-red-500', // DEBUG: red background to visualize hero bounds
+            'flex-1 min-w-[400px] w-[calc(100vh-280px)]', // DEBUG: explicit width to force visibility
             'aspect-square', // Square on ALL breakpoints
             heroMaxHeight,
             'min-h-[400px]', // Floor prevents collapse on small screens
