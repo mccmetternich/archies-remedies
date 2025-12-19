@@ -107,19 +107,20 @@ export function PDPGallery({
       {/* Unified Layout - CSS-only vertical rhythm, no JS dependencies */}
       <div
         className={cn(
-          'flex items-stretch',
+          'flex items-start', // items-start allows max-height to create visible whitespace
           'gap-[var(--pdp-gap)] lg:gap-[var(--pdp-gutter)]', // Gap shrinks before hero
-          'pt-[40px] lg:pt-[40px]', // Static top padding
+          'pt-[40px] lg:pt-[140px]', // 80px header + 23px bumper + 37px aesthetic gap
           galleryHeight
         )}
       >
-        {/* Hero Container - true scaling, not cropping */}
+        {/* Hero Container - true scaling, repelling margin from marquee */}
         <div
           className={cn(
             'relative bg-[var(--cream)]',
-            'flex-[1_1_auto] min-w-0', // Hero can shrink but prefers natural size
+            'flex-[1_1_auto] lg:flex-[1_1_0%] min-w-0', // Flex-basis 0% ensures gap shrinks first
             'aspect-[1/1.18] lg:aspect-square',
             heroMaxHeight,
+            'mb-[40px] lg:mb-[80px]', // Physical margin creates breathing gap above marquee
             allImages.length > 1 && 'cursor-grab active:cursor-grabbing'
           )}
         >
@@ -210,7 +211,7 @@ export function PDPGallery({
             className={cn(
               'flex flex-col self-stretch',
               'bg-[#bbdae9] lg:bg-[#1a1a1a]',
-              'w-[115px] lg:w-[200px]',
+              'w-[115px] lg:flex-none lg:w-[200px]', // flex-none ensures tray is protected
               'flex-shrink-0' // Tray never shrinks
             )}
           >

@@ -38,7 +38,7 @@ export function PDPMarquee({
     <div
       className={cn(
         'relative overflow-hidden',
-        'py-4 lg:py-5',
+        'h-[44px] flex items-center', // Fixed height, vertically centered
         className
       )}
       style={{
@@ -47,7 +47,7 @@ export function PDPMarquee({
       }}
     >
       {/* Marquee track */}
-      <div className="flex animate-marquee-slow">
+      <div className="flex animate-marquee-slow w-full">
         <div className="flex shrink-0 items-center">
           <span
             className="text-[9px] lg:text-[11px] font-medium uppercase tracking-[0.05em]"
