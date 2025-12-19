@@ -142,13 +142,14 @@ export function PDPGallery({
   // CSS-only height calculations using CSS variables - GLOBAL (no lg: prefix)
   // Hero max-height: 100vh - header - marquee - buffer - 40px stagger margin
   // Gallery height: 100vh - header - marquee (extends to marquee floor)
+  // Desktop-only height constraints (mobile flows naturally)
   const heroMaxHeight = marqueeEnabled
-    ? 'max-h-[calc(100vh-var(--pdp-header-height)-var(--pdp-marquee-height)-var(--pdp-fold-buffer)-40px)]'
-    : 'max-h-[calc(100vh-var(--pdp-header-height)-var(--pdp-fold-buffer)-40px)]';
+    ? 'lg:max-h-[calc(100vh-var(--pdp-header-height)-var(--pdp-marquee-height)-var(--pdp-fold-buffer)-40px)]'
+    : 'lg:max-h-[calc(100vh-var(--pdp-header-height)-var(--pdp-fold-buffer)-40px)]';
 
   const galleryHeight = marqueeEnabled
-    ? 'h-[calc(100vh-var(--pdp-header-height)-var(--pdp-marquee-height))]'
-    : 'h-[calc(100vh-var(--pdp-header-height))]';
+    ? 'lg:h-[calc(100vh-var(--pdp-header-height)-var(--pdp-marquee-height))]'
+    : 'lg:h-[calc(100vh-var(--pdp-header-height))]';
 
   return (
     <>
@@ -169,7 +170,7 @@ export function PDPGallery({
             heroMaxHeight,
             'min-h-[400px]', // Floor prevents collapse on small screens
             'lg:mt-[40px]', // Editorial Stagger: Hero sits 40px below Nav (desktop only)
-            'mb-[80px]', // 80px breathing room above marquee (global)
+            'mb-0 lg:mb-[80px]', // No margin on mobile, 80px on desktop
             allImages.length > 1 && 'cursor-grab active:cursor-grabbing'
           )}
         >
