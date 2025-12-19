@@ -258,7 +258,7 @@ export function PDPGallery({
         {allImages.length > 1 && (
           <div
             className={cn(
-              'relative flex flex-col h-full', // h-full anchors from header to marquee floor
+              'relative flex flex-col h-full ml-auto', // ml-auto forces right anchor, h-full spans top to bottom
               'bg-[#1a1a1a]', // Dark background globally
               'flex-none w-[200px]', // Fixed 200px width globally
               'flex-shrink-0',
