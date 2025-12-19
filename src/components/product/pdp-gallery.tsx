@@ -140,11 +140,11 @@ export function PDPGallery({
   };
 
   // CSS-only height calculations using CSS variables - GLOBAL (no lg: prefix)
-  // Hero max-height: 100vh - header - marquee - buffer - 120px (40px top margin + 80px bottom margin)
+  // Hero max-height: 100vh - 254px (header 80 + marquee 44 + top margin 40 + bottom margin 80 + buffer 10)
   // Gallery height: 100vh - header - marquee (extends to marquee floor)
   const heroMaxHeight = marqueeEnabled
-    ? 'max-h-[calc(100vh-var(--pdp-header-height)-var(--pdp-marquee-height)-var(--pdp-fold-buffer)-120px)]'
-    : 'max-h-[calc(100vh-var(--pdp-header-height)-var(--pdp-fold-buffer)-120px)]';
+    ? 'max-h-[calc(100vh-254px)]'
+    : 'max-h-[calc(100vh-170px)]'; // Without marquee: header 80 + top 40 + bottom 80 + buffer 10 - marquee 44 = 166, round to 170
 
   const galleryHeight = marqueeEnabled
     ? 'h-[calc(100vh-var(--pdp-header-height)-var(--pdp-marquee-height))]'
@@ -164,7 +164,7 @@ export function PDPGallery({
         <div
           className={cn(
             'relative bg-white',
-            'flex-[1_1_0%] min-w-[var(--pdp-hero-min-width)]', // Same flex math and 400px floor globally
+            'flex-none min-w-[var(--pdp-hero-min-width)]', // flex-none forces respect of max-h limit
             'aspect-square', // Square on ALL breakpoints
             heroMaxHeight,
             'min-h-[400px]', // Floor prevents collapse on small screens
