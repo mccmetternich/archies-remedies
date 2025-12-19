@@ -116,7 +116,7 @@ export function PDPGallery({
         {/* Hero Container - true scaling, repelling margin from marquee */}
         <div
           className={cn(
-            'relative bg-[var(--cream)]',
+            'relative bg-white',
             'flex-[1_1_auto] lg:flex-[1_1_0%] min-w-0', // Flex-basis 0% ensures gap shrinks first
             'aspect-[1/1.18] lg:aspect-square',
             heroMaxHeight,
@@ -180,7 +180,7 @@ export function PDPGallery({
                   loop
                   muted
                   playsInline
-                  className="w-full h-full object-contain pointer-events-none select-none bg-[var(--cream)]"
+                  className="w-full h-full object-contain pointer-events-none select-none bg-white"
                   draggable={false}
                 />
               ) : activeImage?.imageUrl ? (
@@ -189,7 +189,7 @@ export function PDPGallery({
                   alt={activeImage.altText || productName}
                   fill
                   className="object-contain pointer-events-none select-none"
-                  style={{ backgroundColor: 'var(--cream)' }}
+                  style={{ backgroundColor: '#ffffff' }}
                   priority={activeIndex === 0}
                   sizes="(max-width: 1024px) 80vw, 50vw"
                   draggable={false}
