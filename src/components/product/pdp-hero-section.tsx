@@ -176,7 +176,7 @@ export function PDPHeroSection({
       </div>
 
       {/* Media Lane - Pinned console: Gallery + Marquee locked to viewport */}
-      <div className="order-1 lg:order-2 w-full lg:flex-1 lg:min-w-0 flex flex-col lg:sticky lg:top-[var(--pdp-header-height)] lg:h-[calc(100vh-var(--pdp-header-height))] lg:max-h-[calc(100vh-var(--pdp-header-height))] lg:overflow-hidden lg:isolate lg:z-10">
+      <div className="order-1 lg:order-2 w-full lg:flex-1 lg:min-w-0 flex flex-col lg:sticky lg:top-[var(--pdp-header-height)] lg:h-[calc(100vh-var(--pdp-header-height))] lg:max-h-[calc(100vh-var(--pdp-header-height))] lg:overflow-hidden lg:isolate lg:z-10 bg-blue-500">
         <PDPGallery
           images={activeImages}
           heroImage={activeHeroImage}
