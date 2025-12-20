@@ -341,6 +341,13 @@ export const products = sqliteTable('products', {
   showDiscountSignup: integer('show_discount_signup', { mode: 'boolean' }).default(true),
   discountSignupText: text('discount_signup_text').default('Get 10% off your first order'),
 
+  // PDP Signup Section (email/SMS signup below drawers)
+  signupSectionEnabled: integer('signup_section_enabled', { mode: 'boolean' }).default(true),
+  signupSectionTitle: text('signup_section_title').default('Stay in the Loop'),
+  signupSectionSubtitle: text('signup_section_subtitle').default('Get exclusive offers and wellness tips'),
+  signupSectionButtonText: text('signup_section_button_text').default('Sign Up'),
+  signupSectionSuccessMessage: text('signup_section_success_message').default("You're all set!"),
+
   // Audio Player (mini player below CTA)
   audioUrl: text('audio_url'), // Audio file URL
   audioAvatarUrl: text('audio_avatar_url'), // Speaker avatar image

@@ -20,17 +20,16 @@ export function PDPMarquee({
 }: PDPMarqueeProps) {
   if (!enabled || !text) return null;
 
-  // Duplicate text for seamless loop
+  // Create seamless repeating pattern: TEXT • TEXT • TEXT • ...
+  // Small consistent gaps for continuous flow
   const marqueeContent = (
     <span className="inline-flex items-center whitespace-nowrap">
-      <span className="mx-8">{text}</span>
-      <span className="mx-8 opacity-40">•</span>
-      <span className="mx-8">{text}</span>
-      <span className="mx-8 opacity-40">•</span>
-      <span className="mx-8">{text}</span>
-      <span className="mx-8 opacity-40">•</span>
-      <span className="mx-8">{text}</span>
-      <span className="mx-8 opacity-40">•</span>
+      {[...Array(8)].map((_, i) => (
+        <span key={i} className="inline-flex items-center">
+          <span className="mx-3">{text}</span>
+          <span className="mx-3 opacity-40">•</span>
+        </span>
+      ))}
     </span>
   );
 

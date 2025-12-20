@@ -31,22 +31,81 @@
   --pdp-header-height: 80px; /* nav only, updated by JS if bumper present */
   --pdp-marquee-height: 44px;
   --pdp-fold-buffer: 80px; /* breathing room above marquee */
-  --pdp-hero-min-width: 400px; /* horizontal squish floor */
-  --pdp-gutter: 65px;
   --pdp-gap: 5px; /* mobile puzzle gap */
+
+  /* === PDP FLUID SCALING SYSTEM ===
+     Proportional scaling from 1920px → 1024px (tablet breakpoint)
+     Pure CSS clamp() - no breakpoint jumps, seamless scaling
+     Priority order for compression: left padding → gap → buy box → hero → gutter → tray */
+
+  /* BUY BOX: 600px → 400px */
+  --pdp-buybox-width: clamp(400px, calc(400px + (600 - 400) * ((100vw - 1024px) / (1920 - 1024))), 600px);
+
+  /* LEFT PADDING: 290px → 24px (most aggressive - takes priority for compression) */
+  --pdp-left-padding: clamp(24px, calc(24px + (290 - 24) * ((100vw - 1024px) / (1920 - 1024))), 290px);
+
+  /* BUYBOX-TO-GALLERY GAP: 140px → 24px */
+  --pdp-buybox-gap: clamp(24px, calc(24px + (140 - 24) * ((100vw - 1024px) / (1920 - 1024))), 140px);
+
+  /* THUMBNAIL TRAY: 100px → 64px */
+  --pdp-tray-width: clamp(64px, calc(64px + (100 - 64) * ((100vw - 1024px) / (1920 - 1024))), 100px);
+
+  /* GUTTER (hero to tray): 65px → 8px */
+  --pdp-gutter: clamp(8px, calc(8px + (65 - 8) * ((100vw - 1024px) / (1920 - 1024))), 65px);
+
+  /* HERO MIN-WIDTH: 520px → 400px (now fluid) */
+  --pdp-hero-min-width: clamp(400px, calc(400px + (520 - 400) * ((100vw - 1024px) / (1920 - 1024))), 520px);
+
+  /* HERO MAX-WIDTH: Caps hero size at ultra-wide viewports (~2570px) */
+  --pdp-hero-max-width: 1375px;
+
+  /* EDITORIAL STAGGER - Hero top margin: 40px → 20px */
+  --pdp-hero-stagger: clamp(20px, calc(20px + (40 - 20) * ((100vw - 1024px) / (1920 - 1024))), 40px);
+
+  /* EDITORIAL STAGGER - Buy box top padding: 68px → 32px */
+  --pdp-buybox-stagger: clamp(32px, calc(32px + (68 - 32) * ((100vw - 1024px) / (1920 - 1024))), 68px);
+
+  /* HERO BOTTOM MARGIN: 80px → 24px */
+  --pdp-hero-bottom-margin: clamp(24px, calc(24px + (80 - 24) * ((100vw - 1024px) / (1920 - 1024))), 80px);
+
+  /* THUMBNAIL INTERNAL PADDING: 10px → 6px */
+  --pdp-tray-padding: clamp(6px, calc(6px + (10 - 6) * ((100vw - 1024px) / (1920 - 1024))), 10px);
+
+  /* === GLOBAL NAV FLUID PADDING ===
+     Coordinates with PDP layout - logo floats ~150px left of buy box edge
+     At 1920px: 140px (290px pdp-left - 150px offset)
+     At 1024px: 24px (minimum)
+     Scales proportionally with PDP layout */
+  --nav-left-padding: clamp(24px, calc(24px + (140 - 24) * ((100vw - 1024px) / (1920 - 1024))), 140px);
+  --nav-right-padding: clamp(24px, calc(24px + (140 - 24) * ((100vw - 1024px) / (1920 - 1024))), 140px);
 }
 
-/* PDP Gutter Progressive Squish - gutter shrinks BEFORE hero */
-@media (max-width: 1280px) {
-  :root { --pdp-gutter: 45px; }
-}
+/* === ULTRA-WIDE VIEWPORT BEHAVIOR (above 2570px) ===
+   - Hero stays at max size (~1375px), fixed LEFT
+   - Left padding continues scaling FROM THIS POINT (buy box drifts right)
+   - Gutter continues scaling FROM THIS POINT (hero-to-thumbnails gap grows)
+   - Buy box gap stays FIXED at 140px */
+@media (min-width: 2571px) {
+  :root {
+    /* LEFT PADDING: Starts scaling from 2570px breakpoint (not 1920px) */
+    --pdp-left-padding: calc(290px + (100vw - 2570px) * 0.3);
 
-@media (max-width: 1100px) {
-  :root { --pdp-gutter: 25px; }
-}
+    /* GUTTER: Starts scaling from 2570px breakpoint */
+    --pdp-gutter: calc(65px + (100vw - 2570px) * 0.2);
 
-@media (max-width: 1024px) {
-  :root { --pdp-gutter: 0px; }
+    /* BUY BOX GAP: Stays fixed at max value */
+    --pdp-buybox-gap: 140px;
+
+    /* BUY BOX WIDTH: Stays fixed at max value */
+    --pdp-buybox-width: 600px;
+
+    /* TRAY: Stays fixed at max value */
+    --pdp-tray-width: 100px;
+
+    /* NAV: Continues scaling from 2570px, maintaining 150px offset from buy box */
+    --nav-left-padding: calc(140px + (100vw - 2570px) * 0.3);
+    --nav-right-padding: calc(140px + (100vw - 2570px) * 0.3);
+  }
 }
 
 /* =============================================
@@ -462,12 +521,12 @@ input[type="button"]:disabled,
   gap: 0.75rem;
   padding: 0.875rem 1.75rem;
   border-radius: 0;
-  font-size: 0.8125rem;
-  font-weight: 500;
+  font-size: 0.75rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.04em;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  transition: all 300ms ease;
+  transition: background-color 250ms ease, color 250ms ease, box-shadow 250ms ease;
   background-color: #1a1a1a !important;
   color: #ffffff !important;
 }
@@ -476,6 +535,18 @@ input[type="button"]:disabled,
   background-color: #bbdae9 !important;
   color: #1a1a1a !important;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+}
+
+/* PDP Buy Box CTA - inherits from primary but uses CSS hover */
+.pdp-cta-button {
+  background-color: #1a1a1a;
+  color: #ffffff;
+  transition: background-color 250ms ease, color 250ms ease;
+}
+
+.pdp-cta-button:hover {
+  background-color: #bbdae9;
+  color: #1a1a1a;
 }
 
 .cta-button-primary-lg {
@@ -992,9 +1063,9 @@ input[type="button"]:disabled,
    ============================================= */
 
 :root {
-  /* Editorial Font Families */
-  --font-editorial-header: Helvetica, "Helvetica Neue", Arial, sans-serif;
-  --font-editorial-body: Arial, "Helvetica Neue", sans-serif;
+  /* Editorial Font Families - Using Inter for consistency */
+  --font-editorial-header: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-editorial-body: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
 
   /* Blog-specific colors */
   --blog-bg: #FFFFFF;

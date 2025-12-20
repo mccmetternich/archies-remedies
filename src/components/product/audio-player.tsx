@@ -100,14 +100,14 @@ export function AudioPlayer({ audioUrl, avatarUrl, title, quote }: AudioPlayerPr
 
       {/* Player Container - Sharp edges, compact, sleek */}
       <div className="relative bg-[#f8f8f8] border border-[#e5e5e5] px-2.5 py-2">
-        <div className="flex items-center gap-3">
-          {/* Combined Avatar + Play Button */}
+        <div className="flex items-stretch gap-3">
+          {/* Large Avatar + Centered Play Button - Clickable to play */}
           <button
             onClick={togglePlay}
-            className="relative flex-shrink-0 w-11 h-11 group"
+            className="relative flex-shrink-0 w-[72px] group self-stretch"
           >
-            {/* Avatar Image */}
-            <div className="w-full h-full overflow-hidden bg-[#bbdae9]/30">
+            {/* Avatar Image - Full height */}
+            <div className="w-full h-full min-h-[72px] overflow-hidden bg-[#bbdae9]/30">
               {avatarUrl ? (
                 <Image
                   src={avatarUrl}
@@ -119,7 +119,7 @@ export function AudioPlayer({ audioUrl, avatarUrl, title, quote }: AudioPlayerPr
                 <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#bbdae9] to-[#8ec4db]">
                   <svg
                     viewBox="0 0 24 24"
-                    className="w-5 h-5 text-white"
+                    className="w-8 h-8 text-white"
                     fill="currentColor"
                   >
                     <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z" />
@@ -129,38 +129,46 @@ export function AudioPlayer({ audioUrl, avatarUrl, title, quote }: AudioPlayerPr
               )}
             </div>
 
-            {/* Play/Pause Icon - Bottom Right Corner */}
+            {/* Play/Pause Icon - Centered, smaller */}
             <div
               className={cn(
-                'absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full flex items-center justify-center',
-                'bg-[#1a1a1a] text-white shadow-md',
-                'group-hover:bg-[#bbdae9] group-hover:text-[#1a1a1a]',
+                'absolute inset-0 flex items-center justify-center',
+                'bg-black/20 group-hover:bg-black/30',
                 'transition-colors duration-200'
               )}
             >
-              <AnimatePresence mode="wait">
-                {isPlaying ? (
-                  <motion.div
-                    key="pause"
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    exit={{ scale: 0 }}
-                    transition={{ duration: 0.15 }}
-                  >
-                    <Pause className="w-2.5 h-2.5" fill="currentColor" />
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key="play"
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    exit={{ scale: 0 }}
-                    transition={{ duration: 0.15 }}
-                  >
-                    <Play className="w-2.5 h-2.5 ml-0.5" fill="currentColor" />
-                  </motion.div>
+              <div
+                className={cn(
+                  'w-7 h-7 rounded-full flex items-center justify-center',
+                  'bg-[#1a1a1a]/80 text-white',
+                  'group-hover:bg-[#1a1a1a] group-hover:scale-105',
+                  'transition-all duration-200'
                 )}
-              </AnimatePresence>
+              >
+                <AnimatePresence mode="wait">
+                  {isPlaying ? (
+                    <motion.div
+                      key="pause"
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      exit={{ scale: 0 }}
+                      transition={{ duration: 0.15 }}
+                    >
+                      <Pause className="w-3.5 h-3.5" fill="currentColor" />
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key="play"
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      exit={{ scale: 0 }}
+                      transition={{ duration: 0.15 }}
+                    >
+                      <Play className="w-3.5 h-3.5 ml-0.5" fill="currentColor" />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             </div>
 
             {/* Animated ring when playing */}
@@ -168,52 +176,54 @@ export function AudioPlayer({ audioUrl, avatarUrl, title, quote }: AudioPlayerPr
               {isPlaying && (
                 <motion.div
                   initial={{ scale: 1, opacity: 0.6 }}
-                  animate={{ scale: 1.3, opacity: 0 }}
+                  animate={{ scale: 1.15, opacity: 0 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 1.2, repeat: Infinity, ease: 'easeOut' }}
-                  className="absolute inset-0 border border-[#bbdae9]"
+                  className="absolute inset-0 border-2 border-[#bbdae9]"
                 />
               )}
             </AnimatePresence>
           </button>
 
-          {/* Content Area */}
-          <div className="flex-1 min-w-0">
-            {/* Title Row: Name left, Verified Customer right */}
-            <div className="flex items-center justify-between mb-1">
+          {/* Content Area - Narrower to accommodate larger thumbnail */}
+          <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
+            {/* Title Row: Name left, Timestamp right */}
+            <div className="flex items-center justify-between">
               {/* Title - left */}
               {title && (
                 <p className="text-[12px] font-medium text-[#1a1a1a]/70 truncate leading-tight">
                   {title}
                 </p>
               )}
-              {/* Verified Customer - right */}
-              <div className="flex items-center gap-1 flex-shrink-0 ml-2">
-                <span className="flex-shrink-0 w-3.5 h-3.5 rounded-full bg-[#1a1a1a] flex items-center justify-center">
-                  <svg
-                    viewBox="0 0 24 24"
-                    className="w-2 h-2 text-white"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={4}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
-                </span>
-                <span className="text-[12px] font-medium text-[#1a1a1a]/70 leading-tight">
-                  Verified Customer
-                </span>
-              </div>
+              {/* Timestamp - right */}
+              <span className="text-[10px] font-medium text-[#1a1a1a]/40 tabular-nums ml-2">
+                {formatTime(currentTime)} / {formatTime(duration)}
+              </span>
             </div>
 
-            {/* Waveform Progress Bar - more compact */}
-            <div
-              ref={progressRef}
-              onClick={handleProgressClick}
-              className="relative h-5 flex items-center gap-[1.5px] cursor-pointer group"
-            >
+            {/* Waveform Progress Bar with mini play button */}
+            <div className="flex items-center gap-2">
+              {/* Mini play button */}
+              <button
+                onClick={togglePlay}
+                className={cn(
+                  'flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center',
+                  'bg-[#1a1a1a] text-white hover:bg-[#bbdae9] hover:text-[#1a1a1a]',
+                  'transition-colors duration-200'
+                )}
+              >
+                {isPlaying ? (
+                  <Pause className="w-2.5 h-2.5" fill="currentColor" />
+                ) : (
+                  <Play className="w-2.5 h-2.5 ml-0.5" fill="currentColor" />
+                )}
+              </button>
+              {/* Waveform */}
+              <div
+                ref={progressRef}
+                onClick={handleProgressClick}
+                className="relative flex-1 h-6 flex items-center gap-[1.5px] cursor-pointer group"
+              >
               {waveformBars.map((height, i) => {
                 const barProgress = (i / waveformBars.length) * 100;
                 const isActive = barProgress <= progress;
@@ -235,65 +245,22 @@ export function AudioPlayer({ audioUrl, avatarUrl, title, quote }: AudioPlayerPr
                   />
                 );
               })}
-            </div>
-
-            {/* Time Display - inline */}
-            <div className="flex justify-between items-center mt-0.5">
-              <span className="text-[9px] font-medium text-[#1a1a1a]/40 tabular-nums">
-                {formatTime(currentTime)}
-              </span>
-              <span className="text-[9px] font-medium text-[#1a1a1a]/40 tabular-nums">
-                {formatTime(duration)}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Quote Section with L-shaped connector */}
-        {quote && (
-          <div className="relative flex items-center mt-2">
-            {/* L-shaped connector SVG */}
-            <svg
-              className="absolute text-[#bbdae9] pointer-events-none"
-              style={{
-                left: '22px', // Center of thumbnail (44px / 2)
-                top: '-8px',
-                width: 'calc(22px + 12px)', // Half thumbnail + gap
-                height: 'calc(100% + 8px)',
-              }}
-              preserveAspectRatio="none"
-            >
-              {/* Vertical line down from thumbnail center */}
-              <line
-                x1="0"
-                y1="0"
-                x2="0"
-                y2="calc(100% - 12px)"
-                stroke="currentColor"
-                strokeWidth="1.5"
-              />
-              {/* Horizontal line to capsule */}
-              <line
-                x1="0"
-                y1="calc(100% - 12px)"
-                x2="100%"
-                y2="calc(100% - 12px)"
-                stroke="currentColor"
-                strokeWidth="1.5"
-              />
-            </svg>
-            {/* Spacer for thumbnail + gap width */}
-            <div className="flex-shrink-0 w-11 mr-3" />
-            {/* Quote Capsule - aligned with content area */}
-            <div className="flex-1 min-w-0">
-              <div className="px-3 py-2 bg-[#bbdae9]/30 border border-[#bbdae9]/40 rounded-full">
-                <p className="text-[11px] text-[#1a1a1a]/70 italic text-center leading-tight">
-                  &ldquo;{quote}&rdquo;
-                </p>
               </div>
             </div>
+
+            {/* Quote Capsule - No L-connector, no italics, no quotes, more gap above */}
+            {quote && (
+              <div className="px-3 py-1.5 bg-[#bbdae9]/30 border border-[#bbdae9]/40 rounded-full mt-2">
+                <p
+                  className="text-[#1a1a1a]/70 text-center leading-tight"
+                  style={{ fontSize: '12.5px' }}
+                >
+                  {quote}
+                </p>
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

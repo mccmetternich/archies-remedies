@@ -213,6 +213,7 @@ export function PDPGallery({
     ? 'lg:max-h-[calc(100vh-var(--pdp-header-height)-var(--pdp-marquee-height)-var(--pdp-fold-buffer)-40px)]'
     : 'lg:max-h-[calc(100vh-var(--pdp-header-height)-var(--pdp-fold-buffer)-40px)]';
 
+  // Gallery height: full Media Lane minus marquee (so content doesn't hide behind marquee)
   const galleryHeight = marqueeEnabled
     ? 'lg:h-[calc(100vh-var(--pdp-header-height)-var(--pdp-marquee-height))]'
     : 'lg:h-[calc(100vh-var(--pdp-header-height))]';
@@ -222,21 +223,24 @@ export function PDPGallery({
       {/* Unified Layout - CSS-only vertical rhythm, no JS dependencies */}
       <div
         className={cn(
-          'flex items-stretch w-full max-w-full overflow-hidden', // items-stretch so tray matches hero height
+          'flex items-stretch w-full max-w-full overflow-hidden', // Hero stays at top
           'gap-0 lg:gap-[var(--pdp-gutter)]', // No gap on mobile, gutter on desktop
+          'min-[2571px]:justify-start', // Keep hero left-aligned at ultra-wide
           galleryHeight
         )}
       >
         {/* Hero Container - unified geometry across all breakpoints */}
         <div
           className={cn(
-            'relative bg-gray-200', // DEBUG: gray to see hero bounds
-            'flex-[1_1_0%] lg:min-w-[var(--pdp-hero-min-width)]', // 400px floor on desktop only
+            'relative',
+            'flex-[1_1_0%] lg:min-w-[var(--pdp-hero-min-width)]', // Grow to fill, 520px floor on desktop
+            'min-[2571px]:max-w-[var(--pdp-hero-max-width)]', // Cap at max on ultra-wide only
             'aspect-square', // Square on ALL breakpoints
             heroMaxHeight,
             'lg:min-h-[400px]', // Floor only on desktop - mobile scales naturally
-            'lg:mt-[40px]', // Editorial Stagger: Hero sits 40px below Nav (desktop only)
-            'mb-0 lg:mb-[80px]', // No margin on mobile, 80px on desktop
+            'lg:mt-[var(--pdp-hero-stagger)]', // Editorial Stagger: fluid 40px → 28px
+            'mb-0 lg:mb-[var(--pdp-hero-bottom-margin)]', // Fluid 80px → 40px
+            'lg:self-start', // Anchor hero to top (vertical)
             allImages.length > 1 && 'cursor-grab active:cursor-grabbing'
           )}
         >
@@ -329,10 +333,11 @@ export function PDPGallery({
               'relative flex flex-col',
               // Tray width ~24% of viewport to fit exactly 3 large square thumbnails
               // Height matches hero (viewport - tray width since hero is square)
-              'w-[24vw] lg:w-[200px]', // 24% scaling on mobile/tablet, fixed 200px desktop
+              'w-[24vw] lg:w-[var(--pdp-tray-width)]', // 24% scaling on mobile/tablet, fluid 100px → 80px desktop
               'h-[calc(100vw-24vw)] lg:h-auto lg:self-stretch', // Height = hero width = viewport - tray
-              'bg-red-500', // DEBUG: red to see tray bounds
+              'bg-[#1a1a1a]', // Dark background for thumbnail tray
               'flex-none flex-shrink-0',
+              'min-[2571px]:ml-auto', // Push tray to right edge at ultra-wide (gutter expands)
               'overflow-hidden' // Strict clipping - nothing escapes to marquee
             )}
           >
@@ -368,8 +373,8 @@ export function PDPGallery({
               ref={thumbnailContainerRef}
               className={cn(
                 'flex-1 flex flex-col items-stretch', // Thumbnails fill width
-                'gap-[var(--pdp-gap)]', // 5px gaps between thumbnails
-                'pt-0 pl-[5px] pr-[5px] lg:px-[20px] pb-[20px]', // Fixed 5px gaps on sides, 20px on desktop
+                'gap-[var(--pdp-gap)] lg:gap-[var(--pdp-tray-padding)]', // 5px mobile, fluid 10px → 8px desktop
+                'pt-0 pl-[5px] pr-[5px] lg:px-[var(--pdp-tray-padding)] pb-[var(--pdp-tray-padding)]', // 5px mobile, fluid padding desktop
                 'overflow-y-auto overflow-x-hidden'
               )}
             >
@@ -382,7 +387,7 @@ export function PDPGallery({
                     'relative overflow-hidden bg-white',
                     // Explicit width: tray (24vw) minus padding (10px) = thumbnail size
                     'flex-none aspect-square w-[calc(24vw-10px)] lg:w-full',
-                    index === 0 && 'mt-[20px]', // First thumbnail: 20px top margin
+                    index === 0 && 'mt-[20px] lg:mt-[var(--pdp-tray-padding)]', // First thumbnail: 20px mobile, fluid desktop
                     'transition-shadow duration-200', // Only animate the ring, not size
                     index === activeIndex && 'ring-2 ring-[#bbdae9]'
                   )}

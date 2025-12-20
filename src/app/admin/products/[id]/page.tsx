@@ -99,6 +99,12 @@ interface Product {
   ctaExternalUrl: string | null;
   showDiscountSignup: boolean | null;
   discountSignupText: string | null;
+  // Signup Section
+  signupSectionEnabled: boolean | null;
+  signupSectionTitle: string | null;
+  signupSectionSubtitle: string | null;
+  signupSectionButtonText: string | null;
+  signupSectionSuccessMessage: string | null;
   // Audio Player
   audioUrl: string | null;
   audioAvatarUrl: string | null;
@@ -197,6 +203,11 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
         ctaExternalUrl: null,
         showDiscountSignup: true,
         discountSignupText: 'Get 10% off your first order',
+        signupSectionEnabled: true,
+        signupSectionTitle: 'Stay in the Loop',
+        signupSectionSubtitle: 'Get exclusive offers and wellness tips',
+        signupSectionButtonText: 'Sign Up',
+        signupSectionSuccessMessage: "You're all set!",
         audioUrl: null,
         audioAvatarUrl: null,
         audioTitle: null,
@@ -1178,7 +1189,88 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
             </div>
           </div>
 
-          {/* Section 5: Audio Player */}
+          {/* Section 5: Email/SMS Signup Section */}
+          <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="text-sm font-medium text-[var(--admin-text-primary)]">
+                  Email/SMS Signup Section
+                </h3>
+                <p className="text-xs text-[var(--admin-text-muted)] mt-0.5">
+                  Appears below the accordion drawers
+                </p>
+              </div>
+              <button
+                onClick={() => setProduct({ ...product, signupSectionEnabled: !product.signupSectionEnabled })}
+                className={cn(
+                  'relative inline-flex h-6 w-11 items-center rounded-full transition-colors',
+                  product.signupSectionEnabled ? 'bg-green-500' : 'bg-[var(--admin-hover)]'
+                )}
+              >
+                <span
+                  className={cn(
+                    'inline-block h-4 w-4 transform rounded-full bg-white transition-transform',
+                    product.signupSectionEnabled ? 'translate-x-6' : 'translate-x-1'
+                  )}
+                />
+              </button>
+            </div>
+            {product.signupSectionEnabled && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm text-[var(--admin-text-secondary)] mb-1.5">
+                      Title
+                    </label>
+                    <Input
+                      value={product.signupSectionTitle || ''}
+                      onChange={(e) => setProduct({ ...product, signupSectionTitle: e.target.value || null })}
+                      placeholder="Stay in the Loop"
+                      className="bg-[var(--admin-input)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-[var(--admin-text-secondary)] mb-1.5">
+                      Button Text
+                    </label>
+                    <Input
+                      value={product.signupSectionButtonText || ''}
+                      onChange={(e) => setProduct({ ...product, signupSectionButtonText: e.target.value || null })}
+                      placeholder="Sign Up"
+                      className="bg-[var(--admin-input)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)]"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm text-[var(--admin-text-secondary)] mb-1.5">
+                    Subtitle
+                  </label>
+                  <Input
+                    value={product.signupSectionSubtitle || ''}
+                    onChange={(e) => setProduct({ ...product, signupSectionSubtitle: e.target.value || null })}
+                    placeholder="Get exclusive offers and wellness tips"
+                    className="bg-[var(--admin-input)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm text-[var(--admin-text-secondary)] mb-1.5">
+                    Success Message
+                  </label>
+                  <Input
+                    value={product.signupSectionSuccessMessage || ''}
+                    onChange={(e) => setProduct({ ...product, signupSectionSuccessMessage: e.target.value || null })}
+                    placeholder="You're all set!"
+                    className="bg-[var(--admin-input)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)]"
+                  />
+                  <p className="text-xs text-[var(--admin-text-muted)] mt-1">
+                    Shown after successful signup
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Section 6: Audio Player */}
           <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6">
             <h3 className="text-sm font-medium text-[var(--admin-text-primary)] mb-4">
               Audio Player

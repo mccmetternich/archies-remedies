@@ -200,6 +200,11 @@ export default async function ProductPage({ params }: PageProps) {
             marqueeText={product.marqueeText}
             marqueeBackgroundColor={product.marqueeBackgroundColor}
             marqueeTextColor={product.marqueeTextColor}
+            signupSectionEnabled={product.signupSectionEnabled ?? true}
+            signupSectionTitle={product.signupSectionTitle}
+            signupSectionSubtitle={product.signupSectionSubtitle}
+            signupSectionButtonText={product.signupSectionButtonText}
+            signupSectionSuccessMessage={product.signupSectionSuccessMessage}
           />
         </section>
 

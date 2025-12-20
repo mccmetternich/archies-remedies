@@ -122,6 +122,14 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
 
   const showBumper = bumper?.bumperEnabled && bumper?.bumperText;
 
+  // Update CSS variable for header height (used by PDP sticky positioning)
+  useEffect(() => {
+    document.documentElement.style.setProperty(
+      '--pdp-header-height',
+      showBumper ? '113px' : '80px'
+    );
+  }, [showBumper]);
+
   // Get products for tiles
   const tile1Product = globalNav?.tile1ProductId
     ? products.find(p => p.id === globalNav.tile1ProductId)
@@ -177,13 +185,11 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
 
       <header
         className={cn(
-          'lg:fixed left-0 right-0 lg:z-50 bg-white shadow-[0_2px_8px_rgba(0,0,0,0.10)] py-2 md:py-3',
+          'lg:fixed left-0 right-0 lg:z-50 bg-white shadow-[0_2px_8px_rgba(0,0,0,0.18)] py-2 md:py-3',
           showBumper ? 'lg:top-[37px]' : 'lg:top-0'
         )}
       >
-        <nav className="container">
-          {/* Scoped max-width for centered nav behavior */}
-          <div className="max-w-[1920px] mx-auto">
+        <nav className="w-full px-6 lg:px-[var(--nav-left-padding)] lg:pr-[var(--nav-right-padding)]">
           {/* Nav row - lg:z-[70] ensures nav items float above the dropdown (z-50) on desktop only */}
           <div className={cn(
             "flex items-center relative lg:z-[70]",
@@ -238,7 +244,7 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
               {/* Shop Dropdown - CSS hover based (no React state) */}
               <div className="relative group/shop inline-flex">
                 <button
-                  className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wider transition-colors py-3 text-[#1a1a1a] group-hover/shop:text-[#737373]"
+                  className="flex items-center gap-2 text-[13px] font-bold uppercase tracking-[0.04em] transition-colors py-3 text-[#1a1a1a] group-hover/shop:text-[#737373]" style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
                 >
                   Shop
                   <ChevronDown
@@ -540,7 +546,7 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                 <Link
                   key={page.id}
                   href={`/${page.slug}`}
-                  className="text-sm font-semibold uppercase tracking-wider text-[#1a1a1a] hover:text-[#737373] transition-colors py-3"
+                  className="text-[13px] font-bold uppercase tracking-[0.04em] text-[#1a1a1a] hover:text-[#737373] transition-colors py-3" style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
                 >
                   {page.title}
                 </Link>
@@ -550,7 +556,7 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
               {desktopNavPages.length === 0 && (
                 <Link
                   href="/our-story"
-                  className="text-sm font-semibold uppercase tracking-wider text-[#1a1a1a] hover:text-[#737373] transition-colors py-3"
+                  className="text-[13px] font-bold uppercase tracking-[0.04em] text-[#1a1a1a] hover:text-[#737373] transition-colors py-3" style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
                 >
                   Our Story
                 </Link>
@@ -569,7 +575,6 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
             </div>
 
           </div>
-          </div>{/* Close max-width wrapper */}
         </nav>
 
       </header>

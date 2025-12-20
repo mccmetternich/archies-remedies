@@ -120,6 +120,12 @@ interface PDPHeroSectionProps {
   marqueeText?: string | null;
   marqueeBackgroundColor?: string | null;
   marqueeTextColor?: string | null;
+  // Signup Section
+  signupSectionEnabled?: boolean;
+  signupSectionTitle?: string | null;
+  signupSectionSubtitle?: string | null;
+  signupSectionButtonText?: string | null;
+  signupSectionSuccessMessage?: string | null;
 }
 
 export function PDPHeroSection({
@@ -145,6 +151,11 @@ export function PDPHeroSection({
   marqueeText,
   marqueeBackgroundColor,
   marqueeTextColor,
+  signupSectionEnabled,
+  signupSectionTitle,
+  signupSectionSubtitle,
+  signupSectionButtonText,
+  signupSectionSuccessMessage,
 }: PDPHeroSectionProps) {
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(
     variants.find((v) => v.isDefault) || variants[0] || null
@@ -194,9 +205,9 @@ export function PDPHeroSection({
   };
 
   return (
-    <div className="flex flex-col lg:flex-row w-full max-w-full px-0 lg:pr-0 lg:pl-[390px]"> {/* No side padding on mobile */}
-      {/* Buy Box - RIGID column, scrolls freely, editorial stagger, fixed 192px gap */}
-      <div className="order-2 lg:order-1 w-full lg:w-[450px] lg:flex-shrink-0 lg:self-start mt-8 lg:mt-0 lg:pt-[68px] lg:mr-[192px] lg:relative lg:z-20 px-6 lg:px-0"> {/* 24px side padding on mobile only */}
+    <div className="flex flex-col lg:flex-row w-full max-w-full px-0 lg:pr-0 lg:pl-[var(--pdp-left-padding)]"> {/* Fluid left padding */}
+      {/* Buy Box - Fluid width/gap, scrolls freely, editorial stagger */}
+      <div className="order-2 lg:order-1 w-full lg:w-[var(--pdp-buybox-width)] lg:flex-shrink-0 lg:self-start mt-8 lg:mt-0 lg:pt-[var(--pdp-buybox-stagger)] lg:mr-[var(--pdp-buybox-gap)] lg:relative lg:z-20 px-6 lg:px-0"> {/* 24px side padding on mobile only */}
         <PDPBuyBox
           product={product}
           variants={variants}
@@ -216,11 +227,16 @@ export function PDPHeroSection({
           audioTitle={audioTitle}
           audioQuote={audioQuote}
           onVariantChange={handleVariantChange}
+          signupSectionEnabled={signupSectionEnabled ?? true}
+          signupSectionTitle={signupSectionTitle}
+          signupSectionSubtitle={signupSectionSubtitle}
+          signupSectionButtonText={signupSectionButtonText}
+          signupSectionSuccessMessage={signupSectionSuccessMessage}
         />
       </div>
 
-      {/* Media Lane - Pinned console: Gallery + Marquee locked to viewport */}
-      <div className="order-1 lg:order-2 w-full lg:flex-1 lg:min-w-0 flex flex-col lg:sticky lg:top-[var(--pdp-header-height)] lg:h-[calc(100vh-var(--pdp-header-height))] lg:overflow-hidden lg:isolate lg:z-10 bg-blue-300"> {/* DEBUG: blue to see Media Lane bounds */}
+      {/* Media Lane - Sticky on desktop, contains Gallery + absolute Marquee */}
+      <div className="order-1 lg:order-2 w-full lg:flex-1 lg:min-w-0 min-h-0 flex flex-col relative lg:sticky lg:top-[var(--pdp-header-height)] lg:h-[calc(100vh-var(--pdp-header-height))] lg:max-h-[calc(100vh-var(--pdp-header-height))] lg:overflow-hidden lg:isolate lg:z-10">
         <PDPGallery
           images={activeImages}
           heroImage={activeHeroImage}
@@ -232,13 +248,13 @@ export function PDPHeroSection({
           marqueeEnabled={marqueeEnabled}
         />
 
-        {/* Marquee - INSIDE Media Lane, flexbox floor via mt-auto */}
+        {/* Marquee - Absolute positioned at bottom, overlays tray */}
         <PDPMarquee
           text={marqueeText || ''}
           enabled={marqueeEnabled}
           backgroundColor={marqueeBackgroundColor}
           textColor={marqueeTextColor}
-          className="w-full lg:mt-auto"
+          className="w-full lg:absolute lg:bottom-0 lg:left-0 lg:right-0 lg:z-50"
         />
       </div>
 
