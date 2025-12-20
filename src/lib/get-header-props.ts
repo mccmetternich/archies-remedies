@@ -167,6 +167,7 @@ export async function getFooterProps(settings: typeof siteSettings.$inferSelect 
     amazonStoreUrl: settings?.amazonStoreUrl,
     massiveFooterLogoUrl: settings?.massiveFooterLogoUrl,
     massiveFooterLogoOpacity: settings?.massiveFooterLogoOpacity ?? 15,
+    massiveFooterLogoEnabled: settings?.massiveFooterLogoEnabled ?? true,
     // Custom social icons
     instagramIconUrl: settings?.instagramIconUrl,
     facebookIconUrl: settings?.facebookIconUrl,

@@ -2,8 +2,8 @@
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import Image from 'next/image';
-import { Play, Pause } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Play, Pause, Check } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
 interface AudioPlayerProps {
@@ -17,21 +17,25 @@ export function AudioPlayer({ audioUrl, avatarUrl, title, quote }: AudioPlayerPr
   const audioRef = useRef<HTMLAudioElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [hasPlayed, setHasPlayed] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  const [isLoaded, setIsLoaded] = useState(false);
 
-  // Generate pseudo-random waveform bars (consistent per component instance)
+  // Generate Audacity-style waveform with 120 bars - fuller, no dead spots
   const waveformBars = useRef(
-    Array.from({ length: 40 }, (_, i) => {
-      // Create a natural-looking waveform pattern
-      const position = i / 40;
-      const base = 0.3;
-      const wave1 = Math.sin(position * Math.PI * 2) * 0.25;
-      const wave2 = Math.sin(position * Math.PI * 4 + 1) * 0.15;
-      const wave3 = Math.sin(position * Math.PI * 8 + 2) * 0.1;
-      const randomness = (Math.sin(i * 127.1) * 0.5 + 0.5) * 0.2;
-      return Math.min(1, Math.max(0.15, base + wave1 + wave2 + wave3 + randomness));
+    Array.from({ length: 120 }, (_, i) => {
+      const position = i / 120;
+      const base = 0.25; // Higher base = no dead spots
+      const wave1 = Math.sin(position * Math.PI * 4) * 0.28;
+      const wave2 = Math.sin(position * Math.PI * 9 + 0.7) * 0.18;
+      const wave3 = Math.sin(position * Math.PI * 17 + 1.4) * 0.12;
+      const wave4 = Math.sin(position * Math.PI * 31 + 2.3) * 0.08;
+      const wave5 = Math.sin(position * Math.PI * 47 + 3.1) * 0.05;
+      const randomness = (Math.sin(i * 127.1 + 47.3) * 0.5 + 0.5) * 0.1;
+      const peakBoost = i % 5 === 0 ? 0.15 : (i % 3 === 0 ? 0.08 : 0);
+      // Subtle dips instead of dead gaps - minimum 0.18 height
+      const subtleDip = (i % 13 === 0 || i % 17 === 0) ? -0.05 : 0;
+      return Math.min(1, Math.max(0.18, base + wave1 + wave2 + wave3 + wave4 + wave5 + randomness + peakBoost + subtleDip));
     })
   ).current;
 
@@ -42,7 +46,9 @@ export function AudioPlayer({ audioUrl, avatarUrl, title, quote }: AudioPlayerPr
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
-  const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
+  // Calculate progress - use state duration or fall back to audio element
+  const effectiveDuration = duration || (audioRef.current?.duration || 0);
+  const progress = effectiveDuration > 0 ? (currentTime / effectiveDuration) * 100 : 0;
 
   const togglePlay = useCallback(() => {
     if (!audioRef.current) return;
@@ -50,16 +56,27 @@ export function AudioPlayer({ audioUrl, avatarUrl, title, quote }: AudioPlayerPr
       audioRef.current.pause();
     } else {
       audioRef.current.play();
+      setHasPlayed(true);
     }
     setIsPlaying(!isPlaying);
   }, [isPlaying]);
 
   const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!progressRef.current || !audioRef.current || !duration) return;
+    if (!progressRef.current || !audioRef.current) return;
+
+    // Use state duration, or fall back to audio element's duration
+    const audioDuration = duration || audioRef.current.duration;
+    if (!audioDuration || !isFinite(audioDuration)) return;
+
+    // Update duration state if it wasn't set
+    if (!duration && audioDuration > 0) {
+      setDuration(audioDuration);
+    }
+
     const rect = progressRef.current.getBoundingClientRect();
     const clickX = e.clientX - rect.left;
-    const percentage = clickX / rect.width;
-    const newTime = percentage * duration;
+    const percentage = Math.max(0, Math.min(1, clickX / rect.width));
+    const newTime = percentage * audioDuration;
     audioRef.current.currentTime = newTime;
     setCurrentTime(newTime);
   };
@@ -68,13 +85,29 @@ export function AudioPlayer({ audioUrl, avatarUrl, title, quote }: AudioPlayerPr
     const audio = audioRef.current;
     if (!audio) return;
 
+    // Helper to safely set duration - checks if valid before setting
+    const trySetDuration = () => {
+      if (audio.duration && isFinite(audio.duration) && audio.duration > 0) {
+        setDuration(audio.duration);
+      }
+    };
+
     const handleLoadedMetadata = () => {
-      setDuration(audio.duration);
-      setIsLoaded(true);
+      trySetDuration();
+    };
+
+    const handleDurationChange = () => {
+      trySetDuration();
+    };
+
+    const handleCanPlay = () => {
+      trySetDuration();
     };
 
     const handleTimeUpdate = () => {
       setCurrentTime(audio.currentTime);
+      // Also try to set duration on timeupdate as fallback
+      trySetDuration();
     };
 
     const handleEnded = () => {
@@ -82,32 +115,43 @@ export function AudioPlayer({ audioUrl, avatarUrl, title, quote }: AudioPlayerPr
       setCurrentTime(0);
     };
 
+    // Check if duration is already available (cached audio)
+    trySetDuration();
+
     audio.addEventListener('loadedmetadata', handleLoadedMetadata);
+    audio.addEventListener('durationchange', handleDurationChange);
+    audio.addEventListener('canplay', handleCanPlay);
     audio.addEventListener('timeupdate', handleTimeUpdate);
     audio.addEventListener('ended', handleEnded);
 
     return () => {
       audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      audio.removeEventListener('durationchange', handleDurationChange);
+      audio.removeEventListener('canplay', handleCanPlay);
       audio.removeEventListener('timeupdate', handleTimeUpdate);
       audio.removeEventListener('ended', handleEnded);
     };
   }, []);
 
+  // Should we show the pulse animation? Only before first play
+  const showPulse = !hasPlayed && !isPlaying;
+
   return (
     <div className="w-full">
-      {/* Hidden audio element */}
-      <audio ref={audioRef} src={audioUrl} preload="metadata" />
+      {/* Hidden audio element - preload auto for reliable duration */}
+      <audio ref={audioRef} src={audioUrl} preload="auto" />
 
-      {/* Player Container - Sharp edges, compact, sleek */}
-      <div className="relative bg-[#f8f8f8] border border-[#e5e5e5] px-2.5 py-2">
-        <div className="flex items-stretch gap-3">
-          {/* Large Avatar + Centered Play Button - Clickable to play */}
+      {/* Player Container */}
+      <div className="relative bg-[#f8f8f8] border border-[#d4d4d4] px-2.5 py-2">
+        {/* Main row: Thumbnail + Content */}
+        <div className="flex items-start gap-3">
+          {/* Square Avatar + Centered Play Button */}
           <button
             onClick={togglePlay}
-            className="relative flex-shrink-0 w-[72px] group self-stretch"
+            className="relative flex-shrink-0 w-[72px] h-[72px] group"
           >
-            {/* Avatar Image - Full height */}
-            <div className="w-full h-full min-h-[72px] overflow-hidden bg-[#bbdae9]/30">
+            {/* Avatar Image */}
+            <div className="w-full h-full overflow-hidden bg-[#bbdae9]/30">
               {avatarUrl ? (
                 <Image
                   src={avatarUrl}
@@ -129,138 +173,98 @@ export function AudioPlayer({ audioUrl, avatarUrl, title, quote }: AudioPlayerPr
               )}
             </div>
 
-            {/* Play/Pause Icon - Centered, smaller */}
-            <div
-              className={cn(
-                'absolute inset-0 flex items-center justify-center',
-                'bg-black/20 group-hover:bg-black/30',
-                'transition-colors duration-200'
-              )}
-            >
-              <div
-                className={cn(
-                  'w-7 h-7 rounded-full flex items-center justify-center',
-                  'bg-[#1a1a1a]/80 text-white',
-                  'group-hover:bg-[#1a1a1a] group-hover:scale-105',
-                  'transition-all duration-200'
-                )}
-              >
-                <AnimatePresence mode="wait">
-                  {isPlaying ? (
-                    <motion.div
-                      key="pause"
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      exit={{ scale: 0 }}
-                      transition={{ duration: 0.15 }}
-                    >
-                      <Pause className="w-3.5 h-3.5" fill="currentColor" />
-                    </motion.div>
-                  ) : (
-                    <motion.div
-                      key="play"
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      exit={{ scale: 0 }}
-                      transition={{ duration: 0.15 }}
-                    >
-                      <Play className="w-3.5 h-3.5 ml-0.5" fill="currentColor" />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            </div>
-
-            {/* Animated ring when playing */}
-            <AnimatePresence>
-              {isPlaying && (
+            {/* Overlay + Play Button - entire thing pulses when not played */}
+            <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors duration-200">
+              {showPulse ? (
                 <motion.div
-                  initial={{ scale: 1, opacity: 0.6 }}
-                  animate={{ scale: 1.15, opacity: 0 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 1.2, repeat: Infinity, ease: 'easeOut' }}
-                  className="absolute inset-0 border-2 border-[#bbdae9]"
-                />
+                  className="w-8 h-8 rounded-full bg-[#1a1a1a] flex items-center justify-center"
+                  animate={{
+                    scale: [1, 1.25, 1],
+                    opacity: [0.8, 1, 0.8]
+                  }}
+                  transition={{
+                    duration: 1.5,
+                    repeat: Infinity,
+                    ease: 'easeInOut'
+                  }}
+                >
+                  <Play className="w-4 h-4 text-white ml-0.5" fill="currentColor" />
+                </motion.div>
+              ) : (
+                <div className="w-8 h-8 rounded-full bg-[#1a1a1a] flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
+                  {isPlaying ? (
+                    <Pause className="w-4 h-4 text-white" fill="currentColor" />
+                  ) : (
+                    <Play className="w-4 h-4 text-white ml-0.5" fill="currentColor" />
+                  )}
+                </div>
               )}
-            </AnimatePresence>
+            </div>
           </button>
 
-          {/* Content Area - Narrower to accommodate larger thumbnail */}
+          {/* Content Area */}
           <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
-            {/* Title Row: Name left, Timestamp right */}
+            {/* Verified Customer + Timestamp on same line */}
             <div className="flex items-center justify-between">
-              {/* Title - left */}
-              {title && (
-                <p className="text-[12px] font-medium text-[#1a1a1a]/70 truncate leading-tight">
-                  {title}
-                </p>
-              )}
-              {/* Timestamp - right */}
-              <span className="text-[10px] font-medium text-[#1a1a1a]/40 tabular-nums ml-2">
-                {formatTime(currentTime)} / {formatTime(duration)}
+              <div className="flex items-center gap-1">
+                <div className="w-3 h-3 rounded-full bg-[#bbdae9] flex items-center justify-center flex-shrink-0">
+                  <Check className="w-2 h-2 text-[#1a1a1a]" strokeWidth={3} />
+                </div>
+                <span className="text-[9px] font-medium uppercase tracking-wide text-[#1a1a1a]/50">
+                  Verified Customer
+                </span>
+              </div>
+              <span className="text-[10px] font-medium text-[#1a1a1a]/40 tabular-nums">
+                {formatTime(currentTime)} / {formatTime(effectiveDuration)}
               </span>
             </div>
 
-            {/* Waveform Progress Bar with mini play button */}
-            <div className="flex items-center gap-2">
-              {/* Mini play button */}
-              <button
-                onClick={togglePlay}
-                className={cn(
-                  'flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center',
-                  'bg-[#1a1a1a] text-white hover:bg-[#bbdae9] hover:text-[#1a1a1a]',
-                  'transition-colors duration-200'
-                )}
-              >
-                {isPlaying ? (
-                  <Pause className="w-2.5 h-2.5" fill="currentColor" />
-                ) : (
-                  <Play className="w-2.5 h-2.5 ml-0.5" fill="currentColor" />
-                )}
-              </button>
-              {/* Waveform */}
-              <div
-                ref={progressRef}
-                onClick={handleProgressClick}
-                className="relative flex-1 h-6 flex items-center gap-[1.5px] cursor-pointer group"
-              >
+            {/* Title Row */}
+            {title && (
+              <p className="text-[12px] font-medium text-[#1a1a1a]/70 truncate leading-tight mt-0.5">
+                {title}
+              </p>
+            )}
+
+            {/* 3px gap before waveform */}
+            <div className="h-[3px]" />
+
+            {/* Waveform Progress Bar */}
+            <div
+              ref={progressRef}
+              onClick={handleProgressClick}
+              className="relative w-full h-10 flex items-center gap-[0.5px] cursor-pointer group"
+            >
               {waveformBars.map((height, i) => {
                 const barProgress = (i / waveformBars.length) * 100;
                 const isActive = barProgress <= progress;
-                const isCurrentBar = Math.abs(barProgress - progress) < 2.5;
 
                 return (
-                  <motion.div
+                  <div
                     key={i}
                     className={cn(
-                      'flex-1 transition-colors duration-150',
+                      'flex-1 rounded-[0.5px] transition-colors duration-100',
                       isActive ? 'bg-[#bbdae9]' : 'bg-[#1a1a1a]/10 group-hover:bg-[#1a1a1a]/15'
                     )}
                     style={{ height: `${height * 100}%` }}
-                    animate={
-                      isPlaying && isCurrentBar
-                        ? { scaleY: [1, 1.2, 1], transition: { duration: 0.3 } }
-                        : {}
-                    }
                   />
                 );
               })}
-              </div>
             </div>
-
-            {/* Quote Capsule - No L-connector, no italics, no quotes, more gap above */}
-            {quote && (
-              <div className="px-3 py-1.5 bg-[#bbdae9]/30 border border-[#bbdae9]/40 rounded-full mt-2">
-                <p
-                  className="text-[#1a1a1a]/70 text-center leading-tight"
-                  style={{ fontSize: '12.5px' }}
-                >
-                  {quote}
-                </p>
-              </div>
-            )}
           </div>
         </div>
+
+        {/* Quote Capsule - Full width, spans entire container */}
+        {quote && (
+          <div className="mt-2 w-full px-3 py-1.5 bg-[#bbdae9]/30 border border-[#bbdae9]/40 rounded-full">
+            <p
+              className="text-[#1a1a1a]/70 text-left leading-tight italic"
+              style={{ fontSize: '12.5px' }}
+            >
+              {quote}
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

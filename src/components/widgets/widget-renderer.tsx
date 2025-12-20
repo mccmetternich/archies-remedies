@@ -24,6 +24,8 @@ import { InstagramFeed } from '@/components/home/instagram-feed';
 import { MissionSection } from '@/components/home/mission-section';
 import { MarqueeBar } from '@/components/widgets/marquee-bar';
 import type { MarqueeSize, MarqueeSpeed, MarqueeTheme } from '@/components/widgets/marquee-bar';
+import { MediaCarousel } from '@/components/widgets/media-carousel';
+import type { MediaCarouselItem } from '@/components/widgets/media-carousel';
 import { FAQAccordion } from '@/components/faq/faq-accordion';
 import { ContactForm } from '@/components/contact/contact-form';
 
@@ -148,6 +150,11 @@ function renderWidget(widget: PageWidget, data: WidgetRendererProps['data']): Re
           </div>
         </section>
       );
+
+    case 'media_carousel':
+      const carouselItems = (config.items as MediaCarouselItem[]) || [];
+      if (carouselItems.length === 0) return null;
+      return <MediaCarousel key={widget.id} items={carouselItems} />;
 
     case 'quote':
       return (

@@ -219,6 +219,7 @@ export default function NavigationPage() {
   const [footerTheme, setFooterTheme] = useState<'dark' | 'light'>('dark');
   const [footerLogoUrl, setFooterLogoUrl] = useState<string | null>(null);
   const [fullWidthLogoUrl, setFullWidthLogoUrl] = useState<string | null>(null);
+  const [fullWidthLogoEnabled, setFullWidthLogoEnabled] = useState(true);
   const [massiveLogoOpacity, setMassiveLogoOpacity] = useState<number>(15);
   const [socialLinks, setSocialLinks] = useState({
     instagramUrl: '',
@@ -328,6 +329,7 @@ export default function NavigationPage() {
     footerTheme,
     footerLogoUrl,
     fullWidthLogoUrl,
+    fullWidthLogoEnabled,
     massiveLogoOpacity,
     socialLinks,
     emailSignup,
@@ -358,6 +360,7 @@ export default function NavigationPage() {
       setFooterTheme(data.footerTheme || 'dark');
       setFooterLogoUrl(data.footerLogoUrl || null);
       setFullWidthLogoUrl(data.fullWidthLogoUrl || data.massiveFooterLogoUrl || null);
+      setFullWidthLogoEnabled(data.fullWidthLogoEnabled ?? data.massiveFooterLogoEnabled ?? true);
       setMassiveLogoOpacity(data.massiveFooterLogoOpacity ?? 15);
 
       // Social links
@@ -397,6 +400,7 @@ export default function NavigationPage() {
         footerTheme: data.footerTheme || 'dark',
         footerLogoUrl: data.footerLogoUrl || null,
         fullWidthLogoUrl: data.fullWidthLogoUrl || data.massiveFooterLogoUrl || null,
+        fullWidthLogoEnabled: data.fullWidthLogoEnabled ?? data.massiveFooterLogoEnabled ?? true,
         massiveLogoOpacity: data.massiveFooterLogoOpacity ?? 15,
         socialLinks: {
           instagramUrl: data.instagramUrl || '',
@@ -520,6 +524,7 @@ export default function NavigationPage() {
           footerTheme,
           footerLogoUrl,
           fullWidthLogoUrl,
+          fullWidthLogoEnabled,
           massiveLogoOpacity,
           socialLinks,
           emailSignup,
@@ -2377,9 +2382,24 @@ export default function NavigationPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-3">
-                  Massive Footer Logo
-                </label>
+                <div className="flex items-center justify-between mb-3">
+                  <label className="block text-sm font-medium text-[var(--admin-text-secondary)]">
+                    Massive Footer Logo
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setFullWidthLogoEnabled(!fullWidthLogoEnabled)}
+                    className={cn(
+                      'relative inline-flex h-6 w-11 items-center rounded-full transition-colors',
+                      fullWidthLogoEnabled ? 'bg-[var(--primary)]' : 'bg-[var(--admin-border)]'
+                    )}
+                  >
+                    <span className={cn(
+                      'inline-block h-4 w-4 transform rounded-full bg-white transition-transform',
+                      fullWidthLogoEnabled ? 'translate-x-6' : 'translate-x-1'
+                    )} />
+                  </button>
+                </div>
                 <p className="text-xs text-[var(--admin-text-muted)] mb-3">
                   Full-width brand texture displayed near the bottom of the footer
                 </p>

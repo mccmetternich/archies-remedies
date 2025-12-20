@@ -118,7 +118,6 @@ const SOCIAL_PROOF_AVATARS = [
 
 export function Header({ logo, products = [], bumper, socialStats, globalNav, navPages = [] }: HeaderProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
 
   const showBumper = bumper?.bumperEnabled && bumper?.bumperText;
 
@@ -146,15 +145,6 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
   const mobileNavPages = navPages
     .filter(p => p.showInNav && p.navShowOnMobile !== false)
     .sort((a, b) => (a.navOrder || 0) - (b.navOrder || 0));
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
-    };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
 
   // CTA settings
   const ctaEnabled = globalNav?.ctaEnabled ?? true;
@@ -185,11 +175,11 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
 
       <header
         className={cn(
-          'lg:fixed left-0 right-0 lg:z-50 bg-white shadow-[0_2px_8px_rgba(0,0,0,0.18)] py-2 md:py-3',
+          'lg:fixed left-0 right-0 lg:z-50 bg-[#f2f2f2] shadow-[0_2px_8px_rgba(0,0,0,0.18)] py-2 md:py-3',
           showBumper ? 'lg:top-[37px]' : 'lg:top-0'
         )}
       >
-        <nav className="w-full px-6 lg:px-[var(--nav-left-padding)] lg:pr-[var(--nav-right-padding)]">
+        <nav className="w-full px-6 lg:px-[var(--nav-left-padding)] lg:pr-[var(--nav-right-padding)] landscape-full-width">
           {/* Nav row - lg:z-[70] ensures nav items float above the dropdown (z-50) on desktop only */}
           <div className={cn(
             "flex items-center relative lg:z-[70]",
@@ -267,7 +257,7 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                   style={{ top: showBumper ? '109px' : '72px' }}
                 >
 
-                  <div className="relative z-50 w-full bg-white shadow-[0_4px_16px_rgba(0,0,0,0.12)] overflow-visible">
+                  <div className="relative z-50 w-full bg-[#f2f2f2] shadow-[0_4px_16px_rgba(0,0,0,0.12)] overflow-visible">
                     {/* Shelf container with generous padding - pb-[30px] for whitespace below tiles */}
                     <div className="container pt-8 pb-[30px] overflow-visible">
                       {/* Content grid - spacer between product tiles and marketing tile grows with viewport */}
@@ -579,130 +569,157 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
 
       </header>
 
-      {/* Mobile Menu - Full screen overlay to cover header */}
+      {/* Mobile Menu - Slide-out drawer from right */}
       <AnimatePresence>
         {isOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }}
-            className="fixed inset-0 z-[60] bg-white lg:hidden"
-          >
-            <div className="flex flex-col h-full">
-              {/* Close button - top right, positioned absolutely */}
-              <button
-                onClick={() => setIsOpen(false)}
-                className="absolute top-4 right-4 z-10 p-2 rounded-full hover:bg-[var(--sand)] transition-colors"
-              >
-                <X className="w-6 h-6" />
-              </button>
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 z-[60] bg-black/50 lg:hidden"
+              onClick={() => setIsOpen(false)}
+            />
 
-              <div className="flex-1 overflow-auto px-6 pt-4 pb-6">
-                <nav className="space-y-6">
-                  {/* Products */}
-                  <div>
-                    <h3 className="text-xs font-semibold tracking-[0.2em] uppercase text-[var(--muted-foreground)] mb-4">
-                      Shop
-                    </h3>
-                    <div className="space-y-3">
-                      {tile1Product && (
-                        <Link
-                          href={`/products/${tile1Product.slug}`}
-                          onClick={() => setIsOpen(false)}
-                          className="flex items-center gap-4 p-4 rounded-2xl bg-[var(--cream)] hover:bg-[var(--sand)] transition-colors"
-                        >
-                          <div className="w-20 h-20 rounded-xl bg-white overflow-hidden relative flex-shrink-0">
-                            {(() => {
-                              const mediaUrl = globalNav?.tile1ImageUrl || tile1Product.heroImageUrl || PRODUCT_IMAGES['eye-drops'];
-                              const isVideo = mediaUrl?.match(/\.(mp4|webm|mov)$/i);
-                              return isVideo ? (
-                                <video
-                                  src={mediaUrl}
-                                  autoPlay
-                                  loop
-                                  muted
-                                  playsInline
-                                  className="w-full h-full object-cover"
-                                />
-                              ) : (
-                                <Image
-                                  src={mediaUrl}
-                                  alt={tile1Product.name}
-                                  width={80}
-                                  height={80}
-                                  className="w-full h-full object-cover"
-                                />
-                              );
-                            })()}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="font-medium text-base">{globalNav?.tile1Title || tile1Product.name}</p>
-                            <p className="text-sm text-[var(--muted-foreground)]">{globalNav?.tile1Subtitle || 'Preservative-free relief'}</p>
-                          </div>
-                          <ArrowRight className="w-5 h-5 text-[var(--muted-foreground)] flex-shrink-0" />
-                        </Link>
-                      )}
-                      {tile2Product && (
-                        <Link
-                          href={`/products/${tile2Product.slug}`}
-                          onClick={() => setIsOpen(false)}
-                          className="flex items-center gap-4 p-4 rounded-2xl bg-[var(--cream)] hover:bg-[var(--sand)] transition-colors"
-                        >
-                          <div className="w-20 h-20 rounded-xl bg-white overflow-hidden relative flex-shrink-0">
-                            {(() => {
-                              const mediaUrl = globalNav?.tile2ImageUrl || tile2Product.heroImageUrl || PRODUCT_IMAGES['eye-wipes'];
-                              const isVideo = mediaUrl?.match(/\.(mp4|webm|mov)$/i);
-                              return isVideo ? (
-                                <video
-                                  src={mediaUrl}
-                                  autoPlay
-                                  loop
-                                  muted
-                                  playsInline
-                                  className="w-full h-full object-cover"
-                                />
-                              ) : (
-                                <Image
-                                  src={mediaUrl}
-                                  alt={tile2Product.name}
-                                  width={80}
-                                  height={80}
-                                  className="w-full h-full object-cover"
-                                />
-                              );
-                            })()}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="font-medium text-base">{globalNav?.tile2Title || tile2Product.name}</p>
-                            <p className="text-sm text-[var(--muted-foreground)]">{globalNav?.tile2Subtitle || 'Gentle daily cleansing'}</p>
-                          </div>
-                          <ArrowRight className="w-5 h-5 text-[var(--muted-foreground)] flex-shrink-0" />
-                        </Link>
-                      )}
-                    </div>
+            {/* Drawer */}
+            <motion.div
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className="fixed top-0 right-0 h-full w-[85vw] max-w-[400px] z-[61] bg-[#f2f2f2] shadow-2xl lg:hidden"
+              style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+            >
+              <div className="flex flex-col h-full">
+                {/* Close button - aligned with content edge */}
+                <button
+                  onClick={() => setIsOpen(false)}
+                  className="absolute top-3 right-5 z-10 p-2 rounded-full hover:bg-[var(--sand)] transition-colors"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+
+                <div className="flex-1 overflow-auto px-5 pt-4 pb-6">
+                <nav className="space-y-4">
+                  {/* Shop Section Header - Inter font, dark gray */}
+                  <h3
+                    className="font-semibold tracking-[0.15em] uppercase text-[#666666]"
+                    style={{ fontSize: '22px', fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+                  >
+                    Shop
+                  </h3>
+
+                  {/* Best Sellers label - left aligned, tighter gap to line */}
+                  <div className="pt-1 pb-1">
+                    <span className="text-[8px] font-medium tracking-[0.15em] uppercase text-[var(--muted-foreground)]">Best Sellers</span>
+                    <div className="h-[0.5px] bg-black/30 mt-1" />
                   </div>
 
-                  {/* Page Links - mobile version (filtered separately) */}
+                  {/* Product Tiles */}
+                  <div className="space-y-3">
+                    {tile1Product && (
+                      <Link
+                        href={`/products/${tile1Product.slug}`}
+                        onClick={() => setIsOpen(false)}
+                        className="flex items-start gap-5 py-3 px-3 rounded-2xl bg-[#f8f8f8] hover:bg-[#e8f4f9] transition-colors"
+                      >
+                        <div className="w-[90px] h-[90px] rounded-xl bg-white overflow-hidden relative flex-shrink-0">
+                          {(() => {
+                            const mediaUrl = globalNav?.tile1ImageUrl || tile1Product.heroImageUrl || PRODUCT_IMAGES['eye-drops'];
+                            const isVideo = mediaUrl?.match(/\.(mp4|webm|mov)$/i);
+                            return isVideo ? (
+                              <video
+                                src={mediaUrl}
+                                autoPlay
+                                loop
+                                muted
+                                playsInline
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <Image
+                                src={mediaUrl}
+                                alt={tile1Product.name}
+                                width={90}
+                                height={90}
+                                className="w-full h-full object-cover"
+                              />
+                            );
+                          })()}
+                        </div>
+                        <div className="flex-1 min-w-0 pt-0.5">
+                          <p className="font-medium text-[14px] uppercase tracking-tight">{globalNav?.tile1Title || tile1Product.name}</p>
+                          <p className="text-sm text-[var(--muted-foreground)]">{globalNav?.tile1Subtitle || 'Preservative-free relief'}</p>
+                        </div>
+                        <ArrowRight className="w-5 h-5 text-[var(--muted-foreground)] flex-shrink-0 mt-0.5" />
+                      </Link>
+                    )}
+                    {tile2Product && (
+                      <Link
+                        href={`/products/${tile2Product.slug}`}
+                        onClick={() => setIsOpen(false)}
+                        className="flex items-start gap-5 py-3 px-3 rounded-2xl bg-[#f8f8f8] hover:bg-[#e8f4f9] transition-colors"
+                      >
+                        <div className="w-[90px] h-[90px] rounded-xl bg-white overflow-hidden relative flex-shrink-0">
+                          {(() => {
+                            const mediaUrl = globalNav?.tile2ImageUrl || tile2Product.heroImageUrl || PRODUCT_IMAGES['eye-wipes'];
+                            const isVideo = mediaUrl?.match(/\.(mp4|webm|mov)$/i);
+                            return isVideo ? (
+                              <video
+                                src={mediaUrl}
+                                autoPlay
+                                loop
+                                muted
+                                playsInline
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <Image
+                                src={mediaUrl}
+                                alt={tile2Product.name}
+                                width={90}
+                                height={90}
+                                className="w-full h-full object-cover"
+                              />
+                            );
+                          })()}
+                        </div>
+                        <div className="flex-1 min-w-0 pt-0.5">
+                          <p className="font-medium text-[14px] uppercase tracking-tight">{globalNav?.tile2Title || tile2Product.name}</p>
+                          <p className="text-sm text-[var(--muted-foreground)]">{globalNav?.tile2Subtitle || 'Gentle daily cleansing'}</p>
+                        </div>
+                        <ArrowRight className="w-5 h-5 text-[var(--muted-foreground)] flex-shrink-0 mt-0.5" />
+                      </Link>
+                    )}
+                  </div>
+
+                  {/* Page Links - each framed with lines like THE RITUAL */}
                   {mobileNavPages.length > 0 && (
-                    <div className="space-y-1">
+                    <div className="pt-4 space-y-0">
                       {mobileNavPages.map((page) => (
-                        <Link
-                          key={page.id}
-                          href={`/${page.slug}`}
-                          onClick={() => setIsOpen(false)}
-                          className="flex items-center justify-between py-4 border-b border-[var(--border-light)] hover:text-[var(--muted-foreground)] transition-colors"
-                        >
-                          <span className="text-lg">{page.title}</span>
-                          <ArrowRight className="w-4 h-4" />
-                        </Link>
+                        <div key={page.id}>
+                          {/* Top border */}
+                          <div className="h-[0.5px] bg-black/30" />
+                          <Link
+                            href={`/${page.slug}`}
+                            onClick={() => setIsOpen(false)}
+                            className="flex items-center justify-between py-3 px-3 hover:text-[var(--muted-foreground)] transition-colors"
+                          >
+                            <span className="text-[14px] font-medium uppercase tracking-tight" style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}>{page.title}</span>
+                            <ArrowRight className="w-4 h-4" />
+                          </Link>
+                          {/* Bottom border */}
+                          <div className="h-[0.5px] bg-black/30" />
+                        </div>
                       ))}
                     </div>
                   )}
 
-                  {/* Mobile Marketing Tile - respects hide on mobile setting */}
+                  {/* Mobile Marketing Tile - respects hide on mobile setting, increased gap from Our Story */}
                   {!globalNav?.marketingTileHideOnMobile && (
-                    <div className="relative p-4 rounded-xl bg-[var(--primary-light)] overflow-visible">
+                    <div className="relative rounded-xl bg-[var(--primary-light)] overflow-visible mt-[30px]" style={{ padding: '12px' }}>
                       {/* Rotating Badge - Mobile only (respects mobile toggle) */}
                       {globalNav?.marketingTileRotatingBadgeEnabled &&
                        (globalNav?.marketingTileRotatingBadgeEnabledMobile !== false) &&
@@ -717,20 +734,21 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                           />
                         </div>
                       )}
-                      <div className="flex items-start gap-3">
-                        <div className="flex-1 pr-8">
-                          <p className="font-medium text-sm mb-1">{globalNav?.marketingTileTitle || cleanFormulasTitle}</p>
-                          <p className="text-xs text-[var(--muted-foreground)] leading-relaxed">
-                            {globalNav?.marketingTileDescription || cleanFormulasDescription}
-                          </p>
-                        </div>
-                        <div className="flex gap-0.5 flex-shrink-0">
+                      <div className="mb-2">
+                        <p className="font-medium text-sm uppercase tracking-wide">{globalNav?.marketingTileTitle || cleanFormulasTitle}</p>
+                        <p className="text-xs text-[var(--muted-foreground)] leading-relaxed mt-1">
+                          {globalNav?.marketingTileDescription || cleanFormulasDescription}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="flex gap-0.5">
                           {[1, 2, 3, 4, 5].map((i) => (
                             <Star key={i} className="w-3 h-3 fill-[var(--primary)] text-[var(--primary)]" />
                           ))}
                         </div>
+                        <span className="text-[10px] text-[var(--muted-foreground)]">2,900+ Reviews</span>
                       </div>
-                      <div className="flex flex-wrap gap-1.5 mt-3">
+                      <div className="flex flex-wrap gap-1.5">
                         <span className="text-[10px] px-2 py-0.5 bg-white rounded-full">{globalNav?.marketingTileBadge1 || 'Preservative-Free'}</span>
                         <span className="text-[10px] px-2 py-0.5 bg-white rounded-full">{globalNav?.marketingTileBadge2 || 'Paraben-Free'}</span>
                         <span className="text-[10px] px-2 py-0.5 bg-white rounded-full">{globalNav?.marketingTileBadge3 || 'Sulfate-Free'}</span>
@@ -766,8 +784,9 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                   </Link>
                 </div>
               )}
-            </div>
-          </motion.div>
+              </div>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
 

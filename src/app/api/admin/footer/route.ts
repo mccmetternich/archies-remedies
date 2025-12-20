@@ -110,6 +110,7 @@ export async function GET() {
     const footerTheme = settings?.footerTheme || 'dark';
     const footerLogoUrl = settings?.footerLogoUrl || settings?.logoUrl || null;
     const fullWidthLogoUrl = settings?.massiveFooterLogoUrl || null;
+    const fullWidthLogoEnabled = settings?.massiveFooterLogoEnabled ?? true;
     const massiveFooterLogoOpacity = settings?.massiveFooterLogoOpacity ?? 15;
 
     // Organize links by column
@@ -138,7 +139,9 @@ export async function GET() {
       footerTheme,
       footerLogoUrl,
       fullWidthLogoUrl,
+      fullWidthLogoEnabled,
       massiveFooterLogoUrl: fullWidthLogoUrl, // Alias
+      massiveFooterLogoEnabled: fullWidthLogoEnabled, // Alias
       massiveFooterLogoOpacity,
       // Social links at root level for admin page
       instagramUrl: settings?.instagramUrl || null,
@@ -170,6 +173,7 @@ export async function PUT(request: Request) {
       footerTheme,
       footerLogoUrl,
       fullWidthLogoUrl,
+      fullWidthLogoEnabled,
       massiveLogoOpacity,
       socialLinks,
     } = await request.json();
@@ -190,6 +194,9 @@ export async function PUT(request: Request) {
     }
     if (fullWidthLogoUrl !== undefined) {
       footerSettings.massiveFooterLogoUrl = fullWidthLogoUrl;
+    }
+    if (fullWidthLogoEnabled !== undefined) {
+      footerSettings.massiveFooterLogoEnabled = fullWidthLogoEnabled;
     }
     if (massiveLogoOpacity !== undefined) {
       footerSettings.massiveFooterLogoOpacity = massiveLogoOpacity;

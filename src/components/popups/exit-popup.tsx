@@ -457,7 +457,7 @@ export function ExitPopup({
             style={{ willChange: 'opacity, transform' }}
             className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-[94%] max-w-md md:max-w-4xl max-h-[90vh] overflow-y-auto md:overflow-hidden"
           >
-            <div className="bg-white overflow-hidden shadow-2xl border-2 border-[#bbdae9] md:flex md:min-h-[480px]">
+            <div className="bg-[#f2f2f2] overflow-hidden shadow-2xl border-2 border-[#bbdae9] md:flex md:min-h-[480px]">
               {/* Close button */}
               <button
                 onClick={handleClose}

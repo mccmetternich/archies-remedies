@@ -98,6 +98,7 @@ export default function FooterAdminPage() {
   const [footerTheme, setFooterTheme] = useState<'dark' | 'light'>('dark');
   const [footerLogoUrl, setFooterLogoUrl] = useState<string | null>(null);
   const [fullWidthLogoUrl, setFullWidthLogoUrl] = useState<string | null>(null);
+  const [fullWidthLogoEnabled, setFullWidthLogoEnabled] = useState(true);
 
   // Social links state
   const [socialLinks, setSocialLinks] = useState({
@@ -157,6 +158,7 @@ export default function FooterAdminPage() {
     footerTheme,
     footerLogoUrl,
     fullWidthLogoUrl,
+    fullWidthLogoEnabled,
     socialLinks,
     emailSignup,
     columnTitles,
@@ -178,6 +180,7 @@ export default function FooterAdminPage() {
       setFooterTheme(data.footerTheme || 'dark');
       setFooterLogoUrl(data.footerLogoUrl || null);
       setFullWidthLogoUrl(data.fullWidthLogoUrl || data.massiveFooterLogoUrl || null);
+      setFullWidthLogoEnabled(data.fullWidthLogoEnabled ?? true);
 
       // Social links
       setSocialLinks({
@@ -217,6 +220,7 @@ export default function FooterAdminPage() {
         footerTheme: data.footerTheme || 'dark',
         footerLogoUrl: data.footerLogoUrl || null,
         fullWidthLogoUrl: data.fullWidthLogoUrl || data.massiveFooterLogoUrl || null,
+        fullWidthLogoEnabled: data.fullWidthLogoEnabled ?? true,
         socialLinks: {
           instagramUrl: data.instagramUrl || '',
           facebookUrl: data.facebookUrl || '',
@@ -246,6 +250,7 @@ export default function FooterAdminPage() {
           footerTheme,
           footerLogoUrl,
           fullWidthLogoUrl,
+          fullWidthLogoEnabled,
           socialLinks,
           emailSignup,
           columnTitles,
@@ -260,6 +265,7 @@ export default function FooterAdminPage() {
         footerTheme,
         footerLogoUrl,
         fullWidthLogoUrl,
+        fullWidthLogoEnabled,
         socialLinks,
         emailSignup,
         columnTitles,
@@ -533,19 +539,38 @@ export default function FooterAdminPage() {
 
               {/* Full-Width Logo */}
               <div>
-                <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-3">
-                  Full-Width Logo
-                </label>
+                <div className="flex items-center justify-between mb-3">
+                  <label className="block text-sm font-medium text-[var(--admin-text-secondary)]">
+                    Full-Width Logo
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setFullWidthLogoEnabled(!fullWidthLogoEnabled)}
+                    className={cn(
+                      'relative inline-flex h-6 w-11 items-center rounded-full transition-colors',
+                      fullWidthLogoEnabled ? 'bg-[var(--primary)]' : 'bg-[var(--admin-border)]'
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        'inline-block h-4 w-4 transform rounded-full bg-white transition-transform',
+                        fullWidthLogoEnabled ? 'translate-x-6' : 'translate-x-1'
+                      )}
+                    />
+                  </button>
+                </div>
                 <p className="text-xs text-[var(--admin-text-muted)] mb-3">
                   Large logo displayed at the bottom of the footer
                 </p>
-                <MediaPickerButton
-                  label="Upload Full-Width Logo"
-                  value={fullWidthLogoUrl}
-                  onChange={setFullWidthLogoUrl}
-                  helpText="Recommended: 1200x200px, PNG with transparency"
-                  aspectRatio="6/1"
-                />
+                {fullWidthLogoEnabled && (
+                  <MediaPickerButton
+                    label="Upload Full-Width Logo"
+                    value={fullWidthLogoUrl}
+                    onChange={setFullWidthLogoUrl}
+                    helpText="Recommended: 1200x200px, PNG with transparency"
+                    aspectRatio="6/1"
+                  />
+                )}
               </div>
             </div>
           </div>

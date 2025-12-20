@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Star, ChevronRight, ArrowRight, Clock, Check, Mail, Phone, ChevronDown, Loader2 } from 'lucide-react';
+import { Star, ChevronRight, ArrowRight, Clock, Check, Mail, Phone, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { trackClick } from '@/lib/tracking';
 import { AudioPlayer } from './audio-player';
@@ -101,10 +101,8 @@ export function PDPBuyBox({
   const [emailStatus, setEmailStatus] = useState<'idle' | 'loading' | 'success'>('idle');
 
   // Bottom signup form state
-  const [showSignupForm, setShowSignupForm] = useState(false);
   const [signupContactType, setSignupContactType] = useState<'email' | 'phone'>('email');
   const [signupContactValue, setSignupContactValue] = useState('');
-  const [signupDropdownOpen, setSignupDropdownOpen] = useState(false);
   const [signupStatus, setSignupStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [signupValidationError, setSignupValidationError] = useState('');
 
@@ -191,7 +189,6 @@ export function PDPBuyBox({
     setSignupContactType(type);
     setSignupContactValue('');
     setSignupValidationError('');
-    setSignupDropdownOpen(false);
   };
 
   const handleSignupSubmit = async (e: React.FormEvent) => {
@@ -231,7 +228,6 @@ export function PDPBuyBox({
         setSignupContactValue('');
         setTimeout(() => {
           setSignupStatus('idle');
-          setShowSignupForm(false);
         }, 3000);
       } else {
         setSignupStatus('error');
@@ -410,7 +406,7 @@ export function PDPBuyBox({
             window.open(amazonUrl, '_blank', 'noopener,noreferrer');
           }, 100);
         }}
-        className="pdp-cta-button group flex items-center justify-center gap-2 md:gap-3 w-full py-[28px] md:py-5 text-[11px] md:text-[13px] font-medium uppercase tracking-[0.04em] lg:mt-[25px]"
+        className="pdp-cta-button group flex items-center justify-center gap-2 md:gap-3 w-full py-4 md:py-5 text-[11px] md:text-[13px] font-medium uppercase tracking-[0.04em] lg:mt-[25px]"
       >
         {ctaButtonText}
         {displayPrice && (
@@ -500,188 +496,119 @@ export function PDPBuyBox({
         )}
       </div>
 
-      {/* Email/SMS Signup Section */}
+      {/* Email/SMS Signup Section - Inline toggle + input + submit */}
       {signupSectionEnabled && (
       <div className="pt-6 md:pt-8 lg:pt-[22px]">
+        {/* Title and Subtitle */}
+        <div className="mb-3">
+          <span
+            className="block text-[11px] md:text-[12px] font-semibold text-[#1a1a1a] uppercase leading-tight"
+            style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif', letterSpacing: '0.02em' }}
+          >
+            {signupSectionTitle}
+          </span>
+          <span
+            className="block text-[10px] md:text-[11px] text-[#666666] leading-tight mt-0.5"
+            style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif', letterSpacing: '0.01em' }}
+          >
+            {signupSectionSubtitle}
+          </span>
+        </div>
+
         <AnimatePresence mode="wait">
           {signupStatus === 'success' ? (
             <motion.div
               key="success"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="py-4"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="h-[44px] bg-[#bbdae9]/20 border border-[#bbdae9]/40 flex items-center justify-center gap-2"
             >
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#bbdae9]/20 border border-[#bbdae9]/40 rounded-full">
-                <Check className="w-4 h-4 text-[#1a1a1a]" />
-                <span className="text-[12px] text-[#1a1a1a]" style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}>
-                  {signupSectionSuccessMessage} Check your {signupContactType === 'phone' ? 'phone' : 'inbox'}.
-                </span>
-              </div>
-            </motion.div>
-          ) : !showSignupForm ? (
-            <motion.div
-              key="button"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="flex items-center justify-between gap-4"
-            >
-              {/* Left: Title and Subtitle - tight, left-aligned */}
-              <div className="flex-1 min-w-0">
-                <span
-                  className="block text-[11px] md:text-[12px] font-semibold text-[#1a1a1a] uppercase leading-tight"
-                  style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif', letterSpacing: '0.02em' }}
-                >
-                  {signupSectionTitle}
-                </span>
-                <span
-                  className="block text-[10px] md:text-[11px] text-[#666666] leading-tight mt-0.5"
-                  style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif', letterSpacing: '0.01em' }}
-                >
-                  {signupSectionSubtitle}
-                </span>
-              </div>
-              {/* Right: Wide button */}
-              <button
-                onClick={() => setShowSignupForm(true)}
-                className="flex-shrink-0 inline-flex items-center justify-center gap-2 px-8 py-2.5 bg-[#f5f5f0] border border-[#e0e0e0] font-semibold text-[#1a1a1a] uppercase hover:bg-[#1a1a1a] hover:text-white hover:border-[#1a1a1a] transition-colors"
-                style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif', fontSize: '11px', letterSpacing: '0.04em' }}
-              >
-                <Mail className="w-3.5 h-3.5" />
-                {signupSectionButtonText}
-              </button>
+              <Check className="w-4 h-4 text-[#1a1a1a]" />
+              <span className="text-[11px] text-[#1a1a1a] font-medium uppercase tracking-wide" style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}>
+                {signupSectionSuccessMessage}
+              </span>
             </motion.div>
           ) : (
-            <motion.div
+            <motion.form
               key="form"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              onSubmit={handleSignupSubmit}
+              className="flex items-stretch h-[44px] border border-[#e0e0e0]"
             >
-              <form onSubmit={handleSignupSubmit} className="space-y-3">
-                {/* Input with dropdown */}
-                <div className="relative">
-                  {/* Dropdown selector */}
-                  <div className="absolute left-2.5 top-1/2 -translate-y-1/2 z-10">
-                    <button
-                      type="button"
-                      onClick={() => setSignupDropdownOpen(!signupDropdownOpen)}
-                      className="flex items-center gap-1 px-2 py-1.5 text-gray-500 hover:text-gray-700 transition-colors rounded hover:bg-gray-100"
-                    >
-                      {signupContactType === 'email' ? (
-                        <Mail className="w-4 h-4" />
-                      ) : (
-                        <Phone className="w-4 h-4" />
-                      )}
-                      <ChevronDown className="w-2.5 h-2.5" />
-                    </button>
-
-                    <AnimatePresence>
-                      {signupDropdownOpen && (
-                        <motion.div
-                          initial={{ opacity: 0, y: -5 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -5 }}
-                          transition={{ duration: 0.15 }}
-                          className="absolute top-full left-0 mt-1 bg-white rounded-lg shadow-lg border border-gray-200 py-1 min-w-[100px] z-20"
-                        >
-                          <button
-                            type="button"
-                            onClick={() => toggleSignupContactType('email')}
-                            className={cn(
-                              'w-full flex items-center gap-2 px-3 py-2 text-[11px] text-left hover:bg-gray-50 transition-colors',
-                              signupContactType === 'email' ? 'text-[#1a1a1a] font-medium' : 'text-gray-600'
-                            )}
-                          >
-                            <Mail className="w-3.5 h-3.5" />
-                            Email
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => toggleSignupContactType('phone')}
-                            className={cn(
-                              'w-full flex items-center gap-2 px-3 py-2 text-[11px] text-left hover:bg-gray-50 transition-colors',
-                              signupContactType === 'phone' ? 'text-[#1a1a1a] font-medium' : 'text-gray-600'
-                            )}
-                          >
-                            <Phone className="w-3.5 h-3.5" />
-                            Phone
-                          </button>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-
-                  {/* Input field */}
-                  <input
-                    type={signupContactType === 'email' ? 'email' : 'tel'}
-                    inputMode={signupContactType === 'email' ? 'email' : 'tel'}
-                    value={signupContactValue}
-                    onChange={handleSignupInputChange}
-                    placeholder={signupContactType === 'email' ? 'Enter your email' : 'Enter phone #'}
-                    autoComplete={signupContactType === 'email' ? 'email' : 'tel'}
-                    className={cn(
-                      'w-full pl-16 pr-4 py-3 text-[12px] bg-[#f5f5f0] border focus:outline-none focus:ring-2 focus:ring-[#bbdae9] focus:border-[#bbdae9] placeholder:text-gray-400',
-                      signupValidationError ? 'border-[#bbdae9]' : 'border-gray-300'
-                    )}
-                  />
-                </div>
-
-                {/* Validation error */}
-                <AnimatePresence>
-                  {(signupValidationError || signupStatus === 'error') && (
-                    <motion.p
-                      initial={{ opacity: 0, y: -5 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -5 }}
-                      className="text-[10px] text-center text-[#666666]"
-                    >
-                      {signupValidationError || 'Something went wrong. Please try again.'}
-                    </motion.p>
-                  )}
-                </AnimatePresence>
-
-                {/* Submit button */}
-                <button
-                  type="submit"
-                  disabled={signupStatus === 'loading'}
-                  className="w-full flex items-center justify-center gap-2 py-3 bg-[#1a1a1a] text-white text-[11px] font-medium uppercase tracking-[0.04em] hover:bg-[#bbdae9] hover:text-[#1a1a1a] transition-colors disabled:opacity-50"
-                >
-                  {signupStatus === 'loading' ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <>
-                      Subscribe
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </>
-                  )}
-                </button>
-
-                {/* Cancel link */}
+              {/* Toggle: Email/Phone - blue when selected */}
+              <div className="flex">
                 <button
                   type="button"
-                  onClick={() => {
-                    setShowSignupForm(false);
-                    setSignupContactValue('');
-                    setSignupValidationError('');
-                  }}
-                  className="w-full text-[10px] text-[#666666] hover:text-[#1a1a1a] transition-colors"
+                  onClick={() => toggleSignupContactType('email')}
+                  className={cn(
+                    'px-3 flex items-center justify-center transition-colors',
+                    signupContactType === 'email'
+                      ? 'bg-[#bbdae9] text-[#1a1a1a]'
+                      : 'bg-[#f5f5f0] text-[#666666] hover:text-[#1a1a1a] hover:bg-[#ebebeb]'
+                  )}
+                  title="Email"
                 >
-                  Cancel
+                  <Mail className="w-4 h-4" />
                 </button>
-              </form>
-            </motion.div>
+                <button
+                  type="button"
+                  onClick={() => toggleSignupContactType('phone')}
+                  className={cn(
+                    'px-3 flex items-center justify-center transition-colors border-r border-[#e0e0e0]',
+                    signupContactType === 'phone'
+                      ? 'bg-[#bbdae9] text-[#1a1a1a]'
+                      : 'bg-[#f5f5f0] text-[#666666] hover:text-[#1a1a1a] hover:bg-[#ebebeb]'
+                  )}
+                  title="Phone"
+                >
+                  <Phone className="w-4 h-4" />
+                </button>
+              </div>
+              {/* Input */}
+              <input
+                type={signupContactType === 'email' ? 'email' : 'tel'}
+                inputMode={signupContactType === 'email' ? 'email' : 'tel'}
+                value={signupContactValue}
+                onChange={handleSignupInputChange}
+                placeholder={signupContactType === 'email' ? 'Enter your email' : 'Enter phone #'}
+                autoComplete={signupContactType === 'email' ? 'email' : 'tel'}
+                className="flex-1 min-w-0 bg-[#f5f5f0] text-[#1a1a1a] px-4 text-[12px] focus:outline-none placeholder:text-gray-400"
+                style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+              />
+              {/* Submit - blue hover */}
+              <button
+                type="submit"
+                disabled={signupStatus === 'loading'}
+                className="px-5 bg-[#1a1a1a] text-white font-semibold text-[11px] uppercase tracking-[0.04em] hover:bg-[#bbdae9] hover:text-[#1a1a1a] transition-colors disabled:opacity-50 flex items-center gap-1.5 flex-shrink-0"
+                style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+              >
+                {signupStatus === 'loading' ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <>
+                    Submit
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </>
+                )}
+              </button>
+            </motion.form>
           )}
         </AnimatePresence>
 
-        {/* Click outside to close dropdown */}
-        {signupDropdownOpen && (
-          <div
-            className="fixed inset-0 z-0"
-            onClick={() => setSignupDropdownOpen(false)}
-          />
-        )}
+        {/* Validation error */}
+        <AnimatePresence>
+          {(signupValidationError || signupStatus === 'error') && (
+            <motion.p
+              initial={{ opacity: 0, y: -5 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -5 }}
+              className="text-[10px] text-center text-[#666666] mt-2"
+            >
+              {signupValidationError || 'Something went wrong. Please try again.'}
+            </motion.p>
+          )}
+        </AnimatePresence>
       </div>
       )}
     </div>

@@ -3,8 +3,9 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Instagram, Facebook, ArrowRight, ChevronDown, Droplet, Flag } from 'lucide-react';
+import { Instagram, Facebook, ArrowRight, ChevronDown, Droplet, Flag, Mail, Phone, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { AnimatePresence, motion } from 'framer-motion';
 
 interface FooterLink {
   id: string;
@@ -28,6 +29,7 @@ interface FooterProps {
   tiktokUrl?: string | null;
   amazonStoreUrl?: string | null;
   massiveFooterLogoUrl?: string | null;
+  massiveFooterLogoEnabled?: boolean;
   massiveFooterLogoOpacity?: number | null;
   // Custom social icons
   instagramIconUrl?: string | null;
@@ -70,6 +72,7 @@ export function Footer({
   tiktokUrl,
   amazonStoreUrl,
   massiveFooterLogoUrl,
+  massiveFooterLogoEnabled = true,
   massiveFooterLogoOpacity = 15,
   instagramIconUrl,
   facebookIconUrl,
@@ -96,27 +99,31 @@ export function Footer({
   termsUrl = '/terms',
   termsLabel = 'Terms of Service',
 }: FooterProps) {
-  const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 
-  // Mobile accordion states
-  const [openSection, setOpenSection] = useState<string | null>(null);
+  // Subscribe form states
+  const [subscribeContactType, setSubscribeContactType] = useState<'email' | 'phone'>('email');
+  const [subscribeContactValue, setSubscribeContactValue] = useState('');
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) return;
+    if (!subscribeContactValue) return;
 
     setStatus('loading');
     try {
-      const res = await fetch('/api/subscribe', {
+      const body = subscribeContactType === 'email'
+        ? { email: subscribeContactValue, source: 'footer' }
+        : { phone: subscribeContactValue, source: 'footer' };
+
+      const res = await fetch('/api/contacts/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, source: 'footer' }),
+        body: JSON.stringify(body),
       });
 
       if (res.ok) {
         setStatus('success');
-        setEmail('');
+        setSubscribeContactValue('');
       } else {
         setStatus('error');
         setTimeout(() => setStatus('idle'), 3000);
@@ -125,10 +132,6 @@ export function Footer({
       setStatus('error');
       setTimeout(() => setStatus('idle'), 3000);
     }
-  };
-
-  const toggleSection = (section: string) => {
-    setOpenSection(openSection === section ? null : section);
   };
 
   // Theme-based styles (must be before renderCertIcon)
@@ -180,204 +183,347 @@ export function Footer({
   ];
 
   // Remaining theme-based styles
-  const bgClass = isDark ? 'bg-[#1a1a1a]' : 'bg-gray-50';
+  const bgClass = isDark ? 'bg-black' : 'bg-gray-50';
   const textClass = isDark ? 'text-white' : 'text-gray-900';
-  const textMutedClass = isDark ? 'text-white/60' : 'text-gray-600';
-  const textFadedClass = isDark ? 'text-white/40' : 'text-gray-400';
+  const textMutedClass = isDark ? 'text-white' : 'text-gray-600';
+  const textFadedClass = isDark ? 'text-white/60' : 'text-gray-400';
   const borderClass = isDark ? 'border-white/10' : 'border-gray-200';
   const borderAccentClass = isDark ? 'border-white/30' : 'border-gray-300';
   const logoFilter = isDark ? 'brightness-0 invert' : '';
 
   return (
-    <footer className={cn(bgClass, textClass)}>
-      {/* ROW 1: Community Invitation - Full Width with wider spread */}
+    <footer className={cn(bgClass, textClass, "font-['Inter',sans-serif]")}>
+      {/* ROW 1: Community Invitation - Fluid scaling with CSS vars */}
       {emailSignupEnabled && (
-        <div className="py-20 md:py-24">
-          <div className="container">
-            {status === 'success' ? (
-              <div className="text-center py-8 animate-fade-in">
-                {/* Success checkmark */}
-                <div className={cn(
-                  'w-16 h-16 rounded-full mx-auto mb-6 flex items-center justify-center',
-                  isDark ? 'bg-white/10' : 'bg-gray-100'
-                )}>
-                  <svg
-                    className={cn('w-8 h-8', isDark ? 'text-white' : 'text-gray-900')}
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M5 13l4 4L19 7"
-                      className="animate-[draw_0.5s_ease-out_forwards]"
-                      style={{ strokeDasharray: 24, strokeDashoffset: 24, animation: 'draw 0.5s ease-out forwards' }}
-                    />
-                  </svg>
-                </div>
-                <p className={cn('text-2xl font-light tracking-wide', isDark ? 'text-white' : 'text-gray-900')}>
-                  {emailSignupSuccessMessage}
-                </p>
-                <p className={cn('text-sm mt-2', isDark ? 'text-white/50' : 'text-gray-500')}>
-                  Check your inbox for a welcome message.
-                </p>
-              </div>
-            ) : (
-              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-10 lg:gap-32">
-                {/* Text Group - Left - anchored to left edge */}
-                <div className="lg:max-w-sm">
-                  <h3 className="text-sm font-semibold tracking-[0.15em] uppercase mb-4">
-                    {emailSignupTitle}
-                  </h3>
-                  <p className={cn('text-sm leading-relaxed', textMutedClass)}>
-                    {emailSignupSubtitle}
-                  </p>
-                </div>
+        <div className="py-16 md:py-20">
+          {/* Desktop: Flex layout with fluid padding, title left, form right */}
+          <div
+            className="hidden md:flex justify-between items-center gap-10"
+            style={{
+              paddingLeft: 'var(--footer-side-padding)',
+              paddingRight: 'var(--footer-side-padding)'
+            }}
+          >
+            {/* Left: Title and Subtitle - fixed left */}
+            <div className="flex-shrink-0">
+              <h3 className="text-[12px] font-semibold tracking-[0.15em] uppercase leading-tight">
+                {emailSignupTitle}
+              </h3>
+              <p className="text-white text-[11px] leading-tight mt-1">
+                {emailSignupSubtitle}
+              </p>
+            </div>
 
-                {/* Input Group - Right - anchored to right edge */}
-                <form onSubmit={handleSubscribe} className="flex-1 lg:max-w-md">
-                  <div className={cn('flex items-center gap-4 border-b pb-3 group transition-colors', borderAccentClass, isDark ? 'focus-within:border-white' : 'focus-within:border-gray-900')}>
+            {/* Right: Form + legal - fixed right */}
+            <div className="flex flex-col items-end flex-shrink-0">
+              <AnimatePresence mode="wait">
+                {status === 'success' ? (
+                  <motion.div
+                    key="success"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="h-[44px] px-6 bg-white/10 text-white font-semibold text-xs uppercase tracking-[0.1em] flex items-center justify-center gap-2"
+                  >
+                    <Check className="w-4 h-4" />
+                    Subscribed!
+                  </motion.div>
+                ) : (
+                  <motion.form
+                    key="form"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    onSubmit={handleSubscribe}
+                    className="flex items-stretch h-[44px]"
+                  >
+                    {/* Toggle: Email/Phone - blue when selected */}
+                    <div className="flex">
+                      <button
+                        type="button"
+                        onClick={() => { setSubscribeContactType('email'); setSubscribeContactValue(''); }}
+                        className={cn(
+                          'px-3 flex items-center justify-center transition-colors',
+                          subscribeContactType === 'email'
+                            ? 'bg-[#bbdae9] text-black'
+                            : 'bg-white/10 text-white/70 hover:text-white hover:bg-white/20'
+                        )}
+                        title="Email"
+                      >
+                        <Mail className="w-4 h-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => { setSubscribeContactType('phone'); setSubscribeContactValue(''); }}
+                        className={cn(
+                          'px-3 flex items-center justify-center transition-colors border-r border-white/20',
+                          subscribeContactType === 'phone'
+                            ? 'bg-[#bbdae9] text-black'
+                            : 'bg-white/10 text-white/70 hover:text-white hover:bg-white/20'
+                        )}
+                        title="Phone"
+                      >
+                        <Phone className="w-4 h-4" />
+                      </button>
+                    </div>
+                    {/* Input - 40% larger on desktop */}
                     <input
-                      type="email"
-                      placeholder={emailSignupPlaceholder || 'Enter your email'}
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className={cn('flex-1 bg-transparent text-base focus:outline-none', isDark ? 'text-white placeholder:text-white/40' : 'text-gray-900 placeholder:text-gray-400')}
+                      type={subscribeContactType === 'email' ? 'email' : 'tel'}
+                      placeholder={subscribeContactType === 'email' ? 'Enter your email' : 'Enter phone #'}
+                      value={subscribeContactValue}
+                      onChange={(e) => setSubscribeContactValue(e.target.value)}
+                      className="w-[224px] lg:w-[266px] bg-white text-black px-4 text-sm focus:outline-none placeholder:text-gray-400"
                       required
                     />
+                    {/* Submit - blue hover */}
                     <button
                       type="submit"
                       disabled={status === 'loading'}
-                      className={cn('flex items-center gap-2 text-sm font-medium tracking-wide uppercase transition-colors disabled:opacity-50', isDark ? 'text-white hover:text-white/70' : 'text-gray-900 hover:text-gray-600')}
+                      className="px-6 bg-white text-black font-semibold text-[11px] uppercase tracking-[0.1em] hover:bg-[#bbdae9] transition-colors disabled:opacity-50 flex items-center gap-2"
                     >
                       {status === 'loading' ? (
-                        <span className={cn('w-4 h-4 border-2 rounded-full animate-spin', isDark ? 'border-white/30 border-t-white' : 'border-gray-300 border-t-gray-900')} />
+                        <span className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
                       ) : (
                         <>
-                          {emailSignupButtonText}
-                          <ArrowRight className="w-4 h-4" />
+                          Submit
+                          <ArrowRight className="w-3.5 h-3.5" />
                         </>
                       )}
                     </button>
-                  </div>
-                  {status === 'error' && (
-                    <p className="text-red-400 text-xs mt-3">Something went wrong. Please try again.</p>
-                  )}
-                </form>
-              </div>
+                  </motion.form>
+                )}
+              </AnimatePresence>
+
+              {status === 'error' && (
+                <p className="text-red-400 text-[10px] mt-2 text-right">Something went wrong.</p>
+              )}
+
+              <p className="text-white/60 text-[9px] leading-relaxed mt-3 max-w-[460px] text-right">
+                By signing up via text you agree to receive recurring automated marketing messages. Consent is not a condition of purchase. Reply STOP to unsubscribe.{' '}
+                <Link href={privacyUrl || '/privacy'} className="underline">Privacy Policy</Link> •{' '}
+                <Link href={termsUrl || '/terms'} className="underline">Terms</Link>.
+              </p>
+            </div>
+          </div>
+
+          {/* Mobile: Stacked layout - Title, then 80% width centered form */}
+          <div className="md:hidden px-5">
+            <div className="text-center mb-6">
+              <h3 className="text-[12px] font-semibold tracking-[0.15em] uppercase leading-tight">
+                {emailSignupTitle}
+              </h3>
+              <p className="text-white text-[11px] leading-tight mt-1">
+                {emailSignupSubtitle}
+              </p>
+            </div>
+
+            {/* Centered form container - 80% width */}
+            <div className="flex justify-center">
+              <AnimatePresence mode="wait">
+                {status === 'success' ? (
+                  <motion.div
+                    key="success"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="w-[80%] py-4 bg-white/10 text-white font-semibold text-xs uppercase tracking-[0.1em] flex items-center justify-center gap-2"
+                  >
+                    <Check className="w-4 h-4" />
+                    Subscribed!
+                  </motion.div>
+                ) : (
+                  <motion.form
+                    key="form"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    onSubmit={handleSubscribe}
+                    className="flex items-stretch h-[52px] w-[80%]"
+                  >
+                    {/* Toggle: Email/Phone - blue when selected */}
+                    <div className="flex">
+                      <button
+                        type="button"
+                        onClick={() => { setSubscribeContactType('email'); setSubscribeContactValue(''); }}
+                        className={cn(
+                          'px-4 flex items-center justify-center transition-colors',
+                          subscribeContactType === 'email'
+                            ? 'bg-[#bbdae9] text-black'
+                            : 'bg-white/10 text-white/70 hover:text-white hover:bg-white/20'
+                        )}
+                        title="Email"
+                      >
+                        <Mail className="w-5 h-5" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => { setSubscribeContactType('phone'); setSubscribeContactValue(''); }}
+                        className={cn(
+                          'px-4 flex items-center justify-center transition-colors border-r border-white/20',
+                          subscribeContactType === 'phone'
+                            ? 'bg-[#bbdae9] text-black'
+                            : 'bg-white/10 text-white/70 hover:text-white hover:bg-white/20'
+                        )}
+                        title="Phone"
+                      >
+                        <Phone className="w-5 h-5" />
+                      </button>
+                    </div>
+                    {/* Input */}
+                    <input
+                      type={subscribeContactType === 'email' ? 'email' : 'tel'}
+                      placeholder={subscribeContactType === 'email' ? 'Your email' : 'Phone #'}
+                      value={subscribeContactValue}
+                      onChange={(e) => setSubscribeContactValue(e.target.value)}
+                      className="flex-1 min-w-0 bg-white text-black px-4 text-sm focus:outline-none placeholder:text-gray-400"
+                      required
+                    />
+                    {/* Submit - blue hover */}
+                    <button
+                      type="submit"
+                      disabled={status === 'loading'}
+                      className="px-5 bg-white text-black font-semibold text-[11px] uppercase tracking-[0.08em] hover:bg-[#bbdae9] transition-colors disabled:opacity-50 flex items-center gap-1.5 flex-shrink-0"
+                    >
+                      {status === 'loading' ? (
+                        <span className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+                      ) : (
+                        <>
+                          Submit
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        </>
+                      )}
+                    </button>
+                  </motion.form>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {status === 'error' && (
+              <p className="text-red-400 text-xs mt-2 text-center">Something went wrong. Please try again.</p>
             )}
+
+            <p className="text-white/60 text-[9px] leading-relaxed mt-4 text-center">
+              By signing up via text you agree to receive recurring automated marketing messages. Consent is not a condition of purchase. Reply STOP to unsubscribe.{' '}
+              <Link href={privacyUrl || '/privacy'} className="underline">Privacy</Link> •{' '}
+              <Link href={termsUrl || '/terms'} className="underline">Terms</Link>.
+            </p>
           </div>
         </div>
       )}
 
-      {/* Separator */}
+      {/* Break line - with gutters matching content, pure white, 1px */}
       {emailSignupEnabled && (
-        <div className="container">
-          <div className={cn('h-px', borderClass)} />
-        </div>
+        <div
+          className="hidden md:block h-px bg-white"
+          style={{
+            marginLeft: 'var(--footer-side-padding)',
+            marginRight: 'var(--footer-side-padding)'
+          }}
+        />
+      )}
+      {emailSignupEnabled && (
+        <div className="md:hidden h-px bg-white mx-5" />
       )}
 
-      {/* ROW 2: Navigation Grid */}
-      <div className="py-16 md:py-20">
-        <div className="container">
-          {/* Desktop Grid - 5 Columns with wider spread */}
-          <div className="hidden md:grid md:grid-cols-12 gap-8 lg:gap-12">
-            {/* Column 1: Brand Anchor - pushed left */}
-            <div className="col-span-3 lg:col-span-2">
-              {logo ? (
-                <Image
-                  src={logo}
-                  alt="Archie's Remedies"
-                  width={180}
-                  height={45}
-                  className={cn('h-10 w-auto mb-8', logoFilter)}
-                />
-              ) : (
-                <span className="text-xl font-medium block mb-8 tracking-tight">
-                  Archie&apos;s Remedies
-                </span>
+      {/* ROW 2: Navigation Grid - Symmetric padding for equidistant line gaps */}
+      <div className="py-12 md:py-16">
+        {/* Desktop Layout - Flex with left/right groups, fluid scaling */}
+        <div
+          className="hidden md:flex justify-between items-start"
+          style={{
+            paddingLeft: 'var(--footer-side-padding)',
+            paddingRight: 'var(--footer-side-padding)'
+          }}
+        >
+          {/* LEFT GROUP: Logo + Social Icons */}
+          <div className="flex-shrink-0">
+            {logo ? (
+              <Image
+                src={logo}
+                alt="Archie's Remedies"
+                width={180}
+                height={45}
+                className={cn('h-10 w-auto', logoFilter)}
+              />
+            ) : (
+              <span className="text-xl font-medium block tracking-tight">
+                Archie&apos;s Remedies
+              </span>
+            )}
+
+            {/* Social Icons */}
+            <div className="flex items-center gap-4 mt-5">
+              {instagramUrl && (
+                <a
+                  href={instagramUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={cn('w-[18px] h-[18px] flex items-center justify-center transition-colors', textMutedClass, isDark ? 'hover:text-white' : 'hover:text-gray-900')}
+                  aria-label="Instagram"
+                >
+                  {instagramIconUrl ? (
+                    <Image src={instagramIconUrl} alt="Instagram" width={18} height={18} className="w-full h-full object-contain" />
+                  ) : (
+                    <Instagram className="w-full h-full" />
+                  )}
+                </a>
               )}
-
-              {/* Social Icons */}
-              <div className="flex items-center gap-4">
-                {instagramUrl && (
-                  <a
-                    href={instagramUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={cn('w-[18px] h-[18px] flex items-center justify-center transition-colors', textMutedClass, isDark ? 'hover:text-white' : 'hover:text-gray-900')}
-                    aria-label="Instagram"
-                  >
-                    {instagramIconUrl ? (
-                      <Image src={instagramIconUrl} alt="Instagram" width={18} height={18} className="w-full h-full object-contain" />
-                    ) : (
-                      <Instagram className="w-full h-full" />
-                    )}
-                  </a>
-                )}
-                {tiktokUrl && (
-                  <a
-                    href={tiktokUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={cn('w-[18px] h-[18px] flex items-center justify-center transition-colors', textMutedClass, isDark ? 'hover:text-white' : 'hover:text-gray-900')}
-                    aria-label="TikTok"
-                  >
-                    {tiktokIconUrl ? (
-                      <Image src={tiktokIconUrl} alt="TikTok" width={18} height={18} className="w-full h-full object-contain" />
-                    ) : (
-                      <svg className="w-full h-full" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z" />
-                      </svg>
-                    )}
-                  </a>
-                )}
-                {facebookUrl && (
-                  <a
-                    href={facebookUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={cn('w-[18px] h-[18px] flex items-center justify-center transition-colors', textMutedClass, isDark ? 'hover:text-white' : 'hover:text-gray-900')}
-                    aria-label="Facebook"
-                  >
-                    {facebookIconUrl ? (
-                      <Image src={facebookIconUrl} alt="Facebook" width={18} height={18} className="w-full h-full object-contain" />
-                    ) : (
-                      <Facebook className="w-full h-full" />
-                    )}
-                  </a>
-                )}
-                {amazonStoreUrl && (
-                  <a
-                    href={amazonStoreUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={cn('w-[18px] h-[18px] flex items-center justify-center transition-colors', textMutedClass, isDark ? 'hover:text-white' : 'hover:text-gray-900')}
-                    aria-label="Amazon Store"
-                  >
-                    {amazonIconUrl ? (
-                      <Image src={amazonIconUrl} alt="Amazon" width={18} height={18} className="w-full h-full object-contain" />
-                    ) : (
-                      <svg className="w-full h-full" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M.045 18.02c.072-.116.187-.124.348-.022 3.636 2.11 7.594 3.166 11.87 3.166 2.852 0 5.668-.533 8.447-1.595l.315-.14c.138-.06.234-.1.293-.13.226-.088.39-.046.493.124.108.178.054.39-.156.637-.213.245-.537.51-.965.79-1.478.963-3.063 1.706-4.752 2.225-1.69.52-3.333.78-4.93.78-2.14 0-4.191-.358-6.15-1.073-1.96-.714-3.593-1.64-4.902-2.777-.11-.095-.138-.192-.09-.29l.18-.304zm6.032-5.815c0-1.103.254-2.047.762-2.828.508-.782 1.204-1.38 2.086-1.796-.27-.903-.405-1.737-.405-2.503 0-.906.136-1.68.405-2.322.27-.64.685-1.2 1.243-1.676.558-.477 1.257-.842 2.095-1.094.838-.253 1.816-.38 2.934-.38 1.417 0 2.654.188 3.71.565v1.93c-.895-.425-1.973-.64-3.233-.64-1.48 0-2.6.31-3.358.933-.76.622-1.14 1.56-1.14 2.814 0 .618.084 1.27.25 1.955 1.63-.25 3.036-.376 4.22-.376 1.417 0 2.625.226 3.625.678v2.093c-.82-.426-1.973-.64-3.46-.64-1.406 0-2.84.156-4.3.47.15.994.368 1.85.654 2.573.286.722.63 1.298 1.032 1.726.4.43.868.736 1.398.92.53.184 1.128.276 1.792.276.78 0 1.614-.166 2.503-.498v1.95c-.756.332-1.725.498-2.906.498-1.218 0-2.27-.177-3.155-.53-.886-.355-1.622-.856-2.208-1.504-.587-.65-1.028-1.423-1.32-2.322-.294-.9-.44-1.902-.44-3.007z"/>
-                      </svg>
-                    )}
-                  </a>
-                )}
-              </div>
+              {tiktokUrl && (
+                <a
+                  href={tiktokUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={cn('w-[18px] h-[18px] flex items-center justify-center transition-colors', textMutedClass, isDark ? 'hover:text-white' : 'hover:text-gray-900')}
+                  aria-label="TikTok"
+                >
+                  {tiktokIconUrl ? (
+                    <Image src={tiktokIconUrl} alt="TikTok" width={18} height={18} className="w-full h-full object-contain" />
+                  ) : (
+                    <svg className="w-full h-full" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z" />
+                    </svg>
+                  )}
+                </a>
+              )}
+              {facebookUrl && (
+                <a
+                  href={facebookUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={cn('w-[18px] h-[18px] flex items-center justify-center transition-colors', textMutedClass, isDark ? 'hover:text-white' : 'hover:text-gray-900')}
+                  aria-label="Facebook"
+                >
+                  {facebookIconUrl ? (
+                    <Image src={facebookIconUrl} alt="Facebook" width={18} height={18} className="w-full h-full object-contain" />
+                  ) : (
+                    <Facebook className="w-full h-full" />
+                  )}
+                </a>
+              )}
+              {amazonStoreUrl && (
+                <a
+                  href={amazonStoreUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={cn('w-[18px] h-[18px] flex items-center justify-center transition-colors', textMutedClass, isDark ? 'hover:text-white' : 'hover:text-gray-900')}
+                  aria-label="Amazon Store"
+                >
+                  {amazonIconUrl ? (
+                    <Image src={amazonIconUrl} alt="Amazon" width={18} height={18} className="w-full h-full object-contain" />
+                  ) : (
+                    <svg className="w-full h-full" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M.045 18.02c.072-.116.187-.124.348-.022 3.636 2.11 7.594 3.166 11.87 3.166 2.852 0 5.668-.533 8.447-1.595l.315-.14c.138-.06.234-.1.293-.13.226-.088.39-.046.493.124.108.178.054.39-.156.637-.213.245-.537.51-.965.79-1.478.963-3.063 1.706-4.752 2.225-1.69.52-3.333.78-4.93.78-2.14 0-4.191-.358-6.15-1.073-1.96-.714-3.593-1.64-4.902-2.777-.11-.095-.138-.192-.09-.29l.18-.304zm6.032-5.815c0-1.103.254-2.047.762-2.828.508-.782 1.204-1.38 2.086-1.796-.27-.903-.405-1.737-.405-2.503 0-.906.136-1.68.405-2.322.27-.64.685-1.2 1.243-1.676.558-.477 1.257-.842 2.095-1.094.838-.253 1.816-.38 2.934-.38 1.417 0 2.654.188 3.71.565v1.93c-.895-.425-1.973-.64-3.233-.64-1.48 0-2.6.31-3.358.933-.76.622-1.14 1.56-1.14 2.814 0 .618.084 1.27.25 1.955 1.63-.25 3.036-.376 4.22-.376 1.417 0 2.625.226 3.625.678v2.093c-.82-.426-1.973-.64-3.46-.64-1.406 0-2.84.156-4.3.47.15.994.368 1.85.654 2.573.286.722.63 1.298 1.032 1.726.4.43.868.736 1.398.92.53.184 1.128.276 1.792.276.78 0 1.614-.166 2.503-.498v1.95c-.756.332-1.725.498-2.906.498-1.218 0-2.27-.177-3.155-.53-.886-.355-1.622-.856-2.208-1.504-.587-.65-1.028-1.423-1.32-2.322-.294-.9-.44-1.902-.44-3.007z"/>
+                    </svg>
+                  )}
+                </a>
+              )}
             </div>
+          </div>
 
-            {/* Spacer to push columns right */}
-            <div className="hidden lg:block lg:col-span-2" />
-
-            {/* Column 2: Shop */}
-            <div className="col-span-2 lg:col-span-2">
-              <h4 className="text-xs font-bold tracking-[0.15em] uppercase mb-6">
+          {/* RIGHT GROUP: Link Columns */}
+          <div className="flex gap-12 lg:gap-16 xl:gap-20">
+            {/* Shop Column */}
+            <div>
+              <h4 className="text-[6px] font-bold tracking-[0.15em] uppercase mb-3 text-white">
                 {column1Title}
               </h4>
-              <ul className="space-y-4">
+              <ul className="space-y-0">
                 {shopLinks.map((link) => (
                   <li key={link.id}>
                     {link.isExternal ? (
@@ -385,13 +531,13 @@ export function Footer({
                         href={link.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className={cn('text-sm transition-colors leading-relaxed inline-flex items-center gap-1 border-b border-transparent pb-0.5', textMutedClass, isDark ? 'hover:text-white hover:border-white' : 'hover:text-gray-900 hover:border-gray-900')}
+                        className={cn('text-xs uppercase tracking-wide transition-colors leading-[1.8] inline-flex items-center gap-1 border-b border-transparent', textMutedClass, isDark ? 'hover:text-white hover:border-white' : 'hover:text-gray-900 hover:border-gray-900')}
                       >
                         {link.label}
                         <ArrowRight className="w-3 h-3" />
                       </a>
                     ) : (
-                      <Link href={link.url} className={cn('text-sm transition-colors leading-relaxed border-b border-transparent pb-0.5', textMutedClass, isDark ? 'hover:text-white hover:border-white' : 'hover:text-gray-900 hover:border-gray-900')}>
+                      <Link href={link.url} className={cn('text-xs uppercase tracking-wide transition-colors leading-[1.8] border-b border-transparent block', textMutedClass, isDark ? 'hover:text-white hover:border-white' : 'hover:text-gray-900 hover:border-gray-900')}>
                         {link.label}
                       </Link>
                     )}
@@ -400,12 +546,12 @@ export function Footer({
               </ul>
             </div>
 
-            {/* Column 3: Learn */}
-            <div className="col-span-2">
-              <h4 className="text-xs font-bold tracking-[0.15em] uppercase mb-6">
+            {/* Learn Column */}
+            <div>
+              <h4 className="text-[6px] font-bold tracking-[0.15em] uppercase mb-3 text-white">
                 {column2Title}
               </h4>
-              <ul className="space-y-4">
+              <ul className="space-y-0">
                 {learnLinks.map((link) => (
                   <li key={link.id}>
                     {link.isExternal ? (
@@ -413,13 +559,13 @@ export function Footer({
                         href={link.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className={cn('text-sm transition-colors leading-relaxed inline-flex items-center gap-1 border-b border-transparent pb-0.5', textMutedClass, isDark ? 'hover:text-white hover:border-white' : 'hover:text-gray-900 hover:border-gray-900')}
+                        className={cn('text-xs uppercase tracking-wide transition-colors leading-[1.8] inline-flex items-center gap-1 border-b border-transparent', textMutedClass, isDark ? 'hover:text-white hover:border-white' : 'hover:text-gray-900 hover:border-gray-900')}
                       >
                         {link.label}
                         <ArrowRight className="w-3 h-3" />
                       </a>
                     ) : (
-                      <Link href={link.url} className={cn('text-sm transition-colors leading-relaxed border-b border-transparent pb-0.5', textMutedClass, isDark ? 'hover:text-white hover:border-white' : 'hover:text-gray-900 hover:border-gray-900')}>
+                      <Link href={link.url} className={cn('text-xs uppercase tracking-wide transition-colors leading-[1.8] border-b border-transparent block', textMutedClass, isDark ? 'hover:text-white hover:border-white' : 'hover:text-gray-900 hover:border-gray-900')}>
                         {link.label}
                       </Link>
                     )}
@@ -428,12 +574,12 @@ export function Footer({
               </ul>
             </div>
 
-            {/* Column 4: Support */}
-            <div className="col-span-2">
-              <h4 className="text-xs font-bold tracking-[0.15em] uppercase mb-6">
+            {/* Support Column */}
+            <div>
+              <h4 className="text-[6px] font-bold tracking-[0.15em] uppercase mb-3 text-white">
                 {column3Title}
               </h4>
-              <ul className="space-y-4">
+              <ul className="space-y-0">
                 {supportLinks.map((link) => (
                   <li key={link.id}>
                     {link.isExternal ? (
@@ -441,13 +587,13 @@ export function Footer({
                         href={link.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className={cn('text-sm transition-colors leading-relaxed inline-flex items-center gap-1 border-b border-transparent pb-0.5', textMutedClass, isDark ? 'hover:text-white hover:border-white' : 'hover:text-gray-900 hover:border-gray-900')}
+                        className={cn('text-xs uppercase tracking-wide transition-colors leading-[1.8] inline-flex items-center gap-1 border-b border-transparent', textMutedClass, isDark ? 'hover:text-white hover:border-white' : 'hover:text-gray-900 hover:border-gray-900')}
                       >
                         {link.label}
                         <ArrowRight className="w-3 h-3" />
                       </a>
                     ) : (
-                      <Link href={link.url} className={cn('text-sm transition-colors leading-relaxed border-b border-transparent pb-0.5', textMutedClass, isDark ? 'hover:text-white hover:border-white' : 'hover:text-gray-900 hover:border-gray-900')}>
+                      <Link href={link.url} className={cn('text-xs uppercase tracking-wide transition-colors leading-[1.8] border-b border-transparent block', textMutedClass, isDark ? 'hover:text-white hover:border-white' : 'hover:text-gray-900 hover:border-gray-900')}>
                         {link.label}
                       </Link>
                     )}
@@ -456,9 +602,9 @@ export function Footer({
               </ul>
             </div>
 
-            {/* Column 5: Certifications - Icons Only - left aligned */}
-            <div className="col-span-3 lg:col-span-2">
-              <h4 className="text-xs font-bold tracking-[0.15em] uppercase mb-6">
+            {/* Certifications Column */}
+            <div>
+              <h4 className="text-[6px] font-bold tracking-[0.15em] uppercase mb-3 text-white">
                 {column4Title}
               </h4>
               <div className="flex gap-5">
@@ -473,27 +619,28 @@ export function Footer({
               </div>
             </div>
           </div>
+        </div>
 
-          {/* Mobile Layout - Accordions */}
-          <div className="md:hidden space-y-0 px-6">
-            {/* Brand - Always Visible */}
-            <div className="pb-8">
+        {/* Mobile Layout - unchanged, uses px-5 */}
+        <div className="md:hidden px-5">
+            {/* Brand - Logo + social icons, increased gap to link columns */}
+            <div className="mb-[70px]">
               {logo ? (
                 <Image
                   src={logo}
                   alt="Archie's Remedies"
-                  width={150}
-                  height={38}
-                  className={cn('h-9 w-auto mb-6', logoFilter)}
+                  width={170}
+                  height={43}
+                  className={cn('h-11 w-auto', logoFilter)}
                 />
               ) : (
-                <span className="text-lg font-medium block mb-6 tracking-tight">
+                <span className="text-xl font-medium block tracking-tight">
                   Archie&apos;s Remedies
                 </span>
               )}
 
               {/* Social Icons */}
-              <div className="flex items-center gap-5">
+              <div className="flex items-center gap-5 mt-4">
                 {instagramUrl && (
                   <a
                     href={instagramUrl}
@@ -561,97 +708,93 @@ export function Footer({
               </div>
             </div>
 
-            {/* Shop Accordion */}
-            <MobileAccordion
-              title={column1Title || 'Shop'}
-              isOpen={openSection === 'shop'}
-              onToggle={() => toggleSection('shop')}
-              isDark={isDark}
-            >
-              <ul className="space-y-4 pb-4">
-                {shopLinks.map((link) => (
-                  <li key={link.id}>
-                    {link.isExternal ? (
-                      <a href={link.url} target="_blank" rel="noopener noreferrer" className={cn('text-sm inline-flex items-center gap-1', textMutedClass)}>
-                        {link.label} <ArrowRight className="w-3 h-3" />
-                      </a>
-                    ) : (
-                      <Link href={link.url} className={cn('text-sm', textMutedClass)}>
-                        {link.label}
-                      </Link>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </MobileAccordion>
+            {/* Link Columns - Left aligned, reduced gap to certifications */}
+            <div className="space-y-10 mb-5">
+              {/* Shop */}
+              <div>
+                <h4 className="text-[6px] font-bold tracking-[0.15em] uppercase mb-2 text-white">
+                  {column1Title}
+                </h4>
+                <ul className="space-y-0">
+                  {shopLinks.map((link) => (
+                    <li key={link.id}>
+                      {link.isExternal ? (
+                        <a href={link.url} target="_blank" rel="noopener noreferrer" className={cn('text-xs uppercase tracking-wide inline-flex items-center gap-1 leading-[1.8]', textMutedClass)}>
+                          {link.label} <ArrowRight className="w-3 h-3" />
+                        </a>
+                      ) : (
+                        <Link href={link.url} className={cn('text-xs uppercase tracking-wide leading-[1.8] block', textMutedClass)}>
+                          {link.label}
+                        </Link>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
 
-            {/* Learn Accordion */}
-            <MobileAccordion
-              title={column2Title || 'Learn'}
-              isOpen={openSection === 'learn'}
-              onToggle={() => toggleSection('learn')}
-              isDark={isDark}
-            >
-              <ul className="space-y-4 pb-4">
-                {learnLinks.map((link) => (
-                  <li key={link.id}>
-                    {link.isExternal ? (
-                      <a href={link.url} target="_blank" rel="noopener noreferrer" className={cn('text-sm inline-flex items-center gap-1', textMutedClass)}>
-                        {link.label} <ArrowRight className="w-3 h-3" />
-                      </a>
-                    ) : (
-                      <Link href={link.url} className={cn('text-sm', textMutedClass)}>
-                        {link.label}
-                      </Link>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </MobileAccordion>
+              {/* Learn */}
+              <div>
+                <h4 className="text-[6px] font-bold tracking-[0.15em] uppercase mb-2 text-white">
+                  {column2Title}
+                </h4>
+                <ul className="space-y-0">
+                  {learnLinks.map((link) => (
+                    <li key={link.id}>
+                      {link.isExternal ? (
+                        <a href={link.url} target="_blank" rel="noopener noreferrer" className={cn('text-xs uppercase tracking-wide inline-flex items-center gap-1 leading-[1.8]', textMutedClass)}>
+                          {link.label} <ArrowRight className="w-3 h-3" />
+                        </a>
+                      ) : (
+                        <Link href={link.url} className={cn('text-xs uppercase tracking-wide leading-[1.8] block', textMutedClass)}>
+                          {link.label}
+                        </Link>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
 
-            {/* Support Accordion */}
-            <MobileAccordion
-              title={column3Title || 'Support'}
-              isOpen={openSection === 'support'}
-              onToggle={() => toggleSection('support')}
-              isDark={isDark}
-            >
-              <ul className="space-y-4 pb-4">
-                {supportLinks.map((link) => (
-                  <li key={link.id}>
-                    {link.isExternal ? (
-                      <a href={link.url} target="_blank" rel="noopener noreferrer" className={cn('text-sm inline-flex items-center gap-1', textMutedClass)}>
-                        {link.label} <ArrowRight className="w-3 h-3" />
-                      </a>
-                    ) : (
-                      <Link href={link.url} className={cn('text-sm', textMutedClass)}>
-                        {link.label}
-                      </Link>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </MobileAccordion>
+              {/* Support */}
+              <div>
+                <h4 className="text-[6px] font-bold tracking-[0.15em] uppercase mb-2 text-white">
+                  {column3Title}
+                </h4>
+                <ul className="space-y-0">
+                  {supportLinks.map((link) => (
+                    <li key={link.id}>
+                      {link.isExternal ? (
+                        <a href={link.url} target="_blank" rel="noopener noreferrer" className={cn('text-xs uppercase tracking-wide inline-flex items-center gap-1 leading-[1.8]', textMutedClass)}>
+                          {link.label} <ArrowRight className="w-3 h-3" />
+                        </a>
+                      ) : (
+                        <Link href={link.url} className={cn('text-xs uppercase tracking-wide leading-[1.8] block', textMutedClass)}>
+                          {link.label}
+                        </Link>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
 
-            {/* Certifications - Mobile */}
-            <div className={cn('pt-8 border-t', borderClass)}>
-              <div className="flex justify-center gap-8">
+            {/* Certifications - Mobile - wider spacing between icons */}
+            <div className="pt-8">
+              <div className="flex justify-center gap-[74px]">
                 {displayCertifications.map((cert, index) => (
                   <div key={index} className="flex flex-col items-center gap-2">
                     <div className={cn('w-9 h-9 rounded-full border flex items-center justify-center', borderAccentClass)}>
                       {renderCertIcon(cert)}
                     </div>
-                    <span className={cn('text-[9px] uppercase tracking-wide', textFadedClass)}>{cert.label}</span>
+                    <span className={cn('text-[9px] uppercase tracking-wide text-center', textFadedClass)}>{cert.label}</span>
                   </div>
                 ))}
               </div>
             </div>
-          </div>
         </div>
       </div>
 
       {/* Massive Footer Logo - Full Width Brand Texture */}
-      {massiveFooterLogoUrl && (
+      {massiveFooterLogoEnabled && massiveFooterLogoUrl && (massiveFooterLogoOpacity ?? 15) > 0 && (
         <div className="w-full overflow-hidden mb-12 md:mb-16">
           <div className="relative w-full flex justify-center">
             <Image
@@ -671,31 +814,60 @@ export function Footer({
         </div>
       )}
 
-      {/* Separator */}
-      <div className="container">
-        <div className={cn('h-px', borderClass)} />
-      </div>
+      {/* Break line - with gutters matching content, pure white, 1px */}
+      <div
+        className="hidden md:block h-px bg-white"
+        style={{
+          marginLeft: 'var(--footer-side-padding)',
+          marginRight: 'var(--footer-side-padding)'
+        }}
+      />
+      <div className="md:hidden h-px bg-white mx-5" />
 
-      {/* ROW 3: Legal Basement */}
+      {/* ROW 3: Legal Basement - Fluid scaling with CSS vars */}
       <div className="py-8">
-        <div className="container">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            {/* Legal Links - Left */}
-            <div className={cn('flex items-center gap-4 text-[11px] uppercase tracking-wide', textFadedClass)}>
-              <Link href={privacyUrl || '/privacy'} className={cn('transition-colors border-b border-transparent pb-0.5', isDark ? 'hover:text-white/60 hover:border-white/60' : 'hover:text-gray-600 hover:border-gray-600')}>
-                {privacyLabel}
-              </Link>
-              <span>•</span>
-              <Link href={termsUrl || '/terms'} className={cn('transition-colors border-b border-transparent pb-0.5', isDark ? 'hover:text-white/60 hover:border-white/60' : 'hover:text-gray-600 hover:border-gray-600')}>
-                {termsLabel}
-              </Link>
-            </div>
-
-            {/* Copyright - Right */}
-            <p className={cn('text-[11px] uppercase tracking-wide', textFadedClass)}>
-              © {new Date().getFullYear()} {siteName}
-            </p>
+        {/* Desktop: Flex layout with fluid padding */}
+        <div
+          className="hidden md:flex items-center justify-between"
+          style={{
+            paddingLeft: 'var(--footer-side-padding)',
+            paddingRight: 'var(--footer-side-padding)'
+          }}
+        >
+          {/* Legal Links - Left */}
+          <div className={cn('flex items-center gap-4 text-[11px] uppercase tracking-wide', isDark ? 'text-white' : 'text-gray-600')}>
+            <Link href={privacyUrl || '/privacy'} className={cn('transition-colors border-b border-transparent pb-0.5', isDark ? 'hover:text-white/70 hover:border-white/70' : 'hover:text-gray-600 hover:border-gray-600')}>
+              {privacyLabel}
+            </Link>
+            <span>•</span>
+            <Link href={termsUrl || '/terms'} className={cn('transition-colors border-b border-transparent pb-0.5', isDark ? 'hover:text-white/70 hover:border-white/70' : 'hover:text-gray-600 hover:border-gray-600')}>
+              {termsLabel}
+            </Link>
           </div>
+
+          {/* Copyright - Right */}
+          <p className={cn('text-[11px] uppercase tracking-wide', isDark ? 'text-white' : 'text-gray-600')}>
+            © {new Date().getFullYear()} {siteName}
+          </p>
+        </div>
+
+        {/* Mobile: Uses standard px-5 padding */}
+        <div className="md:hidden px-5 flex items-center justify-between">
+          {/* Legal Links - Left */}
+          <div className={cn('flex items-center gap-4 text-[11px] uppercase tracking-wide', isDark ? 'text-white' : 'text-gray-600')}>
+            <Link href={privacyUrl || '/privacy'} className={cn('transition-colors border-b border-transparent pb-0.5', isDark ? 'hover:text-white/70 hover:border-white/70' : 'hover:text-gray-600 hover:border-gray-600')}>
+              {privacyLabel}
+            </Link>
+            <span>•</span>
+            <Link href={termsUrl || '/terms'} className={cn('transition-colors border-b border-transparent pb-0.5', isDark ? 'hover:text-white/70 hover:border-white/70' : 'hover:text-gray-600 hover:border-gray-600')}>
+              {termsLabel}
+            </Link>
+          </div>
+
+          {/* Copyright - Right */}
+          <p className={cn('text-[11px] uppercase tracking-wide', isDark ? 'text-white' : 'text-gray-600')}>
+            © {new Date().getFullYear()} {siteName}
+          </p>
         </div>
       </div>
     </footer>

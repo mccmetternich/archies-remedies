@@ -33,6 +33,7 @@ import {
   Gift,
   Zap,
   Target,
+  GalleryHorizontalEnd,
   LucideIcon,
 } from 'lucide-react';
 
@@ -154,6 +155,18 @@ export const WIDGET_TYPES: WidgetTypeDefinition[] = [
     icon: Video,
     category: 'Content',
     description: 'Embedded video player',
+    table: null,
+    adminHref: null,
+    countKey: null,
+    addableToPages: true,
+    isGlobal: false,
+  },
+  {
+    type: 'media_carousel',
+    name: 'Media Carousel',
+    icon: GalleryHorizontalEnd,
+    category: 'Content',
+    description: 'Full-bleed horizontal carousel with images and videos',
     table: null,
     adminHref: null,
     countKey: null,
@@ -389,6 +402,10 @@ export const DEFAULT_CONFIGS: Record<string, Record<string, unknown>> = {
     autoplay: false,
     muted: true,
     loop: false,
+  },
+  media_carousel: {
+    items: [],
+    autoplay: true,
   },
   quote: {
     text: '',

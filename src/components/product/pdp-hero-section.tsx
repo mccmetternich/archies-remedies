@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { PDPBuyBox } from './pdp-buy-box';
+import { PDPStickyDrawer } from './pdp-sticky-drawer';
 import { PDPGallery } from './pdp-gallery';
 import { PDPMarquee } from './pdp-marquee';
 
@@ -260,6 +261,14 @@ export function PDPHeroSection({
 
       {/* Debug viewport indicator - remove when done */}
       <ViewportDebug />
+
+      {/* Sticky Bottom Drawer - appears on scroll */}
+      <PDPStickyDrawer
+        productName={product.name}
+        selectedVariant={selectedVariant}
+        ctaButtonText={ctaButtonText}
+        ctaExternalUrl={ctaExternalUrl}
+      />
     </div>
   );
 }

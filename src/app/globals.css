@@ -14,7 +14,7 @@
   --warm-gray: #9a9590;
 
   /* Core Palette */
-  --background: #ffffff;
+  --background: #f2f2f2;
   --foreground: #1a1a1a;
   --muted: #fafafa;
   --muted-foreground: #737373;
@@ -78,6 +78,11 @@
      Scales proportionally with PDP layout */
   --nav-left-padding: clamp(24px, calc(24px + (140 - 24) * ((100vw - 1024px) / (1920 - 1024))), 140px);
   --nav-right-padding: clamp(24px, calc(24px + (140 - 24) * ((100vw - 1024px) / (1920 - 1024))), 140px);
+
+  /* === FOOTER FLUID SCALING ===
+     Mirrors nav behavior for consistent scaling across site
+     Coordinates left/right padding with nav for visual alignment */
+  --footer-side-padding: var(--nav-left-padding);
 }
 
 /* === ULTRA-WIDE VIEWPORT BEHAVIOR (above 2570px) ===
@@ -105,6 +110,28 @@
     /* NAV: Continues scaling from 2570px, maintaining 150px offset from buy box */
     --nav-left-padding: calc(140px + (100vw - 2570px) * 0.3);
     --nav-right-padding: calc(140px + (100vw - 2570px) * 0.3);
+
+    /* FOOTER: Mirrors nav scaling at ultra-wide */
+    --footer-side-padding: calc(140px + (100vw - 2570px) * 0.3);
+  }
+}
+
+/* =============================================
+   LANDSCAPE MOBILE/TABLET HANDLING
+   Full-width nav, media, marquee - content keeps gutters
+   ============================================= */
+@media (orientation: landscape) and (max-width: 1023px) {
+  .landscape-full-width {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  /* Announcement bar full-width in landscape */
+  .announcement-bar-landscape .container {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
   }
 }
 

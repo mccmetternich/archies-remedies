@@ -13,6 +13,8 @@
 import React from 'react';
 import Link from 'next/link';
 import { MediaPickerButton } from '@/components/admin/media-picker';
+import { MediaCarouselConfig } from '@/components/admin/widget-configs/media-carousel-config';
+import type { MediaCarouselItem } from '@/components/admin/widget-configs/media-carousel-config';
 
 interface PageWidget {
   id: string;
@@ -112,6 +114,18 @@ export function WidgetConfigPanel({ widget, onUpdate }: WidgetConfigPanelProps) 
           helpText="Upload MP4/WebM or paste a Vimeo/YouTube URL"
           folder="widgets"
           acceptVideo={true}
+        />
+      )}
+
+      {/* Media Carousel widget */}
+      {widget.type === 'media_carousel' && (
+        <MediaCarouselConfig
+          items={(config.items as MediaCarouselItem[]) || []}
+          onItemsChange={(items) =>
+            onUpdate({
+              config: { ...config, items },
+            })
+          }
         />
       )}
 

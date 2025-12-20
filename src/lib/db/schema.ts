@@ -217,6 +217,7 @@ export const siteSettings = sqliteTable('site_settings', {
 
   // Footer
   massiveFooterLogoUrl: text('massive_footer_logo_url'), // Full-width brand texture logo that spans viewport
+  massiveFooterLogoEnabled: integer('massive_footer_logo_enabled', { mode: 'boolean' }).default(true), // Toggle to show/hide
   massiveFooterLogoOpacity: integer('massive_footer_logo_opacity').default(15), // 0-100 opacity percentage
 
   // Footer - Email Signup Section

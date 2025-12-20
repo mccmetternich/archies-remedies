@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronUp, ChevronDown, X } from 'lucide-react';
+import { ChevronUp, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface ProductImage {
@@ -25,6 +25,20 @@ interface PDPGalleryProps {
   marqueeEnabled?: boolean;
 }
 
+// Hook to detect mobile/tablet (< 1024px)
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  return isMobile;
+}
+
 export function PDPGallery({
   images,
   heroImage,
@@ -37,8 +51,11 @@ export function PDPGallery({
 }: PDPGalleryProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [direction, setDirection] = useState(0);
-  const [videoModalOpen, setVideoModalOpen] = useState(false);
-  const [activeVideoUrl, setActiveVideoUrl] = useState<string | null>(null);
+
+  // Mobile batch scrolling state (Saie-style: 3 thumbnails at a time)
+  const [batchIndex, setBatchIndex] = useState(0);
+  const isMobile = useIsMobile();
+  const BATCH_SIZE = 3;
 
   // Helper to detect if a URL is a video (by extension or Cloudinary path)
   const isVideoUrl = (url: string | null | undefined): boolean => {
@@ -80,13 +97,21 @@ export function PDPGallery({
     if (!container) return;
 
     const updateScrollState = () => {
-      const { scrollTop, scrollHeight, clientHeight } = container;
-      const hasOverflow = scrollHeight > clientHeight + 1; // 1px buffer for sub-pixel rounding
-      const atTop = scrollTop <= 1;
-      const atBottom = scrollTop + clientHeight >= scrollHeight - 1;
+      if (isMobile) {
+        // Mobile: based on batch availability
+        const maxBatch = Math.floor((allImages.length - 1) / BATCH_SIZE);
+        setCanScrollUp(batchIndex > 0);
+        setCanScrollDown(batchIndex < maxBatch);
+      } else {
+        // Desktop: based on actual scroll position
+        const { scrollTop, scrollHeight, clientHeight } = container;
+        const hasOverflow = scrollHeight > clientHeight + 1; // 1px buffer for sub-pixel rounding
+        const atTop = scrollTop <= 1;
+        const atBottom = scrollTop + clientHeight >= scrollHeight - 1;
 
-      setCanScrollUp(hasOverflow && !atTop);
-      setCanScrollDown(hasOverflow && !atBottom);
+        setCanScrollUp(hasOverflow && !atTop);
+        setCanScrollDown(hasOverflow && !atBottom);
+      }
     };
 
     // ResizeObserver ensures measurement happens after layout is stable
@@ -104,10 +129,71 @@ export function PDPGallery({
       resizeObserver.disconnect();
       container.removeEventListener('scroll', updateScrollState);
     };
+  }, [allImages.length, isMobile, batchIndex]);
+
+  // Calculate which batch an image belongs to
+  const getBatchForIndex = useCallback((index: number) => {
+    return Math.floor(index / BATCH_SIZE);
+  }, []);
+
+  // Get visible thumbnail indices for current batch (mobile only)
+  const getVisibleThumbnailRange = useCallback(() => {
+    const start = batchIndex * BATCH_SIZE;
+    const end = Math.min(start + BATCH_SIZE - 1, allImages.length - 1);
+    return { start, end };
+  }, [batchIndex, allImages.length]);
+
+  // Scroll to a specific batch (mobile only) - scrolls container, not page
+  const scrollToBatch = useCallback((newBatchIndex: number) => {
+    const container = thumbnailContainerRef.current;
+    if (!container) return;
+
+    const maxBatch = Math.floor((allImages.length - 1) / BATCH_SIZE);
+    const clampedBatch = Math.max(0, Math.min(newBatchIndex, maxBatch));
+
+    // Always update batch index and scroll (allows repeated clicks during scroll)
+    setBatchIndex(clampedBatch);
+
+    // Calculate scroll position based on thumbnail heights
+    const thumbnailButtons = container.querySelectorAll('button');
+    const targetIndex = clampedBatch * BATCH_SIZE;
+    const targetThumbnail = thumbnailButtons[targetIndex] as HTMLElement;
+
+    if (targetThumbnail) {
+      // Get the offset of the target thumbnail relative to the container
+      const containerTop = container.getBoundingClientRect().top;
+      const thumbnailTop = targetThumbnail.getBoundingClientRect().top;
+      const currentScrollTop = container.scrollTop;
+      const scrollTarget = currentScrollTop + (thumbnailTop - containerTop);
+
+      // Use instant scroll on mobile for immediate feedback, smooth on desktop
+      container.scrollTo({
+        top: scrollTarget,
+        behavior: 'auto',
+      });
+    }
   }, [allImages.length]);
 
-  // Auto-scroll thumbnail container to keep active thumbnail visible
+  // Update batch when active index crosses batch boundaries (mobile)
+  // Debounced to avoid conflicts with swipe animation
   useEffect(() => {
+    if (!isMobile) return;
+
+    const newBatch = getBatchForIndex(activeIndex);
+    if (newBatch !== batchIndex) {
+      // Small delay to let swipe animation settle before batch scroll
+      const timer = setTimeout(() => {
+        scrollToBatch(newBatch);
+      }, 50);
+      return () => clearTimeout(timer);
+    }
+  }, [activeIndex, isMobile, batchIndex, getBatchForIndex, scrollToBatch]);
+
+  // Auto-scroll thumbnail container to keep active thumbnail visible (DESKTOP ONLY)
+  useEffect(() => {
+    // Skip on mobile - batch scrolling handles it
+    if (isMobile) return;
+
     const container = thumbnailContainerRef.current;
     if (!container) return;
 
@@ -121,10 +207,18 @@ export function PDPGallery({
       behavior: 'smooth',
       block: 'nearest',
     });
-  }, [activeIndex]);
+  }, [activeIndex, isMobile]);
 
-  // Scroll thumbnail container by one thumbnail (dynamic based on actual size)
-  const scrollThumbnails = (direction: 'up' | 'down') => {
+  // Scroll thumbnail container (batch on mobile, single thumbnail on desktop)
+  const scrollThumbnails = (scrollDirection: 'up' | 'down') => {
+    if (isMobile) {
+      // Mobile: scroll by batch
+      const newBatch = scrollDirection === 'up' ? batchIndex - 1 : batchIndex + 1;
+      scrollToBatch(newBatch);
+      return;
+    }
+
+    // Desktop: scroll by one thumbnail
     const container = thumbnailContainerRef.current;
     if (!container) return;
 
@@ -135,7 +229,7 @@ export function PDPGallery({
     const scrollAmount = thumbHeight + gap;
 
     container.scrollBy({
-      top: direction === 'up' ? -scrollAmount : scrollAmount,
+      top: scrollDirection === 'up' ? -scrollAmount : scrollAmount,
       behavior: 'smooth',
     });
   };
@@ -148,14 +242,17 @@ export function PDPGallery({
     }
   };
 
-  // Handle thumbnail click - change active image AND scroll if at edge
+  // Handle thumbnail click - change active image (batch scrolling handles thumbnail scroll on mobile)
   const handleThumbnailClick = (index: number) => {
     if (index !== activeIndex) {
       setDirection(index > activeIndex ? 1 : -1);
       setActiveIndex(index);
     }
 
-    // Check if clicked thumbnail is at edge and scroll to reveal more
+    // On mobile, batch scrolling effect handles thumbnail navigation
+    if (isMobile) return;
+
+    // Desktop: Check if clicked thumbnail is at edge and scroll to reveal more
     const container = thumbnailContainerRef.current;
     if (!container) return;
 
@@ -268,7 +365,7 @@ export function PDPGallery({
           )}
 
           {/* Animated Image/Video with drag/swipe support */}
-          <AnimatePresence initial={false} custom={direction} mode="popLayout">
+          <AnimatePresence initial={false} custom={direction} mode="sync">
             <motion.div
               key={activeIndex}
               custom={direction}
@@ -276,15 +373,16 @@ export function PDPGallery({
               initial="enter"
               animate="center"
               exit="exit"
-              transition={{ duration: 0.15, ease: 'easeOut' }}
-              className="absolute inset-0 touch-pan-y overflow-hidden"
+              transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
+              className="absolute inset-0 touch-pan-y overflow-hidden will-change-transform"
+              style={{ transform: 'translateZ(0)' }}
               drag={allImages.length > 1 ? 'x' : false}
               dragConstraints={{ left: 0, right: 0 }}
-              dragElastic={0.3}
+              dragElastic={0.2}
               dragMomentum={false}
               onDragEnd={(_, info) => {
-                const swipeThreshold = 40;
-                const velocityThreshold = 300;
+                const swipeThreshold = 50;
+                const velocityThreshold = 400;
 
                 if (info.offset.x < -swipeThreshold || info.velocity.x < -velocityThreshold) {
                   goToNext();
@@ -337,7 +435,7 @@ export function PDPGallery({
               'h-[calc(100vw-24vw)] lg:h-auto lg:self-stretch', // Height = hero width = viewport - tray
               'bg-[#1a1a1a]', // Dark background for thumbnail tray
               'flex-none flex-shrink-0',
-              'min-[2571px]:ml-auto', // Push tray to right edge at ultra-wide (gutter expands)
+              'lg:ml-auto', // Push tray to right edge on desktop (gutter expands)
               'overflow-hidden' // Strict clipping - nothing escapes to marquee
             )}
           >
@@ -445,31 +543,8 @@ export function PDPGallery({
         )}
       </div>
 
-      {/* Video Modal */}
-      {videoModalOpen && activeVideoUrl && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
-          onClick={() => setVideoModalOpen(false)}
-        >
-          <button
-            onClick={() => setVideoModalOpen(false)}
-            className="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
-          <div
-            className="relative w-full max-w-4xl aspect-video rounded-2xl overflow-hidden"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <video
-              src={activeVideoUrl}
-              controls
-              autoPlay
-              className="w-full h-full"
-            />
-          </div>
-        </div>
-      )}
+      {/* 0.5px dark gray line at bottom of media console - mobile/tablet only */}
+      <div className="block lg:hidden w-full h-[0.5px] bg-[#666666]" />
     </>
   );
 }
