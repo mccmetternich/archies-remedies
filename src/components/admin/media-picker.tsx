@@ -216,8 +216,12 @@ export function MediaPickerButton({
       });
 
       if (!registerRes.ok) {
-        // File uploaded but not registered - still usable
-        console.warn('[MediaPicker] Failed to register file in database, but file is uploaded');
+        // File uploaded but not registered - show warning to user
+        const registerError = await registerRes.json().catch(() => ({}));
+        console.error('[MediaPicker] Failed to register file in database:', registerError);
+        console.warn('[MediaPicker] File is uploaded to Cloudinary but NOT saved to media library');
+        // Show error to user so they know the file won't appear in library
+        setUploadError(`File uploaded but NOT saved to media library: ${registerError.details || 'Database error'}. The URL can still be used directly.`);
       }
 
       console.log('[MediaPicker] Upload complete:', cloudinaryData.secure_url);

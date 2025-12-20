@@ -1,9 +1,53 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PDPBuyBox } from './pdp-buy-box';
 import { PDPGallery } from './pdp-gallery';
 import { PDPMarquee } from './pdp-marquee';
+
+// Debug viewport indicator - remove when done
+function ViewportDebug() {
+  const [size, setSize] = useState({ width: 0, height: 0 });
+
+  useEffect(() => {
+    const updateSize = () => {
+      setSize({ width: window.innerWidth, height: window.innerHeight });
+    };
+    updateSize();
+    window.addEventListener('resize', updateSize);
+    return () => window.removeEventListener('resize', updateSize);
+  }, []);
+
+  const getBreakpoint = (w: number) => {
+    if (w >= 1536) return '2xl';
+    if (w >= 1280) return 'xl';
+    if (w >= 1024) return 'lg';
+    if (w >= 768) return 'md';
+    if (w >= 640) return 'sm';
+    return 'xs';
+  };
+
+  const bp = getBreakpoint(size.width);
+  const isDesktop = size.width >= 1024;
+
+  return (
+    <div className="fixed bottom-4 right-4 z-[9999] bg-black/80 text-white text-xs font-mono px-3 py-2 rounded-lg shadow-lg">
+      <div className="flex items-center gap-2">
+        <span className={isDesktop ? 'text-green-400' : 'text-yellow-400'}>
+          {size.width} × {size.height}
+        </span>
+        <span className="text-white/50">|</span>
+        <span className={`font-bold ${isDesktop ? 'text-green-400' : 'text-yellow-400'}`}>
+          {bp}
+        </span>
+        <span className="text-white/50">|</span>
+        <span className={isDesktop ? 'text-green-400' : 'text-yellow-400'}>
+          {isDesktop ? 'Desktop' : 'Mobile/Tablet'}
+        </span>
+      </div>
+    </div>
+  );
+}
 
 interface ProductImage {
   id: string;
@@ -152,7 +196,7 @@ export function PDPHeroSection({
   return (
     <div className="flex flex-col lg:flex-row w-full max-w-full px-0 lg:pr-0 lg:pl-[390px]"> {/* No side padding on mobile */}
       {/* Buy Box - RIGID column, scrolls freely, editorial stagger, fixed 192px gap */}
-      <div className="order-2 lg:order-1 w-full lg:w-[450px] lg:flex-shrink-0 lg:self-start mt-8 lg:mt-0 lg:pt-[68px] lg:mr-[192px] lg:relative lg:z-20 px-4 lg:px-0"> {/* Side padding on mobile only */}
+      <div className="order-2 lg:order-1 w-full lg:w-[450px] lg:flex-shrink-0 lg:self-start mt-8 lg:mt-0 lg:pt-[68px] lg:mr-[192px] lg:relative lg:z-20 px-6 lg:px-0"> {/* 24px side padding on mobile only */}
         <PDPBuyBox
           product={product}
           variants={variants}
@@ -197,6 +241,9 @@ export function PDPHeroSection({
           className="w-full lg:mt-auto"
         />
       </div>
+
+      {/* Debug viewport indicator - remove when done */}
+      <ViewportDebug />
     </div>
   );
 }

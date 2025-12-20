@@ -40,8 +40,18 @@ export function PDPGallery({
   const [videoModalOpen, setVideoModalOpen] = useState(false);
   const [activeVideoUrl, setActiveVideoUrl] = useState<string | null>(null);
 
+  // Helper to detect if a URL is a video (by extension or Cloudinary path)
+  const isVideoUrl = (url: string | null | undefined): boolean => {
+    if (!url) return false;
+    // Check file extension
+    if (/\.(mp4|webm|mov|ogg)(\?|$)/i.test(url)) return true;
+    // Check Cloudinary video path
+    if (url.includes('/video/upload/')) return true;
+    return false;
+  };
+
   // Check if heroImage is a video
-  const isHeroVideo = heroImage && /\.(mp4|webm|mov|ogg)$/i.test(heroImage);
+  const isHeroVideo = isVideoUrl(heroImage);
 
   // Combine hero image with additional images
   const allImages: ProductImage[] = heroImage
@@ -96,22 +106,78 @@ export function PDPGallery({
     };
   }, [allImages.length]);
 
-  // Scroll thumbnail container
+  // Auto-scroll thumbnail container to keep active thumbnail visible
+  useEffect(() => {
+    const container = thumbnailContainerRef.current;
+    if (!container) return;
+
+    // Find the active thumbnail button
+    const thumbnailButtons = container.querySelectorAll('button');
+    const activeThumbnail = thumbnailButtons[activeIndex];
+    if (!activeThumbnail) return;
+
+    // Scroll the active thumbnail into view
+    activeThumbnail.scrollIntoView({
+      behavior: 'smooth',
+      block: 'nearest',
+    });
+  }, [activeIndex]);
+
+  // Scroll thumbnail container by one thumbnail (dynamic based on actual size)
   const scrollThumbnails = (direction: 'up' | 'down') => {
     const container = thumbnailContainerRef.current;
     if (!container) return;
-    const scrollAmount = 200;
+
+    // Get actual thumbnail height from first button
+    const firstThumb = container.querySelector('button');
+    const thumbHeight = firstThumb ? firstThumb.offsetHeight : 75;
+    const gap = 5; // --pdp-gap
+    const scrollAmount = thumbHeight + gap;
+
     container.scrollBy({
       top: direction === 'up' ? -scrollAmount : scrollAmount,
       behavior: 'smooth',
     });
   };
 
-  // Handle thumbnail interaction
+  // Handle thumbnail hover - just change active image (desktop behavior)
+  const handleThumbnailHover = (index: number) => {
+    if (index !== activeIndex) {
+      setDirection(index > activeIndex ? 1 : -1);
+      setActiveIndex(index);
+    }
+  };
+
+  // Handle thumbnail click - change active image AND scroll if at edge
   const handleThumbnailClick = (index: number) => {
     if (index !== activeIndex) {
       setDirection(index > activeIndex ? 1 : -1);
       setActiveIndex(index);
+    }
+
+    // Check if clicked thumbnail is at edge and scroll to reveal more
+    const container = thumbnailContainerRef.current;
+    if (!container) return;
+
+    const thumbnailButtons = container.querySelectorAll('button');
+    const clickedThumbnail = thumbnailButtons[index] as HTMLElement;
+    if (!clickedThumbnail) return;
+
+    const containerRect = container.getBoundingClientRect();
+    const thumbRect = clickedThumbnail.getBoundingClientRect();
+
+    // Dynamic thumbnail height based on actual size
+    const thumbHeight = clickedThumbnail.offsetHeight;
+    const gap = 5; // --pdp-gap
+    const scrollAmount = thumbHeight + gap;
+
+    // If thumbnail is near the bottom edge and there are more below, scroll down
+    if (thumbRect.bottom > containerRect.bottom - 40 && index < allImages.length - 1) {
+      container.scrollBy({ top: scrollAmount, behavior: 'smooth' });
+    }
+    // If thumbnail is near the top edge and there are more above, scroll up
+    else if (thumbRect.top < containerRect.top + 40 && index > 0) {
+      container.scrollBy({ top: -scrollAmount, behavior: 'smooth' });
     }
   };
 
@@ -156,7 +222,7 @@ export function PDPGallery({
       {/* Unified Layout - CSS-only vertical rhythm, no JS dependencies */}
       <div
         className={cn(
-          'flex items-start w-full max-w-full overflow-hidden', // Constrain to viewport
+          'flex items-stretch w-full max-w-full overflow-hidden', // items-stretch so tray matches hero height
           'gap-0 lg:gap-[var(--pdp-gutter)]', // No gap on mobile, gutter on desktop
           galleryHeight
         )}
@@ -168,7 +234,7 @@ export function PDPGallery({
             'flex-[1_1_0%] lg:min-w-[var(--pdp-hero-min-width)]', // 400px floor on desktop only
             'aspect-square', // Square on ALL breakpoints
             heroMaxHeight,
-            'min-h-[400px]', // Floor prevents collapse on small screens
+            'lg:min-h-[400px]', // Floor only on desktop - mobile scales naturally
             'lg:mt-[40px]', // Editorial Stagger: Hero sits 40px below Nav (desktop only)
             'mb-0 lg:mb-[80px]', // No margin on mobile, 80px on desktop
             allImages.length > 1 && 'cursor-grab active:cursor-grabbing'
@@ -223,9 +289,10 @@ export function PDPGallery({
                 }
               }}
             >
-              {activeImage?.isVideo && activeImage?.videoUrl ? (
+              {/* Detect video from isVideo flag OR from URL pattern (Cloudinary path or extension) */}
+              {(activeImage?.isVideo && activeImage?.videoUrl) || isVideoUrl(activeImage?.imageUrl) ? (
                 <video
-                  src={activeImage.videoUrl}
+                  src={activeImage?.videoUrl || activeImage?.imageUrl || ''}
                   autoPlay
                   loop
                   muted
@@ -255,14 +322,17 @@ export function PDPGallery({
           </AnimatePresence>
         </div>
 
-        {/* Thumbnails - Vertical tray, unified styling globally */}
+        {/* Thumbnails - Vertical tray, scales to show 3 large thumbnails */}
         {allImages.length >= 1 && ( // Show tray even with 1 image for testing
           <div
             className={cn(
-              'relative flex flex-col self-stretch',
+              'relative flex flex-col',
+              // Tray width ~24% of viewport to fit exactly 3 large square thumbnails
+              // Height matches hero (viewport - tray width since hero is square)
+              'w-[24vw] lg:w-[200px]', // 24% scaling on mobile/tablet, fixed 200px desktop
+              'h-[calc(100vw-24vw)] lg:h-auto lg:self-stretch', // Height = hero width = viewport - tray
               'bg-red-500', // DEBUG: red to see tray bounds
-              'flex-none w-[80px] lg:w-[200px]', // 80px on mobile, 200px on desktop
-              'flex-shrink-0',
+              'flex-none flex-shrink-0',
               'overflow-hidden' // Strict clipping - nothing escapes to marquee
             )}
           >
@@ -293,32 +363,34 @@ export function PDPGallery({
               <ChevronUp className="w-6 h-6" />
             </button>
 
-            {/* Thumbnail buttons - scrollable container, unified padding */}
+            {/* Thumbnail buttons - scrollable container */}
             <div
               ref={thumbnailContainerRef}
               className={cn(
-                'flex-1 flex flex-col items-center lg:items-stretch', // Center thumbnails on mobile
+                'flex-1 flex flex-col items-stretch', // Thumbnails fill width
                 'gap-[var(--pdp-gap)]', // 5px gaps between thumbnails
-                'pt-0 px-[5px] lg:px-[20px] pb-[20px]', // 5px side padding on mobile, 20px on desktop
+                'pt-0 pl-[5px] pr-[5px] lg:px-[20px] pb-[20px]', // Fixed 5px gaps on sides, 20px on desktop
                 'overflow-y-auto overflow-x-hidden'
               )}
             >
-              {allImages.slice(0, 5).map((image, index) => (
+              {allImages.map((image, index) => (
                 <button
                   key={image.id}
                   onClick={() => handleThumbnailClick(index)}
-                  onMouseEnter={() => handleThumbnailClick(index)}
+                  onMouseEnter={() => handleThumbnailHover(index)}
                   className={cn(
-                    'relative overflow-hidden bg-white transition-all duration-200',
-                    'flex-none aspect-square', // Fixed squares on ALL breakpoints
-                    'w-[70px] lg:w-full', // 70px on mobile/tablet, full width on desktop
-                    index === 0 && 'mt-[20px]', // First thumbnail: 20px top margin globally
+                    'relative overflow-hidden bg-white',
+                    // Explicit width: tray (24vw) minus padding (10px) = thumbnail size
+                    'flex-none aspect-square w-[calc(24vw-10px)] lg:w-full',
+                    index === 0 && 'mt-[20px]', // First thumbnail: 20px top margin
+                    'transition-shadow duration-200', // Only animate the ring, not size
                     index === activeIndex && 'ring-2 ring-[#bbdae9]'
                   )}
                 >
-                  {image.isVideo && image.videoUrl ? (
+                  {/* Detect video from isVideo flag OR from URL pattern */}
+                  {(image.isVideo && image.videoUrl) || isVideoUrl(image.imageUrl) ? (
                     <video
-                      src={image.videoUrl}
+                      src={image.videoUrl || image.imageUrl}
                       autoPlay
                       loop
                       muted
@@ -331,7 +403,7 @@ export function PDPGallery({
                       alt={image.altText || `${productName} view ${index + 1}`}
                       fill
                       className="object-cover"
-                      sizes="(max-width: 1024px) 80px, 200px"
+                      sizes="(max-width: 1024px) 20vw, 160px"
                     />
                   ) : null}
                 </button>

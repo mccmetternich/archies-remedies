@@ -38,7 +38,7 @@ export function PDPMarquee({
     <div
       className={cn(
         'relative overflow-hidden',
-        'h-[44px] flex items-center', // Fixed height, vertically centered
+        'h-[38px] lg:h-[44px] flex items-center', // 38px mobile, 44px desktop
         className
       )}
       style={{
@@ -50,7 +50,7 @@ export function PDPMarquee({
       <div className="flex animate-marquee-slow w-full">
         <div className="flex shrink-0 items-center">
           <span
-            className="text-[9px] lg:text-[11px] font-medium uppercase tracking-[0.05em]"
+            className="text-[9.5px] lg:text-[10.5px] font-medium uppercase tracking-[0.03em]"
             style={{ color: textColor || '#ffffff' }}
           >
             {marqueeContent}
@@ -58,7 +58,7 @@ export function PDPMarquee({
         </div>
         <div className="flex shrink-0 items-center" aria-hidden="true">
           <span
-            className="text-[9px] lg:text-[11px] font-medium uppercase tracking-[0.05em]"
+            className="text-[9.5px] lg:text-[10.5px] font-medium uppercase tracking-[0.03em]"
             style={{ color: textColor || '#ffffff' }}
           >
             {marqueeContent}

@@ -916,7 +916,7 @@ input[type="button"]:disabled,
 
 /* Slow marquee for PDP - elegant, leisurely scroll */
 .animate-marquee-slow {
-  animation: marquee 60s linear infinite;
+  animation: marquee 15s linear infinite;
   will-change: transform;
 }
 

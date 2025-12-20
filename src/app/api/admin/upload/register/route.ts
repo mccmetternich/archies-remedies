@@ -59,13 +59,15 @@ export async function POST(request: NextRequest) {
       await db.insert(mediaFiles).values(mediaFile);
     } catch (dbError) {
       console.error('Database insert error:', dbError);
-      // File uploaded to Cloudinary but DB failed - still return the URL so user can use it
-      console.warn(`Orphaned Cloudinary file: ${public_id}`);
+      console.error('Failed to save file:', { public_id, mimeType, filename: mediaFile.filename });
+      // Return proper error status so client knows DB save failed
       return NextResponse.json({
-        success: true,
-        file: mediaFile,
-        warning: 'File uploaded but not saved to media library. You can still use it.',
-      });
+        success: false,
+        error: 'Database insert failed',
+        file: mediaFile, // Include file data so user can still use the URL
+        cloudinaryUrl: secure_url, // URL is still usable even if not in library
+        details: dbError instanceof Error ? dbError.message : 'Unknown database error',
+      }, { status: 500 });
     }
 
     return NextResponse.json({
