@@ -335,18 +335,18 @@ export function TwoColumnFeature({
 
   return (
     <section className={cn('w-full', styles.bg, className)}>
-      {/* Desktop & Tablet: Two columns side by side */}
+      {/* Desktop & Tablet: Two columns side by side - Full bleed */}
       <div className="hidden md:flex min-h-[80vh] lg:min-h-screen">
-        {/* Media Column */}
+        {/* Media Column - Full bleed, no padding, no rounded corners */}
         <div
           className={cn(
             'w-1/2 relative',
             isMediaRight ? 'order-2' : 'order-1'
           )}
         >
-          <div className="absolute inset-0 p-6 lg:p-10">
+          <div className="absolute inset-0">
             {mediaMode === 'single' ? (
-              <div className="relative w-full h-full rounded-xl overflow-hidden">
+              <div className="relative w-full h-full overflow-hidden">
                 {mediaUrl && (
                   <MediaItem
                     url={mediaUrl}
@@ -476,10 +476,10 @@ export function TwoColumnFeature({
 
       {/* Mobile: Stacked layout - Media first (70%), then text (30%) */}
       <div className="md:hidden min-h-screen flex flex-col">
-        {/* Media - 70% of viewport */}
-        <div className="h-[70vh] relative p-4">
+        {/* Media - 70% of viewport - Full bleed */}
+        <div className="h-[70vh] relative">
           {mediaMode === 'single' ? (
-            <div className="relative w-full h-full rounded-xl overflow-hidden">
+            <div className="relative w-full h-full overflow-hidden">
               {mediaUrl && (
                 <MediaItem
                   url={mediaUrl}
