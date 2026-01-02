@@ -96,13 +96,14 @@ export function IconHighlights({
   return (
     <section className={cn('py-12 md:py-16 lg:py-20', styles.bg, className)}>
       <div className="container">
-        {/* Section Title - matches PDP subtitle styling (13-14px, 0.04em tracking) */}
+        {/* Section Title - matches PDP subtitle styling exactly */}
         {title && (
           <h2
-            className="text-center font-bold uppercase mb-10 md:mb-12"
+            className="text-center uppercase mb-10 md:mb-12"
             style={{
               fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-              fontSize: '13px',
+              fontSize: '14px',
+              fontWeight: 700,
               letterSpacing: '0.04em',
               color: styles.titleColor,
             }}
@@ -127,13 +128,14 @@ export function IconHighlights({
                 </div>
               )}
 
-              {/* Column Title - matches PDP subtitle styling (10-11px, 0.04em tracking) */}
+              {/* Column Title - matches PDP subtitle styling, slightly smaller */}
               {column.title && (
                 <h3
-                  className="font-bold uppercase mb-2"
+                  className="uppercase mb-2"
                   style={{
                     fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-                    fontSize: '10px',
+                    fontSize: '11px',
+                    fontWeight: 700,
                     letterSpacing: '0.04em',
                     color: styles.textColor,
                   }}
@@ -163,10 +165,11 @@ export function IconHighlights({
           <div className="flex justify-center mt-10 md:mt-12">
             <Link
               href={linkUrl}
-              className="group inline-flex items-center gap-2 font-bold uppercase transition-colors"
+              className="group inline-flex items-center gap-2 uppercase transition-colors"
               style={{
                 fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-                fontSize: '10px',
+                fontSize: '11px',
+                fontWeight: 700,
                 letterSpacing: '0.04em',
                 color: styles.linkColorHex,
               }}
