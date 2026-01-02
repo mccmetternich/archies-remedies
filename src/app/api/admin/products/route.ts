@@ -92,6 +92,26 @@ export async function POST(request: Request) {
       audioUrl: product.audioUrl || null,
       audioAvatarUrl: product.audioAvatarUrl || null,
       audioTitle: product.audioTitle || null,
+      audioQuote: product.audioQuote || null,
+
+      // Signup Section
+      signupSectionEnabled: product.signupSectionEnabled ?? true,
+      signupSectionTitle: product.signupSectionTitle || null,
+      signupSectionSubtitle: product.signupSectionSubtitle || null,
+      signupSectionButtonText: product.signupSectionButtonText || null,
+      signupSectionSuccessMessage: product.signupSectionSuccessMessage || null,
+
+      // Marquee
+      marqueeEnabled: product.marqueeEnabled ?? false,
+      marqueeText: product.marqueeText || null,
+      marqueeBackgroundColor: product.marqueeBackgroundColor || '#1a1a1a',
+      marqueeTextColor: product.marqueeTextColor || '#ffffff',
+
+      // Benefit Drawers (new flexible system)
+      benefitDrawers: product.benefitDrawers || null,
+
+      // Sticky Drawer
+      stickyDrawerThumbnailUrl: product.stickyDrawerThumbnailUrl || null,
 
       // Widgets
       widgets: product.widgets || null,

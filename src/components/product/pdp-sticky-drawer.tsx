@@ -57,9 +57,9 @@ export function PDPStickyDrawer({
         const marqueeRect = marquee.getBoundingClientRect();
         setIsVisible(marqueeRect.bottom < 0);
       } else {
-        // Fallback: show after 200px scroll if no marquee found
+        // Fallback: show after 100px scroll if no marquee found (triggers faster)
         const scrollY = window.scrollY ?? window.pageYOffset ?? 0;
-        setIsVisible(scrollY > 200);
+        setIsVisible(scrollY > 100);
       }
     };
 
@@ -222,9 +222,9 @@ export function PDPStickyDrawer({
           animate={{ y: 0 }}
           exit={{ y: '100%' }}
           transition={{
-            type: 'spring',
-            damping: 30,
-            stiffness: 300,
+            type: 'tween',
+            duration: 0.4,
+            ease: [0.25, 0.1, 0.25, 1], // Smooth ease-out curve
           }}
           className="fixed bottom-0 left-0 right-0 z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.15)]"
         >

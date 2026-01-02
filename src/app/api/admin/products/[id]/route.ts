@@ -148,6 +148,12 @@ export async function PUT(
         marqueeBackgroundColor: product.marqueeBackgroundColor || '#1a1a1a',
         marqueeTextColor: product.marqueeTextColor || '#ffffff',
 
+        // Benefit Drawers (new flexible system)
+        benefitDrawers: product.benefitDrawers || null,
+
+        // Sticky Drawer
+        stickyDrawerThumbnailUrl: product.stickyDrawerThumbnailUrl || null,
+
         // Widgets
         widgets: product.widgets || null,
 
