@@ -205,6 +205,7 @@ export default async function ProductPage({ params }: PageProps) {
             signupSectionSubtitle={product.signupSectionSubtitle}
             signupSectionButtonText={product.signupSectionButtonText}
             signupSectionSuccessMessage={product.signupSectionSuccessMessage}
+            stickyDrawerThumbnailUrl={product.stickyDrawerThumbnailUrl}
           />
         </section>
 

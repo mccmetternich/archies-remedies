@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import Image from 'next/image';
 import { cn } from '@/lib/utils';
 
 interface ProductVariant {
@@ -18,6 +19,7 @@ interface PDPStickyDrawerProps {
   ctaButtonText?: string;
   ctaExternalUrl?: string | null;
   ctaNewTab?: boolean;
+  thumbnailUrl?: string | null;
 }
 
 export function PDPStickyDrawer({
@@ -26,6 +28,7 @@ export function PDPStickyDrawer({
   ctaButtonText = 'Buy Now',
   ctaExternalUrl,
   ctaNewTab = false,
+  thumbnailUrl,
 }: PDPStickyDrawerProps) {
   const [isVisible, setIsVisible] = useState(false);
 
@@ -72,9 +75,27 @@ export function PDPStickyDrawer({
 
   const DrawerContent = () => (
     <>
-      {/* Mobile/Tablet Layout: Two columns */}
+      {/* Mobile/Tablet Layout: Thumbnail + Info + CTA */}
       <div className="lg:hidden flex w-full">
-        {/* Left Column - 80% - Product info with thin stroke on top */}
+        {/* Thumbnail (if provided) */}
+        {thumbnailUrl && (
+          <div
+            className="flex-shrink-0 w-14 h-14 relative bg-[#f2f2f2] flex items-center justify-center"
+            style={{ borderTop: '0.25px solid #999999' }}
+          >
+            <div className="w-11 h-11 relative rounded-md overflow-hidden">
+              <Image
+                src={thumbnailUrl}
+                alt={productName}
+                fill
+                className="object-cover"
+                sizes="44px"
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Product info column */}
         <div
           className="flex-[4] flex flex-col justify-center px-4 py-3 bg-[#f2f2f2]"
           style={{ borderTop: '0.25px solid #999999' }}
@@ -107,7 +128,7 @@ export function PDPStickyDrawer({
           )}
         </div>
 
-        {/* Right Column - 20% - CTA button with thin strokes */}
+        {/* CTA button column */}
         <Link
           href={ctaUrl}
           target={ctaNewTab ? '_blank' : '_self'}
@@ -129,29 +150,45 @@ export function PDPStickyDrawer({
         </Link>
       </div>
 
-      {/* Desktop Layout: Single column with CTA including price */}
+      {/* Desktop Layout: Thumbnail + Info + CTA */}
       <div
         className="hidden lg:flex w-full items-center justify-between px-6 py-4 bg-[#f2f2f2]"
         style={{ borderTop: '0.25px solid #999999' }}
       >
-        {/* Product info - left side */}
-        <div className="flex flex-col min-w-0">
-          {/* Product Title */}
-          <span
-            className="text-[19px] font-medium uppercase tracking-[0.02em] text-[#1a1a1a] truncate leading-tight"
-            style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
-          >
-            {productName}
-          </span>
-          {/* Variant info */}
-          {variantName && (
+        {/* Left side - Thumbnail + Product info */}
+        <div className="flex items-center gap-4 min-w-0">
+          {/* Thumbnail */}
+          {thumbnailUrl && (
+            <div className="w-14 h-14 relative flex-shrink-0 rounded-lg overflow-hidden">
+              <Image
+                src={thumbnailUrl}
+                alt={productName}
+                fill
+                className="object-cover"
+                sizes="56px"
+              />
+            </div>
+          )}
+
+          {/* Product info */}
+          <div className="flex flex-col min-w-0">
+            {/* Product Title */}
             <span
-              className="text-[16px] uppercase tracking-[0.02em] text-[#1a1a1a] leading-tight mt-0.5"
+              className="text-[19px] font-medium uppercase tracking-[0.02em] text-[#1a1a1a] truncate leading-tight"
               style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
             >
-              {variantName}
+              {productName}
             </span>
-          )}
+            {/* Variant info */}
+            {variantName && (
+              <span
+                className="text-[16px] uppercase tracking-[0.02em] text-[#1a1a1a] leading-tight mt-0.5"
+                style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+              >
+                {variantName}
+              </span>
+            )}
+          </div>
         </div>
 
         {/* CTA Button with price - right side */}
@@ -189,7 +226,7 @@ export function PDPStickyDrawer({
             damping: 30,
             stiffness: 300,
           }}
-          className="fixed bottom-0 left-0 right-0 z-50 shadow-[0_-2px_10px_rgba(0,0,0,0.1)]"
+          className="fixed bottom-0 left-0 right-0 z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.15)]"
         >
           <DrawerContent />
         </motion.div>

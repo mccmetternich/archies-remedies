@@ -318,13 +318,19 @@ export const products = sqliteTable('products', {
   rotatingSealSize: integer('rotating_seal_size').default(112), // pixels (60-150 range)
   rotatingSealSpeed: integer('rotating_seal_speed').default(20), // seconds for full rotation (8-40 range)
 
-  // PDP Drawer Content (accordions)
+  // PDP Drawer Content (accordions) - Legacy fields, kept for backwards compatibility
   ritualTitle: text('ritual_title').default('The Ritual'),
   ritualContent: text('ritual_content'), // How to use/apply - rich text
   ingredientsTitle: text('ingredients_title').default('Ingredients'),
   ingredientsContent: text('ingredients_content'), // Full transparency list - rich text
   shippingTitle: text('shipping_title').default('Good to Know'),
   shippingContent: text('shipping_content'), // Shipping & Returns - rich text
+
+  // Benefit Drawers - New flexible system (JSON array of {id, title, content, order})
+  benefitDrawers: text('benefit_drawers'), // JSON array, max 5 drawers
+
+  // Sticky Drawer (roll-up CTA bar) customization
+  stickyDrawerThumbnailUrl: text('sticky_drawer_thumbnail_url'), // Small product thumbnail
 
   // Bullet Points (up to 5, shown with checkmarks on PDP)
   bulletPoint1: text('bullet_point1'),

@@ -12,6 +12,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { RichTextEditor } from '@/components/admin/rich-text-editor';
 import { MediaPickerButton } from '@/components/admin/media-picker';
+import { BenefitDrawersEditor, BenefitDrawer, migrateLegacyDrawers, createDefaultDrawers } from '@/components/admin/benefit-drawers-editor';
 import { AdminPageHeader } from '@/components/admin/admin-page-header';
 import { WidgetLibrarySidebar } from '@/components/admin/widget-library-sidebar';
 import { WidgetListContainer, useWidgetDragState, useWidgetExpandState } from '@/components/admin/widget-list-container';
@@ -118,6 +119,10 @@ interface Product {
   marqueeText: string | null;
   marqueeBackgroundColor: string | null;
   marqueeTextColor: string | null;
+  // Benefit Drawers (new flexible system)
+  benefitDrawers: string | null;
+  // Sticky Drawer
+  stickyDrawerThumbnailUrl: string | null;
   widgets: string | null;
   metaTitle: string | null;
   metaDescription: string | null;
@@ -222,6 +227,8 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
         marqueeText: null,
         marqueeBackgroundColor: '#1a1a1a',
         marqueeTextColor: '#ffffff',
+        benefitDrawers: JSON.stringify(createDefaultDrawers()),
+        stickyDrawerThumbnailUrl: null,
         widgets: null,
         metaTitle: null,
         metaDescription: null,
@@ -1301,7 +1308,89 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
             </div>
           </div>
 
-          {/* Section 5: Email/SMS Signup Section */}
+          {/* Section: Audio Player */}
+          <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6">
+            <h3 className="text-sm font-medium text-[var(--admin-text-primary)] mb-4">
+              Audio Player
+            </h3>
+            <p className="text-xs text-[var(--admin-text-muted)] mb-4">
+              Add an audio message below the CTA button for richer product storytelling
+            </p>
+            <div className="space-y-4">
+              <MediaPickerButton
+                label="Audio File"
+                value={product.audioUrl || null}
+                onChange={(url) => setProduct({ ...product, audioUrl: url || null })}
+                folder="products"
+                acceptAudio={true}
+                helpText="Upload an MP3 or audio file"
+              />
+              <MediaPickerButton
+                label="Speaker Avatar"
+                value={product.audioAvatarUrl || null}
+                onChange={(url) => setProduct({ ...product, audioAvatarUrl: url || null })}
+                folder="products"
+                aspectRatio="1/1"
+                helpText="Circular avatar for the audio player"
+              />
+              <div>
+                <label className="block text-sm text-[var(--admin-text-secondary)] mb-1.5">
+                  Title / Label
+                </label>
+                <Input
+                  value={product.audioTitle || ''}
+                  onChange={(e) => setProduct({ ...product, audioTitle: e.target.value || null })}
+                  placeholder="e.g., Dr. Smith explains the benefits"
+                  className="bg-[var(--admin-input)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)]"
+                />
+              </div>
+              <div className="col-span-2">
+                <label className="block text-sm text-[var(--admin-text-secondary)] mb-1.5">
+                  Quote (Optional)
+                </label>
+                <Input
+                  value={product.audioQuote || ''}
+                  onChange={(e) => setProduct({ ...product, audioQuote: e.target.value || null })}
+                  placeholder="e.g., This completely changed my morning routine!"
+                  className="bg-[var(--admin-input)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)]"
+                />
+                <p className="text-xs text-[var(--admin-text-muted)] mt-1">
+                  Displays in a styled capsule below the audio player
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Section: Benefit Drawers */}
+          <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6">
+            <h3 className="text-sm font-medium text-[var(--admin-text-primary)] mb-2">
+              Benefit Drawers
+            </h3>
+            <p className="text-xs text-[var(--admin-text-muted)] mb-4">
+              Expandable accordion sections on the product page. Drag to reorder, click to expand/collapse.
+            </p>
+            <BenefitDrawersEditor
+              drawers={(() => {
+                // Parse benefitDrawers JSON, or migrate from legacy fields
+                if (product.benefitDrawers) {
+                  try {
+                    return JSON.parse(product.benefitDrawers) as BenefitDrawer[];
+                  } catch {
+                    return migrateLegacyDrawers(product);
+                  }
+                }
+                // Migrate from legacy fields if no benefitDrawers
+                const migrated = migrateLegacyDrawers(product);
+                return migrated.length > 0 ? migrated : createDefaultDrawers();
+              })()}
+              onChange={(drawers) => {
+                setProduct({ ...product, benefitDrawers: JSON.stringify(drawers) });
+              }}
+              maxDrawers={5}
+            />
+          </div>
+
+          {/* Section: Email/SMS Signup Section */}
           <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6">
             <div className="flex items-center justify-between mb-4">
               <div>
@@ -1382,68 +1471,33 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
             )}
           </div>
 
-          {/* Section 6: Audio Player */}
+          {/* Section: Sticky Drawer (Roll-up CTA Bar) */}
           <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6">
-            <h3 className="text-sm font-medium text-[var(--admin-text-primary)] mb-4">
-              Audio Player
+            <h3 className="text-sm font-medium text-[var(--admin-text-primary)] mb-2">
+              Sticky Drawer
             </h3>
             <p className="text-xs text-[var(--admin-text-muted)] mb-4">
-              Add an audio message below the CTA button for richer product storytelling
+              The roll-up CTA bar that appears when scrolling. Add a thumbnail to make it more engaging.
             </p>
-            <div className="space-y-4">
-              <MediaPickerButton
-                label="Audio File"
-                value={product.audioUrl || null}
-                onChange={(url) => setProduct({ ...product, audioUrl: url || null })}
-                folder="products"
-                acceptAudio={true}
-                helpText="Upload an MP3 or audio file"
-              />
-              <MediaPickerButton
-                label="Speaker Avatar"
-                value={product.audioAvatarUrl || null}
-                onChange={(url) => setProduct({ ...product, audioAvatarUrl: url || null })}
-                folder="products"
-                aspectRatio="1/1"
-                helpText="Circular avatar for the audio player"
-              />
-              <div>
-                <label className="block text-sm text-[var(--admin-text-secondary)] mb-1.5">
-                  Title / Label
-                </label>
-                <Input
-                  value={product.audioTitle || ''}
-                  onChange={(e) => setProduct({ ...product, audioTitle: e.target.value || null })}
-                  placeholder="e.g., Dr. Smith explains the benefits"
-                  className="bg-[var(--admin-input)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)]"
-                />
-              </div>
-              <div className="col-span-2">
-                <label className="block text-sm text-[var(--admin-text-secondary)] mb-1.5">
-                  Quote (Optional)
-                </label>
-                <Input
-                  value={product.audioQuote || ''}
-                  onChange={(e) => setProduct({ ...product, audioQuote: e.target.value || null })}
-                  placeholder="e.g., This completely changed my morning routine!"
-                  className="bg-[var(--admin-input)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)]"
-                />
-                <p className="text-xs text-[var(--admin-text-muted)] mt-1">
-                  Displays in a styled capsule below the audio player
-                </p>
-              </div>
-            </div>
+            <MediaPickerButton
+              label="Thumbnail Image"
+              value={product.stickyDrawerThumbnailUrl || null}
+              onChange={(url) => setProduct({ ...product, stickyDrawerThumbnailUrl: url || null })}
+              folder="products"
+              aspectRatio="1/1"
+              helpText="Small product image shown in the sticky bar (recommended 80x80px)"
+            />
           </div>
 
-          {/* Section 6: PDP Marquee */}
+          {/* Section: Marquee Banner */}
           <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h3 className="text-sm font-medium text-[var(--admin-text-primary)]">
-                  Hero Marquee
+                  Marquee Banner
                 </h3>
                 <p className="text-xs text-[var(--admin-text-muted)] mt-0.5">
-                  Scrolling text banner beneath the hero media
+                  Scrolling text banner on the product page
                 </p>
               </div>
               <button
@@ -1470,12 +1524,9 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
                   <Input
                     value={product.marqueeText || ''}
                     onChange={(e) => setProduct({ ...product, marqueeText: e.target.value || null })}
-                    placeholder="Free Shipping on All Orders • Doctor Recommended • 100% Natural"
+                    placeholder="Free shipping on orders over $50!"
                     className="bg-[var(--admin-input)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)]"
                   />
-                  <p className="text-xs text-[var(--admin-text-muted)] mt-1">
-                    Text scrolls continuously in uppercase with elegant letter-spacing
-                  </p>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -1519,61 +1570,7 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
             )}
           </div>
 
-          {/* Section 7: Benefit Drawers */}
-          <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6">
-            <h3 className="text-sm font-medium text-[var(--admin-text-primary)] mb-2">
-              Benefit Drawers
-            </h3>
-            <p className="text-xs text-[var(--admin-text-muted)] mb-4">
-              Expandable sections on the product page. Only populated drawers will appear.
-            </p>
-            <div className="space-y-4">
-              {/* Drawer 1 */}
-              <div className="p-4 border border-[var(--admin-border-light)] rounded-lg space-y-3">
-                <Input
-                  value={product.ritualTitle || ''}
-                  onChange={(e) => setProduct({ ...product, ritualTitle: e.target.value })}
-                  placeholder="Drawer 1 Title (e.g., The Ritual)"
-                  className="bg-[var(--admin-input)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)]"
-                />
-                <RichTextEditor
-                  value={product.ritualContent || ''}
-                  onChange={(value) => setProduct({ ...product, ritualContent: value })}
-                  placeholder="Content..."
-                />
-              </div>
-              {/* Drawer 2 */}
-              <div className="p-4 border border-[var(--admin-border-light)] rounded-lg space-y-3">
-                <Input
-                  value={product.ingredientsTitle || ''}
-                  onChange={(e) => setProduct({ ...product, ingredientsTitle: e.target.value })}
-                  placeholder="Drawer 2 Title (e.g., Ingredients)"
-                  className="bg-[var(--admin-input)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)]"
-                />
-                <RichTextEditor
-                  value={product.ingredientsContent || ''}
-                  onChange={(value) => setProduct({ ...product, ingredientsContent: value })}
-                  placeholder="Content..."
-                />
-              </div>
-              {/* Drawer 3 */}
-              <div className="p-4 border border-[var(--admin-border-light)] rounded-lg space-y-3">
-                <Input
-                  value={product.shippingTitle || ''}
-                  onChange={(e) => setProduct({ ...product, shippingTitle: e.target.value })}
-                  placeholder="Drawer 3 Title (e.g., Good to Know)"
-                  className="bg-[var(--admin-input)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)]"
-                />
-                <RichTextEditor
-                  value={product.shippingContent || ''}
-                  onChange={(value) => setProduct({ ...product, shippingContent: value })}
-                  placeholder="Content..."
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Section 7: SEO */}
+          {/* Section: SEO */}
           <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6">
             <h3 className="text-sm font-medium text-[var(--admin-text-primary)] mb-4">
               SEO

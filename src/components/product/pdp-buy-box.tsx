@@ -36,6 +36,14 @@ interface Product {
   ingredientsContent: string | null;
   shippingTitle: string | null;
   shippingContent: string | null;
+  benefitDrawers?: string | null;
+}
+
+interface BenefitDrawer {
+  id: string;
+  title: string;
+  content: string;
+  order: number;
 }
 
 interface PDPBuyBoxProps {
@@ -66,7 +74,8 @@ interface PDPBuyBoxProps {
   signupSectionSuccessMessage?: string | null;
 }
 
-type AccordionSection = 'ritual' | 'ingredients' | 'shipping' | null;
+// Open accordion section - can be drawer ID or null
+type AccordionSection = string | null;
 
 export function PDPBuyBox({
   product,
@@ -448,33 +457,64 @@ export function PDPBuyBox({
 
       {/* Accordion Drawers - wider on mobile (10px from edges) */}
       <div className="pt-4 md:pt-6 space-y-0 -mx-[6px] md:mx-0">
-        {product.ritualContent && (
-          <AccordionItem
-            title={product.ritualTitle || 'The Ritual'}
-            content={product.ritualContent}
-            isOpen={openAccordion === 'ritual'}
-            onToggle={() => toggleAccordion('ritual')}
-            isFirst
-          />
-        )}
+        {(() => {
+          // Try to use new benefitDrawers JSON format
+          let drawers: BenefitDrawer[] = [];
 
-        {product.ingredientsContent && (
-          <AccordionItem
-            title={product.ingredientsTitle || 'Ingredients'}
-            content={product.ingredientsContent}
-            isOpen={openAccordion === 'ingredients'}
-            onToggle={() => toggleAccordion('ingredients')}
-          />
-        )}
+          if (product.benefitDrawers) {
+            try {
+              drawers = JSON.parse(product.benefitDrawers);
+            } catch {
+              drawers = [];
+            }
+          }
 
-        {product.shippingContent && (
-          <AccordionItem
-            title={product.shippingTitle || 'Good to Know'}
-            content={product.shippingContent}
-            isOpen={openAccordion === 'shipping'}
-            onToggle={() => toggleAccordion('shipping')}
-          />
-        )}
+          // If no drawers from JSON, fall back to legacy fields
+          if (drawers.length === 0) {
+            const legacyDrawers: BenefitDrawer[] = [];
+            if (product.ritualContent) {
+              legacyDrawers.push({
+                id: 'ritual',
+                title: product.ritualTitle || 'The Ritual',
+                content: product.ritualContent,
+                order: 0,
+              });
+            }
+            if (product.ingredientsContent) {
+              legacyDrawers.push({
+                id: 'ingredients',
+                title: product.ingredientsTitle || 'Ingredients',
+                content: product.ingredientsContent,
+                order: 1,
+              });
+            }
+            if (product.shippingContent) {
+              legacyDrawers.push({
+                id: 'shipping',
+                title: product.shippingTitle || 'Good to Know',
+                content: product.shippingContent,
+                order: 2,
+              });
+            }
+            drawers = legacyDrawers;
+          }
+
+          // Filter out drawers with no content and sort by order
+          const validDrawers = drawers
+            .filter((d) => d.content && d.content.trim())
+            .sort((a, b) => a.order - b.order);
+
+          return validDrawers.map((drawer, index) => (
+            <AccordionItem
+              key={drawer.id}
+              title={drawer.title || `Drawer ${index + 1}`}
+              content={drawer.content}
+              isOpen={openAccordion === drawer.id}
+              onToggle={() => toggleAccordion(drawer.id)}
+              isFirst={index === 0}
+            />
+          ));
+        })()}
       </div>
 
       {/* Email/SMS Signup Section - Inline toggle + input + submit */}

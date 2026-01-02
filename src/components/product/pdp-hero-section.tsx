@@ -97,6 +97,7 @@ interface Product {
   rotatingSealPosition: string | null;
   rotatingSealSize: number | null;
   rotatingSealSpeed: number | null;
+  benefitDrawers?: string | null;
 }
 
 interface PDPHeroSectionProps {
@@ -130,6 +131,8 @@ interface PDPHeroSectionProps {
   signupSectionSubtitle?: string | null;
   signupSectionButtonText?: string | null;
   signupSectionSuccessMessage?: string | null;
+  // Sticky Drawer
+  stickyDrawerThumbnailUrl?: string | null;
 }
 
 export function PDPHeroSection({
@@ -160,6 +163,7 @@ export function PDPHeroSection({
   signupSectionSubtitle,
   signupSectionButtonText,
   signupSectionSuccessMessage,
+  stickyDrawerThumbnailUrl,
 }: PDPHeroSectionProps) {
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(
     variants.find((v) => v.isDefault) || variants[0] || null
@@ -274,6 +278,7 @@ export function PDPHeroSection({
         selectedVariant={selectedVariant}
         ctaButtonText={ctaButtonText}
         ctaExternalUrl={ctaExternalUrl}
+        thumbnailUrl={stickyDrawerThumbnailUrl}
       />
     </div>
   );
