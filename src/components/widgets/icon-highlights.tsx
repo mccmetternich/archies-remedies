@@ -39,33 +39,34 @@ const themeStyles: Record<
     titleColor: string;
     textColor: string;
     mutedColor: string;
-    linkColor: string;
-    linkHoverColor: string;
+    // Using hex values for inline styles (avoids Tailwind override issues)
+    linkColorHex: string;
+    linkHoverHex: string;
   }
 > = {
   blue: {
     bg: 'bg-[#bbdae9]',
-    titleColor: 'text-[#1a1a1a]',
-    textColor: 'text-[#1a1a1a]',
-    mutedColor: 'text-[#333333]',
-    linkColor: 'text-[#1a1a1a]',
-    linkHoverColor: 'hover:text-[#333333]',
+    titleColor: '#1a1a1a',
+    textColor: '#1a1a1a',
+    mutedColor: '#333333',
+    linkColorHex: '#1a1a1a',
+    linkHoverHex: '#333333',
   },
   dark: {
     bg: 'bg-[#1a1a1a]',
-    titleColor: 'text-white',
-    textColor: 'text-white',
-    mutedColor: 'text-white/85',
-    linkColor: 'text-white',
-    linkHoverColor: 'hover:text-white/80',
+    titleColor: '#ffffff',
+    textColor: '#ffffff',
+    mutedColor: 'rgba(255,255,255,0.85)',
+    linkColorHex: '#ffffff',
+    linkHoverHex: 'rgba(255,255,255,0.8)',
   },
   cream: {
     bg: 'bg-[#f5f1eb]',
-    titleColor: 'text-[#1a1a1a]',
-    textColor: 'text-[#1a1a1a]',
-    mutedColor: 'text-[#333333]',
-    linkColor: 'text-[#1a1a1a]',
-    linkHoverColor: 'hover:text-[#333333]',
+    titleColor: '#1a1a1a',
+    textColor: '#1a1a1a',
+    mutedColor: '#333333',
+    linkColorHex: '#1a1a1a',
+    linkHoverHex: '#333333',
   },
 };
 
@@ -95,16 +96,15 @@ export function IconHighlights({
   return (
     <section className={cn('py-12 md:py-16 lg:py-20', styles.bg, className)}>
       <div className="container">
-        {/* Section Title - matches PDP styling */}
+        {/* Section Title - matches PDP subtitle styling (13-14px, 0.04em tracking) */}
         {title && (
           <h2
-            className={cn(
-              'text-center text-lg md:text-xl lg:text-2xl font-bold uppercase mb-10 md:mb-12',
-              styles.titleColor
-            )}
+            className="text-center font-bold uppercase mb-10 md:mb-12"
             style={{
               fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-              letterSpacing: '0.08em',
+              fontSize: '13px',
+              letterSpacing: '0.04em',
+              color: styles.titleColor,
             }}
           >
             {title}
@@ -127,16 +127,15 @@ export function IconHighlights({
                 </div>
               )}
 
-              {/* Column Title - matches PDP subtitle styling */}
+              {/* Column Title - matches PDP subtitle styling (10-11px, 0.04em tracking) */}
               {column.title && (
                 <h3
-                  className={cn(
-                    'text-[11px] md:text-xs lg:text-sm font-bold uppercase mb-2',
-                    styles.textColor
-                  )}
+                  className="font-bold uppercase mb-2"
                   style={{
                     fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-                    letterSpacing: '0.1em',
+                    fontSize: '10px',
+                    letterSpacing: '0.04em',
+                    color: styles.textColor,
                   }}
                 >
                   {column.title}
@@ -146,12 +145,10 @@ export function IconHighlights({
               {/* Column Description */}
               {column.description && (
                 <p
-                  className={cn(
-                    'text-[13px] md:text-sm leading-relaxed max-w-[260px]',
-                    styles.mutedColor
-                  )}
+                  className="text-[13px] md:text-sm leading-relaxed max-w-[260px]"
                   style={{
                     fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+                    color: styles.mutedColor,
                   }}
                 >
                   {column.description}
@@ -161,20 +158,20 @@ export function IconHighlights({
           ))}
         </div>
 
-        {/* Learn More Link */}
+        {/* Learn More Link - using inline styles to avoid Tailwind override issues */}
         {linkText && linkUrl && (
           <div className="flex justify-center mt-10 md:mt-12">
             <Link
               href={linkUrl}
-              className={cn(
-                'group inline-flex items-center gap-2 text-[10px] md:text-xs font-bold uppercase transition-colors',
-                styles.linkColor,
-                styles.linkHoverColor
-              )}
+              className="group inline-flex items-center gap-2 font-bold uppercase transition-colors"
               style={{
                 fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-                letterSpacing: '0.12em',
+                fontSize: '10px',
+                letterSpacing: '0.04em',
+                color: styles.linkColorHex,
               }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = styles.linkHoverHex)}
+              onMouseLeave={(e) => (e.currentTarget.style.color = styles.linkColorHex)}
             >
               {linkText}
               <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
