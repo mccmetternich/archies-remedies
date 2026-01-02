@@ -81,7 +81,7 @@ export function PDPStickyDrawer({
   const DrawerContent = () => (
     <>
       {/* Mobile/Tablet Layout: Thumbnail + Info + CTA */}
-      <div className="lg:hidden flex w-full bg-[#f2f2f2]" style={{ borderTop: '0.25px solid #999999' }}>
+      <div className="lg:hidden flex w-full" style={{ borderTop: '0.25px solid #999999' }}>
         {/* Thumbnail (if provided) - clickable to scroll to top */}
         {thumbnailUrl && (
           <button
@@ -134,27 +134,27 @@ export function PDPStickyDrawer({
           )}
         </button>
 
-        {/* CTA button column - fixed width, no text wrap */}
+        {/* CTA button - compact on mobile, always "Buy Now" */}
         <Link
           href={ctaUrl}
           target={ctaNewTab ? '_blank' : '_self'}
           rel={ctaNewTab ? 'noopener noreferrer' : undefined}
           className={cn(
-            'flex-shrink-0 flex items-center justify-center px-4 py-3',
+            'flex-shrink-0 flex items-center justify-center px-5 py-3',
             'bg-[#1a1a1a]',
-            'hover:bg-[#bbdae9]',
+            'active:bg-[#bbdae9]',
             'transition-colors duration-200',
             'group/cta'
           )}
         >
           <span
-            className="text-[11px] font-medium uppercase tracking-[0.04em] whitespace-nowrap group-hover/cta:text-[#1a1a1a]"
+            className="text-[12px] font-semibold uppercase tracking-[0.02em] whitespace-nowrap group-active/cta:text-[#1a1a1a]"
             style={{
               fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
               color: '#ffffff',
             }}
           >
-            {ctaButtonText}
+            Buy Now
           </span>
         </Link>
       </div>
@@ -231,6 +231,11 @@ export function PDPStickyDrawer({
     </>
   );
 
+  // Safe area padding for iOS devices
+  const safeAreaStyle = {
+    paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 0px)',
+  };
+
   return (
     <AnimatePresence>
       {isVisible && (
@@ -241,14 +246,12 @@ export function PDPStickyDrawer({
           transition={{
             type: 'tween',
             duration: 0.4,
-            ease: [0.25, 0.1, 0.25, 1], // Smooth ease-out curve
+            ease: [0.25, 0.1, 0.25, 1],
           }}
-          className="fixed bottom-0 left-0 right-0 z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.15)]"
-          style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+          className="fixed left-0 right-0 z-[9999] bg-[#f2f2f2] shadow-[0_-4px_20px_rgba(0,0,0,0.15)]"
+          style={{ bottom: 0, ...safeAreaStyle }}
         >
-          <div className="bg-[#f2f2f2]">
-            <DrawerContent />
-          </div>
+          <DrawerContent />
         </motion.div>
       )}
     </AnimatePresence>
