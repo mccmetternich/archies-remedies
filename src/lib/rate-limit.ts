@@ -99,4 +99,23 @@ export const RATE_LIMITS = {
 
   // Popup submissions: 5 per minute per IP
   POPUP: { limit: 5, windowMs: 60 * 1000 },
+
+  // Admin API: 100 requests per minute per session (prevents brute force)
+  ADMIN: { limit: 100, windowMs: 60 * 1000 },
+
+  // Admin write operations: 30 per minute per session
+  ADMIN_WRITE: { limit: 30, windowMs: 60 * 1000 },
 };
+
+/**
+ * Rate limit helper for admin routes
+ * Uses session ID instead of IP for authenticated requests
+ */
+export function adminRateLimit(
+  sessionId: string,
+  isWriteOperation: boolean = false
+): RateLimitResult {
+  const config = isWriteOperation ? RATE_LIMITS.ADMIN_WRITE : RATE_LIMITS.ADMIN;
+  const key = `admin:${isWriteOperation ? 'write' : 'read'}:${sessionId}`;
+  return rateLimit(key, config.limit, config.windowMs);
+}

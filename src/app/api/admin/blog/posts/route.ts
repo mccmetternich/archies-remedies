@@ -5,6 +5,7 @@ import { blogPosts, blogTags, blogPostTags } from '@/lib/db/schema';
 import { asc, desc, eq, inArray } from 'drizzle-orm';
 import { nanoid } from 'nanoid';
 import { requireAuth } from '@/lib/api-auth';
+import { createBlogPostSchema, validatePermissive } from '@/lib/validations';
 
 // GET /api/admin/blog/posts - List all posts
 export async function GET(request: Request) {
@@ -72,7 +73,10 @@ export async function POST(request: Request) {
   if (!auth.authenticated) return auth.response;
 
   try {
-    const body = await request.json();
+    const rawBody = await request.json();
+
+    // Validate request body (permissive - logs errors but continues)
+    const { data: body } = validatePermissive(createBlogPostSchema, rawBody);
     const id = nanoid();
 
     // Generate slug from title if not provided

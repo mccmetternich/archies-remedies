@@ -5,6 +5,7 @@ import { products, productVariants, productBenefits, pages } from '@/lib/db/sche
 import { eq } from 'drizzle-orm';
 import { generateId } from '@/lib/utils';
 import { requireAuth } from '@/lib/api-auth';
+import { updateProductFullSchema, validatePermissive } from '@/lib/validations';
 
 export async function GET(
   request: Request,
@@ -51,7 +52,17 @@ export async function PUT(
   const { id } = await params;
 
   try {
-    const { product, variants, benefits } = await request.json();
+    const body = await request.json();
+
+    // Validate with permissive mode - logs errors but continues processing
+    const validation = validatePermissive(updateProductFullSchema, body);
+    if (validation.hadErrors) {
+      console.warn(`[Products API] Validation warnings for product ${id}:`, validation.errors);
+    }
+
+    // Extract product data with type safety through runtime checks
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { product, variants, benefits } = validation.data as { product: any; variants: any[]; benefits: any[] };
 
     // Update product with all fields
     await db
@@ -63,14 +74,14 @@ export async function PUT(
         subtitle: product.subtitle || null,
         shortDescription: product.shortDescription || null,
 
-        // Pricing
-        price: product.price || null,
-        compareAtPrice: product.compareAtPrice || null,
+        // Pricing (convert strings to numbers)
+        price: product.price ? Number(product.price) : null,
+        compareAtPrice: product.compareAtPrice ? Number(product.compareAtPrice) : null,
 
-        // Media
-        heroImageUrl: product.heroImageUrl || null,
-        secondaryImageUrl: product.secondaryImageUrl || null,
-        heroCarouselImages: product.heroCarouselImages || null,
+        // Media (ensure string type for URLs)
+        heroImageUrl: typeof product.heroImageUrl === 'string' ? product.heroImageUrl : null,
+        secondaryImageUrl: typeof product.secondaryImageUrl === 'string' ? product.secondaryImageUrl : null,
+        heroCarouselImages: typeof product.heroCarouselImages === 'string' ? product.heroCarouselImages : null,
 
         // Badge
         badge: product.badge || null,
@@ -219,7 +230,8 @@ export async function PATCH(
   const { id } = await params;
 
   try {
-    const body = await request.json();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const body = await request.json() as Record<string, any>;
 
     await db
       .update(products)

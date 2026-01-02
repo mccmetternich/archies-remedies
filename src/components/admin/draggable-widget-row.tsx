@@ -164,8 +164,14 @@ export function DraggableWidgetRow({
           className="flex-1 min-w-0 cursor-pointer"
           onClick={onToggleExpand}
         >
+          {/* Always show widget type name as primary label */}
           <h4 className="font-medium text-[var(--admin-text-primary)] truncate">
-            {widget.title || widgetLabel}
+            {widgetLabel}
+            {widget.title && widget.title !== widgetLabel && (
+              <span className="text-[var(--admin-text-muted)] font-normal ml-2">
+                &ldquo;{widget.title}&rdquo;
+              </span>
+            )}
           </h4>
           <p className="text-xs text-[var(--admin-text-muted)] truncate">
             {widget.subtitle || widgetDescription}

@@ -1,455 +1,95 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import {
   Plus,
   Loader2,
-  Trash2,
   Eye,
-  EyeOff,
   ExternalLink,
-  PenSquare,
-  Calendar,
-  Tag,
-  Search,
-  Star,
-  AlertCircle,
-  Clock,
-  Filter,
   Save,
-  GripVertical,
   Settings,
-  LayoutGrid,
-  List,
-  Columns,
   Check,
-  CheckSquare,
-  Square,
   FileText,
   TrendingUp,
   FileEdit,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { WidgetLibrarySidebar } from '@/components/admin/widget-library-sidebar';
-import { getDefaultConfig, WIDGET_TYPES } from '@/lib/widget-library';
-import { MediaPickerButton } from '@/components/admin/media-picker';
-import { ChevronDown, ChevronUp, Image, Type, AlignLeft, Video } from 'lucide-react';
-
-interface BlogPost {
-  id: string;
-  slug: string;
-  title: string;
-  excerpt: string | null;
-  featuredImageUrl: string | null;
-  authorName: string | null;
-  authorAvatarUrl: string | null;
-  status: string | null;
-  publishedAt: string | null;
-  isFeatured: boolean | null;
-  readingTime: number | null;
-  createdAt: string | null;
-  updatedAt: string | null;
-  sortOrder: number;
-  tags?: BlogTag[];
-}
-
-interface BlogTag {
-  id: string;
-  name: string;
-  slug: string;
-  color: string | null;
-}
-
-interface BlogSettings {
-  id: string;
-  blogName: string;
-  blogSlug: string;
-  // Homepage hero section
-  heroMediaUrl: string | null;
-  heroTitle: string | null;
-  heroSubtitle: string | null;
-  pageTitle: string;
-  pageSubtitle: string;
-  gridLayout: 'bento' | 'masonry' | 'grid' | 'list';
-  widgets: string | null;
-  blogInDraftMode: boolean;
-}
-
-interface BlogWidget {
-  id: string;
-  type: string;
-  title?: string;
-  subtitle?: string;
-  content?: string;
-  config?: Record<string, unknown>;
-  isVisible: boolean;
-}
-
-const LAYOUT_OPTIONS = [
-  { value: 'bento', label: 'Bento Grid', icon: LayoutGrid, description: 'Editorial layout with varied card sizes' },
-  { value: 'grid', label: 'Uniform Grid', icon: Columns, description: 'Equal-sized cards in a grid' },
-  { value: 'list', label: 'List', icon: List, description: 'Full-width cards in a vertical list' },
-];
+import { useBlogAdmin } from '@/hooks/use-blog-admin';
+import { BlogPostsList } from '@/components/admin/blog/blog-posts-list';
+import { BlogPostForm } from '@/components/admin/blog/blog-post-form';
 
 export default function BlogAdminPage() {
-  const [activeTab, setActiveTab] = useState<'settings' | 'posts'>('settings');
-  const [posts, setPosts] = useState<BlogPost[]>([]);
-  const [tags, setTags] = useState<BlogTag[]>([]);
-  const [settings, setSettings] = useState<BlogSettings>({
-    id: 'default',
-    blogName: 'Blog',
-    blogSlug: 'blog',
-    heroMediaUrl: null,
-    heroTitle: null,
-    heroSubtitle: null,
-    pageTitle: 'Blog',
-    pageSubtitle: '',
-    gridLayout: 'bento',
-    widgets: null,
-    blogInDraftMode: true,
-  });
-  const [originalSettings, setOriginalSettings] = useState<BlogSettings | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
-  const [siteInDraftMode, setSiteInDraftMode] = useState(false);
+  const {
+    // Tab state
+    activeTab,
+    setActiveTab,
 
-  // Posts tab state
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [selectedPosts, setSelectedPosts] = useState<Set<string>>(new Set());
-  const [draggedPost, setDraggedPost] = useState<string | null>(null);
-  const [dragOverPost, setDragOverPost] = useState<string | null>(null);
+    // Data
+    posts,
+    tags,
+    settings,
+    setSettings,
+    blogWidgets,
 
-  // Widget state for blog page content
-  const [blogWidgets, setBlogWidgets] = useState<BlogWidget[]>([]);
-  const [originalBlogWidgets, setOriginalBlogWidgets] = useState<BlogWidget[]>([]);
-  const [draggedWidgetType, setDraggedWidgetType] = useState<string | null>(null);
-  const [dropTargetIndex, setDropTargetIndex] = useState<number | null>(null);
-  const [expandedWidgetId, setExpandedWidgetId] = useState<string | null>(null);
+    // Loading states
+    loading,
+    saving,
+    saved,
 
-  // Track unsaved changes (must be after state declarations)
-  const hasSettingsChanges = originalSettings && (
-    JSON.stringify(settings) !== JSON.stringify(originalSettings) ||
-    JSON.stringify(blogWidgets) !== JSON.stringify(originalBlogWidgets)
-  );
+    // Computed values
+    hasSettingsChanges,
+    isBlogDraft,
+    publishedCount,
+    draftCount,
+    filteredPosts,
 
-  // Fetch all data
-  useEffect(() => {
-    fetchData();
-  }, []);
+    // Posts tab state
+    searchQuery,
+    setSearchQuery,
+    statusFilter,
+    setStatusFilter,
+    selectedPosts,
+    draggedPost,
+    dragOverPost,
 
-  const fetchData = async () => {
-    try {
-      const [postsRes, tagsRes, settingsRes, siteSettingsRes] = await Promise.all([
-        fetch('/api/admin/blog/posts?includeAll=true'),
-        fetch('/api/admin/blog/tags'),
-        fetch('/api/admin/blog/settings'),
-        fetch('/api/admin/settings'),
-      ]);
+    // Widget state
+    draggedWidgetType,
+    setDraggedWidgetType,
+    dropTargetIndex,
+    setDropTargetIndex,
+    expandedWidgetId,
+    setExpandedWidgetId,
 
-      const postsData = await postsRes.json();
-      const tagsData = await tagsRes.json();
-      const siteSettingsData = await siteSettingsRes.json();
+    // Settings handlers
+    handleSaveSettings,
+    handleToggleBlogDraftMode,
 
-      // Sort posts by sortOrder first, then by createdAt descending (newest first)
-      const sortedPosts = (postsData.posts || []).sort((a: BlogPost, b: BlogPost) => {
-        if (a.sortOrder !== b.sortOrder && a.sortOrder !== undefined && b.sortOrder !== undefined) {
-          return a.sortOrder - b.sortOrder;
-        }
-        // Default to newest first
-        return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
-      });
+    // Post CRUD handlers
+    handleDeletePost,
+    handleToggleStatus,
+    handleBatchDelete,
+    handleBatchHide,
 
-      setPosts(sortedPosts);
-      setTags(tagsData || []);
-      setSiteInDraftMode(siteSettingsData.siteInDraftMode ?? false);
+    // Drag and drop handlers for posts
+    handleDragStart,
+    handleDragOver,
+    handleDragLeave,
+    handleDrop,
+    handleDragEnd,
 
-      if (settingsRes.ok) {
-        const settingsData = await settingsRes.json();
-        if (settingsData) {
-          const mergedSettings = { ...settings, ...settingsData };
-          setSettings(mergedSettings);
-          setOriginalSettings(mergedSettings);
+    // Selection handlers
+    toggleSelectAll,
+    toggleSelectPost,
 
-          // Parse and load widgets if they exist
-          if (settingsData.widgets) {
-            try {
-              const parsedWidgets = JSON.parse(settingsData.widgets);
-              setBlogWidgets(parsedWidgets);
-              setOriginalBlogWidgets(parsedWidgets);
-            } catch {
-              setBlogWidgets([]);
-              setOriginalBlogWidgets([]);
-            }
-          }
-        }
-      }
-    } catch (error) {
-      console.error('Failed to fetch blog data:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSaveSettings = async () => {
-    setSaving(true);
-    try {
-      const settingsWithWidgets = {
-        ...settings,
-        widgets: JSON.stringify(blogWidgets),
-      };
-      const res = await fetch('/api/admin/blog/settings', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(settingsWithWidgets),
-      });
-      if (res.ok) {
-        setOriginalSettings(settings);
-        setOriginalBlogWidgets(blogWidgets);
-        setSaved(true);
-        setTimeout(() => setSaved(false), 2000);
-      }
-    } catch (error) {
-      console.error('Failed to save settings:', error);
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleToggleBlogDraftMode = async () => {
-    const newDraftMode = !settings.blogInDraftMode;
-    setSettings({ ...settings, blogInDraftMode: newDraftMode });
-
-    try {
-      await fetch('/api/admin/blog/settings', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...settings, blogInDraftMode: newDraftMode }),
-      });
-      setOriginalSettings({ ...settings, blogInDraftMode: newDraftMode });
-    } catch (error) {
-      console.error('Failed to toggle blog draft mode:', error);
-      setSettings({ ...settings, blogInDraftMode: !newDraftMode });
-    }
-  };
-
-  const handleDeletePost = async (postId: string) => {
-    try {
-      await fetch(`/api/admin/blog/posts/${postId}`, { method: 'DELETE' });
-      setPosts(posts.filter((p) => p.id !== postId));
-      setSelectedPosts(prev => {
-        const next = new Set(prev);
-        next.delete(postId);
-        return next;
-      });
-    } catch (error) {
-      console.error('Failed to delete post:', error);
-    }
-  };
-
-  const handleToggleStatus = async (post: BlogPost) => {
-    const newStatus = post.status === 'published' ? 'draft' : 'published';
-    try {
-      await fetch(`/api/admin/blog/posts/${post.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus }),
-      });
-      setPosts(posts.map((p) =>
-        p.id === post.id ? { ...p, status: newStatus } : p
-      ));
-    } catch (error) {
-      console.error('Failed to toggle status:', error);
-    }
-  };
-
-  const handleBatchDelete = async () => {
-    if (!confirm(`Delete ${selectedPosts.size} selected posts? This cannot be undone.`)) return;
-
-    try {
-      await Promise.all(
-        Array.from(selectedPosts).map(id =>
-          fetch(`/api/admin/blog/posts/${id}`, { method: 'DELETE' })
-        )
-      );
-      setPosts(posts.filter(p => !selectedPosts.has(p.id)));
-      setSelectedPosts(new Set());
-    } catch (error) {
-      console.error('Failed to delete posts:', error);
-    }
-  };
-
-  const handleBatchHide = async () => {
-    try {
-      await Promise.all(
-        Array.from(selectedPosts).map(id =>
-          fetch(`/api/admin/blog/posts/${id}`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ status: 'draft' }),
-          })
-        )
-      );
-      setPosts(posts.map(p =>
-        selectedPosts.has(p.id) ? { ...p, status: 'draft' } : p
-      ));
-      setSelectedPosts(new Set());
-    } catch (error) {
-      console.error('Failed to hide posts:', error);
-    }
-  };
-
-  // Drag and drop for reordering
-  const handleDragStart = (e: React.DragEvent, postId: string) => {
-    setDraggedPost(postId);
-    e.dataTransfer.effectAllowed = 'move';
-  };
-
-  const handleDragOver = (e: React.DragEvent, postId: string) => {
-    e.preventDefault();
-    if (postId !== draggedPost) {
-      setDragOverPost(postId);
-    }
-  };
-
-  const handleDragLeave = () => {
-    setDragOverPost(null);
-  };
-
-  const handleDrop = async (e: React.DragEvent, targetPostId: string) => {
-    e.preventDefault();
-    setDragOverPost(null);
-
-    if (!draggedPost || draggedPost === targetPostId) {
-      setDraggedPost(null);
-      return;
-    }
-
-    const draggedIndex = posts.findIndex(p => p.id === draggedPost);
-    const targetIndex = posts.findIndex(p => p.id === targetPostId);
-
-    const newPosts = [...posts];
-    const [removed] = newPosts.splice(draggedIndex, 1);
-    newPosts.splice(targetIndex, 0, removed);
-
-    const updatedPosts = newPosts.map((post, index) => ({
-      ...post,
-      sortOrder: index,
-    }));
-
-    setPosts(updatedPosts);
-    setDraggedPost(null);
-
-    // Save new order
-    try {
-      await fetch('/api/admin/blog/reorder', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          posts: updatedPosts.map(p => ({ id: p.id, sortOrder: p.sortOrder })),
-        }),
-      });
-    } catch (error) {
-      console.error('Failed to save post order:', error);
-    }
-  };
-
-  const handleDragEnd = () => {
-    setDraggedPost(null);
-    setDragOverPost(null);
-  };
-
-  // Widget handlers for blog page content
-  const handleAddWidget = (type: string, atIndex?: number) => {
-    const widgetDef = WIDGET_TYPES.find((w) => w.type === type);
-    const newWidget: BlogWidget = {
-      id: `widget-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      type,
-      title: widgetDef?.name || '',
-      subtitle: '',
-      content: '',
-      config: getDefaultConfig(type),
-      isVisible: true,
-    };
-
-    if (atIndex !== undefined) {
-      const newWidgets = [...blogWidgets];
-      newWidgets.splice(atIndex, 0, newWidget);
-      setBlogWidgets(newWidgets);
-    } else {
-      setBlogWidgets([...blogWidgets, newWidget]);
-    }
-  };
-
-  const handleUpdateWidget = (widgetId: string, updates: Partial<BlogWidget>) => {
-    setBlogWidgets(blogWidgets.map((w) => (w.id === widgetId ? { ...w, ...updates } : w)));
-  };
-
-  const handleDeleteWidget = (widgetId: string) => {
-    if (confirm('Delete this widget?')) {
-      setBlogWidgets(blogWidgets.filter((w) => w.id !== widgetId));
-    }
-  };
-
-  const handleWidgetDrop = (e: React.DragEvent<HTMLDivElement>, atIndex?: number) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const widgetType = e.dataTransfer.getData('widget-type');
-    if (widgetType) {
-      const insertIndex = atIndex !== undefined ? atIndex : dropTargetIndex !== null ? dropTargetIndex : blogWidgets.length;
-      handleAddWidget(widgetType, insertIndex);
-    }
-    setDraggedWidgetType(null);
-    setDropTargetIndex(null);
-  };
-
-  const handleWidgetDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-  };
-
-  const handleDragOverWidgetRow = (e: React.DragEvent<HTMLDivElement>, index: number) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const rect = e.currentTarget.getBoundingClientRect();
-    const midY = rect.top + rect.height / 2;
-    const newIndex = e.clientY < midY ? index : index + 1;
-    if (newIndex !== dropTargetIndex) {
-      setDropTargetIndex(newIndex);
-    }
-  };
-
-  // Filter posts
-  const filteredPosts = posts.filter((post) => {
-    const matchesSearch = post.title.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || post.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
-
-  // Stats
-  const publishedCount = posts.filter((p) => p.status === 'published').length;
-  const draftCount = posts.filter((p) => p.status === 'draft').length;
-
-  const toggleSelectAll = () => {
-    if (selectedPosts.size === filteredPosts.length) {
-      setSelectedPosts(new Set());
-    } else {
-      setSelectedPosts(new Set(filteredPosts.map(p => p.id)));
-    }
-  };
-
-  const toggleSelectPost = (postId: string) => {
-    setSelectedPosts(prev => {
-      const next = new Set(prev);
-      if (next.has(postId)) {
-        next.delete(postId);
-      } else {
-        next.add(postId);
-      }
-      return next;
-    });
-  };
+    // Widget handlers
+    handleAddWidget,
+    handleUpdateWidget,
+    handleDeleteWidget,
+    handleWidgetDrop,
+    handleWidgetDragOver,
+    handleDragOverWidgetRow,
+  } = useBlogAdmin();
 
   if (loading) {
     return (
@@ -458,9 +98,6 @@ export default function BlogAdminPage() {
       </div>
     );
   }
-
-  // Determine if blog is effectively in draft mode (either blog-specific or site-wide)
-  const isBlogDraft = settings.blogInDraftMode || siteInDraftMode;
 
   return (
     <div className="space-y-6">
@@ -623,832 +260,60 @@ export default function BlogAdminPage() {
 
       {/* Settings Tab */}
       {activeTab === 'settings' && (
-        <div className="space-y-6">
-          {/* Two Column Layout: Recent Posts (left) + Settings (right) */}
-          <div className="grid lg:grid-cols-2 gap-6">
-            {/* Left Column - Recent Posts */}
-            <div className="bg-[var(--admin-card)] border border-[var(--admin-border)] rounded-xl overflow-hidden">
-              <div className="flex items-center justify-between p-4 border-b border-[var(--admin-border)]">
-                <div>
-                  <h2 className="text-lg font-medium text-[var(--admin-text-primary)]">
-                    Recent Posts
-                  </h2>
-                  <p className="text-xs text-[var(--admin-text-muted)]">
-                    {posts.length} total &bull; {publishedCount} {isBlogDraft ? 'ready' : 'live'} &bull; {draftCount} drafts
-                  </p>
-                </div>
-                <button
-                  onClick={() => setActiveTab('posts')}
-                  className="text-sm text-[var(--primary)] hover:underline"
-                >
-                  View All
-                </button>
-              </div>
-
-              <div className="divide-y divide-[var(--admin-border)] max-h-[600px] overflow-y-auto">
-                {posts.slice(0, 10).map((post) => {
-                  const isVideo = post.featuredImageUrl && /\.(mp4|webm|mov)(\?|$)/i.test(post.featuredImageUrl);
-                  return (
-                    <div
-                      key={post.id}
-                      className="flex items-center gap-3 p-3 hover:bg-[var(--admin-hover)] transition-colors"
-                    >
-                      <Link href={`/admin/blog/${post.id}`} className="w-12 h-12 rounded-lg overflow-hidden bg-[var(--admin-input)] shrink-0">
-                        {post.featuredImageUrl ? (
-                          isVideo ? (
-                            <video
-                              src={post.featuredImageUrl}
-                              className="w-full h-full object-cover"
-                              muted
-                              playsInline
-                            />
-                          ) : (
-                            <img
-                              src={post.featuredImageUrl}
-                              alt=""
-                              className="w-full h-full object-cover"
-                            />
-                          )
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <PenSquare className="w-5 h-5 text-[var(--admin-text-muted)]" />
-                          </div>
-                        )}
-                      </Link>
-                      <Link href={`/admin/blog/${post.id}`} className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <p className="text-sm font-medium text-[var(--admin-text-primary)] truncate" title={post.title}>
-                            {post.title && post.title.length > 36 ? `${post.title.substring(0, 36)}...` : post.title || 'Untitled'}
-                          </p>
-                          {post.isFeatured && (
-                            <Star className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400 shrink-0" />
-                          )}
-                        </div>
-                        <p className="text-xs text-[var(--admin-text-muted)]">
-                          /{settings.blogSlug}/{post.slug}
-                        </p>
-                      </Link>
-                      <div className="flex items-center gap-2 shrink-0">
-                        <button
-                          onClick={() => handleToggleStatus(post)}
-                          className={cn(
-                            'px-2.5 py-1 rounded-md text-xs font-medium transition-colors',
-                            post.status === 'published'
-                              ? isBlogDraft
-                                ? 'bg-blue-500/20 text-blue-400 hover:bg-blue-500/30'
-                                : 'bg-green-500/20 text-green-400 hover:bg-green-500/30'
-                              : 'bg-orange-500/20 text-orange-400 hover:bg-orange-500/30'
-                          )}
-                        >
-                          {post.status === 'published' ? (isBlogDraft ? 'Ready' : 'Live') : 'Draft'}
-                        </button>
-                        <a
-                          href={post.status === 'published' && !isBlogDraft ? `/blog/${post.slug}` : `/blog/${post.slug}?preview=true`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="p-1.5 rounded-md text-[var(--admin-text-muted)] hover:text-[var(--admin-text-primary)] hover:bg-[var(--admin-input)] transition-colors"
-                          title={post.status === 'published' && !isBlogDraft ? 'View Live' : 'Preview Draft'}
-                        >
-                          <ExternalLink className="w-3.5 h-3.5" />
-                        </a>
-                      </div>
-                    </div>
-                  );
-                })}
-                {posts.length === 0 && (
-                  <div className="p-6 text-center">
-                    <p className="text-sm text-[var(--admin-text-muted)]">No posts yet</p>
-                    <Link
-                      href="/admin/blog/new"
-                      className="inline-flex items-center gap-2 mt-3 text-sm text-[var(--primary)] hover:underline"
-                    >
-                      <Plus className="w-4 h-4" />
-                      Create First Post
-                    </Link>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Right Column - Basic Settings */}
-            <div className="bg-[var(--admin-card)] border border-[var(--admin-border)] rounded-xl p-6">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-lg bg-[var(--primary)]/10 flex items-center justify-center">
-                  <Settings className="w-5 h-5 text-[var(--primary)]" />
-                </div>
-                <div>
-                  <h2 className="text-lg font-medium text-[var(--admin-text-primary)]">
-                    Basic Settings
-                  </h2>
-                  <p className="text-xs text-[var(--admin-text-muted)]">
-                    Blog name, URL, and page design
-                  </p>
-                </div>
-              </div>
-
-              <div className="space-y-5">
-                <div>
-                  <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
-                    Blog Name
-                  </label>
-                  <input
-                    type="text"
-                    value={settings.blogName}
-                    onChange={(e) => setSettings({ ...settings, blogName: e.target.value, pageTitle: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50"
-                    placeholder="AR Magazine"
-                  />
-                  <p className="mt-1.5 text-xs text-[var(--admin-text-muted)]">
-                    Used as the page title on your blog homepage
-                  </p>
-                </div>
-
-                {/* Subtitle - moved under Blog Name */}
-                <div>
-                  <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
-                    Subtitle (Optional)
-                  </label>
-                  <input
-                    type="text"
-                    value={settings.heroSubtitle || ''}
-                    onChange={(e) => setSettings({ ...settings, heroSubtitle: e.target.value || null, pageSubtitle: e.target.value || '' })}
-                    className="w-full px-4 py-2.5 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50"
-                    placeholder="Stories, tips, and inspiration"
-                  />
-                  <p className="mt-1.5 text-xs text-[var(--admin-text-muted)]">
-                    Displayed below the blog name
-                  </p>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
-                    URL Slug
-                  </label>
-                  <div className="flex items-center">
-                    <span className="px-3 py-2.5 bg-[var(--admin-input)] border border-r-0 border-[var(--admin-border)] rounded-l-lg text-[var(--admin-text-muted)] text-sm">
-                      /
-                    </span>
-                    <input
-                      type="text"
-                      value={settings.blogSlug}
-                      onChange={(e) => setSettings({ ...settings, blogSlug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '') })}
-                      className="flex-1 px-4 py-2.5 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-r-lg text-[var(--admin-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50"
-                      placeholder="blog"
-                    />
-                  </div>
-                </div>
-
-                {/* Homepage Header Section */}
-                <div className="pt-6 border-t border-[var(--admin-border)]">
-                  <h3 className="text-sm font-semibold text-[var(--admin-text-primary)] mb-4">
-                    Homepage Header
-                  </h3>
-                  <p className="text-xs text-[var(--admin-text-muted)] mb-4">
-                    Add a hero image/video for a full-screen header, or leave empty for a simple title header
-                  </p>
-
-                  <div className="space-y-4">
-                    {/* Hero Media Upload */}
-                    <div>
-                      <MediaPickerButton
-                        label="Hero Media (Optional)"
-                        value={settings.heroMediaUrl}
-                        onChange={(url) => setSettings({ ...settings, heroMediaUrl: url || null })}
-                        helpText="Desktop: 1920×800px (21:9) • Mobile: 1080×1350px (4:5)"
-                        folder="blog/hero"
-                        aspectRatio="21/9"
-                        acceptVideo
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Blog Design - Stacked Layout Options */}
-                <div className="pt-4 border-t border-[var(--admin-border)]">
-                  <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-3">
-                    Blog Design
-                  </label>
-                  <div className="space-y-2">
-                    {LAYOUT_OPTIONS.map((option) => (
-                      <button
-                        key={option.value}
-                        onClick={() => setSettings({ ...settings, gridLayout: option.value as BlogSettings['gridLayout'] })}
-                        className={cn(
-                          'w-full flex items-center gap-3 p-3 rounded-lg border-2 transition-all text-left',
-                          settings.gridLayout === option.value
-                            ? 'border-[var(--primary)] bg-[var(--primary)]/10'
-                            : 'border-[var(--admin-border)] hover:border-[var(--admin-border-light)] bg-[var(--admin-input)]'
-                        )}
-                      >
-                        <option.icon
-                          className={cn(
-                            'w-5 h-5 shrink-0',
-                            settings.gridLayout === option.value
-                              ? 'text-[var(--primary)]'
-                              : 'text-[var(--admin-text-secondary)]'
-                          )}
-                        />
-                        <div className="flex-1">
-                          <span
-                            className={cn(
-                              'text-sm font-medium block',
-                              settings.gridLayout === option.value
-                                ? 'text-[var(--primary)]'
-                                : 'text-[var(--admin-text-primary)]'
-                            )}
-                          >
-                            {option.label}
-                          </span>
-                          <span className="text-xs text-[var(--admin-text-muted)]">
-                            {option.description}
-                          </span>
-                        </div>
-                        {settings.gridLayout === option.value && (
-                          <Check className="w-4 h-4 text-[var(--primary)] shrink-0" />
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-          </div>
-
-          {/* Page Content / Widgets Section - Full Width */}
-          <div className="bg-[var(--admin-card)] border border-[var(--admin-border)] rounded-xl overflow-hidden">
-            <div className="flex items-center justify-between p-6 border-b border-[var(--admin-border)]">
-              <div>
-                <h2 className="text-lg font-medium text-[var(--admin-text-primary)]">
-                  Page Content
-                </h2>
-                <p className="text-sm text-[var(--admin-text-muted)] mt-1">
-                  Add widgets to customize your blog page layout
-                </p>
-              </div>
-              <span className="px-2 py-0.5 text-xs font-medium bg-[var(--admin-hover)] text-[var(--admin-text-muted)] rounded-full">
-                {blogWidgets.length} widgets
-              </span>
-            </div>
-            <div className="flex">
-              {/* Widget Drop Zone - Left side */}
-              <div
-                className={cn(
-                  'flex-1 p-6 min-h-[400px] transition-all',
-                  draggedWidgetType && 'bg-[var(--primary)]/5'
-                )}
-                onDrop={handleWidgetDrop}
-                onDragOver={handleWidgetDragOver}
-                onDragLeave={() => setDropTargetIndex(null)}
-              >
-                {blogWidgets.length > 0 ? (
-                  <div className="space-y-2">
-                    {blogWidgets.map((widget, index) => {
-                      const widgetDef = WIDGET_TYPES.find((w) => w.type === widget.type);
-                      const Icon = widgetDef?.icon || FileText;
-                      const isExpanded = expandedWidgetId === widget.id;
-                      return (
-                        <div
-                          key={widget.id}
-                          onDragOver={(e) => draggedWidgetType && handleDragOverWidgetRow(e, index)}
-                          onDrop={(e) => handleWidgetDrop(e, dropTargetIndex ?? index)}
-                        >
-                          {/* Drop indicator before this widget */}
-                          {draggedWidgetType && dropTargetIndex === index && (
-                            <div className="h-1 bg-[var(--primary)] mx-4 rounded-full animate-pulse mb-2" />
-                          )}
-                          <div
-                            className={cn(
-                              'rounded-xl border border-[var(--admin-border)] bg-[var(--admin-input)] transition-all overflow-hidden',
-                              'hover:border-[var(--admin-border-light)]',
-                              isExpanded && 'border-[var(--primary)]'
-                            )}
-                          >
-                            {/* Widget Header */}
-                            <div
-                              className="flex items-center gap-3 p-4 cursor-pointer"
-                              onClick={() => setExpandedWidgetId(isExpanded ? null : widget.id)}
-                            >
-                              <GripVertical className="w-4 h-4 text-[var(--admin-text-muted)] cursor-grab" onClick={(e) => e.stopPropagation()} />
-                              <div className="w-10 h-10 rounded-lg bg-[var(--primary)]/10 flex items-center justify-center">
-                                <Icon className="w-5 h-5 text-[var(--primary)]" />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <h4 className="font-medium text-[var(--admin-text-primary)] truncate">
-                                  {widget.title || widgetDef?.name || widget.type}
-                                </h4>
-                                <p className="text-xs text-[var(--admin-text-muted)]">
-                                  {widgetDef?.description || ''}
-                                </p>
-                              </div>
-                              <button
-                                onClick={(e) => { e.stopPropagation(); handleUpdateWidget(widget.id, { isVisible: !widget.isVisible }); }}
-                                className={cn(
-                                  'p-2 rounded-lg transition-colors',
-                                  widget.isVisible
-                                    ? 'text-green-400 bg-green-500/10 hover:bg-green-500/20'
-                                    : 'text-orange-400 bg-orange-500/10 hover:bg-orange-500/20'
-                                )}
-                                title={widget.isVisible ? 'Visible - click to hide' : 'Hidden - click to show'}
-                              >
-                                {widget.isVisible ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-                              </button>
-                              <button
-                                onClick={(e) => { e.stopPropagation(); handleDeleteWidget(widget.id); }}
-                                className="p-2 rounded-lg text-[var(--admin-text-muted)] hover:text-red-400 hover:bg-red-500/10 transition-colors"
-                                title="Delete widget"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                              {isExpanded ? (
-                                <ChevronUp className="w-4 h-4 text-[var(--admin-text-muted)]" />
-                              ) : (
-                                <ChevronDown className="w-4 h-4 text-[var(--admin-text-muted)]" />
-                              )}
-                            </div>
-
-                            {/* Expandable Edit Panel */}
-                            {isExpanded && (
-                              <div className="px-4 pb-4 border-t border-[var(--admin-border)] pt-4 space-y-4">
-                                {/* Title Field - All widgets have this */}
-                                <div>
-                                  <label className="block text-xs font-medium text-[var(--admin-text-muted)] mb-1.5">
-                                    Widget Title
-                                  </label>
-                                  <input
-                                    type="text"
-                                    value={widget.title || ''}
-                                    onChange={(e) => handleUpdateWidget(widget.id, { title: e.target.value })}
-                                    placeholder={widgetDef?.name || 'Widget title'}
-                                    className="w-full px-3 py-2 bg-[var(--admin-card)] border border-[var(--admin-border)] rounded-lg text-sm text-[var(--admin-text-primary)] focus:outline-none focus:border-[var(--primary)]"
-                                  />
-                                </div>
-
-                                {/* Subtitle Field */}
-                                <div>
-                                  <label className="block text-xs font-medium text-[var(--admin-text-muted)] mb-1.5">
-                                    Subtitle (Optional)
-                                  </label>
-                                  <input
-                                    type="text"
-                                    value={widget.subtitle || ''}
-                                    onChange={(e) => handleUpdateWidget(widget.id, { subtitle: e.target.value })}
-                                    placeholder="Optional subtitle"
-                                    className="w-full px-3 py-2 bg-[var(--admin-card)] border border-[var(--admin-border)] rounded-lg text-sm text-[var(--admin-text-primary)] focus:outline-none focus:border-[var(--primary)]"
-                                  />
-                                </div>
-
-                                {/* Widget-specific fields */}
-                                {(widget.type === 'image-text' || widget.type === 'hero-carousel' || widget.type === 'full-width-image') && (
-                                  <div>
-                                    <MediaPickerButton
-                                      label="Image/Video"
-                                      value={(widget.config as { imageUrl?: string })?.imageUrl || null}
-                                      onChange={(url) => handleUpdateWidget(widget.id, { config: { ...widget.config, imageUrl: url } })}
-                                      helpText="Select or upload media"
-                                      folder="blog/widgets"
-                                      aspectRatio="16/9"
-                                      acceptVideo
-                                    />
-                                  </div>
-                                )}
-
-                                {(widget.type === 'image-text' || widget.type === 'text-block' || widget.type === 'cta-banner') && (
-                                  <div>
-                                    <label className="block text-xs font-medium text-[var(--admin-text-muted)] mb-1.5">
-                                      Content Text
-                                    </label>
-                                    <textarea
-                                      value={widget.content || ''}
-                                      onChange={(e) => handleUpdateWidget(widget.id, { content: e.target.value })}
-                                      placeholder="Enter content text..."
-                                      rows={4}
-                                      className="w-full px-3 py-2 bg-[var(--admin-card)] border border-[var(--admin-border)] rounded-lg text-sm text-[var(--admin-text-primary)] focus:outline-none focus:border-[var(--primary)] resize-none"
-                                    />
-                                  </div>
-                                )}
-
-                                {(widget.type === 'cta-banner' || widget.type === 'newsletter-signup') && (
-                                  <div className="grid grid-cols-2 gap-3">
-                                    <div>
-                                      <label className="block text-xs font-medium text-[var(--admin-text-muted)] mb-1.5">
-                                        Button Text
-                                      </label>
-                                      <input
-                                        type="text"
-                                        value={(widget.config as { buttonText?: string })?.buttonText || ''}
-                                        onChange={(e) => handleUpdateWidget(widget.id, { config: { ...widget.config, buttonText: e.target.value } })}
-                                        placeholder="Shop Now"
-                                        className="w-full px-3 py-2 bg-[var(--admin-card)] border border-[var(--admin-border)] rounded-lg text-sm text-[var(--admin-text-primary)] focus:outline-none focus:border-[var(--primary)]"
-                                      />
-                                    </div>
-                                    <div>
-                                      <label className="block text-xs font-medium text-[var(--admin-text-muted)] mb-1.5">
-                                        Button Link
-                                      </label>
-                                      <input
-                                        type="text"
-                                        value={(widget.config as { buttonLink?: string })?.buttonLink || ''}
-                                        onChange={(e) => handleUpdateWidget(widget.id, { config: { ...widget.config, buttonLink: e.target.value } })}
-                                        placeholder="/products"
-                                        className="w-full px-3 py-2 bg-[var(--admin-card)] border border-[var(--admin-border)] rounded-lg text-sm text-[var(--admin-text-primary)] focus:outline-none focus:border-[var(--primary)]"
-                                      />
-                                    </div>
-                                  </div>
-                                )}
-
-                                {widget.type === 'testimonials' && (
-                                  <div className="space-y-3">
-                                    <label className="block text-xs font-medium text-[var(--admin-text-muted)]">
-                                      Display Options
-                                    </label>
-                                    <div className="flex items-center gap-4">
-                                      <label className="flex items-center gap-2 text-sm text-[var(--admin-text-secondary)]">
-                                        <input
-                                          type="checkbox"
-                                          checked={(widget.config as { showRating?: boolean })?.showRating !== false}
-                                          onChange={(e) => handleUpdateWidget(widget.id, { config: { ...widget.config, showRating: e.target.checked } })}
-                                          className="rounded border-[var(--admin-border)]"
-                                        />
-                                        Show Rating Stars
-                                      </label>
-                                      <label className="flex items-center gap-2 text-sm text-[var(--admin-text-secondary)]">
-                                        <input
-                                          type="checkbox"
-                                          checked={(widget.config as { autoRotate?: boolean })?.autoRotate !== false}
-                                          onChange={(e) => handleUpdateWidget(widget.id, { config: { ...widget.config, autoRotate: e.target.checked } })}
-                                          className="rounded border-[var(--admin-border)]"
-                                        />
-                                        Auto-Rotate
-                                      </label>
-                                    </div>
-                                    <div>
-                                      <label className="block text-xs font-medium text-[var(--admin-text-muted)] mb-1.5">
-                                        Number of Testimonials
-                                      </label>
-                                      <select
-                                        value={(widget.config as { count?: number })?.count || 3}
-                                        onChange={(e) => handleUpdateWidget(widget.id, { config: { ...widget.config, count: parseInt(e.target.value) } })}
-                                        className="w-full px-3 py-2 bg-[var(--admin-card)] border border-[var(--admin-border)] rounded-lg text-sm text-[var(--admin-text-primary)] focus:outline-none focus:border-[var(--primary)]"
-                                      >
-                                        <option value={3}>3 testimonials</option>
-                                        <option value={5}>5 testimonials</option>
-                                        <option value={10}>10 testimonials</option>
-                                        <option value={0}>All testimonials</option>
-                                      </select>
-                                    </div>
-                                  </div>
-                                )}
-
-                                {widget.type === 'featured-products' && (
-                                  <div className="space-y-3">
-                                    <div>
-                                      <label className="block text-xs font-medium text-[var(--admin-text-muted)] mb-1.5">
-                                        Number of Products
-                                      </label>
-                                      <select
-                                        value={(widget.config as { count?: number })?.count || 4}
-                                        onChange={(e) => handleUpdateWidget(widget.id, { config: { ...widget.config, count: parseInt(e.target.value) } })}
-                                        className="w-full px-3 py-2 bg-[var(--admin-card)] border border-[var(--admin-border)] rounded-lg text-sm text-[var(--admin-text-primary)] focus:outline-none focus:border-[var(--primary)]"
-                                      >
-                                        <option value={2}>2 products</option>
-                                        <option value={3}>3 products</option>
-                                        <option value={4}>4 products</option>
-                                        <option value={6}>6 products</option>
-                                      </select>
-                                    </div>
-                                  </div>
-                                )}
-
-                                {widget.type === 'instagram-feed' && (
-                                  <div className="space-y-3">
-                                    <div>
-                                      <label className="block text-xs font-medium text-[var(--admin-text-muted)] mb-1.5">
-                                        Instagram Handle
-                                      </label>
-                                      <input
-                                        type="text"
-                                        value={(widget.config as { handle?: string })?.handle || ''}
-                                        onChange={(e) => handleUpdateWidget(widget.id, { config: { ...widget.config, handle: e.target.value } })}
-                                        placeholder="@archiesremedies"
-                                        className="w-full px-3 py-2 bg-[var(--admin-card)] border border-[var(--admin-border)] rounded-lg text-sm text-[var(--admin-text-primary)] focus:outline-none focus:border-[var(--primary)]"
-                                      />
-                                    </div>
-                                    <div>
-                                      <label className="block text-xs font-medium text-[var(--admin-text-muted)] mb-1.5">
-                                        Number of Posts
-                                      </label>
-                                      <select
-                                        value={(widget.config as { count?: number })?.count || 6}
-                                        onChange={(e) => handleUpdateWidget(widget.id, { config: { ...widget.config, count: parseInt(e.target.value) } })}
-                                        className="w-full px-3 py-2 bg-[var(--admin-card)] border border-[var(--admin-border)] rounded-lg text-sm text-[var(--admin-text-primary)] focus:outline-none focus:border-[var(--primary)]"
-                                      >
-                                        <option value={4}>4 posts</option>
-                                        <option value={6}>6 posts</option>
-                                        <option value={8}>8 posts</option>
-                                      </select>
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                          {/* Drop indicator after last widget */}
-                          {draggedWidgetType && index === blogWidgets.length - 1 && dropTargetIndex === blogWidgets.length && (
-                            <div className="h-1 bg-[var(--primary)] mx-4 rounded-full animate-pulse mt-2" />
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <div
-                    className="h-full flex flex-col items-center justify-center text-center"
-                    onDragOver={(e) => {
-                      e.preventDefault();
-                      setDropTargetIndex(0);
-                    }}
-                    onDrop={(e) => handleWidgetDrop(e, 0)}
-                  >
-                    {draggedWidgetType ? (
-                      <>
-                        <div className="w-16 h-16 rounded-2xl bg-[var(--primary)]/20 flex items-center justify-center mb-4">
-                          <Plus className="w-8 h-8 text-[var(--primary)]" />
-                        </div>
-                        <h3 className="font-medium text-lg text-[var(--primary)] mb-2">
-                          Drop here to add
-                        </h3>
-                        <p className="text-sm text-[var(--admin-text-muted)]">
-                          Release to add widget
-                        </p>
-                      </>
-                    ) : (
-                      <>
-                        <Plus className="w-12 h-12 text-[var(--admin-text-muted)] mb-4" />
-                        <h3 className="font-medium text-lg text-[var(--admin-text-primary)] mb-2">
-                          No widgets yet
-                        </h3>
-                        <p className="text-sm text-[var(--admin-text-muted)] max-w-xs">
-                          Drag widgets from the library on the right, or click to add them to your blog page
-                        </p>
-                      </>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              {/* Widget Library Sidebar - Right side */}
-              <div className="w-72 border-l border-[var(--admin-border)] bg-[var(--admin-sidebar)]">
-                <WidgetLibrarySidebar
-                  onAddWidget={handleAddWidget}
-                  onDragStart={(type) => setDraggedWidgetType(type)}
-                  onDragEnd={() => setDraggedWidgetType(null)}
-                  draggedWidgetType={draggedWidgetType}
-                  storageKey="blog-admin-widget-order"
-                  showReorderControls={true}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
+        <BlogPostForm
+          posts={posts}
+          settings={settings}
+          setSettings={setSettings}
+          blogWidgets={blogWidgets}
+          isBlogDraft={isBlogDraft}
+          publishedCount={publishedCount}
+          draftCount={draftCount}
+          draggedWidgetType={draggedWidgetType}
+          setDraggedWidgetType={setDraggedWidgetType}
+          dropTargetIndex={dropTargetIndex}
+          setDropTargetIndex={setDropTargetIndex}
+          expandedWidgetId={expandedWidgetId}
+          setExpandedWidgetId={setExpandedWidgetId}
+          setActiveTab={setActiveTab}
+          handleToggleStatus={handleToggleStatus}
+          handleAddWidget={handleAddWidget}
+          handleUpdateWidget={handleUpdateWidget}
+          handleDeleteWidget={handleDeleteWidget}
+          handleWidgetDrop={handleWidgetDrop}
+          handleWidgetDragOver={handleWidgetDragOver}
+          handleDragOverWidgetRow={handleDragOverWidgetRow}
+        />
       )}
 
       {/* Posts Tab */}
       {activeTab === 'posts' && (
-        <div className="space-y-4">
-          {/* Search, Filter, and Batch Actions */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--admin-text-muted)]" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search posts..."
-                className="w-full pl-11 pr-4 py-3 bg-[var(--admin-card)] border border-[var(--admin-border-light)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="px-4 py-3 bg-[var(--admin-card)] border border-[var(--admin-border-light)] rounded-xl text-[var(--admin-text-primary)] focus:outline-none focus:border-[var(--primary)] transition-colors appearance-none cursor-pointer"
-              >
-                <option value="all">All Status</option>
-                <option value="published">Published ({publishedCount})</option>
-                <option value="draft">Draft ({draftCount})</option>
-              </select>
-
-              {selectedPosts.size > 0 && (
-                <div className="flex items-center gap-2 pl-2 border-l border-[var(--admin-border)]">
-                  <span className="text-sm text-[var(--admin-text-secondary)]">
-                    {selectedPosts.size} selected
-                  </span>
-                  <button
-                    onClick={handleBatchHide}
-                    className="px-3 py-2 rounded-lg text-sm bg-orange-500/10 text-orange-400 hover:bg-orange-500/20 transition-colors"
-                  >
-                    <EyeOff className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={handleBatchDelete}
-                    className="px-3 py-2 rounded-lg text-sm bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Posts List */}
-          <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] overflow-hidden">
-            {/* Header row */}
-            <div className="flex items-center gap-3 px-4 py-3 border-b border-[var(--admin-border)] bg-[var(--admin-input)]">
-              <button
-                onClick={toggleSelectAll}
-                className="text-[var(--admin-text-muted)] hover:text-[var(--admin-text-primary)] transition-colors"
-              >
-                {selectedPosts.size === filteredPosts.length && filteredPosts.length > 0 ? (
-                  <CheckSquare className="w-4 h-4" />
-                ) : (
-                  <Square className="w-4 h-4" />
-                )}
-              </button>
-              <span className="text-xs text-[var(--admin-text-muted)] uppercase tracking-wider font-medium">
-                Drag to reorder posts
-              </span>
-            </div>
-
-            {filteredPosts.length > 0 ? (
-              <div className="divide-y divide-[var(--admin-border-light)]">
-                {filteredPosts.map((post, index) => (
-                  <div
-                    key={post.id}
-                    draggable
-                    onDragStart={(e) => handleDragStart(e, post.id)}
-                    onDragOver={(e) => handleDragOver(e, post.id)}
-                    onDragLeave={handleDragLeave}
-                    onDrop={(e) => handleDrop(e, post.id)}
-                    onDragEnd={handleDragEnd}
-                    className={cn(
-                      'flex items-center gap-3 p-4 transition-colors cursor-move',
-                      draggedPost === post.id && 'opacity-50 bg-[var(--admin-hover)]',
-                      dragOverPost === post.id && 'bg-[var(--primary)]/10 border-t-2 border-[var(--primary)]',
-                      !draggedPost && 'hover:bg-[var(--admin-hover)]'
-                    )}
-                  >
-                    {/* Checkbox */}
-                    <button
-                      onClick={() => toggleSelectPost(post.id)}
-                      className="text-[var(--admin-text-muted)] hover:text-[var(--admin-text-primary)] transition-colors"
-                    >
-                      {selectedPosts.has(post.id) ? (
-                        <CheckSquare className="w-4 h-4 text-[var(--primary)]" />
-                      ) : (
-                        <Square className="w-4 h-4" />
-                      )}
-                    </button>
-
-                    {/* Drag Handle */}
-                    <div className="text-[var(--admin-text-muted)] cursor-grab active:cursor-grabbing">
-                      <GripVertical className="w-4 h-4" />
-                    </div>
-
-                    {/* Thumbnail */}
-                    <Link href={`/admin/blog/${post.id}`} className="w-16 h-12 rounded-lg bg-[var(--admin-input)] overflow-hidden shrink-0">
-                      {post.featuredImageUrl ? (
-                        <img
-                          src={post.featuredImageUrl}
-                          alt=""
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <PenSquare className="w-5 h-5 text-[var(--admin-text-muted)]" />
-                        </div>
-                      )}
-                    </Link>
-
-                    {/* Content */}
-                    <Link href={`/admin/blog/${post.id}`} className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-0.5">
-                        <h3 className="font-medium text-[var(--admin-text-primary)] hover:text-[var(--primary)] transition-colors truncate">
-                          {post.title || 'Untitled'}
-                        </h3>
-                        {post.isFeatured && (
-                          <span className="px-1.5 py-0.5 bg-yellow-400/20 text-yellow-400 text-[10px] font-semibold uppercase tracking-wider rounded">
-                            Featured
-                          </span>
-                        )}
-                        {post.status === 'draft' && (
-                          <span className="px-1.5 py-0.5 bg-orange-500/20 text-orange-400 text-[10px] font-semibold uppercase tracking-wider rounded">
-                            Draft
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-3 text-xs text-[var(--admin-text-muted)]">
-                        <span>/{settings.blogSlug}/{post.slug}</span>
-                        <span className="flex items-center gap-1">
-                          <Clock className="w-3 h-3" />
-                          {post.readingTime || 5} min
-                        </span>
-                        {post.publishedAt && (
-                          <span className="flex items-center gap-1">
-                            <Calendar className="w-3 h-3" />
-                            {new Date(post.publishedAt).toLocaleDateString()}
-                          </span>
-                        )}
-                      </div>
-                    </Link>
-
-                    {/* Actions */}
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => handleToggleStatus(post)}
-                        className={cn(
-                          'px-3 py-1.5 rounded-lg text-xs font-medium transition-colors',
-                          post.status === 'published'
-                            ? isBlogDraft
-                              ? 'bg-blue-500/20 text-blue-400 hover:bg-blue-500/30'
-                              : 'bg-green-500/20 text-green-400 hover:bg-green-500/30'
-                            : 'bg-orange-500/20 text-orange-400 hover:bg-orange-500/30'
-                        )}
-                      >
-                        {post.status === 'published' ? (isBlogDraft ? 'Ready' : 'Live') : 'Draft'}
-                      </button>
-
-                      <a
-                        href={post.status === 'published' && !isBlogDraft ? `/blog/${post.slug}` : `/blog/${post.slug}?preview=true`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="p-2 rounded-lg text-[var(--admin-text-muted)] hover:text-[var(--admin-text-primary)] hover:bg-[var(--admin-input)] transition-colors"
-                        title={post.status === 'published' && !isBlogDraft ? 'View Live' : 'Preview Draft'}
-                      >
-                        <ExternalLink className="w-4 h-4" />
-                      </a>
-
-                      <button
-                        onClick={() => handleDeletePost(post.id)}
-                        className="p-2 rounded-lg text-[var(--admin-text-muted)] hover:text-red-400 hover:bg-red-500/10 transition-colors"
-                        title="Delete post"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="p-12 text-center">
-                <PenSquare className="w-12 h-12 mx-auto mb-4 text-[var(--admin-text-muted)]" />
-                <h3 className="text-lg font-medium text-[var(--admin-text-primary)] mb-2">No blog posts yet</h3>
-                <p className="text-sm text-[var(--admin-text-muted)] mb-6">
-                  Create your first blog post to get started
-                </p>
-                <Link
-                  href="/admin/blog/new"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-[var(--primary)] text-[var(--admin-button-text)] rounded-lg font-medium hover:bg-[var(--primary-dark)] transition-colors"
-                >
-                  <Plus className="w-4 h-4" />
-                  Create First Post
-                </Link>
-              </div>
-            )}
-          </div>
-
-          {/* Tags Section */}
-          {tags.length > 0 && (
-            <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="font-medium text-[var(--admin-text-primary)] flex items-center gap-2">
-                  <Tag className="w-5 h-5 text-[var(--admin-text-secondary)]" />
-                  Tags
-                </h2>
-                <Link
-                  href="/admin/blog/tags"
-                  className="text-sm text-[var(--primary)] hover:underline"
-                >
-                  Manage Tags
-                </Link>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {tags.map((tag) => (
-                  <span
-                    key={tag.id}
-                    className="px-3 py-1.5 rounded-full text-sm font-medium"
-                    style={{
-                      backgroundColor: `${tag.color}20`,
-                      color: tag.color || '#bbdae9',
-                    }}
-                  >
-                    {tag.name}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
+        <BlogPostsList
+          posts={posts}
+          filteredPosts={filteredPosts}
+          tags={tags}
+          settings={settings}
+          isBlogDraft={isBlogDraft}
+          publishedCount={publishedCount}
+          draftCount={draftCount}
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          statusFilter={statusFilter}
+          setStatusFilter={setStatusFilter}
+          selectedPosts={selectedPosts}
+          draggedPost={draggedPost}
+          dragOverPost={dragOverPost}
+          handleDeletePost={handleDeletePost}
+          handleToggleStatus={handleToggleStatus}
+          handleBatchDelete={handleBatchDelete}
+          handleBatchHide={handleBatchHide}
+          handleDragStart={handleDragStart}
+          handleDragOver={handleDragOver}
+          handleDragLeave={handleDragLeave}
+          handleDrop={handleDrop}
+          handleDragEnd={handleDragEnd}
+          toggleSelectAll={toggleSelectAll}
+          toggleSelectPost={toggleSelectPost}
+        />
       )}
     </div>
   );

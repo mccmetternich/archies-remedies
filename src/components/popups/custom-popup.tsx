@@ -6,6 +6,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, ArrowRight, Download, Play, Check, Loader2, Mail, Phone, ChevronDown } from 'lucide-react';
 import { usePopup } from './popup-provider';
 import { VideoPlayer } from './video-player';
+import { usePopupForm } from '@/hooks/use-popup-form';
+import { isVideoUrl } from '@/lib/media-utils';
 
 interface CustomPopupData {
   id: string;
@@ -44,70 +46,41 @@ export function CustomPopup({ popup, enabled = true }: CustomPopupProps) {
   } = usePopup();
 
   const [isOpen, setIsOpen] = useState(false);
-  const [contactValue, setContactValue] = useState('');
-  const [contactType, setContactType] = useState<'phone' | 'email'>('phone');
-  const [showDropdown, setShowDropdown] = useState(false);
-  const [validationError, setValidationError] = useState('');
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [showVideo, setShowVideo] = useState(false);
   const [hasTriggered, setHasTriggered] = useState(false);
 
-  // Format phone number as user types (XXX-XXX-XXXX)
-  const formatPhoneNumber = (value: string): string => {
-    const digits = value.replace(/\D/g, '');
-    const limited = digits.slice(0, 10);
-    if (limited.length <= 3) return limited;
-    if (limited.length <= 6) return `${limited.slice(0, 3)}-${limited.slice(3)}`;
-    return `${limited.slice(0, 3)}-${limited.slice(3, 6)}-${limited.slice(6)}`;
-  };
+  // Close handler for the form hook
+  const handlePopupClose = useCallback(() => {
+    setIsOpen(false);
+    setActivePopup(null);
+  }, [setActivePopup]);
 
-  // Validate phone number
-  const validatePhone = (value: string): string | null => {
-    const digits = value.replace(/\D/g, '');
-    if (digits.length === 0) return null;
-    if (digits.length !== 10) return 'Whoops. Please enter a valid #';
-    return null;
-  };
-
-  // Validate email
-  const validateEmail = (value: string): string | null => {
-    if (!value) return null;
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
-    if (!emailRegex.test(value)) return 'Whoops. Please enter a valid email.';
-    return null;
-  };
-
-  // Handle input change
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    if (contactType === 'phone') {
-      setContactValue(formatPhoneNumber(value));
-    } else {
-      setContactValue(value);
-    }
-    setValidationError('');
-    if (status === 'error') setStatus('idle');
-  };
-
-  // Validate on blur
-  const handleBlur = () => {
-    if (contactType === 'phone') {
-      const error = validatePhone(contactValue);
-      setValidationError(error || '');
-    } else {
-      const error = validateEmail(contactValue);
-      setValidationError(error || '');
-    }
-  };
-
-  // Toggle contact type
-  const toggleContactType = (type: 'email' | 'phone') => {
-    setContactType(type);
-    setContactValue('');
-    setValidationError('');
-    setShowDropdown(false);
-    if (status === 'error') setStatus('idle');
-  };
+  // Use shared popup form hook for all form logic
+  const {
+    contactValue,
+    contactType,
+    showDropdown,
+    validationError,
+    status,
+    isSuccessState,
+    handleInputChange,
+    handleBlur,
+    toggleContactType,
+    setShowDropdown,
+    handleFormSubmit,
+    handleDownloadOnly,
+  } = usePopupForm({
+    ctaType: popup.ctaType,
+    downloadEnabled: popup.ctaType === 'download',
+    downloadFileUrl: popup.downloadFileUrl,
+    downloadFileName: popup.downloadFileName,
+    popupType: 'custom',
+    popupId: popup.id,
+    submitEmail,
+    submitPhone,
+    setPopupSubmitted,
+    onClose: handlePopupClose,
+  });
 
   // Timer trigger
   useEffect(() => {
@@ -181,100 +154,10 @@ export function CustomPopup({ popup, enabled = true }: CustomPopupProps) {
     trackPopupDismiss(popup.id, 'custom');
   };
 
-  const handleDownload = () => {
-    if (popup.downloadFileUrl) {
-      setPopupSubmitted();
-
-      const link = document.createElement('a');
-      link.href = popup.downloadFileUrl;
-      link.download = popup.downloadFileName || 'download';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      setTimeout(() => {
-        setIsOpen(false);
-        setActivePopup(null);
-      }, 500);
-    }
-  };
-
-  // Handle form submission
-  const handleFormSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    // Validate based on CTA type
-    if (popup.ctaType === 'email') {
-      const error = validateEmail(contactValue);
-      if (error || !contactValue) {
-        setValidationError(error || 'Email is required');
-        return;
-      }
-    } else if (popup.ctaType === 'sms') {
-      const error = validatePhone(contactValue);
-      if (error || !contactValue) {
-        setValidationError(error || 'Phone number is required');
-        return;
-      }
-    } else if (popup.ctaType === 'both') {
-      if (contactType === 'phone') {
-        const error = validatePhone(contactValue);
-        if (error || !contactValue) {
-          setValidationError(error || 'Phone number is required');
-          return;
-        }
-      } else {
-        const error = validateEmail(contactValue);
-        if (error || !contactValue) {
-          setValidationError(error || 'Email is required');
-          return;
-        }
-      }
-    }
-
-    setValidationError('');
-    setStatus('loading');
-
-    let success = false;
-
-    // Build download info if popup has a download file
-    const downloadInfo = popup.downloadFileUrl ? {
-      fileUrl: popup.downloadFileUrl,
-      fileName: popup.downloadFileName || 'download',
-    } : undefined;
-
-    if (popup.ctaType === 'email') {
-      success = await submitEmail(contactValue, popup.id, 'custom', downloadInfo);
-    } else if (popup.ctaType === 'sms') {
-      const phoneDigits = contactValue.replace(/\D/g, '');
-      success = await submitPhone(phoneDigits, popup.id, 'custom', downloadInfo);
-    } else if (popup.ctaType === 'both') {
-      if (contactType === 'phone') {
-        const phoneDigits = contactValue.replace(/\D/g, '');
-        success = await submitPhone(phoneDigits, popup.id, 'custom', downloadInfo);
-      } else {
-        success = await submitEmail(contactValue, popup.id, 'custom', downloadInfo);
-      }
-    }
-
-    if (success) {
-      setStatus('success');
-      setTimeout(() => {
-        setIsOpen(false);
-        setActivePopup(null);
-      }, 2000);
-    } else {
-      setStatus('error');
-    }
-  };
-
   if (!enabled) return null;
 
-  // Check if media is video
-  const hasVideo = popup.videoUrl && (
-    popup.videoUrl.match(/\.(mp4|webm|mov)(\?|$)/i) ||
-    popup.videoUrl.includes('/video/upload/')
-  );
+  // Check if media is video (using shared utility)
+  const hasVideo = isVideoUrl(popup.videoUrl);
 
   return (
     <AnimatePresence>
@@ -468,14 +351,8 @@ export function CustomPopup({ popup, enabled = true }: CustomPopupProps) {
                             type="email"
                             placeholder="Your email address"
                             value={contactValue}
-                            onChange={(e) => {
-                              setContactValue(e.target.value);
-                              setValidationError('');
-                            }}
-                            onBlur={() => {
-                              const error = validateEmail(contactValue);
-                              setValidationError(error || '');
-                            }}
+                            onChange={handleInputChange}
+                            onBlur={handleBlur}
                             className={`w-full px-5 py-4 text-base bg-[#f5f5f0] border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#bbdae9] focus:border-[#bbdae9] placeholder:text-gray-400 ${
                               validationError ? 'ring-2 ring-[#bbdae9] border-[#bbdae9]' : ''
                             }`}
@@ -490,14 +367,8 @@ export function CustomPopup({ popup, enabled = true }: CustomPopupProps) {
                             inputMode="tel"
                             placeholder="Your phone number"
                             value={contactValue}
-                            onChange={(e) => {
-                              setContactValue(formatPhoneNumber(e.target.value));
-                              setValidationError('');
-                            }}
-                            onBlur={() => {
-                              const error = validatePhone(contactValue);
-                              setValidationError(error || '');
-                            }}
+                            onChange={handleInputChange}
+                            onBlur={handleBlur}
                             autoComplete="tel"
                             className={`w-full px-5 py-4 text-base bg-[#f5f5f0] border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#bbdae9] focus:border-[#bbdae9] placeholder:text-gray-400 ${
                               validationError ? 'ring-2 ring-[#bbdae9] border-[#bbdae9]' : ''
@@ -553,7 +424,7 @@ export function CustomPopup({ popup, enabled = true }: CustomPopupProps) {
                     {popup.ctaType === 'download' && popup.downloadFileUrl && (
                       <div className="space-y-3">
                         <button
-                          onClick={handleDownload}
+                          onClick={handleDownloadOnly}
                           className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-[#1a1a1a] text-white font-medium text-base hover:bg-[#bbdae9] hover:text-[#1a1a1a] transition-colors"
                         >
                           <Download className="w-4 h-4" />

@@ -3,15 +3,20 @@
  * Handles video detection from featuredImageUrl and date formatting
  */
 
-const VIDEO_EXTENSIONS = ['.mp4', '.webm', '.mov', '.avi', '.m4v', '.ogv'];
+const VIDEO_EXTENSIONS = ['.mp4', '.webm', '.mov', '.avi', '.m4v', '.ogv', '.ogg'];
 
 /**
  * Detect if a URL points to a video file
+ * Checks both file extensions and Cloudinary video upload paths
  */
 export function isVideoUrl(url: string | null | undefined): boolean {
   if (!url) return false;
   const lowerUrl = url.toLowerCase();
-  return VIDEO_EXTENSIONS.some(ext => lowerUrl.includes(ext));
+  // Check for video file extensions
+  const hasVideoExtension = VIDEO_EXTENSIONS.some(ext => lowerUrl.includes(ext));
+  // Check for Cloudinary video upload path
+  const isCloudinaryVideo = lowerUrl.includes('/video/upload/');
+  return hasVideoExtension || isCloudinaryVideo;
 }
 
 /**

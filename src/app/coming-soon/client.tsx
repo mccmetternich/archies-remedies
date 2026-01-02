@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, Phone, ArrowRight, Loader2, Sparkles, ChevronDown, Instagram, Settings } from 'lucide-react';
 import Link from 'next/link';
+import { formatPhoneNumber, validatePhone, validateEmail } from '@/lib/form-utils';
 
 interface ComingSoonClientProps {
   logoUrl?: string;
@@ -44,37 +45,7 @@ export function ComingSoonClient({
   const [errorMessage, setErrorMessage] = useState('');
   const [validationError, setValidationError] = useState('');
 
-  // Format phone number as user types (XXX-XXX-XXXX)
-  const formatPhoneNumber = (value: string): string => {
-    const digits = value.replace(/\D/g, '');
-    const limited = digits.slice(0, 10);
-
-    if (limited.length <= 3) {
-      return limited;
-    } else if (limited.length <= 6) {
-      return `${limited.slice(0, 3)}-${limited.slice(3)}`;
-    } else {
-      return `${limited.slice(0, 3)}-${limited.slice(3, 6)}-${limited.slice(6)}`;
-    }
-  };
-
-  // Validate phone number (must be exactly 10 digits)
-  const validatePhone = (value: string): string | null => {
-    const digits = value.replace(/\D/g, '');
-    if (digits.length === 0) return null;
-    if (digits.length !== 10) return 'Whoops. Please enter a valid #';
-    return null;
-  };
-
-  // Validate email with proper TLD
-  const validateEmail = (value: string): string | null => {
-    if (!value) return null;
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
-    if (!emailRegex.test(value)) {
-      return 'Whoops. Please enter a valid email.';
-    }
-    return null;
-  };
+  // Phone/email validation functions imported from @/lib/form-utils
 
   // Handle input change with formatting
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -3,6 +3,7 @@ import { db } from '@/lib/db';
 import { contactSubmissions } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { requireAuth } from '@/lib/api-auth';
+import { updateContactSubmissionSchema, validatePermissive } from '@/lib/validations';
 
 export async function PATCH(
   request: Request,
@@ -13,7 +14,10 @@ export async function PATCH(
 
   try {
     const { id } = await params;
-    const body = await request.json();
+    const rawBody = await request.json();
+
+    // Validate request body (permissive - logs errors but continues)
+    const { data: body } = validatePermissive(updateContactSubmissionSchema, rawBody);
 
     await db
       .update(contactSubmissions)

@@ -33,6 +33,7 @@ import {
   ChevronDown,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { isVideoUrl } from '@/lib/media-utils';
 import { MediaPickerButton } from '@/components/admin/media-picker';
 import { InternalLinkSelector } from '@/components/admin/internal-link-selector';
 import { PopupRotatingBadge } from '@/components/popups/shared/popup-rotating-badge';
@@ -419,11 +420,7 @@ export default function PopupsPage() {
   const currentFormBadgeUrl = isWelcome ? settings.welcomePopupFormBadgeUrl : settings.exitPopupFormBadgeUrl;
   const currentSuccessBadgeUrl = isWelcome ? settings.welcomePopupSuccessBadgeUrl : settings.exitPopupSuccessBadgeUrl;
 
-  // Check if URL is video
-  const isVideoUrl = (url: string | null | undefined): boolean => {
-    if (!url) return false;
-    return !!(url.match(/\.(mp4|webm|mov)(\?|$)/i) || url.includes('/video/upload/'));
-  };
+  // isVideoUrl imported from @/lib/media-utils
 
   // Calculate effective media URLs based on preview state and device
   const isSuccessPreview = previewState === 'success';

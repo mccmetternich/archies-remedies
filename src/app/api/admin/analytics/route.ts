@@ -170,39 +170,45 @@ export async function GET(request: NextRequest) {
       .limit(10);
 
     // Get daily unique visitors for chart (excluding admin and coming-soon)
-    const dailyVisitorsResult = await db.all(sql`
-      SELECT
-        date(created_at) as date,
-        COUNT(DISTINCT visitor_id) as count
-      FROM page_views
-      WHERE created_at >= ${startDateStr}
-        AND path NOT LIKE '/admin%'
-        AND path != '/coming-soon'
-      GROUP BY date(created_at)
-      ORDER BY date(created_at) ASC
-    `);
+    // Using ORM-style query with sql functions for type safety
+    const dailyVisitorsResult = await db
+      .select({
+        date: sql<string>`date(${pageViews.createdAt})`.as('date'),
+        count: countDistinct(pageViews.visitorId),
+      })
+      .from(pageViews)
+      .where(
+        and(
+          gte(pageViews.createdAt, startDateStr),
+          sql`${pageViews.path} NOT LIKE '/admin%'`,
+          sql`${pageViews.path} != '/coming-soon'`
+        )
+      )
+      .groupBy(sql`date(${pageViews.createdAt})`)
+      .orderBy(sql`date(${pageViews.createdAt}) ASC`);
 
     // Get daily clicks for chart
-    const dailyClicksResult = await db.all(sql`
-      SELECT
-        date(created_at) as date,
-        COUNT(*) as count
-      FROM click_tracking
-      WHERE created_at >= ${startDateStr}
-      GROUP BY date(created_at)
-      ORDER BY date(created_at) ASC
-    `);
+    // Using ORM-style query with sql functions for type safety
+    const dailyClicksResult = await db
+      .select({
+        date: sql<string>`date(${clickTracking.createdAt})`.as('date'),
+        count: count(),
+      })
+      .from(clickTracking)
+      .where(gte(clickTracking.createdAt, startDateStr))
+      .groupBy(sql`date(${clickTracking.createdAt})`)
+      .orderBy(sql`date(${clickTracking.createdAt}) ASC`);
 
     // Fill in missing dates with zero counts
     const dailyVisitors: Array<{ date: string; count: number }> = [];
     const dailyClicks: Array<{ date: string; count: number }> = [];
 
-    // Create a map of existing data
+    // Create a map of existing data (results are now properly typed)
     const visitorsByDate = new Map(
-      (dailyVisitorsResult as Array<{ date: string; count: number }>).map(d => [d.date, d.count])
+      dailyVisitorsResult.map(d => [d.date, d.count])
     );
     const clicksByDate = new Map(
-      (dailyClicksResult as Array<{ date: string; count: number }>).map(d => [d.date, d.count])
+      dailyClicksResult.map(d => [d.date, d.count])
     );
 
     // Generate all dates in range

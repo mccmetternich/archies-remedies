@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-interface RichTextEditorProps {
+export interface RichTextEditorProps {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;

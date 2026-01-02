@@ -7,6 +7,7 @@ import { Star, ChevronRight, ArrowRight, Clock, Check, Mail, Phone, Loader2 } fr
 import { cn } from '@/lib/utils';
 import { trackClick } from '@/lib/tracking';
 import { AudioPlayer } from './audio-player';
+import { formatPhoneNumber, validatePhone, validateEmail } from '@/lib/form-utils';
 
 interface ProductVariant {
   id: string;
@@ -149,29 +150,9 @@ export function PDPBuyBox({
     return 'grid-cols-3';
   };
 
-  // Phone formatting
-  const formatPhoneNumber = (value: string): string => {
-    const digits = value.replace(/\D/g, '');
-    const limited = digits.slice(0, 10);
-    if (limited.length <= 3) return limited;
-    if (limited.length <= 6) return `${limited.slice(0, 3)}-${limited.slice(3)}`;
-    return `${limited.slice(0, 3)}-${limited.slice(3, 6)}-${limited.slice(6)}`;
-  };
-
-  // Validation functions
-  const validatePhone = (value: string): string | null => {
-    const digits = value.replace(/\D/g, '');
-    if (digits.length === 0) return null;
-    if (digits.length !== 10) return 'Please enter a valid phone number';
-    return null;
-  };
-
-  const validateEmailAddress = (value: string): string | null => {
-    if (!value) return null;
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
-    if (!emailRegex.test(value)) return 'Please enter a valid email';
-    return null;
-  };
+  // Phone/email validation functions imported from @/lib/form-utils
+  // Note: using validateEmail as validateEmailAddress for consistency
+  const validateEmailAddress = validateEmail;
 
   // Signup form handlers
   const handleSignupInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {

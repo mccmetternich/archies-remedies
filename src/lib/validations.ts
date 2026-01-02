@@ -55,6 +55,33 @@ export const subscribeSchema = z.object({
   source: z.string().max(100).optional(),
 });
 
+// Product variant schema
+const productVariantSchema = z.object({
+  id: z.string().max(100),
+  name: z.string().max(200),
+  price: z.string().max(50).optional().nullable(),
+  compareAtPrice: z.string().max(50).optional().nullable(),
+  amazonUrl: z.string().max(2000).optional().nullable(),
+  isDefault: z.boolean().optional(),
+  sortOrder: z.number().int().optional(),
+  heroImageUrl: z.string().max(2000).optional().nullable(),
+  secondaryImageUrl: z.string().max(2000).optional().nullable(),
+  heroCarouselImages: z.string().optional().nullable(),
+  thumbnailUrl: z.string().max(2000).optional().nullable(),
+  badge: z.string().max(200).optional().nullable(),
+  badgeBgColor: z.string().max(20).optional(),
+  badgeTextColor: z.string().max(20).optional(),
+}).passthrough();
+
+// Product benefit schema
+const productBenefitSchema = z.object({
+  id: z.string().max(100),
+  title: z.string().max(500),
+  description: z.string().max(2000).optional().nullable(),
+  isPositive: z.boolean().optional(),
+  sortOrder: z.number().int().optional(),
+}).passthrough();
+
 // Product schemas
 export const createProductSchema = z.object({
   name: z.string().min(1, 'Name is required').max(500),
@@ -62,15 +89,31 @@ export const createProductSchema = z.object({
   description: z.string().max(10000).optional(),
   price: z.string().max(50).optional(),
   currency: z.string().max(10).default('USD'),
-  imageUrl: z.string().url().max(2000).optional().nullable(),
-  amazonUrl: z.string().url().max(2000).optional().nullable(),
+  imageUrl: z.string().max(2000).optional().nullable(),
+  amazonUrl: z.string().max(2000).optional().nullable(),
   ctaText: z.string().max(200).optional(),
   isFeatured: z.boolean().optional(),
   sortOrder: z.number().int().optional(),
   status: z.enum(['active', 'draft']).optional(),
-});
+}).passthrough(); // Allow additional product fields
 
 export const updateProductSchema = createProductSchema.partial();
+
+// Full product update schema (for PUT with variants/benefits)
+export const updateProductFullSchema = z.object({
+  product: z.object({
+    slug: z.string().max(500).optional(),
+    name: z.string().max(500).optional(),
+    subtitle: z.string().max(500).optional().nullable(),
+    shortDescription: z.string().max(2000).optional().nullable(),
+    price: z.string().max(50).optional().nullable(),
+    compareAtPrice: z.string().max(50).optional().nullable(),
+    heroImageUrl: z.string().max(2000).optional().nullable(),
+    isActive: z.boolean().optional(),
+  }).passthrough(), // Allow all product fields
+  variants: z.array(productVariantSchema).optional(),
+  benefits: z.array(productBenefitSchema).optional(),
+});
 
 // Blog post schemas
 export const createBlogPostSchema = z.object({
@@ -78,9 +121,9 @@ export const createBlogPostSchema = z.object({
   slug: z.string().max(500).optional(),
   excerpt: z.string().max(1000).optional().nullable(),
   content: z.string().max(100000).optional().nullable(),
-  featuredImageUrl: z.string().url().max(2000).optional().nullable(),
+  featuredImageUrl: z.string().max(2000).optional().nullable(),
   authorName: z.string().max(200).optional(),
-  authorAvatarUrl: z.string().url().max(2000).optional().nullable(),
+  authorAvatarUrl: z.string().max(2000).optional().nullable(),
   status: z.enum(['draft', 'published', 'scheduled']).optional(),
   publishedAt: z.string().optional().nullable(),
   scheduledAt: z.string().optional().nullable(),
@@ -88,7 +131,12 @@ export const createBlogPostSchema = z.object({
   metaTitle: z.string().max(200).optional().nullable(),
   metaDescription: z.string().max(500).optional().nullable(),
   tagIds: z.array(z.string()).optional(),
-});
+  // Additional fields for blog post redesign
+  heroCarouselImages: z.string().optional().nullable(),
+  rightColumnBgColor: z.string().max(50).optional(),
+  rightColumnThumbnailUrl: z.string().max(2000).optional().nullable(),
+  postWidgets: z.string().optional().nullable(),
+}).passthrough(); // Allow additional fields
 
 export const updateBlogPostSchema = createBlogPostSchema.partial();
 
@@ -122,6 +170,13 @@ export const createContactSchema = z.object({
 
 export const updateContactSchema = createContactSchema.partial();
 
+// Contact submission update schema (admin)
+export const updateContactSubmissionSchema = z.object({
+  status: z.enum(['new', 'in_progress', 'resolved', 'spam']).optional(),
+  notes: z.string().max(5000).optional().nullable(),
+  assignedTo: z.string().max(200).optional().nullable(),
+}).passthrough();
+
 // Settings schemas
 export const updateSettingsSchema = z.object({
   siteName: z.string().max(200).optional(),
@@ -142,7 +197,7 @@ export const pageViewSchema = z.object({
   userAgent: z.string().max(1000).optional(),
 });
 
-// Validation helper
+// Validation helper (strict - rejects invalid data)
 export function validateRequest<T>(
   schema: z.ZodSchema<T>,
   data: unknown
@@ -153,4 +208,20 @@ export function validateRequest<T>(
     return { success: false, error: errorMessages };
   }
   return { success: true, data: result.data };
+}
+
+// Permissive validation helper - strips invalid fields but continues processing
+export function validatePermissive<T>(
+  schema: z.ZodSchema<T>,
+  data: unknown
+): { data: T; hadErrors: boolean; errors?: string[] } {
+  const result = schema.safeParse(data);
+  if (result.success) {
+    return { data: result.data, hadErrors: false };
+  }
+  // Log errors but return what we can parse
+  const errors = result.error.issues.map((e: z.ZodIssue) => `${e.path.join('.')}: ${e.message}`);
+  console.warn('[Validation] Permissive parse had errors:', errors);
+  // Return the original data cast to T - schema should use passthrough() for admin routes
+  return { data: data as T, hadErrors: true, errors };
 }

@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronUp, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { isVideoUrl } from '@/lib/media-utils';
 
 interface ProductImage {
   id: string;
@@ -57,15 +58,7 @@ export function PDPGallery({
   const isMobile = useIsMobile();
   const BATCH_SIZE = 3;
 
-  // Helper to detect if a URL is a video (by extension or Cloudinary path)
-  const isVideoUrl = (url: string | null | undefined): boolean => {
-    if (!url) return false;
-    // Check file extension
-    if (/\.(mp4|webm|mov|ogg)(\?|$)/i.test(url)) return true;
-    // Check Cloudinary video path
-    if (url.includes('/video/upload/')) return true;
-    return false;
-  };
+  // isVideoUrl imported from @/lib/media-utils
 
   // Check if heroImage is a video
   const isHeroVideo = isVideoUrl(heroImage);
@@ -399,7 +392,7 @@ export function PDPGallery({
                   loop
                   muted
                   playsInline
-                  className="w-full h-full object-contain pointer-events-none select-none bg-white"
+                  className="w-full h-full object-contain pointer-events-none select-none bg-[#f2f2f2]"
                   draggable={false}
                 />
               ) : activeImage?.imageUrl ? (
@@ -408,7 +401,7 @@ export function PDPGallery({
                   alt={activeImage.altText || productName}
                   fill
                   className="object-contain pointer-events-none select-none"
-                  style={{ backgroundColor: '#ffffff' }}
+                  style={{ backgroundColor: '#f2f2f2' }}
                   priority={activeIndex === 0}
                   sizes="(max-width: 1024px) 80vw, 50vw"
                   draggable={false}

@@ -1,11 +1,13 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ArrowRight, Download, Check, Loader2, Mail, Phone, ChevronDown, Star } from 'lucide-react';
 import { usePopup } from './popup-provider';
 import { PopupRotatingBadge } from './shared/popup-rotating-badge';
+import { usePopupForm } from '@/hooks/use-popup-form';
+import { getEffectivePopupMedia } from '@/lib/popup-utils';
 
 interface WelcomePopupProps {
   enabled?: boolean;
@@ -114,68 +116,39 @@ export function WelcomePopup({
   } = usePopup();
 
   const [isOpen, setIsOpen] = useState(false);
-  const [contactValue, setContactValue] = useState('');
-  const [contactType, setContactType] = useState<'phone' | 'email'>('phone'); // Phone is default for "both" mode
-  const [showDropdown, setShowDropdown] = useState(false);
-  const [validationError, setValidationError] = useState('');
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'downloading' | 'downloaded' | 'error'>('idle');
 
-  // Format phone number as user types (XXX-XXX-XXXX)
-  const formatPhoneNumber = (value: string): string => {
-    const digits = value.replace(/\D/g, '');
-    const limited = digits.slice(0, 10);
-    if (limited.length <= 3) return limited;
-    if (limited.length <= 6) return `${limited.slice(0, 3)}-${limited.slice(3)}`;
-    return `${limited.slice(0, 3)}-${limited.slice(3, 6)}-${limited.slice(6)}`;
-  };
+  // Close handler for the form hook
+  const handlePopupClose = useCallback(() => {
+    setIsOpen(false);
+    setActivePopup(null);
+  }, [setActivePopup]);
 
-  // Validate phone number (must be exactly 10 digits)
-  const validatePhone = (value: string): string | null => {
-    const digits = value.replace(/\D/g, '');
-    if (digits.length === 0) return null;
-    if (digits.length !== 10) return 'Whoops. Please enter a valid #';
-    return null;
-  };
-
-  // Validate email with proper TLD
-  const validateEmail = (value: string): string | null => {
-    if (!value) return null;
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
-    if (!emailRegex.test(value)) return 'Whoops. Please enter a valid email.';
-    return null;
-  };
-
-  // Handle input change with formatting
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    if (contactType === 'phone') {
-      setContactValue(formatPhoneNumber(value));
-    } else {
-      setContactValue(value);
-    }
-    setValidationError('');
-    if (status === 'error') setStatus('idle');
-  };
-
-  // Validate on blur
-  const handleBlur = () => {
-    if (contactType === 'phone') {
-      const error = validatePhone(contactValue);
-      setValidationError(error || '');
-    } else {
-      const error = validateEmail(contactValue);
-      setValidationError(error || '');
-    }
-  };
-
-  // Toggle contact type (for "both" mode dropdown)
-  const toggleContactType = (type: 'email' | 'phone') => {
-    setContactType(type);
-    setContactValue('');
-    setValidationError('');
-    setShowDropdown(false);
-    if (status === 'error') setStatus('idle');
-  };
+  // Use shared popup form hook for all form logic
+  const {
+    contactValue,
+    contactType,
+    showDropdown,
+    validationError,
+    status,
+    isSuccessState,
+    handleInputChange,
+    handleBlur,
+    toggleContactType,
+    setShowDropdown,
+    handleFormSubmit,
+    handleDownloadOnly,
+  } = usePopupForm({
+    ctaType: ctaType || 'email',
+    downloadEnabled,
+    downloadFileUrl,
+    downloadFileName,
+    popupType: 'welcome',
+    popupId: null,
+    submitEmail,
+    submitPhone,
+    setPopupSubmitted,
+    onClose: handlePopupClose,
+  });
 
   // Track if we've already attempted to show the popup this session
   const [hasAttemptedShow, setHasAttemptedShow] = useState(false);
@@ -202,148 +175,28 @@ export function WelcomePopup({
     trackPopupDismiss(null, 'welcome');
   };
 
-  const triggerDownload = () => {
-    if (downloadFileUrl) {
-      setStatus('downloading');
-      const link = document.createElement('a');
-      link.href = downloadFileUrl;
-      link.download = downloadFileName || 'download';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      // Simulate download completion
-      setTimeout(() => {
-        setStatus('downloaded');
-      }, 1500);
-    }
-  };
-
-  const handleFormSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    // Validate based on CTA type
-    if (ctaType === 'email') {
-      const error = validateEmail(contactValue);
-      if (error || !contactValue) {
-        setValidationError(error || 'Email is required');
-        return;
-      }
-    } else if (ctaType === 'sms') {
-      const error = validatePhone(contactValue);
-      if (error || !contactValue) {
-        setValidationError(error || 'Phone number is required');
-        return;
-      }
-    } else if (ctaType === 'both') {
-      // "Both" uses dropdown - validate based on selected type
-      if (contactType === 'phone') {
-        const error = validatePhone(contactValue);
-        if (error || !contactValue) {
-          setValidationError(error || 'Phone number is required');
-          return;
-        }
-      } else {
-        const error = validateEmail(contactValue);
-        if (error || !contactValue) {
-          setValidationError(error || 'Email is required');
-          return;
-        }
-      }
-    }
-
-    setValidationError('');
-    setStatus('loading');
-
-    let success = false;
-
-    // Build download info if download is enabled
-    const downloadInfo = downloadEnabled && downloadFileUrl ? {
-      fileUrl: downloadFileUrl,
-      fileName: downloadFileName || 'download',
-    } : undefined;
-
-    if (ctaType === 'email') {
-      success = await submitEmail(contactValue, null, 'welcome', downloadInfo);
-    } else if (ctaType === 'sms') {
-      const phoneDigits = contactValue.replace(/\D/g, '');
-      success = await submitPhone(phoneDigits, null, 'welcome', downloadInfo);
-    } else if (ctaType === 'both') {
-      // Submit based on selected type in dropdown
-      if (contactType === 'phone') {
-        const phoneDigits = contactValue.replace(/\D/g, '');
-        success = await submitPhone(phoneDigits, null, 'welcome', downloadInfo);
-      } else {
-        success = await submitEmail(contactValue, null, 'welcome', downloadInfo);
-      }
-    }
-
-    if (success) {
-      setStatus('success');
-
-      // If download is enabled, trigger it after success
-      if (downloadEnabled && downloadFileUrl) {
-        setTimeout(() => {
-          triggerDownload();
-        }, 500);
-      } else {
-        setTimeout(() => {
-          setIsOpen(false);
-          setActivePopup(null);
-        }, 2500);
-      }
-    } else {
-      setStatus('error');
-    }
-  };
-
-  const handleDownloadOnly = () => {
-    // For download-only CTA (no form)
-    setPopupSubmitted();
-    triggerDownload();
-
-    setTimeout(() => {
-      setIsOpen(false);
-      setActivePopup(null);
-    }, 2500);
-  };
-
   if (!enabled) return null;
 
-  // Check if media is video - support file extensions and Cloudinary video URLs
-  const isVideoUrl = (url: string | null | undefined): boolean => {
-    if (!url) return false;
-    // Check file extensions
-    if (url.match(/\.(mp4|webm|mov|m4v)(\?|$)/i)) return true;
-    // Check Cloudinary video resource type
-    if (url.includes('/video/upload/')) return true;
-    return false;
-  };
-
-  // Calculate effective media URLs based on state
-  const isSuccessState = status === 'success' || status === 'downloading' || status === 'downloaded';
-
-  // Desktop media: success state falls back to form state, form state falls back to legacy
-  const effectiveDesktopVideoUrl = isSuccessState
-    ? (successDesktopVideoUrl || formDesktopVideoUrl || videoUrl)
-    : (formDesktopVideoUrl || videoUrl);
-  const effectiveDesktopImageUrl = isSuccessState
-    ? (successDesktopImageUrl || formDesktopImageUrl || imageUrl)
-    : (formDesktopImageUrl || imageUrl);
-
-  // Mobile media: success state falls back to form state mobile, then desktop
-  const effectiveMobileVideoUrl = isSuccessState
-    ? (successMobileVideoUrl || successDesktopVideoUrl || formMobileVideoUrl || formDesktopVideoUrl || videoUrl)
-    : (formMobileVideoUrl || formDesktopVideoUrl || videoUrl);
-  const effectiveMobileImageUrl = isSuccessState
-    ? (successMobileImageUrl || successDesktopImageUrl || formMobileImageUrl || formDesktopImageUrl || imageUrl)
-    : (formMobileImageUrl || formDesktopImageUrl || imageUrl);
-
-  const hasDesktopVideo = isVideoUrl(effectiveDesktopVideoUrl);
-  const hasMobileVideo = isVideoUrl(effectiveMobileVideoUrl);
-
-  // Legacy fallback
-  const hasVideo = isVideoUrl(videoUrl);
+  // Calculate effective media URLs based on state using shared utility
+  const {
+    desktopVideoUrl: effectiveDesktopVideoUrl,
+    desktopImageUrl: effectiveDesktopImageUrl,
+    mobileVideoUrl: effectiveMobileVideoUrl,
+    mobileImageUrl: effectiveMobileImageUrl,
+    hasDesktopVideo,
+    hasMobileVideo,
+  } = getEffectivePopupMedia({
+    imageUrl,
+    videoUrl,
+    formDesktopImageUrl,
+    formDesktopVideoUrl,
+    formMobileImageUrl,
+    formMobileVideoUrl,
+    successDesktopImageUrl,
+    successDesktopVideoUrl,
+    successMobileImageUrl,
+    successMobileVideoUrl,
+  }, isSuccessState);
 
   return (
     <AnimatePresence>
@@ -531,7 +384,7 @@ export function WelcomePopup({
                   badgeUrl={isSuccessState ? successBadgeUrl : formBadgeUrl}
                 />
 
-                {status === 'success' || status === 'downloading' || status === 'downloaded' ? (
+                {isSuccessState ? (
                   <div className="py-4 text-center">
                     <div className="flex items-center justify-center gap-3 mb-4">
                       <div className="w-12 h-12 bg-[#bbdae9] rounded-full flex items-center justify-center flex-shrink-0">
@@ -681,14 +534,8 @@ export function WelcomePopup({
                             type="email"
                             placeholder="Your email address"
                             value={contactValue}
-                            onChange={(e) => {
-                              setContactValue(e.target.value);
-                              setValidationError('');
-                            }}
-                            onBlur={() => {
-                              const error = validateEmail(contactValue);
-                              setValidationError(error || '');
-                            }}
+                            onChange={handleInputChange}
+                            onBlur={handleBlur}
                             className={`w-full px-5 py-4 text-base bg-[#f5f5f0] border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#bbdae9] focus:border-[#bbdae9] placeholder:text-gray-400 ${
                               validationError ? 'ring-2 ring-[#bbdae9] border-[#bbdae9]' : ''
                             }`}
@@ -703,14 +550,8 @@ export function WelcomePopup({
                             inputMode="tel"
                             placeholder="Your phone number"
                             value={contactValue}
-                            onChange={(e) => {
-                              setContactValue(formatPhoneNumber(e.target.value));
-                              setValidationError('');
-                            }}
-                            onBlur={() => {
-                              const error = validatePhone(contactValue);
-                              setValidationError(error || '');
-                            }}
+                            onChange={handleInputChange}
+                            onBlur={handleBlur}
                             autoComplete="tel"
                             className={`w-full px-5 py-4 text-base bg-[#f5f5f0] border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#bbdae9] focus:border-[#bbdae9] placeholder:text-gray-400 ${
                               validationError ? 'ring-2 ring-[#bbdae9] border-[#bbdae9]' : ''

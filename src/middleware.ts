@@ -1,6 +1,15 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
+// Session tokens are 64-character hex strings (32 bytes as hex)
+// This quick check rejects obviously malformed tokens in middleware
+// Full validation happens in API routes via requireAuth()
+const SESSION_TOKEN_REGEX = /^[a-f0-9]{64}$/i;
+
+function isValidTokenFormat(token: string | undefined): boolean {
+  return !!token && SESSION_TOKEN_REGEX.test(token);
+}
+
 export function middleware(request: NextRequest) {
   const { pathname, searchParams } = request.nextUrl;
 
@@ -35,13 +44,13 @@ export function middleware(request: NextRequest) {
   if (pathname.startsWith('/admin') && pathname !== '/admin/login') {
     const sessionCookie = request.cookies.get('admin_session');
 
-    if (!sessionCookie?.value) {
-      // Redirect to login if no session
+    if (!isValidTokenFormat(sessionCookie?.value)) {
+      // Redirect to login if no session or malformed token
       return NextResponse.redirect(new URL('/admin/login', request.url));
     }
 
     // Note: Full session validation happens in API routes via requireAuth()
-    // Middleware only checks cookie existence for page routes
+    // Middleware checks token format as a quick first-pass filter
   }
 
   // Protect admin API routes (except auth endpoints)
@@ -51,7 +60,7 @@ export function middleware(request: NextRequest) {
   ) {
     const sessionCookie = request.cookies.get('admin_session');
 
-    if (!sessionCookie?.value) {
+    if (!isValidTokenFormat(sessionCookie?.value)) {
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
@@ -65,7 +74,7 @@ export function middleware(request: NextRequest) {
   if (pathname === '/admin/login') {
     const sessionCookie = request.cookies.get('admin_session');
 
-    if (sessionCookie?.value) {
+    if (isValidTokenFormat(sessionCookie?.value)) {
       return NextResponse.redirect(new URL('/admin', request.url));
     }
   }

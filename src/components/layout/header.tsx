@@ -3,95 +3,19 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, ChevronDown, Star, ArrowRight } from 'lucide-react';
+import { Menu, ChevronDown, Star, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { AnnouncementBar } from './announcement-bar';
-
-interface Product {
-  id: string;
-  name: string;
-  slug: string;
-  shortDescription: string | null;
-  heroImageUrl: string | null;
-  rating?: number | null;
-  reviewCount?: number | null;
-}
-
-interface BumperSettings {
-  bumperEnabled?: boolean | null;
-  bumperText?: string | null;
-  bumperLinkUrl?: string | null;
-  bumperLinkText?: string | null;
-  bumperTheme?: 'light' | 'dark' | null;
-}
-
-interface SocialStats {
-  totalReviews?: number | null;
-  totalCustomers?: number | null;
-  instagramFollowers?: number | null;
-  facebookFollowers?: number | null;
-}
-
-interface GlobalNavSettings {
-  logoPosition?: string | null;
-  logoPositionMobile?: string | null;
-  ctaEnabled?: boolean | null;
-  ctaText?: string | null;
-  ctaUrl?: string | null;
-  tile1ProductId?: string | null;
-  tile1Title?: string | null;
-  tile1Subtitle?: string | null;
-  tile1Badge?: string | null;
-  tile1BadgeEmoji?: string | null;
-  tile1BadgeBgColor?: string | null;
-  tile1BadgeTextColor?: string | null;
-  tile1ImageUrl?: string | null;
-  tile1HoverImageUrl?: string | null;
-  tile2ProductId?: string | null;
-  tile2Title?: string | null;
-  tile2Subtitle?: string | null;
-  tile2Badge?: string | null;
-  tile2BadgeEmoji?: string | null;
-  tile2BadgeBgColor?: string | null;
-  tile2BadgeTextColor?: string | null;
-  tile2ImageUrl?: string | null;
-  tile2HoverImageUrl?: string | null;
-  // Marketing tile (uses both new and legacy field names)
-  marketingTileTitle?: string | null;
-  marketingTileDescription?: string | null;
-  marketingTileBadge1?: string | null;
-  marketingTileBadge2?: string | null;
-  marketingTileBadge3?: string | null;
-  marketingTileCtaEnabled?: boolean | null;
-  marketingTileCtaEnabledDesktop?: boolean | null;
-  marketingTileCtaEnabledMobile?: boolean | null;
-  marketingTileCtaText?: string | null;
-  marketingTileCtaUrl?: string | null;
-  marketingTileRotatingBadgeEnabled?: boolean | null;
-  marketingTileRotatingBadgeEnabledDesktop?: boolean | null;
-  marketingTileRotatingBadgeEnabledMobile?: boolean | null;
-  marketingTileRotatingBadgeUrl?: string | null;
-  marketingTileHideOnMobile?: boolean | null;
-  // Legacy aliases
-  cleanFormulasTitle?: string | null;
-  cleanFormulasDescription?: string | null;
-  cleanFormulasCtaEnabled?: boolean | null;
-  cleanFormulasCtaText?: string | null;
-  cleanFormulasCtaUrl?: string | null;
-  cleanFormulasBadgeEnabled?: boolean | null;
-  cleanFormulasBadgeUrl?: string | null;
-}
-
-interface NavPage {
-  id: string;
-  slug: string;
-  title: string;
-  showInNav: boolean | null;
-  navOrder: number | null;
-  navShowOnDesktop: boolean | null;
-  navShowOnMobile: boolean | null;
-}
+import { MobileMenu } from '@/components/header/mobile-menu';
+import {
+  Product,
+  BumperSettings,
+  SocialStats,
+  GlobalNavSettings,
+  NavPage,
+  PRODUCT_IMAGES,
+  SOCIAL_PROOF_AVATARS,
+} from '@/components/header/types';
 
 interface HeaderProps {
   logo?: string | null;
@@ -101,20 +25,6 @@ interface HeaderProps {
   globalNav?: GlobalNavSettings | null;
   navPages?: NavPage[];
 }
-
-// Product images for mega nav
-const PRODUCT_IMAGES = {
-  'eye-drops': 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400&h=400&fit=crop',
-  'eye-wipes': 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=400&h=400&fit=crop',
-};
-
-// Default avatars for social proof
-const SOCIAL_PROOF_AVATARS = [
-  'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=60&h=60&fit=crop&crop=face',
-  'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=60&h=60&fit=crop&crop=face',
-  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=60&h=60&fit=crop&crop=face',
-  'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=60&h=60&fit=crop&crop=face',
-];
 
 export function Header({ logo, products = [], bumper, socialStats, globalNav, navPages = [] }: HeaderProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -570,225 +480,19 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
       </header>
 
       {/* Mobile Menu - Slide-out drawer from right */}
-      <AnimatePresence>
-        {isOpen && (
-          <>
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-[60] bg-black/50 lg:hidden"
-              onClick={() => setIsOpen(false)}
-            />
-
-            {/* Drawer */}
-            <motion.div
-              initial={{ x: '100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '100%' }}
-              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed top-0 right-0 h-full w-[85vw] max-w-[400px] z-[61] bg-[#f2f2f2] shadow-2xl lg:hidden"
-              style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
-            >
-              <div className="flex flex-col h-full">
-                {/* Close button - aligned with content edge */}
-                <button
-                  onClick={() => setIsOpen(false)}
-                  className="absolute top-3 right-5 z-10 p-2 rounded-full hover:bg-[var(--sand)] transition-colors"
-                >
-                  <X className="w-6 h-6" />
-                </button>
-
-                <div className="flex-1 overflow-auto px-5 pt-4 pb-6">
-                <nav className="space-y-4">
-                  {/* Shop Section Header - Inter font, dark gray */}
-                  <h3
-                    className="font-semibold tracking-[0.15em] uppercase text-[#666666]"
-                    style={{ fontSize: '22px', fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
-                  >
-                    Shop
-                  </h3>
-
-                  {/* Best Sellers label - left aligned, tighter gap to line */}
-                  <div className="pt-1 pb-1">
-                    <span className="text-[8px] font-medium tracking-[0.15em] uppercase text-[var(--muted-foreground)]">Best Sellers</span>
-                    <div className="h-[0.5px] bg-black/30 mt-1" />
-                  </div>
-
-                  {/* Product Tiles */}
-                  <div className="space-y-3">
-                    {tile1Product && (
-                      <Link
-                        href={`/products/${tile1Product.slug}`}
-                        onClick={() => setIsOpen(false)}
-                        className="flex items-start gap-5 py-3 px-3 rounded-2xl bg-[#f8f8f8] hover:bg-[#e8f4f9] transition-colors"
-                      >
-                        <div className="w-[90px] h-[90px] rounded-xl bg-white overflow-hidden relative flex-shrink-0">
-                          {(() => {
-                            const mediaUrl = globalNav?.tile1ImageUrl || tile1Product.heroImageUrl || PRODUCT_IMAGES['eye-drops'];
-                            const isVideo = mediaUrl?.match(/\.(mp4|webm|mov)$/i);
-                            return isVideo ? (
-                              <video
-                                src={mediaUrl}
-                                autoPlay
-                                loop
-                                muted
-                                playsInline
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <Image
-                                src={mediaUrl}
-                                alt={tile1Product.name}
-                                width={90}
-                                height={90}
-                                className="w-full h-full object-cover"
-                              />
-                            );
-                          })()}
-                        </div>
-                        <div className="flex-1 min-w-0 pt-0.5">
-                          <p className="font-medium text-[14px] uppercase tracking-tight">{globalNav?.tile1Title || tile1Product.name}</p>
-                          <p className="text-sm text-[var(--muted-foreground)]">{globalNav?.tile1Subtitle || 'Preservative-free relief'}</p>
-                        </div>
-                        <ArrowRight className="w-5 h-5 text-[var(--muted-foreground)] flex-shrink-0 mt-0.5" />
-                      </Link>
-                    )}
-                    {tile2Product && (
-                      <Link
-                        href={`/products/${tile2Product.slug}`}
-                        onClick={() => setIsOpen(false)}
-                        className="flex items-start gap-5 py-3 px-3 rounded-2xl bg-[#f8f8f8] hover:bg-[#e8f4f9] transition-colors"
-                      >
-                        <div className="w-[90px] h-[90px] rounded-xl bg-white overflow-hidden relative flex-shrink-0">
-                          {(() => {
-                            const mediaUrl = globalNav?.tile2ImageUrl || tile2Product.heroImageUrl || PRODUCT_IMAGES['eye-wipes'];
-                            const isVideo = mediaUrl?.match(/\.(mp4|webm|mov)$/i);
-                            return isVideo ? (
-                              <video
-                                src={mediaUrl}
-                                autoPlay
-                                loop
-                                muted
-                                playsInline
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <Image
-                                src={mediaUrl}
-                                alt={tile2Product.name}
-                                width={90}
-                                height={90}
-                                className="w-full h-full object-cover"
-                              />
-                            );
-                          })()}
-                        </div>
-                        <div className="flex-1 min-w-0 pt-0.5">
-                          <p className="font-medium text-[14px] uppercase tracking-tight">{globalNav?.tile2Title || tile2Product.name}</p>
-                          <p className="text-sm text-[var(--muted-foreground)]">{globalNav?.tile2Subtitle || 'Gentle daily cleansing'}</p>
-                        </div>
-                        <ArrowRight className="w-5 h-5 text-[var(--muted-foreground)] flex-shrink-0 mt-0.5" />
-                      </Link>
-                    )}
-                  </div>
-
-                  {/* Page Links - each framed with lines like THE RITUAL */}
-                  {mobileNavPages.length > 0 && (
-                    <div className="pt-4 space-y-0">
-                      {mobileNavPages.map((page) => (
-                        <div key={page.id}>
-                          {/* Top border */}
-                          <div className="h-[0.5px] bg-black/30" />
-                          <Link
-                            href={`/${page.slug}`}
-                            onClick={() => setIsOpen(false)}
-                            className="flex items-center justify-between py-3 px-3 hover:text-[var(--muted-foreground)] transition-colors"
-                          >
-                            <span className="text-[14px] font-medium uppercase tracking-tight" style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}>{page.title}</span>
-                            <ArrowRight className="w-4 h-4" />
-                          </Link>
-                          {/* Bottom border */}
-                          <div className="h-[0.5px] bg-black/30" />
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Mobile Marketing Tile - respects hide on mobile setting, increased gap from Our Story */}
-                  {!globalNav?.marketingTileHideOnMobile && (
-                    <div className="relative rounded-xl bg-[var(--primary-light)] overflow-visible mt-[30px]" style={{ padding: '12px' }}>
-                      {/* Rotating Badge - Mobile only (respects mobile toggle) */}
-                      {globalNav?.marketingTileRotatingBadgeEnabled &&
-                       (globalNav?.marketingTileRotatingBadgeEnabledMobile !== false) &&
-                       globalNav?.marketingTileRotatingBadgeUrl && (
-                        <div className="absolute -top-5 -right-2 w-14 h-14 z-10">
-                          <Image
-                            src={globalNav.marketingTileRotatingBadgeUrl}
-                            alt=""
-                            width={56}
-                            height={56}
-                            className="w-full h-full object-contain animate-spin-slow"
-                          />
-                        </div>
-                      )}
-                      <div className="mb-2">
-                        <p className="font-medium text-sm uppercase tracking-wide">{globalNav?.marketingTileTitle || cleanFormulasTitle}</p>
-                        <p className="text-xs text-[var(--muted-foreground)] leading-relaxed mt-1">
-                          {globalNav?.marketingTileDescription || cleanFormulasDescription}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-2 mb-3">
-                        <div className="flex gap-0.5">
-                          {[1, 2, 3, 4, 5].map((i) => (
-                            <Star key={i} className="w-3 h-3 fill-[var(--primary)] text-[var(--primary)]" />
-                          ))}
-                        </div>
-                        <span className="text-[10px] text-[var(--muted-foreground)]">2,900+ Reviews</span>
-                      </div>
-                      <div className="flex flex-wrap gap-1.5">
-                        <span className="text-[10px] px-2 py-0.5 bg-white rounded-full">{globalNav?.marketingTileBadge1 || 'Preservative-Free'}</span>
-                        <span className="text-[10px] px-2 py-0.5 bg-white rounded-full">{globalNav?.marketingTileBadge2 || 'Paraben-Free'}</span>
-                        <span className="text-[10px] px-2 py-0.5 bg-white rounded-full">{globalNav?.marketingTileBadge3 || 'Sulfate-Free'}</span>
-                      </div>
-                      {/* Mobile CTA Button - respects mobile toggle */}
-                      {globalNav?.marketingTileCtaEnabled &&
-                       (globalNav?.marketingTileCtaEnabledMobile !== false) &&
-                       globalNav?.marketingTileCtaText && (
-                        <Link
-                          href={globalNav.marketingTileCtaUrl || '/about'}
-                          onClick={() => setIsOpen(false)}
-                          className="cta-button-primary w-full justify-center mt-4 text-sm py-3"
-                        >
-                          {globalNav.marketingTileCtaText}
-                          <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-                        </Link>
-                      )}
-                    </div>
-                  )}
-                </nav>
-              </div>
-
-              {/* Bottom CTA */}
-              {ctaEnabled && (
-                <div className="p-6 border-t border-[var(--border-light)] bg-[var(--cream)]">
-                  <Link
-                    href={ctaUrl}
-                    onClick={() => setIsOpen(false)}
-                    className="cta-button-primary w-full justify-center"
-                  >
-                    {ctaText}
-                    <ArrowRight className="w-4 h-4" />
-                  </Link>
-                </div>
-              )}
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+      <MobileMenu
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        tile1Product={tile1Product}
+        tile2Product={tile2Product}
+        mobileNavPages={mobileNavPages}
+        globalNav={globalNav}
+        ctaEnabled={ctaEnabled}
+        ctaText={ctaText}
+        ctaUrl={ctaUrl}
+        cleanFormulasTitle={cleanFormulasTitle}
+        cleanFormulasDescription={cleanFormulasDescription}
+      />
 
       {/* Spacer for fixed header + bumper - only on desktop */}
       <div className={cn(
