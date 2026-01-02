@@ -1,7 +1,12 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { ChevronDown, Globe, FileText, Package, ExternalLink, Search, Newspaper } from 'lucide-react';
+import { ChevronDown, Globe, FileText, Package, ExternalLink, Search, Newspaper, ArrowUp } from 'lucide-react';
+
+// Special actions
+const SPECIAL_ACTIONS = [
+  { slug: '#top', label: 'Scroll to Top of Page', icon: 'action' },
+];
 
 // Static pages that always exist
 const STATIC_PAGES = [
@@ -18,7 +23,7 @@ const STATIC_PAGES = [
 interface PageOption {
   slug: string;
   label: string;
-  icon: 'page' | 'product' | 'custom' | 'blog';
+  icon: 'page' | 'product' | 'custom' | 'blog' | 'action';
 }
 
 interface InternalLinkSelectorProps {
@@ -107,6 +112,7 @@ export function InternalLinkSelector({
   // Combine all pages
   useEffect(() => {
     const allPages = [
+      ...SPECIAL_ACTIONS.map(p => ({ ...p, icon: 'action' as const })),
       ...STATIC_PAGES.map(p => ({ ...p, icon: 'page' as const })),
       ...customPages,
       ...products,
@@ -122,6 +128,7 @@ export function InternalLinkSelector({
   );
 
   // Group filtered pages
+  const actionsFiltered = filteredPages.filter(p => p.icon === 'action');
   const staticFiltered = filteredPages.filter(p => STATIC_PAGES.some(sp => sp.slug === p.slug));
   const customFiltered = filteredPages.filter(p => p.icon === 'custom');
   const productFiltered = filteredPages.filter(p => p.icon === 'product');
@@ -180,6 +187,8 @@ export function InternalLinkSelector({
 
   const getIcon = (icon: string) => {
     switch (icon) {
+      case 'action':
+        return <ArrowUp className="w-3.5 h-3.5 text-[var(--primary)]" />;
       case 'product':
         return <Package className="w-3.5 h-3.5 text-[var(--admin-text-muted)]" />;
       case 'custom':
@@ -264,6 +273,27 @@ export function InternalLinkSelector({
                 </div>
               ) : (
                 <>
+                  {/* Special Actions */}
+                  {actionsFiltered.length > 0 && (
+                    <div>
+                      <div className="px-3 py-1.5 text-[10px] font-medium uppercase tracking-wider text-[var(--admin-text-muted)] bg-[var(--admin-bg)]">
+                        Actions
+                      </div>
+                      {actionsFiltered.map((page) => (
+                        <button
+                          key={page.slug}
+                          onClick={() => handleSelect(page.slug)}
+                          className={`w-full flex items-center gap-2.5 px-3 py-2 text-left text-sm hover:bg-[var(--admin-hover)] transition-colors ${
+                            value === page.slug ? 'bg-[var(--primary)]/10' : ''
+                          }`}
+                        >
+                          {getIcon(page.icon)}
+                          <span className="flex-1 text-[var(--admin-text-primary)]">{page.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
                   {/* Static Pages */}
                   {staticFiltered.length > 0 && (
                     <div>

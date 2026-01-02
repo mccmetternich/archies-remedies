@@ -86,7 +86,7 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
       <header
         className={cn(
           'lg:fixed left-0 right-0 lg:z-50 bg-[#f2f2f2] shadow-[0_2px_8px_rgba(0,0,0,0.18)] py-2 md:py-3',
-          showBumper ? 'lg:top-[37px]' : 'lg:top-0'
+          showBumper ? 'lg:top-[33px]' : 'lg:top-0'
         )}
       >
         <nav className="w-full px-6 lg:px-[var(--nav-left-padding)] lg:pr-[var(--nav-right-padding)] landscape-full-width">

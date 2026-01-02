@@ -343,9 +343,17 @@ export function MediaPickerButton({
               ) : isVideo ? (
                 <video
                   src={value}
-                  className="w-full h-full object-contain p-2"
+                  className="w-full h-full object-cover"
                   muted
                   playsInline
+                  preload="metadata"
+                  onLoadedData={(e) => {
+                    // Seek to first frame to show thumbnail
+                    const video = e.currentTarget;
+                    if (video.readyState >= 2) {
+                      video.currentTime = 0.1;
+                    }
+                  }}
                 />
               ) : (
                 <Image

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Star } from 'lucide-react';
@@ -143,6 +143,21 @@ function AutoPlayVideo({ src, className }: { src: string; className?: string }) 
 }
 
 // ============================================
+// HELPER: Check if URL is video
+// ============================================
+
+function isVideoUrl(url: string): boolean {
+  if (!url) return false;
+  // Check for video file extensions (with or without query params)
+  if (url.match(/\.(mp4|webm|mov)(\?|$)/i)) return true;
+  // Check for Cloudinary video URLs
+  if (url.includes('/video/upload/')) return true;
+  // Check for video/ in Cloudinary resource type
+  if (url.includes('res.cloudinary.com') && url.includes('/video/')) return true;
+  return false;
+}
+
+// ============================================
 // MEDIA ITEM COMPONENT
 // ============================================
 
@@ -159,7 +174,10 @@ function MediaItem({
 }) {
   if (!url) return null;
 
-  if (isVideo) {
+  // Use provided isVideo flag OR auto-detect from URL
+  const shouldUseVideo = isVideo || isVideoUrl(url);
+
+  if (shouldUseVideo) {
     return (
       <AutoPlayVideo
         src={url}
@@ -277,6 +295,17 @@ export function TwoColumnFeature({
 }: TwoColumnFeatureProps) {
   const styles = themeStyles[theme];
   const isMediaRight = mediaPosition === 'right';
+
+  // Handle CTA click - supports both regular links and #top action
+  const handleCtaClick = useCallback((e: React.MouseEvent) => {
+    if (ctaUrl === '#top') {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [ctaUrl]);
+
+  // Check if CTA is a scroll action
+  const isScrollAction = ctaUrl === '#top';
 
   // Filter out empty bullet points
   const validBulletPoints = bulletPoints.filter((bp) => bp && bp.trim());
@@ -426,7 +455,8 @@ export function TwoColumnFeature({
                 )}
               >
                 <Link
-                  href={ctaUrl}
+                  href={isScrollAction ? '#' : ctaUrl}
+                  onClick={handleCtaClick}
                   className="inline-flex items-center px-6 py-3 lg:px-8 lg:py-4 rounded-full text-sm lg:text-base font-medium transition-colors"
                   style={{
                     backgroundColor: styles.ctaBg,
@@ -550,7 +580,8 @@ export function TwoColumnFeature({
                 )}
               >
                 <Link
-                  href={ctaUrl}
+                  href={isScrollAction ? '#' : ctaUrl}
+                  onClick={handleCtaClick}
                   className="inline-flex items-center px-5 py-2.5 rounded-full text-sm font-medium transition-colors"
                   style={{
                     backgroundColor: styles.ctaBg,

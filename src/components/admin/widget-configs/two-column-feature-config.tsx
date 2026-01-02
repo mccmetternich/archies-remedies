@@ -106,7 +106,13 @@ const alignmentOptions: { value: TextAlignment; label: string }[] = [
 
 function isVideoUrl(url: string): boolean {
   if (!url) return false;
-  return url.match(/\.(mp4|webm|mov)$/i) !== null || url.includes('/video/upload/');
+  // Check for video file extensions (with or without query params)
+  if (url.match(/\.(mp4|webm|mov)(\?|$)/i)) return true;
+  // Check for Cloudinary video URLs
+  if (url.includes('/video/upload/')) return true;
+  // Check for video/ in Cloudinary resource type
+  if (url.includes('res.cloudinary.com') && url.includes('/video/')) return true;
+  return false;
 }
 
 // ============================================
