@@ -70,6 +70,7 @@ const themeStyles: Record<
     bg: string;
     titleColor: string;
     textColor: string;
+    trayBg: string;
     labelBg: string;
     labelText: string;
     ctaBg: string;
@@ -82,8 +83,9 @@ const themeStyles: Record<
     bg: 'bg-[#bbdae9]',
     titleColor: '#1a1a1a',
     textColor: '#1a1a1a',
-    labelBg: '#bbdae9',
-    labelText: '#1a1a1a',
+    trayBg: '#1a1a1a',
+    labelBg: '#1a1a1a',
+    labelText: '#ffffff',
     ctaBg: '#1a1a1a',
     ctaText: '#ffffff',
     ctaHoverBg: '#333333',
@@ -93,6 +95,7 @@ const themeStyles: Record<
     bg: 'bg-[#1a1a1a]',
     titleColor: '#ffffff',
     textColor: 'rgba(255,255,255,0.85)',
+    trayBg: '#bbdae9',
     labelBg: '#bbdae9',
     labelText: '#1a1a1a',
     ctaBg: '#ffffff',
@@ -104,6 +107,7 @@ const themeStyles: Record<
     bg: 'bg-[#f5f1eb]',
     titleColor: '#1a1a1a',
     textColor: '#333333',
+    trayBg: '#bbdae9',
     labelBg: '#bbdae9',
     labelText: '#1a1a1a',
     ctaBg: '#1a1a1a',
@@ -209,7 +213,7 @@ function BeforeAfterMedia({
   afterUrl,
   afterIsVideo,
   afterLabel = 'AFTER',
-  labelBg,
+  trayBg,
   labelText,
 }: {
   beforeUrl?: string;
@@ -218,22 +222,24 @@ function BeforeAfterMedia({
   afterUrl?: string;
   afterIsVideo?: boolean;
   afterLabel?: string;
-  labelBg: string;
+  trayBg: string;
   labelText: string;
 }) {
   return (
-    <div className="flex gap-[17px] md:gap-[26px] lg:gap-[34px] h-full">
-      {/* Before Column */}
-      <div className="flex-1 flex flex-col">
-        <div className="relative flex-1 rounded-lg overflow-hidden">
+    <div className="flex gap-4 md:gap-6 lg:gap-8 h-full">
+      {/* Before Column - Integrated tray design */}
+      <div
+        className="flex-1 flex flex-col rounded-xl overflow-hidden"
+        style={{ backgroundColor: trayBg }}
+      >
+        {/* Media sits inside the tray */}
+        <div className="relative flex-1 overflow-hidden">
           {beforeUrl && (
             <MediaItem url={beforeUrl} isVideo={beforeIsVideo} alt="Before" />
           )}
         </div>
-        <div
-          className="mt-2 md:mt-3 py-2 md:py-3 text-center rounded-lg"
-          style={{ backgroundColor: labelBg }}
-        >
+        {/* Label is the bottom cap of the tray */}
+        <div className="py-3 md:py-4 text-center">
           <span
             className="text-[11px] md:text-[13px] font-bold uppercase tracking-[0.04em]"
             style={{ color: labelText, fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
@@ -243,17 +249,19 @@ function BeforeAfterMedia({
         </div>
       </div>
 
-      {/* After Column */}
-      <div className="flex-1 flex flex-col">
-        <div className="relative flex-1 rounded-lg overflow-hidden">
+      {/* After Column - Integrated tray design */}
+      <div
+        className="flex-1 flex flex-col rounded-xl overflow-hidden"
+        style={{ backgroundColor: trayBg }}
+      >
+        {/* Media sits inside the tray */}
+        <div className="relative flex-1 overflow-hidden">
           {afterUrl && (
             <MediaItem url={afterUrl} isVideo={afterIsVideo} alt="After" />
           )}
         </div>
-        <div
-          className="mt-2 md:mt-3 py-2 md:py-3 text-center rounded-lg"
-          style={{ backgroundColor: labelBg }}
-        >
+        {/* Label is the bottom cap of the tray */}
+        <div className="py-3 md:py-4 text-center">
           <span
             className="text-[11px] md:text-[13px] font-bold uppercase tracking-[0.04em]"
             style={{ color: labelText, fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
@@ -368,7 +376,7 @@ export function TwoColumnFeature({
                 afterUrl={afterMediaUrl}
                 afterIsVideo={afterMediaIsVideo}
                 afterLabel={afterLabel}
-                labelBg={styles.labelBg}
+                trayBg={styles.trayBg}
                 labelText={styles.labelText}
               />
             </div>
@@ -504,7 +512,7 @@ export function TwoColumnFeature({
               afterUrl={afterMediaUrl}
               afterIsVideo={afterMediaIsVideo}
               afterLabel={afterLabel}
-              labelBg={styles.labelBg}
+              trayBg={styles.trayBg}
               labelText={styles.labelText}
             />
           )}
