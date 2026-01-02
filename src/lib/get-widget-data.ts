@@ -6,7 +6,7 @@
  */
 
 import { db } from '@/lib/db';
-import { heroSlides, products, testimonials, videoTestimonials, instagramPosts, faqs } from '@/lib/db/schema';
+import { heroSlides, products, testimonials, videoTestimonials, instagramPosts, faqs, reviews, reviewKeywords } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 
 // Type definitions for widget data
@@ -83,6 +83,31 @@ export interface WidgetData {
     isActive: boolean | null;
     sortOrder: number | null;
   }>;
+  reviews?: Array<{
+    id: string;
+    productId: string | null;
+    collectionName: string | null;
+    rating: number | null;
+    title: string | null;
+    authorName: string;
+    authorInitial: string | null;
+    text: string;
+    keywords: string | null;
+    isVerified: boolean | null;
+    isFeatured: boolean | null;
+    isActive: boolean | null;
+    sortOrder: number | null;
+    createdAt: string | null;
+  }>;
+  reviewKeywords?: Array<{
+    id: string;
+    productId: string | null;
+    collectionName: string | null;
+    keyword: string;
+    count: number | null;
+    sortOrder: number | null;
+  }>;
+  reviewCollections?: string[]; // List of unique collection names
   instagramUrl?: string | null;
 }
 
@@ -174,6 +199,35 @@ export async function getWidgetData(widgetTypes: string[]): Promise<WidgetData> 
         .orderBy(faqs.sortOrder)
         .then((faqList) => {
           data.faqs = faqList;
+        })
+    );
+  }
+
+  // Reviews
+  if (widgetTypes.includes('reviews')) {
+    fetches.push(
+      db
+        .select()
+        .from(reviews)
+        .where(eq(reviews.isActive, true))
+        .orderBy(reviews.sortOrder)
+        .then((reviewList) => {
+          data.reviews = reviewList;
+          // Extract unique collection names
+          const collections = new Set<string>();
+          reviewList.forEach((r) => {
+            if (r.collectionName) collections.add(r.collectionName);
+          });
+          data.reviewCollections = Array.from(collections);
+        })
+    );
+    fetches.push(
+      db
+        .select()
+        .from(reviewKeywords)
+        .orderBy(reviewKeywords.sortOrder)
+        .then((keywordList) => {
+          data.reviewKeywords = keywordList;
         })
     );
   }

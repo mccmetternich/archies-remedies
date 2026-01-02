@@ -28,6 +28,7 @@ import { MediaCarousel } from '@/components/widgets/media-carousel';
 import type { MediaCarouselItem } from '@/components/widgets/media-carousel';
 import { FAQAccordion } from '@/components/faq/faq-accordion';
 import { ContactForm } from '@/components/contact/contact-form';
+import { PDPReviews } from '@/components/product/pdp-reviews';
 
 // Widget interface matching pages.widgets JSON structure
 export interface PageWidget {
@@ -226,6 +227,40 @@ function renderWidget(widget: PageWidget, data: WidgetRendererProps['data']): Re
           key={widget.id}
           posts={data.instagramPosts || []}
           instagramUrl={data.instagramUrl}
+        />
+      );
+
+    case 'reviews':
+      if (!data.reviews || data.reviews.length === 0) return null;
+      // Filter by productId or collectionName if specified in config
+      const productId = config.productId as string | null;
+      const collectionName = config.collectionName as string | null;
+      let filteredReviews = data.reviews;
+      let filteredKeywords = data.reviewKeywords || [];
+
+      if (productId) {
+        filteredReviews = data.reviews.filter((r) => r.productId === productId);
+        filteredKeywords = filteredKeywords.filter((k) => k.productId === productId);
+      } else if (collectionName) {
+        filteredReviews = data.reviews.filter((r) => r.collectionName === collectionName);
+        filteredKeywords = filteredKeywords.filter((k) => k.collectionName === collectionName);
+      }
+
+      if (filteredReviews.length === 0) return null;
+
+      return (
+        <PDPReviews
+          key={widget.id}
+          reviews={filteredReviews}
+          keywords={filteredKeywords}
+          title={(config.title as string) || widget.title || 'What People Are Saying'}
+          subtitle={(config.subtitle as string) || widget.subtitle}
+          showKeywordFilters={(config.showKeywordFilters as boolean) ?? true}
+          initialCount={(config.initialCount as number) || 6}
+          backgroundColor={(config.backgroundColor as 'cream' | 'white' | 'transparent') || 'cream'}
+          showVerifiedBadge={(config.showVerifiedBadge as boolean) ?? true}
+          showRatingHeader={(config.showRatingHeader as boolean) ?? true}
+          excludedTags={(config.excludedTags as string[]) || []}
         />
       );
 

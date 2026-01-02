@@ -225,14 +225,38 @@ export function MediaCarousel({ items, className }: MediaCarouselProps) {
           const isFirstTile = index === currentIndex;
           const isPlaying = playingVideoId === item.id;
 
+          // Handler for clicking anywhere on a video tile
+          const handleTileClick = () => {
+            if (!isVideo) return;
+
+            if (isFirstTile) {
+              // For tile 1, toggle pause state
+              toggleTile1Pause();
+            } else if (isPlaying) {
+              // For other tiles that are playing, pause them
+              const video = videoRefs.current.get(item.id);
+              if (video) {
+                video.pause();
+                setPlayingVideoId(null);
+              }
+            } else {
+              // For other tiles that are not playing, play them
+              playVideo(item.id);
+            }
+          };
+
           return (
             <div
               key={item.id}
-              className="flex-shrink-0 relative snap-start"
+              className={cn(
+                "flex-shrink-0 relative snap-start",
+                isVideo && "cursor-pointer"
+              )}
               style={{
                 width: tileWidth,
                 aspectRatio: '4 / 5',
               }}
+              onClick={handleTileClick}
             >
               {/* Media */}
               {isVideo ? (
@@ -257,7 +281,7 @@ export function MediaCarousel({ items, className }: MediaCarouselProps) {
               {/* Play/Pause button for tile 1 (videos only) */}
               {isVideo && isFirstTile && (
                 <button
-                  onClick={toggleTile1Pause}
+                  onClick={(e) => { e.stopPropagation(); toggleTile1Pause(); }}
                   className={cn(
                     'absolute bottom-4 right-4 z-10',
                     'w-10 h-10 rounded-full',
@@ -279,7 +303,7 @@ export function MediaCarousel({ items, className }: MediaCarouselProps) {
               {/* Play button for other video tiles */}
               {isVideo && !isFirstTile && !isPlaying && (
                 <button
-                  onClick={() => playVideo(item.id)}
+                  onClick={(e) => { e.stopPropagation(); playVideo(item.id); }}
                   className={cn(
                     'absolute bottom-4 right-4 z-10',
                     'w-10 h-10 rounded-full',
@@ -297,7 +321,8 @@ export function MediaCarousel({ items, className }: MediaCarouselProps) {
               {/* Pause button for playing non-first tiles */}
               {isVideo && !isFirstTile && isPlaying && (
                 <button
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.stopPropagation();
                     const video = videoRefs.current.get(item.id);
                     if (video) {
                       video.pause();

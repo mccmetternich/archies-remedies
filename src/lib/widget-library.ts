@@ -48,7 +48,7 @@ export interface WidgetTypeDefinition {
   category: string;
   description: string;
   /** Database table for this widget (if global), null if page-specific JSON */
-  table?: 'heroSlides' | 'testimonials' | 'videoTestimonials' | 'faqs' | 'instagramPosts' | null;
+  table?: 'heroSlides' | 'testimonials' | 'videoTestimonials' | 'faqs' | 'instagramPosts' | 'reviews' | null;
   /** Admin page href for global widget management */
   adminHref?: string | null;
   /** Key for count lookups */
@@ -238,6 +238,18 @@ export const WIDGET_TYPES: WidgetTypeDefinition[] = [
     isGlobal: true,
   },
   {
+    type: 'reviews',
+    name: 'Reviews',
+    icon: Star,
+    category: 'Social Proof',
+    description: 'Customer reviews with keyword filters',
+    table: 'reviews',
+    adminHref: '/admin/reviews',
+    countKey: 'reviews',
+    addableToPages: true,
+    isGlobal: true,
+  },
+  {
     type: 'press',
     name: 'Press & Media',
     icon: Megaphone,
@@ -421,6 +433,18 @@ export const DEFAULT_CONFIGS: Record<string, Record<string, unknown>> = {
     stats: [],
     ctaText: '',
     ctaUrl: '',
+  },
+  reviews: {
+    title: 'What People Are Saying',
+    subtitle: '',
+    productId: null, // null = all products
+    collectionName: null, // null = not using collection
+    showKeywordFilters: true,
+    initialCount: 6,
+    backgroundColor: 'cream', // 'cream', 'white', 'transparent'
+    showVerifiedBadge: true,
+    showRatingHeader: true,
+    excludedTags: [],
   },
   press: {
     title: 'As Seen In',

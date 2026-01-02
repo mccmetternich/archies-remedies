@@ -26,6 +26,7 @@ import {
   Users,
   ImageIcon,
   Shield,
+  Star,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { AdminThemeProvider, useAdminTheme } from '@/contexts/AdminThemeContext';
@@ -141,6 +142,7 @@ function AdminLayoutInner({ children, unreadMessages = 0 }: AdminLayoutProps) {
         { href: '/admin/navigation', label: 'Navigation', icon: Navigation },
         { href: '/admin/pages', label: 'Pages', icon: FileText },
         { href: '/admin/products', label: 'Products', icon: Package },
+        { href: '/admin/reviews', label: 'Reviews', icon: Star },
         { href: '/admin/blog', label: 'Blog', icon: PenSquare },
       ],
     },

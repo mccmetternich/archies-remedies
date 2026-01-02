@@ -116,40 +116,73 @@ export function WidgetListContainer({
       onDragLeave={handleDragLeave}
     >
       {widgets.length > 0 ? (
-        <Reorder.Group
-          axis="y"
-          values={widgets}
-          onReorder={onReorder}
-          className="divide-y divide-[var(--admin-border)]"
-        >
-          {widgets.map((widget, index) => (
-            <div
-              key={widget.id}
-              onDragOver={(e) => draggedWidgetType && handleDragOverWidget(e, index)}
-              onDrop={(e) => handleDrop(e, dropTargetIndex ?? index)}
-            >
-              {/* Drop indicator before this widget */}
-              {draggedWidgetType && dropTargetIndex === index && (
-                <div className="h-1 bg-[var(--primary)] mx-4 rounded-full animate-pulse" />
-              )}
-              <DraggableWidgetRow
-                widget={widget}
-                index={index}
-                isExpanded={expandedWidget === widget.id}
-                onToggleExpand={() => onToggleExpand(expandedWidget === widget.id ? null : widget.id)}
-                onUpdate={(updates) => onUpdateWidget(widget.id, updates)}
-                onDelete={() => onDeleteWidget(widget.id)}
-                renderCustomConfig={renderCustomConfig}
-                showDeviceToggles={showDeviceToggles}
-                showCount={showCount}
-              />
-              {/* Drop indicator after last widget */}
-              {draggedWidgetType && index === widgets.length - 1 && dropTargetIndex === widgets.length && (
-                <div className="h-1 bg-[var(--primary)] mx-4 rounded-full animate-pulse" />
+        <>
+          <Reorder.Group
+            axis="y"
+            values={widgets}
+            onReorder={onReorder}
+            className="divide-y divide-[var(--admin-border)]"
+          >
+            {widgets.map((widget, index) => (
+              <div
+                key={widget.id}
+                onDragOver={(e) => draggedWidgetType && handleDragOverWidget(e, index)}
+                onDrop={(e) => handleDrop(e, dropTargetIndex ?? index)}
+              >
+                {/* Drop indicator before this widget */}
+                {draggedWidgetType && dropTargetIndex === index && (
+                  <div className="h-1 bg-[var(--primary)] mx-4 rounded-full animate-pulse" />
+                )}
+                <DraggableWidgetRow
+                  widget={widget}
+                  index={index}
+                  isExpanded={expandedWidget === widget.id}
+                  onToggleExpand={() => onToggleExpand(expandedWidget === widget.id ? null : widget.id)}
+                  onUpdate={(updates) => onUpdateWidget(widget.id, updates)}
+                  onDelete={() => onDeleteWidget(widget.id)}
+                  renderCustomConfig={renderCustomConfig}
+                  showDeviceToggles={showDeviceToggles}
+                  showCount={showCount}
+                />
+                {/* Drop indicator after last widget */}
+                {draggedWidgetType && index === widgets.length - 1 && dropTargetIndex === widgets.length && (
+                  <div className="h-1 bg-[var(--primary)] mx-4 rounded-full animate-pulse" />
+                )}
+              </div>
+            ))}
+          </Reorder.Group>
+
+          {/* Drop zone at the bottom for adding more widgets */}
+          <div
+            className={cn(
+              'border-t border-dashed border-[var(--admin-border)] transition-all',
+              draggedWidgetType
+                ? 'py-8 bg-[var(--primary)]/5 border-[var(--primary)]'
+                : 'py-4 hover:bg-[var(--admin-hover)]'
+            )}
+            onDragOver={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setDropTargetIndex(widgets.length);
+            }}
+            onDrop={(e) => handleDrop(e, widgets.length)}
+          >
+            <div className="flex items-center justify-center gap-2 text-sm">
+              {draggedWidgetType ? (
+                <>
+                  <Plus className="w-5 h-5 text-[var(--primary)]" />
+                  <span className="text-[var(--primary)] font-medium">
+                    Drop here to add {WIDGET_TYPES.find((w) => w.type === draggedWidgetType)?.name || 'widget'}
+                  </span>
+                </>
+              ) : (
+                <span className="text-[var(--admin-text-muted)]">
+                  Drag widgets here or from library
+                </span>
               )}
             </div>
-          ))}
-        </Reorder.Group>
+          </div>
+        </>
       ) : (
         <div
           className="py-16 text-center"

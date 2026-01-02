@@ -682,9 +682,11 @@ export const footerLinks = sqliteTable('footer_links', {
 });
 
 // Product Reviews (detailed reviews for PDP)
+// Reviews can belong to either a product OR a collection (for non-product review sets like events)
 export const reviews = sqliteTable('reviews', {
   id: text('id').primaryKey(),
-  productId: text('product_id').notNull().references(() => products.id, { onDelete: 'cascade' }),
+  productId: text('product_id').references(() => products.id, { onDelete: 'cascade' }), // Nullable - for product reviews
+  collectionName: text('collection_name'), // Nullable - for non-product review sets (e.g., "Summer Event 2024")
   rating: integer('rating').default(5), // 1-5 stars
   title: text('title'), // Review headline e.g., "Finally, a drop that doesn't burn."
   authorName: text('author_name').notNull(),
@@ -700,9 +702,11 @@ export const reviews = sqliteTable('reviews', {
 });
 
 // Review Keywords (aggregated for filter bubbles)
+// Keywords can belong to either a product OR a collection
 export const reviewKeywords = sqliteTable('review_keywords', {
   id: text('id').primaryKey(),
-  productId: text('product_id').notNull().references(() => products.id, { onDelete: 'cascade' }),
+  productId: text('product_id').references(() => products.id, { onDelete: 'cascade' }), // Nullable - for product keywords
+  collectionName: text('collection_name'), // Nullable - for collection keywords
   keyword: text('keyword').notNull(),
   count: integer('count').default(1), // Number of reviews with this keyword
   sortOrder: integer('sort_order').default(0),

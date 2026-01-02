@@ -15,6 +15,7 @@ import Link from 'next/link';
 import { MediaPickerButton } from '@/components/admin/media-picker';
 import { MediaCarouselConfig } from '@/components/admin/widget-configs/media-carousel-config';
 import type { MediaCarouselItem } from '@/components/admin/widget-configs/media-carousel-config';
+import { ReviewsConfig } from '@/components/admin/widget-configs/reviews-config';
 
 interface PageWidget {
   id: string;
@@ -124,6 +125,72 @@ export function WidgetConfigPanel({ widget, onUpdate }: WidgetConfigPanelProps) 
           onItemsChange={(items) =>
             onUpdate({
               config: { ...config, items },
+            })
+          }
+        />
+      )}
+
+      {/* Reviews widget */}
+      {widget.type === 'reviews' && (
+        <ReviewsConfig
+          productId={(config.productId as string | null) || null}
+          collectionName={(config.collectionName as string | null) || null}
+          title={(config.title as string) || 'What People Are Saying'}
+          subtitle={(config.subtitle as string) || ''}
+          showKeywordFilters={(config.showKeywordFilters as boolean) ?? true}
+          initialCount={(config.initialCount as number) || 6}
+          backgroundColor={(config.backgroundColor as string) || 'cream'}
+          showVerifiedBadge={(config.showVerifiedBadge as boolean) ?? true}
+          showRatingHeader={(config.showRatingHeader as boolean) ?? true}
+          excludedTags={(config.excludedTags as string[]) || []}
+          onProductIdChange={(productId) =>
+            onUpdate({
+              config: { ...config, productId },
+            })
+          }
+          onCollectionNameChange={(collectionName) =>
+            onUpdate({
+              config: { ...config, collectionName },
+            })
+          }
+          onTitleChange={(title) =>
+            onUpdate({
+              config: { ...config, title },
+            })
+          }
+          onSubtitleChange={(subtitle) =>
+            onUpdate({
+              config: { ...config, subtitle },
+            })
+          }
+          onShowKeywordFiltersChange={(showKeywordFilters) =>
+            onUpdate({
+              config: { ...config, showKeywordFilters },
+            })
+          }
+          onInitialCountChange={(initialCount) =>
+            onUpdate({
+              config: { ...config, initialCount },
+            })
+          }
+          onBackgroundColorChange={(backgroundColor) =>
+            onUpdate({
+              config: { ...config, backgroundColor },
+            })
+          }
+          onShowVerifiedBadgeChange={(showVerifiedBadge) =>
+            onUpdate({
+              config: { ...config, showVerifiedBadge },
+            })
+          }
+          onShowRatingHeaderChange={(showRatingHeader) =>
+            onUpdate({
+              config: { ...config, showRatingHeader },
+            })
+          }
+          onExcludedTagsChange={(excludedTags) =>
+            onUpdate({
+              config: { ...config, excludedTags },
             })
           }
         />

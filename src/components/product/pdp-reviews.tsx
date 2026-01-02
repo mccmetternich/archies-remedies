@@ -26,13 +26,36 @@ interface ReviewKeyword {
 interface PDPReviewsProps {
   reviews: Review[];
   keywords: ReviewKeyword[];
-  productName: string;
+  productName?: string;
+  title?: string;
+  subtitle?: string;
+  showKeywordFilters?: boolean;
+  initialCount?: number;
+  backgroundColor?: 'cream' | 'white' | 'transparent';
+  showVerifiedBadge?: boolean;
+  showRatingHeader?: boolean;
+  excludedTags?: string[];
 }
 
 export const PDPReviews = forwardRef<HTMLElement, PDPReviewsProps>(
-  function PDPReviews({ reviews, keywords, productName }, ref) {
+  function PDPReviews({
+    reviews,
+    keywords,
+    productName,
+    title = 'What People Are Saying',
+    subtitle,
+    showKeywordFilters = true,
+    initialCount = 6,
+    backgroundColor = 'cream',
+    showVerifiedBadge = true,
+    showRatingHeader = true,
+    excludedTags = [],
+  }, ref) {
     const [selectedKeyword, setSelectedKeyword] = useState<string | null>(null);
     const [showAll, setShowAll] = useState(false);
+
+    // Filter out excluded tags from keywords
+    const filteredKeywords = keywords.filter((kw) => !excludedTags.includes(kw.keyword));
 
     // Calculate average rating
     const averageRating = useMemo(() => {
@@ -59,10 +82,17 @@ export const PDPReviews = forwardRef<HTMLElement, PDPReviewsProps>(
     }, [reviews, selectedKeyword]);
 
     // Limit displayed reviews
-    const displayedReviews = showAll ? filteredReviews : filteredReviews.slice(0, 6);
+    const displayedReviews = showAll ? filteredReviews : filteredReviews.slice(0, initialCount);
+
+    // Background color styles
+    const bgStyles = {
+      cream: 'bg-[var(--cream)]',
+      white: 'bg-white',
+      transparent: 'bg-transparent',
+    };
 
     return (
-      <section ref={ref} className="py-16 md:py-24 bg-[var(--cream)]" id="reviews">
+      <section ref={ref} className={cn('py-16 md:py-24', bgStyles[backgroundColor])} id="reviews">
         <div className="container">
           {/* Header */}
           <div className="text-center mb-12">
@@ -72,31 +102,40 @@ export const PDPReviews = forwardRef<HTMLElement, PDPReviewsProps>(
               <span className="w-8 h-px bg-[var(--foreground)]" />
             </span>
             <h2 className="text-3xl md:text-4xl font-normal tracking-tight mb-3">
-              What People Are Saying
+              {title}
             </h2>
-            <div className="flex items-center justify-center gap-3 mb-2">
-              <div className="flex gap-0.5">
-                {[1, 2, 3, 4, 5].map((i) => (
-                  <Star
-                    key={i}
-                    className={cn(
-                      'w-5 h-5',
-                      i <= Math.round(averageRating)
-                        ? 'fill-[var(--foreground)] text-[var(--foreground)]'
-                        : 'fill-transparent text-[var(--foreground)]/30'
-                    )}
-                  />
-                ))}
-              </div>
-              <span className="text-lg font-medium">{averageRating.toFixed(1)}</span>
-            </div>
-            <p className="text-[var(--muted-foreground)]">
-              Based on {reviews.length.toLocaleString()} verified reviews
-            </p>
+            {subtitle && (
+              <p className="text-lg text-[var(--muted-foreground)] mb-4 max-w-2xl mx-auto">
+                {subtitle}
+              </p>
+            )}
+            {showRatingHeader && (
+              <>
+                <div className="flex items-center justify-center gap-3 mb-2">
+                  <div className="flex gap-0.5">
+                    {[1, 2, 3, 4, 5].map((i) => (
+                      <Star
+                        key={i}
+                        className={cn(
+                          'w-5 h-5',
+                          i <= Math.round(averageRating)
+                            ? 'fill-[var(--foreground)] text-[var(--foreground)]'
+                            : 'fill-transparent text-[var(--foreground)]/30'
+                        )}
+                      />
+                    ))}
+                  </div>
+                  <span className="text-lg font-medium">{averageRating.toFixed(1)}</span>
+                </div>
+                <p className="text-[var(--muted-foreground)]">
+                  Based on {reviews.length.toLocaleString()} verified reviews
+                </p>
+              </>
+            )}
           </div>
 
           {/* Keyword Filter Bubbles */}
-          {keywords.length > 0 && (
+          {showKeywordFilters && filteredKeywords.length > 0 && (
             <div className="flex flex-wrap justify-center gap-2 mb-10">
               <button
                 onClick={() => setSelectedKeyword(null)}
@@ -109,7 +148,7 @@ export const PDPReviews = forwardRef<HTMLElement, PDPReviewsProps>(
               >
                 All Reviews
               </button>
-              {keywords.map((kw) => (
+              {filteredKeywords.map((kw) => (
                 <button
                   key={kw.id}
                   onClick={() =>
@@ -134,12 +173,12 @@ export const PDPReviews = forwardRef<HTMLElement, PDPReviewsProps>(
           {/* Reviews Grid */}
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {displayedReviews.map((review) => (
-              <ReviewCard key={review.id} review={review} />
+              <ReviewCard key={review.id} review={review} showVerifiedBadge={showVerifiedBadge} />
             ))}
           </div>
 
           {/* Show More Button */}
-          {filteredReviews.length > 6 && (
+          {filteredReviews.length > initialCount && (
             <div className="text-center mt-10">
               <button
                 onClick={() => setShowAll(!showAll)}
@@ -172,9 +211,10 @@ export const PDPReviews = forwardRef<HTMLElement, PDPReviewsProps>(
 
 interface ReviewCardProps {
   review: Review;
+  showVerifiedBadge?: boolean;
 }
 
-function ReviewCard({ review }: ReviewCardProps) {
+function ReviewCard({ review, showVerifiedBadge = true }: ReviewCardProps) {
   const rating = review.rating || 5;
   const displayName = review.authorInitial || review.authorName;
 
@@ -213,7 +253,7 @@ function ReviewCard({ review }: ReviewCardProps) {
           </div>
           <span className="text-sm font-medium">{displayName}</span>
         </div>
-        {review.isVerified && (
+        {showVerifiedBadge && review.isVerified && (
           <span className="inline-flex items-center gap-1 text-xs text-[var(--muted-foreground)]">
             <Check className="w-3 h-3" />
             Verified
