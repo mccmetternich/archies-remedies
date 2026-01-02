@@ -1083,6 +1083,12 @@ input[type="button"]:disabled,
   transform-style: preserve-3d;
 }
 
+/* Configurable spin animation - use with inline duration */
+@keyframes spin {
+  from { transform: rotate(0deg) translateZ(0); }
+  to { transform: rotate(360deg) translateZ(0); }
+}
+
 /* =============================================
    EDITORIAL BLOG DESIGN SYSTEM
    High-fashion, minimal aesthetic with

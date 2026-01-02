@@ -35,6 +35,7 @@ interface PDPReviewsProps {
   showVerifiedBadge?: boolean;
   showRatingHeader?: boolean;
   excludedTags?: string[];
+  ratingOverride?: number | null;
 }
 
 export const PDPReviews = forwardRef<HTMLElement, PDPReviewsProps>(
@@ -50,6 +51,7 @@ export const PDPReviews = forwardRef<HTMLElement, PDPReviewsProps>(
     showVerifiedBadge = true,
     showRatingHeader = true,
     excludedTags = [],
+    ratingOverride,
   }, ref) {
     const [selectedKeyword, setSelectedKeyword] = useState<string | null>(null);
     const [showAll, setShowAll] = useState(false);
@@ -57,13 +59,16 @@ export const PDPReviews = forwardRef<HTMLElement, PDPReviewsProps>(
     // Filter out excluded tags from keywords
     const filteredKeywords = keywords.filter((kw) => !excludedTags.includes(kw.keyword));
 
-    // Calculate average rating
+    // Calculate average rating (use override if provided)
     const averageRating = useMemo(() => {
+      if (ratingOverride !== null && ratingOverride !== undefined) {
+        return ratingOverride;
+      }
       const validReviews = reviews.filter((r) => r.rating !== null);
       if (validReviews.length === 0) return 5;
       const sum = validReviews.reduce((acc, r) => acc + (r.rating || 5), 0);
       return sum / validReviews.length;
-    }, [reviews]);
+    }, [reviews, ratingOverride]);
 
     // Filter reviews by keyword
     const filteredReviews = useMemo(() => {

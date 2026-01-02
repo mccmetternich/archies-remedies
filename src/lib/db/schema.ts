@@ -314,6 +314,9 @@ export const products = sqliteTable('products', {
   // Rotating Seal (slow-spinning circular badge on gallery)
   rotatingSealEnabled: integer('rotating_seal_enabled', { mode: 'boolean' }).default(false),
   rotatingSealImageUrl: text('rotating_seal_image_url'), // CMS uploadable PNG
+  rotatingSealPosition: text('rotating_seal_position').default('bottom-right'), // top-left, top-right, bottom-left, bottom-right
+  rotatingSealSize: integer('rotating_seal_size').default(112), // pixels (60-150 range)
+  rotatingSealSpeed: integer('rotating_seal_speed').default(20), // seconds for full rotation (8-40 range)
 
   // PDP Drawer Content (accordions)
   ritualTitle: text('ritual_title').default('The Ritual'),

@@ -29,6 +29,8 @@ import type { MediaCarouselItem } from '@/components/widgets/media-carousel';
 import { FAQAccordion } from '@/components/faq/faq-accordion';
 import { ContactForm } from '@/components/contact/contact-form';
 import { PDPReviews } from '@/components/product/pdp-reviews';
+import { IconHighlights } from '@/components/widgets/icon-highlights';
+import type { IconHighlightColumn, IconHighlightsTheme } from '@/components/widgets/icon-highlights';
 
 // Widget interface matching pages.widgets JSON structure
 export interface PageWidget {
@@ -195,6 +197,18 @@ function renderWidget(widget: PageWidget, data: WidgetRendererProps['data']): Re
     case 'mission':
       return <MissionSection key={widget.id} />;
 
+    case 'icon_highlights':
+      return (
+        <IconHighlights
+          key={widget.id}
+          title={(config.title as string) || ''}
+          theme={(config.theme as IconHighlightsTheme) || 'blue'}
+          columns={(config.columns as IconHighlightColumn[]) || []}
+          linkText={(config.linkText as string) || ''}
+          linkUrl={(config.linkUrl as string) || ''}
+        />
+      );
+
     // ─────────────────────────────────────────
     // SOCIAL PROOF
     // ─────────────────────────────────────────
@@ -261,6 +275,7 @@ function renderWidget(widget: PageWidget, data: WidgetRendererProps['data']): Re
           showVerifiedBadge={(config.showVerifiedBadge as boolean) ?? true}
           showRatingHeader={(config.showRatingHeader as boolean) ?? true}
           excludedTags={(config.excludedTags as string[]) || []}
+          ratingOverride={(config.ratingOverride as number | null) ?? null}
         />
       );
 

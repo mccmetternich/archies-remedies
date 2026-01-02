@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { X, Package, FolderOpen } from 'lucide-react';
+import { Package, FolderOpen, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 // ============================================
@@ -31,6 +31,9 @@ interface ReviewsConfigProps {
   showVerifiedBadge: boolean;
   showRatingHeader: boolean;
   excludedTags: string[];
+  ratingOverride?: number | null;
+  // Single callback for source changes to avoid stale closure issues
+  onSourceChange?: (productId: string | null, collectionName: string | null) => void;
   onProductIdChange: (productId: string | null) => void;
   onCollectionNameChange: (collectionName: string | null) => void;
   onTitleChange: (title: string) => void;
@@ -41,6 +44,7 @@ interface ReviewsConfigProps {
   onShowVerifiedBadgeChange: (show: boolean) => void;
   onShowRatingHeaderChange: (show: boolean) => void;
   onExcludedTagsChange: (tags: string[]) => void;
+  onRatingOverrideChange?: (rating: number | null) => void;
 }
 
 // ============================================
@@ -54,20 +58,21 @@ export function ReviewsConfig({
   subtitle,
   showKeywordFilters,
   initialCount,
-  backgroundColor,
   showVerifiedBadge,
   showRatingHeader,
   excludedTags,
+  ratingOverride,
+  onSourceChange,
   onProductIdChange,
   onCollectionNameChange,
   onTitleChange,
   onSubtitleChange,
   onShowKeywordFiltersChange,
   onInitialCountChange,
-  onBackgroundColorChange,
   onShowVerifiedBadgeChange,
   onShowRatingHeaderChange,
   onExcludedTagsChange,
+  onRatingOverrideChange,
 }: ReviewsConfigProps) {
   const [products, setProducts] = useState<Product[]>([]);
   const [collections, setCollections] = useState<Collection[]>([]);
@@ -127,18 +132,28 @@ export function ReviewsConfig({
 
   // Handle source selection
   const handleSourceChange = (value: string) => {
+    let newProductId: string | null = null;
+    let newCollectionName: string | null = null;
+
     if (value === 'all') {
-      onProductIdChange(null);
-      onCollectionNameChange(null);
+      newProductId = null;
+      newCollectionName = null;
     } else if (value.startsWith('product:')) {
-      onProductIdChange(value.replace('product:', ''));
-      onCollectionNameChange(null);
+      newProductId = value.replace('product:', '');
+      newCollectionName = null;
     } else if (value.startsWith('collection:')) {
-      onProductIdChange(null);
-      onCollectionNameChange(value.replace('collection:', ''));
+      newProductId = null;
+      newCollectionName = value.replace('collection:', '');
     }
-    // Clear excluded tags when source changes
-    onExcludedTagsChange([]);
+
+    // Use batched callback if available (prevents stale closure issues)
+    if (onSourceChange) {
+      onSourceChange(newProductId, newCollectionName);
+    } else {
+      onProductIdChange(newProductId);
+      onCollectionNameChange(newCollectionName);
+      onExcludedTagsChange([]);
+    }
   };
 
   // Get current source value
@@ -148,7 +163,26 @@ export function ReviewsConfig({
     return 'all';
   };
 
-  // Add/remove excluded tag
+  // Get the admin link URL based on source
+  const getAdminLink = () => {
+    if (productId) return `/admin/reviews/product/${productId}`;
+    if (collectionName) return `/admin/reviews/collection/${encodeURIComponent(collectionName)}`;
+    return '/admin/reviews';
+  };
+
+  // Get the admin link text
+  const getAdminLinkText = () => {
+    if (productId) {
+      const product = products.find(p => p.id === productId);
+      return `Manage ${product?.name || 'Product'} Reviews →`;
+    }
+    if (collectionName) {
+      return `Manage ${collectionName} Reviews →`;
+    }
+    return 'Manage All Reviews →';
+  };
+
+  // Toggle excluded tag
   const toggleExcludedTag = (tag: string) => {
     if (excludedTags.includes(tag)) {
       onExcludedTagsChange(excludedTags.filter((t) => t !== tag));
@@ -159,6 +193,66 @@ export function ReviewsConfig({
 
   return (
     <div className="space-y-5">
+      {/* Review Source - First */}
+      <div>
+        <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
+          Review Source
+        </label>
+        <div className="relative">
+          <select
+            value={getCurrentSource()}
+            onChange={(e) => handleSourceChange(e.target.value)}
+            disabled={loading}
+            className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] focus:outline-none focus:border-[var(--primary)] transition-colors appearance-none pr-10"
+          >
+            <option value="all">All Reviews</option>
+            {products.length > 0 && (
+              <optgroup label="Products">
+                {products.map((product) => (
+                  <option key={product.id} value={`product:${product.id}`}>
+                    {product.name}
+                  </option>
+                ))}
+              </optgroup>
+            )}
+            {collections.length > 0 && (
+              <optgroup label="Collections">
+                {collections.map((collection) => (
+                  <option key={collection.name} value={`collection:${collection.name}`}>
+                    {collection.name} ({collection.reviewCount})
+                  </option>
+                ))}
+              </optgroup>
+            )}
+          </select>
+          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--admin-text-muted)] pointer-events-none" />
+        </div>
+        <p className="text-xs text-[var(--admin-text-muted)] mt-1.5">
+          Choose which reviews to display in this widget
+        </p>
+      </div>
+
+      {/* Source Badge */}
+      {(productId || collectionName) && (
+        <div className="flex items-center gap-2 px-3 py-2 bg-[var(--admin-hover)] rounded-lg">
+          {productId ? (
+            <>
+              <Package className="w-4 h-4 text-[var(--primary)]" />
+              <span className="text-sm text-[var(--admin-text-primary)]">
+                Linked to: {products.find((p) => p.id === productId)?.name || 'Product'}
+              </span>
+            </>
+          ) : (
+            <>
+              <FolderOpen className="w-4 h-4 text-[var(--admin-info)]" />
+              <span className="text-sm text-[var(--admin-text-primary)]">
+                Collection: {collectionName}
+              </span>
+            </>
+          )}
+        </div>
+      )}
+
       {/* Title */}
       <div>
         <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
@@ -187,60 +281,55 @@ export function ReviewsConfig({
         />
       </div>
 
-      {/* Source Selector */}
-      <div>
-        <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
-          Review Source
-        </label>
-        <select
-          value={getCurrentSource()}
-          onChange={(e) => handleSourceChange(e.target.value)}
-          disabled={loading}
-          className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+      {/* Show Rating Header Toggle */}
+      <div className="flex items-center justify-between p-4 bg-[var(--admin-hover)] rounded-xl">
+        <div>
+          <p className="text-sm font-medium text-[var(--admin-text-primary)]">
+            Rating Summary Header
+          </p>
+          <p className="text-xs text-[var(--admin-text-muted)] mt-0.5">
+            Show &quot;Based on X verified reviews&quot; with star rating
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => onShowRatingHeaderChange(!showRatingHeader)}
+          className={cn(
+            'relative w-11 h-6 rounded-full transition-colors',
+            showRatingHeader ? 'bg-[var(--primary)]' : 'bg-[var(--admin-border)]'
+          )}
         >
-          <option value="all">All Reviews</option>
-          {products.length > 0 && (
-            <optgroup label="Products">
-              {products.map((product) => (
-                <option key={product.id} value={`product:${product.id}`}>
-                  {product.name}
-                </option>
-              ))}
-            </optgroup>
-          )}
-          {collections.length > 0 && (
-            <optgroup label="Collections">
-              {collections.map((collection) => (
-                <option key={collection.name} value={`collection:${collection.name}`}>
-                  {collection.name} ({collection.reviewCount})
-                </option>
-              ))}
-            </optgroup>
-          )}
-        </select>
-        <p className="text-xs text-[var(--admin-text-muted)] mt-1.5">
-          Choose which reviews to display in this widget
-        </p>
+          <span
+            className={cn(
+              'absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform',
+              showRatingHeader ? 'translate-x-5' : 'translate-x-0'
+            )}
+          />
+        </button>
       </div>
 
-      {/* Source Badge */}
-      {(productId || collectionName) && (
-        <div className="flex items-center gap-2 px-3 py-2 bg-[var(--admin-hover)] rounded-lg">
-          {productId ? (
-            <>
-              <Package className="w-4 h-4 text-[var(--primary)]" />
-              <span className="text-sm text-[var(--admin-text-primary)]">
-                Linked to: {products.find((p) => p.id === productId)?.name || 'Product'}
-              </span>
-            </>
-          ) : (
-            <>
-              <FolderOpen className="w-4 h-4 text-purple-400" />
-              <span className="text-sm text-[var(--admin-text-primary)]">
-                Collection: {collectionName}
-              </span>
-            </>
-          )}
+      {/* Rating Override (only show if rating header is enabled) */}
+      {showRatingHeader && onRatingOverrideChange && (
+        <div>
+          <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
+            Rating Override <span className="text-[var(--admin-text-muted)]">(optional)</span>
+          </label>
+          <input
+            type="number"
+            min="1"
+            max="5"
+            step="0.1"
+            value={ratingOverride ?? ''}
+            onChange={(e) => {
+              const val = e.target.value;
+              onRatingOverrideChange(val ? parseFloat(val) : null);
+            }}
+            placeholder="Auto-calculated from reviews"
+            className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-muted)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+          />
+          <p className="text-xs text-[var(--admin-text-muted)] mt-1.5">
+            Leave empty to auto-calculate from actual reviews, or enter 1-5 to override
+          </p>
         </div>
       )}
 
@@ -258,14 +347,14 @@ export function ReviewsConfig({
           type="button"
           onClick={() => onShowKeywordFiltersChange(!showKeywordFilters)}
           className={cn(
-            'relative w-12 h-7 rounded-full transition-colors',
+            'relative w-11 h-6 rounded-full transition-colors',
             showKeywordFilters ? 'bg-[var(--primary)]' : 'bg-[var(--admin-border)]'
           )}
         >
           <span
             className={cn(
-              'absolute top-1 w-5 h-5 rounded-full bg-white shadow transition-transform',
-              showKeywordFilters ? 'translate-x-6' : 'translate-x-1'
+              'absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform',
+              showKeywordFilters ? 'translate-x-5' : 'translate-x-0'
             )}
           />
         </button>
@@ -286,12 +375,11 @@ export function ReviewsConfig({
                 className={cn(
                   'inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-sm transition-colors',
                   excludedTags.includes(tag)
-                    ? 'bg-red-500/10 text-red-400 line-through'
+                    ? 'bg-[var(--admin-error-bg)] text-[var(--admin-error)] line-through'
                     : 'bg-[var(--admin-input)] text-[var(--admin-text-primary)] hover:bg-[var(--admin-hover)]'
                 )}
               >
                 {tag}
-                {excludedTags.includes(tag) && <X className="w-3 h-3" />}
               </button>
             ))}
           </div>
@@ -315,41 +403,14 @@ export function ReviewsConfig({
           type="button"
           onClick={() => onShowVerifiedBadgeChange(!showVerifiedBadge)}
           className={cn(
-            'relative w-12 h-7 rounded-full transition-colors',
+            'relative w-11 h-6 rounded-full transition-colors',
             showVerifiedBadge ? 'bg-[var(--primary)]' : 'bg-[var(--admin-border)]'
           )}
         >
           <span
             className={cn(
-              'absolute top-1 w-5 h-5 rounded-full bg-white shadow transition-transform',
-              showVerifiedBadge ? 'translate-x-6' : 'translate-x-1'
-            )}
-          />
-        </button>
-      </div>
-
-      {/* Show Rating Header Toggle */}
-      <div className="flex items-center justify-between p-4 bg-[var(--admin-hover)] rounded-xl">
-        <div>
-          <p className="text-sm font-medium text-[var(--admin-text-primary)]">
-            Rating Summary Header
-          </p>
-          <p className="text-xs text-[var(--admin-text-muted)] mt-0.5">
-            Show &quot;Based on X verified reviews&quot; with star rating
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={() => onShowRatingHeaderChange(!showRatingHeader)}
-          className={cn(
-            'relative w-12 h-7 rounded-full transition-colors',
-            showRatingHeader ? 'bg-[var(--primary)]' : 'bg-[var(--admin-border)]'
-          )}
-        >
-          <span
-            className={cn(
-              'absolute top-1 w-5 h-5 rounded-full bg-white shadow transition-transform',
-              showRatingHeader ? 'translate-x-6' : 'translate-x-1'
+              'absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform',
+              showVerifiedBadge ? 'translate-x-5' : 'translate-x-0'
             )}
           />
         </button>
@@ -379,52 +440,16 @@ export function ReviewsConfig({
         </p>
       </div>
 
-      {/* Background Color */}
-      <div>
-        <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
-          Background Style
-        </label>
-        <div className="grid grid-cols-3 gap-2">
-          {[
-            { value: 'cream', label: 'Cream', color: 'bg-[#f5f0e8]' },
-            { value: 'white', label: 'White', color: 'bg-white' },
-            { value: 'transparent', label: 'None', color: 'bg-transparent' },
-          ].map((option) => (
-            <button
-              key={option.value}
-              type="button"
-              onClick={() => onBackgroundColorChange(option.value)}
-              className={cn(
-                'p-3 rounded-xl border-2 transition-all text-center',
-                backgroundColor === option.value
-                  ? 'border-[var(--primary)] bg-[var(--primary)]/5'
-                  : 'border-[var(--admin-border)] hover:border-[var(--admin-text-muted)]'
-              )}
-            >
-              <div
-                className={cn(
-                  'w-8 h-8 rounded-lg mx-auto mb-2 border border-[var(--admin-border)]',
-                  option.color
-                )}
-              />
-              <span className="text-xs font-medium text-[var(--admin-text-primary)]">
-                {option.label}
-              </span>
-            </button>
-          ))}
-        </div>
-      </div>
-
       {/* Help Text & Link */}
       <div className="p-4 bg-[var(--admin-input)] rounded-xl">
         <p className="text-sm text-[var(--admin-text-secondary)]">
           Reviews are managed in the Reviews admin section.
         </p>
         <Link
-          href="/admin/reviews"
-          className="text-sm text-[var(--primary)] hover:underline mt-1 inline-block"
+          href={getAdminLink()}
+          className="text-sm text-[var(--primary)] hover:text-[var(--primary-dark)] hover:underline mt-1 inline-block"
         >
-          Manage Reviews →
+          {getAdminLinkText()}
         </Link>
       </div>
     </div>

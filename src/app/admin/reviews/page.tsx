@@ -146,7 +146,7 @@ function StarRating({ rating }: { rating: number | null }) {
           key={star}
           className={cn(
             "w-3.5 h-3.5",
-            star <= Math.round(rating) ? "fill-yellow-400 text-yellow-400" : "text-[var(--admin-text-muted)]"
+            star <= Math.round(rating) ? "fill-[var(--primary)] text-[var(--primary)]" : "text-[var(--admin-text-muted)]"
           )}
         />
       ))}
@@ -288,8 +288,8 @@ export default function ReviewsHubPage() {
         </div>
         <div className="bg-[var(--admin-input)] rounded-xl border border-[var(--admin-border)] p-3 sm:p-5">
           <div className="flex items-center gap-2 sm:gap-3">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-green-500/10 flex items-center justify-center shrink-0">
-              <Package className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-[var(--admin-success-bg)] flex items-center justify-center shrink-0">
+              <Package className="w-4 h-4 sm:w-5 sm:h-5 text-[var(--admin-success)]" />
             </div>
             <div className="min-w-0">
               <p className="text-lg sm:text-2xl font-semibold text-[var(--admin-text-primary)]">{productsWithReviews}</p>
@@ -299,8 +299,8 @@ export default function ReviewsHubPage() {
         </div>
         <div className="bg-[var(--admin-input)] rounded-xl border border-[var(--admin-border)] p-3 sm:p-5">
           <div className="flex items-center gap-2 sm:gap-3">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-purple-500/10 flex items-center justify-center shrink-0">
-              <FolderOpen className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400" />
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-[var(--admin-info-bg)] flex items-center justify-center shrink-0">
+              <FolderOpen className="w-4 h-4 sm:w-5 sm:h-5 text-[var(--admin-info)]" />
             </div>
             <div className="min-w-0">
               <p className="text-lg sm:text-2xl font-semibold text-[var(--admin-text-primary)]">{collections.length}</p>
@@ -310,8 +310,8 @@ export default function ReviewsHubPage() {
         </div>
         <div className="bg-[var(--admin-input)] rounded-xl border border-[var(--admin-border)] p-3 sm:p-5">
           <div className="flex items-center gap-2 sm:gap-3">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-yellow-500/10 flex items-center justify-center shrink-0">
-              <Star className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400" />
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-[var(--admin-warning-bg)] flex items-center justify-center shrink-0">
+              <Star className="w-4 h-4 sm:w-5 sm:h-5 text-[var(--admin-warning)]" />
             </div>
             <div className="min-w-0">
               <p className="text-lg sm:text-2xl font-semibold text-[var(--admin-text-primary)]">
@@ -399,7 +399,7 @@ export default function ReviewsHubPage() {
       <div className="bg-[var(--admin-input)] rounded-xl border border-[var(--admin-border)] overflow-hidden">
         <div className="p-3 sm:p-4 border-b border-[var(--admin-border)] flex items-center justify-between">
           <div className="flex items-center gap-2 sm:gap-3">
-            <FolderOpen className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400" />
+            <FolderOpen className="w-4 h-4 sm:w-5 sm:h-5 text-[var(--admin-info)]" />
             <span className="font-medium text-[var(--admin-text-primary)] text-sm sm:text-base">Collections</span>
             <span className="px-2 py-0.5 text-xs bg-[var(--admin-bg)] text-[var(--admin-text-secondary)] rounded-full">
               {collections.length}
@@ -422,8 +422,8 @@ export default function ReviewsHubPage() {
                 className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 hover:bg-[var(--primary)]/5 transition-colors group"
               >
                 {/* Icon */}
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-purple-500/10 flex items-center justify-center shrink-0 group-hover:bg-purple-500/20 transition-colors">
-                  <FolderOpen className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400" />
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-[var(--admin-info-bg)] flex items-center justify-center shrink-0 group-hover:bg-[var(--admin-info)]/20 transition-colors">
+                  <FolderOpen className="w-4 h-4 sm:w-5 sm:h-5 text-[var(--admin-info)]" />
                 </div>
 
                 {/* Info */}
@@ -457,7 +457,7 @@ export default function ReviewsHubPage() {
           </div>
         ) : (
           <div className="py-12 text-center">
-            <FolderOpen className="w-12 h-12 mx-auto mb-4 text-[var(--admin-text-muted)] opacity-50" />
+            <FolderOpen className="w-12 h-12 mx-auto mb-4 text-[var(--admin-info)] opacity-50" />
             <h3 className="font-medium text-[var(--admin-text-primary)] mb-2">No collections yet</h3>
             <p className="text-sm text-[var(--admin-text-muted)] mb-4">
               Collections let you group reviews not tied to a product

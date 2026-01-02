@@ -84,6 +84,9 @@ interface Product {
   reviewBadgeTextColor: string | null;
   rotatingSealEnabled: boolean | null;
   rotatingSealImageUrl: string | null;
+  rotatingSealPosition: string | null;
+  rotatingSealSize: number | null;
+  rotatingSealSpeed: number | null;
   ritualTitle: string | null;
   ritualContent: string | null;
   ingredientsTitle: string | null;
@@ -188,6 +191,9 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
         reviewBadgeTextColor: '#1a1a1a',
         rotatingSealEnabled: false,
         rotatingSealImageUrl: null,
+        rotatingSealPosition: 'bottom-right',
+        rotatingSealSize: 112,
+        rotatingSealSpeed: 20,
         ritualTitle: 'The Ritual',
         ritualContent: null,
         ingredientsTitle: 'Ingredients',
@@ -1068,6 +1074,112 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
                 </p>
               </div>
             )}
+
+            {/* Rotating Seal Configuration */}
+            <div className="pt-6 border-t border-[var(--admin-border-light)]">
+              <div className="flex items-center justify-between mb-4">
+                <h4 className="text-sm font-medium text-[var(--admin-text-primary)]">
+                  Rotating Seal (Optional)
+                </h4>
+                <button
+                  type="button"
+                  onClick={() => setProduct({ ...product, rotatingSealEnabled: !product.rotatingSealEnabled })}
+                  className={cn(
+                    'relative inline-flex h-6 w-11 items-center rounded-full transition-colors',
+                    product.rotatingSealEnabled ? 'bg-[var(--primary)]' : 'bg-[var(--admin-border)]'
+                  )}
+                >
+                  <span
+                    className={cn(
+                      'inline-block h-5 w-5 transform rounded-full bg-white shadow-sm transition-transform',
+                      product.rotatingSealEnabled ? 'translate-x-5' : 'translate-x-0.5'
+                    )}
+                  />
+                </button>
+              </div>
+
+              {product.rotatingSealEnabled && (
+                <div className="space-y-4">
+                  {/* Image Upload */}
+                  <MediaPickerButton
+                    label="Seal Image"
+                    value={product.rotatingSealImageUrl}
+                    onChange={(url) => setProduct({ ...product, rotatingSealImageUrl: url })}
+                    helpText="Upload a circular PNG with transparent background (recommended 200x200px)"
+                    folder="seals"
+                  />
+
+                  {/* Position Selector */}
+                  <div>
+                    <label className="block text-sm text-[var(--admin-text-secondary)] mb-2">
+                      Position
+                    </label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {[
+                        { value: 'top-left', label: 'Top Left' },
+                        { value: 'top-right', label: 'Top Right' },
+                        { value: 'bottom-left', label: 'Bottom Left' },
+                        { value: 'bottom-right', label: 'Bottom Right' },
+                      ].map((pos) => (
+                        <button
+                          key={pos.value}
+                          type="button"
+                          onClick={() => setProduct({ ...product, rotatingSealPosition: pos.value })}
+                          className={cn(
+                            'px-4 py-2 text-sm rounded-lg border transition-colors',
+                            (product.rotatingSealPosition || 'bottom-right') === pos.value
+                              ? 'bg-[var(--primary)] text-[var(--foreground)] border-[var(--primary)]'
+                              : 'bg-[var(--admin-input)] text-[var(--admin-text-secondary)] border-[var(--admin-border-light)] hover:border-[var(--admin-border)]'
+                          )}
+                        >
+                          {pos.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Size Slider */}
+                  <div>
+                    <label className="block text-sm text-[var(--admin-text-secondary)] mb-2">
+                      Size: {product.rotatingSealSize || 112}px
+                    </label>
+                    <input
+                      type="range"
+                      min={60}
+                      max={150}
+                      step={2}
+                      value={product.rotatingSealSize || 112}
+                      onChange={(e) => setProduct({ ...product, rotatingSealSize: parseInt(e.target.value) })}
+                      className="w-full h-2 bg-[var(--admin-border)] rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-[var(--primary)] [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer"
+                    />
+                    <div className="flex justify-between text-xs text-[var(--admin-text-muted)] mt-1">
+                      <span>60px</span>
+                      <span>150px</span>
+                    </div>
+                  </div>
+
+                  {/* Speed Slider */}
+                  <div>
+                    <label className="block text-sm text-[var(--admin-text-secondary)] mb-2">
+                      Rotation Speed: {product.rotatingSealSpeed || 20}s
+                    </label>
+                    <input
+                      type="range"
+                      min={8}
+                      max={40}
+                      step={2}
+                      value={product.rotatingSealSpeed || 20}
+                      onChange={(e) => setProduct({ ...product, rotatingSealSpeed: parseInt(e.target.value) })}
+                      className="w-full h-2 bg-[var(--admin-border)] rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-[var(--primary)] [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer"
+                    />
+                    <div className="flex justify-between text-xs text-[var(--admin-text-muted)] mt-1">
+                      <span>Fast (8s)</span>
+                      <span>Slow (40s)</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
 
             {/* Badge Configuration */}
             <div className="pt-6 border-t border-[var(--admin-border-light)]">

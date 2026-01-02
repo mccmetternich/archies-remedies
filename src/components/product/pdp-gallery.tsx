@@ -23,6 +23,9 @@ interface PDPGalleryProps {
   badgeEmoji?: string | null;
   rotatingSealEnabled?: boolean;
   rotatingSealImageUrl?: string | null;
+  rotatingSealPosition?: string;
+  rotatingSealSize?: number;
+  rotatingSealSpeed?: number;
   marqueeEnabled?: boolean;
 }
 
@@ -48,6 +51,9 @@ export function PDPGallery({
   badgeEmoji,
   rotatingSealEnabled,
   rotatingSealImageUrl,
+  rotatingSealPosition = 'bottom-right',
+  rotatingSealSize = 112,
+  rotatingSealSpeed = 20,
   marqueeEnabled = false,
 }: PDPGalleryProps) {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -344,18 +350,40 @@ export function PDPGallery({
             </div>
           )}
 
-          {/* Rotating Seal - desktop only */}
-          {rotatingSealEnabled && rotatingSealImageUrl && (
-            <div className="absolute bottom-6 right-6 z-20 w-28 h-28 hidden lg:block">
-              <Image
-                src={rotatingSealImageUrl}
-                alt="Product seal"
-                width={112}
-                height={112}
-                className="w-full h-full animate-spin-slow"
-              />
-            </div>
-          )}
+          {/* Rotating Seal - responsive with configurable position/size/speed */}
+          {rotatingSealEnabled && rotatingSealImageUrl && (() => {
+            // Position classes based on rotatingSealPosition
+            const positionClasses = {
+              'top-left': 'top-4 left-4 lg:top-6 lg:left-6',
+              'top-right': 'top-4 right-4 lg:top-6 lg:right-6',
+              'bottom-left': 'bottom-4 left-4 lg:bottom-6 lg:left-6',
+              'bottom-right': 'bottom-4 right-4 lg:bottom-6 lg:right-6',
+            }[rotatingSealPosition] || 'bottom-6 right-6';
+
+            // Mobile size is 75% of configured size
+            const mobileSize = Math.round(rotatingSealSize * 0.75);
+
+            return (
+              <div
+                className={cn('absolute z-20', positionClasses)}
+                style={{
+                  width: isMobile ? mobileSize : rotatingSealSize,
+                  height: isMobile ? mobileSize : rotatingSealSize,
+                }}
+              >
+                <Image
+                  src={rotatingSealImageUrl}
+                  alt="Product seal"
+                  width={rotatingSealSize}
+                  height={rotatingSealSize}
+                  className="w-full h-full"
+                  style={{
+                    animation: `spin ${rotatingSealSpeed}s linear infinite`,
+                  }}
+                />
+              </div>
+            );
+          })()}
 
           {/* Animated Image/Video with drag/swipe support */}
           <AnimatePresence initial={false} custom={direction} mode="sync">

@@ -16,6 +16,8 @@ import { MediaPickerButton } from '@/components/admin/media-picker';
 import { MediaCarouselConfig } from '@/components/admin/widget-configs/media-carousel-config';
 import type { MediaCarouselItem } from '@/components/admin/widget-configs/media-carousel-config';
 import { ReviewsConfig } from '@/components/admin/widget-configs/reviews-config';
+import { IconHighlightsConfig } from '@/components/admin/widget-configs/icon-highlights-config';
+import type { IconHighlightColumn, IconHighlightsTheme } from '@/components/widgets/icon-highlights';
 
 interface PageWidget {
   id: string;
@@ -45,31 +47,33 @@ export function WidgetConfigPanel({ widget, onUpdate }: WidgetConfigPanelProps) 
 
   return (
     <div className="space-y-4">
-      {/* Title & Subtitle - Common for most widgets */}
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
-            Title
-          </label>
-          <input
-            value={widget.title || ''}
-            onChange={(e) => onUpdate({ title: e.target.value })}
-            placeholder="Widget title"
-            className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
-          />
+      {/* Title & Subtitle - Common for most widgets (except reviews and icon_highlights which have their own) */}
+      {widget.type !== 'reviews' && widget.type !== 'icon_highlights' && (
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
+              Title
+            </label>
+            <input
+              value={widget.title || ''}
+              onChange={(e) => onUpdate({ title: e.target.value })}
+              placeholder="Widget title"
+              className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
+              Subtitle
+            </label>
+            <input
+              value={widget.subtitle || ''}
+              onChange={(e) => onUpdate({ subtitle: e.target.value })}
+              placeholder="Widget subtitle"
+              className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+            />
+          </div>
         </div>
-        <div>
-          <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
-            Subtitle
-          </label>
-          <input
-            value={widget.subtitle || ''}
-            onChange={(e) => onUpdate({ subtitle: e.target.value })}
-            placeholder="Widget subtitle"
-            className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
-          />
-        </div>
-      </div>
+      )}
 
       {/* Text/Quote/Mission content */}
       {(widget.type === 'text' || widget.type === 'quote' || widget.type === 'mission') && (
@@ -143,6 +147,12 @@ export function WidgetConfigPanel({ widget, onUpdate }: WidgetConfigPanelProps) 
           showVerifiedBadge={(config.showVerifiedBadge as boolean) ?? true}
           showRatingHeader={(config.showRatingHeader as boolean) ?? true}
           excludedTags={(config.excludedTags as string[]) || []}
+          ratingOverride={(config.ratingOverride as number | null) ?? null}
+          onSourceChange={(productId, collectionName) =>
+            onUpdate({
+              config: { ...config, productId, collectionName, excludedTags: [] },
+            })
+          }
           onProductIdChange={(productId) =>
             onUpdate({
               config: { ...config, productId },
@@ -191,6 +201,51 @@ export function WidgetConfigPanel({ widget, onUpdate }: WidgetConfigPanelProps) 
           onExcludedTagsChange={(excludedTags) =>
             onUpdate({
               config: { ...config, excludedTags },
+            })
+          }
+          onRatingOverrideChange={(ratingOverride) =>
+            onUpdate({
+              config: { ...config, ratingOverride },
+            })
+          }
+        />
+      )}
+
+      {/* Icon Highlights widget */}
+      {widget.type === 'icon_highlights' && (
+        <IconHighlightsConfig
+          title={(config.title as string) || ''}
+          theme={(config.theme as IconHighlightsTheme) || 'blue'}
+          columns={(config.columns as IconHighlightColumn[]) || [
+            { iconUrl: '', title: '', description: '' },
+            { iconUrl: '', title: '', description: '' },
+            { iconUrl: '', title: '', description: '' },
+          ]}
+          linkText={(config.linkText as string) || ''}
+          linkUrl={(config.linkUrl as string) || ''}
+          onTitleChange={(title) =>
+            onUpdate({
+              config: { ...config, title },
+            })
+          }
+          onThemeChange={(theme) =>
+            onUpdate({
+              config: { ...config, theme },
+            })
+          }
+          onColumnsChange={(columns) =>
+            onUpdate({
+              config: { ...config, columns },
+            })
+          }
+          onLinkTextChange={(linkText) =>
+            onUpdate({
+              config: { ...config, linkText },
+            })
+          }
+          onLinkUrlChange={(linkUrl) =>
+            onUpdate({
+              config: { ...config, linkUrl },
             })
           }
         />

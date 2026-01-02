@@ -62,7 +62,7 @@ export default function ProductReviewsPage() {
       const productData = await productRes.json();
       const reviewsData = await reviewsRes.json();
 
-      setProduct(productData);
+      setProduct(productData.product);
       setReviews(reviewsData.reviews || []);
       setKeywords(reviewsData.keywords || []);
     } catch (error) {
@@ -295,13 +295,13 @@ function ReviewsTab({
                         key={star}
                         className={cn(
                           "w-3.5 h-3.5",
-                          star <= review.rating ? "fill-yellow-400 text-yellow-400" : "text-[var(--admin-text-muted)]"
+                          star <= review.rating ? "fill-[var(--primary)] text-[var(--primary)]" : "text-[var(--admin-text-muted)]"
                         )}
                       />
                     ))}
                   </div>
                   {review.isVerified && (
-                    <span className="px-2 py-0.5 text-xs bg-green-500/10 text-green-400 rounded-full">
+                    <span className="px-2 py-0.5 text-xs bg-[var(--admin-success-bg)] text-[var(--admin-success)] rounded-full">
                       Verified
                     </span>
                   )}
@@ -455,7 +455,7 @@ function ReviewEditModal({
                   <Star
                     className={cn(
                       "w-6 h-6 transition-colors",
-                      star <= form.rating ? "fill-yellow-400 text-yellow-400" : "text-[var(--admin-text-muted)] hover:text-yellow-400"
+                      star <= form.rating ? "fill-[var(--primary)] text-[var(--primary)]" : "text-[var(--admin-text-muted)] hover:text-[var(--primary)]"
                     )}
                   />
                 </button>
@@ -780,16 +780,16 @@ function ImportTab({ productId, onImport }: { productId: string; onImport: () =>
         {result && (
           <div className={cn(
             "rounded-xl p-4 border",
-            result.errors?.length ? "bg-orange-500/10 border-orange-500/30" : "bg-green-500/10 border-green-500/30"
+            result.errors?.length ? "bg-[var(--admin-warning-bg)] border-[var(--admin-warning-border)]" : "bg-[var(--admin-success-bg)] border-[var(--admin-success-border)]"
           )}>
             {result.imported !== undefined && (
-              <p className="font-medium text-green-400 mb-2">
+              <p className="font-medium text-[var(--admin-success)] mb-2">
                 Successfully imported {result.imported} reviews
               </p>
             )}
             {result.errors && result.errors.length > 0 && (
               <div>
-                <p className="font-medium text-orange-400 mb-2">
+                <p className="font-medium text-[var(--admin-warning)] mb-2">
                   {result.errors.length} row{result.errors.length !== 1 ? 's' : ''} had errors:
                 </p>
                 <ul className="text-sm text-[var(--admin-text-secondary)] space-y-1">

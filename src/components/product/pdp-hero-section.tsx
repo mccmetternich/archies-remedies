@@ -94,6 +94,9 @@ interface Product {
   badgeEmoji: string | null;
   rotatingSealEnabled: boolean | null;
   rotatingSealImageUrl: string | null;
+  rotatingSealPosition: string | null;
+  rotatingSealSize: number | null;
+  rotatingSealSpeed: number | null;
 }
 
 interface PDPHeroSectionProps {
@@ -246,6 +249,9 @@ export function PDPHeroSection({
           badgeEmoji={product.badgeEmoji}
           rotatingSealEnabled={product.rotatingSealEnabled || false}
           rotatingSealImageUrl={product.rotatingSealImageUrl}
+          rotatingSealPosition={product.rotatingSealPosition || 'bottom-right'}
+          rotatingSealSize={product.rotatingSealSize || 112}
+          rotatingSealSpeed={product.rotatingSealSpeed || 20}
           marqueeEnabled={marqueeEnabled}
         />
 

@@ -104,6 +104,9 @@ export async function PUT(
         // Rotating Seal
         rotatingSealEnabled: product.rotatingSealEnabled ?? false,
         rotatingSealImageUrl: product.rotatingSealImageUrl || null,
+        rotatingSealPosition: product.rotatingSealPosition || 'bottom-right',
+        rotatingSealSize: product.rotatingSealSize ?? 112,
+        rotatingSealSpeed: product.rotatingSealSpeed ?? 20,
 
         // PDP Accordions
         ritualTitle: product.ritualTitle || 'The Ritual',

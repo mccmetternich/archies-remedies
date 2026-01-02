@@ -23,6 +23,7 @@ import {
   Instagram,
   PlayCircle,
   Columns,
+  Columns3,
   Video,
   MousePointerClick,
   Grid3X3,
@@ -191,6 +192,18 @@ export const WIDGET_TYPES: WidgetTypeDefinition[] = [
     icon: Target,
     category: 'Content',
     description: 'Brand mission with stats and CTA',
+    table: null,
+    adminHref: null,
+    countKey: null,
+    addableToPages: true,
+    isGlobal: false,
+  },
+  {
+    type: 'icon_highlights',
+    name: 'Icon Highlights',
+    icon: Columns3,
+    category: 'Content',
+    description: '3-column feature bar with icons, titles, and copy',
     table: null,
     adminHref: null,
     countKey: null,
@@ -500,6 +513,17 @@ export const DEFAULT_CONFIGS: Record<string, Record<string, unknown>> = {
     style: 'dark',
     theme: 'dark',
     separator: '✦',
+  },
+  icon_highlights: {
+    title: '',
+    theme: 'blue', // 'blue' | 'dark' | 'cream'
+    columns: [
+      { iconUrl: '', title: '', description: '' },
+      { iconUrl: '', title: '', description: '' },
+      { iconUrl: '', title: '', description: '' },
+    ],
+    linkText: '',
+    linkUrl: '',
   },
 };
 
