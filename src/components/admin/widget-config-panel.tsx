@@ -26,6 +26,8 @@ import type {
   TextAlignment,
   MediaMode,
 } from '@/components/widgets/two-column-feature';
+import { FAQDrawerConfig } from '@/components/admin/widget-configs/faq-drawer-config';
+import type { FAQDrawerTheme, FAQItem } from '@/components/widgets/faq-drawer';
 
 interface PageWidget {
   id: string;
@@ -55,8 +57,8 @@ export function WidgetConfigPanel({ widget, onUpdate }: WidgetConfigPanelProps) 
 
   return (
     <div className="space-y-4">
-      {/* Title & Subtitle - Common for most widgets (except reviews, icon_highlights, and two_column_feature which have their own) */}
-      {widget.type !== 'reviews' && widget.type !== 'icon_highlights' && widget.type !== 'two_column_feature' && (
+      {/* Title & Subtitle - Common for most widgets (except reviews, icon_highlights, two_column_feature, and faq_drawer which have their own) */}
+      {widget.type !== 'reviews' && widget.type !== 'icon_highlights' && widget.type !== 'two_column_feature' && widget.type !== 'faq_drawer' && (
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
@@ -341,6 +343,20 @@ export function WidgetConfigPanel({ widget, onUpdate }: WidgetConfigPanelProps) 
           }
           onCtaUrlChange={(ctaUrl) =>
             onUpdate({ config: { ...config, ctaUrl } })
+          }
+        />
+      )}
+
+      {/* FAQ Drawer widget */}
+      {widget.type === 'faq_drawer' && (
+        <FAQDrawerConfig
+          theme={(config.theme as FAQDrawerTheme) || 'blue'}
+          items={(config.items as FAQItem[]) || []}
+          onThemeChange={(theme) =>
+            onUpdate({ config: { ...config, theme } })
+          }
+          onItemsChange={(items) =>
+            onUpdate({ config: { ...config, items } })
           }
         />
       )}

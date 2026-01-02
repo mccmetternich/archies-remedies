@@ -36,6 +36,7 @@ import {
   Target,
   GalleryHorizontalEnd,
   LayoutPanelLeft,
+  MessageCircleQuestion,
   LucideIcon,
 } from 'lucide-react';
 
@@ -217,6 +218,18 @@ export const WIDGET_TYPES: WidgetTypeDefinition[] = [
     icon: LayoutPanelLeft,
     category: 'Content',
     description: 'Full-width split layout with media and text/bullets',
+    table: null,
+    adminHref: null,
+    countKey: null,
+    addableToPages: true,
+    isGlobal: false,
+  },
+  {
+    type: 'faq_drawer',
+    name: 'FAQ Drawer',
+    icon: MessageCircleQuestion,
+    category: 'Content',
+    description: 'Expandable Q&A accordion with themed styling',
     table: null,
     adminHref: null,
     countKey: null,
@@ -559,6 +572,10 @@ export const DEFAULT_CONFIGS: Record<string, Record<string, unknown>> = {
     bulletPoints: [''],
     ctaText: '',
     ctaUrl: '',
+  },
+  faq_drawer: {
+    theme: 'blue', // 'blue' | 'dark' | 'cream'
+    items: [{ id: '', question: '', answer: '' }],
   },
 };
 

@@ -39,6 +39,8 @@ import type {
   TextAlignment,
   MediaMode,
 } from '@/components/widgets/two-column-feature';
+import { FAQDrawer } from '@/components/widgets/faq-drawer';
+import type { FAQDrawerTheme, FAQItem } from '@/components/widgets/faq-drawer';
 
 // Widget interface matching pages.widgets JSON structure
 export interface PageWidget {
@@ -241,6 +243,15 @@ function renderWidget(widget: PageWidget, data: WidgetRendererProps['data']): Re
           bulletPoints={(config.bulletPoints as string[]) || []}
           ctaText={(config.ctaText as string) || ''}
           ctaUrl={(config.ctaUrl as string) || ''}
+        />
+      );
+
+    case 'faq_drawer':
+      return (
+        <FAQDrawer
+          key={widget.id}
+          theme={(config.theme as FAQDrawerTheme) || 'blue'}
+          items={(config.items as FAQItem[]) || []}
         />
       );
 
