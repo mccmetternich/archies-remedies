@@ -116,20 +116,17 @@ function FAQItemRow({
           {item.question}
         </span>
 
-        {/* Icon - Plus/X */}
-        <div
-          className="flex-shrink-0 w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-full transition-colors"
-          style={{ backgroundColor: isOpen ? styles.iconHoverBg : 'transparent' }}
-        >
+        {/* Icon - Plus/X - Large and impactful */}
+        <div className="flex-shrink-0 flex items-center justify-center">
           {isOpen ? (
             <X
-              className="w-6 h-6 md:w-7 md:h-7"
+              className="w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14"
               style={{ color: styles.iconColor }}
               strokeWidth={1.5}
             />
           ) : (
             <Plus
-              className="w-6 h-6 md:w-7 md:h-7"
+              className="w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14"
               style={{ color: styles.iconColor }}
               strokeWidth={1.5}
             />
