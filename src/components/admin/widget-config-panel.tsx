@@ -29,6 +29,18 @@ import type {
 import { FAQDrawerConfig } from '@/components/admin/widget-configs/faq-drawer-config';
 import type { FAQDrawerTheme, FAQItem } from '@/components/widgets/faq-drawer';
 
+// Helper: Check if URL is video
+function isVideoUrl(url: string): boolean {
+  if (!url) return false;
+  // Check for video file extensions (with or without query params)
+  if (url.match(/\.(mp4|webm|mov)(\?|$)/i)) return true;
+  // Check for Cloudinary video URLs
+  if (url.includes('/video/upload/')) return true;
+  // Check for video/ in Cloudinary resource type
+  if (url.includes('res.cloudinary.com') && url.includes('/video/')) return true;
+  return false;
+}
+
 interface PageWidget {
   id: string;
   type: string;
@@ -294,13 +306,13 @@ export function WidgetConfigPanel({ widget, onUpdate }: WidgetConfigPanelProps) 
             onUpdate({ config: { ...config, mediaMode } })
           }
           onMediaUrlChange={(mediaUrl) =>
-            onUpdate({ config: { ...config, mediaUrl } })
+            onUpdate({ config: { ...config, mediaUrl, mediaIsVideo: isVideoUrl(mediaUrl) } })
           }
           onMediaIsVideoChange={(mediaIsVideo) =>
             onUpdate({ config: { ...config, mediaIsVideo } })
           }
           onBeforeMediaUrlChange={(beforeMediaUrl) =>
-            onUpdate({ config: { ...config, beforeMediaUrl } })
+            onUpdate({ config: { ...config, beforeMediaUrl, beforeMediaIsVideo: isVideoUrl(beforeMediaUrl) } })
           }
           onBeforeMediaIsVideoChange={(beforeMediaIsVideo) =>
             onUpdate({ config: { ...config, beforeMediaIsVideo } })
@@ -309,7 +321,7 @@ export function WidgetConfigPanel({ widget, onUpdate }: WidgetConfigPanelProps) 
             onUpdate({ config: { ...config, beforeLabel } })
           }
           onAfterMediaUrlChange={(afterMediaUrl) =>
-            onUpdate({ config: { ...config, afterMediaUrl } })
+            onUpdate({ config: { ...config, afterMediaUrl, afterMediaIsVideo: isVideoUrl(afterMediaUrl) } })
           }
           onAfterMediaIsVideoChange={(afterMediaIsVideo) =>
             onUpdate({ config: { ...config, afterMediaIsVideo } })

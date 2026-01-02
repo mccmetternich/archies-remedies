@@ -181,20 +181,17 @@ export function TwoColumnFeatureConfig({
     onBulletPointsChange(newPoints);
   };
 
-  // Handle media URL changes and auto-detect video
+  // Handle media URL changes - video detection is handled by parent component
   const handleMediaUrlChange = (url: string | null) => {
     onMediaUrlChange(url || '');
-    onMediaIsVideoChange(isVideoUrl(url || ''));
   };
 
   const handleBeforeMediaUrlChange = (url: string | null) => {
     onBeforeMediaUrlChange(url || '');
-    onBeforeMediaIsVideoChange(isVideoUrl(url || ''));
   };
 
   const handleAfterMediaUrlChange = (url: string | null) => {
     onAfterMediaUrlChange(url || '');
-    onAfterMediaIsVideoChange(isVideoUrl(url || ''));
   };
 
   return (
