@@ -32,6 +32,11 @@ export function PDPStickyDrawer({
 }: PDPStickyDrawerProps) {
   const [isVisible, setIsVisible] = useState(false);
 
+  // Scroll to top and hide drawer
+  const handleScrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   // Get the price from selected variant or default
   const price = selectedVariant?.price || 0;
   const formattedPrice = price > 0 ? `$${price.toFixed(2)}` : '';
@@ -77,11 +82,14 @@ export function PDPStickyDrawer({
     <>
       {/* Mobile/Tablet Layout: Thumbnail + Info + CTA */}
       <div className="lg:hidden flex w-full">
-        {/* Thumbnail (if provided) */}
+        {/* Thumbnail (if provided) - clickable to scroll to top */}
         {thumbnailUrl && (
-          <div
-            className="flex-shrink-0 w-14 h-14 relative bg-[#f2f2f2] flex items-center justify-center"
+          <button
+            type="button"
+            onClick={handleScrollToTop}
+            className="flex-shrink-0 w-14 h-14 relative bg-[#f2f2f2] flex items-center justify-center cursor-pointer"
             style={{ borderTop: '0.25px solid #999999' }}
+            aria-label="Scroll to top"
           >
             <div className="w-11 h-11 relative rounded-md overflow-hidden">
               <Image
@@ -92,16 +100,18 @@ export function PDPStickyDrawer({
                 sizes="44px"
               />
             </div>
-          </div>
+          </button>
         )}
 
-        {/* Product info column */}
-        <div
-          className="flex-[4] flex flex-col justify-center px-4 py-3 bg-[#f2f2f2]"
+        {/* Product info column - clickable to scroll to top */}
+        <button
+          type="button"
+          onClick={handleScrollToTop}
+          className="flex-[4] flex flex-col justify-center px-4 py-3 bg-[#f2f2f2] cursor-pointer text-left"
           style={{ borderTop: '0.25px solid #999999' }}
         >
           {/* Title + Price on same line */}
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between w-full">
             <span
               className="text-[15px] font-medium uppercase tracking-[0.02em] text-[#1a1a1a] truncate leading-tight"
               style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
@@ -126,7 +136,7 @@ export function PDPStickyDrawer({
               {variantName}
             </span>
           )}
-        </div>
+        </button>
 
         {/* CTA button column */}
         <Link
@@ -135,15 +145,19 @@ export function PDPStickyDrawer({
           rel={ctaNewTab ? 'noopener noreferrer' : undefined}
           className={cn(
             'flex-1 flex items-center justify-center px-3 py-3',
-            'bg-[#1a1a1a] text-white',
-            'hover:bg-[#bbdae9] hover:text-[#1a1a1a]',
-            'transition-colors duration-200'
+            'bg-[#1a1a1a]',
+            'hover:bg-[#bbdae9]',
+            'transition-colors duration-200',
+            'group/cta'
           )}
           style={{ borderTop: '0.25px solid #999999', borderRight: '0.25px solid #999999' }}
         >
           <span
-            className="text-[11px] font-medium uppercase tracking-[0.04em] text-center"
-            style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+            className="text-[11px] font-medium uppercase tracking-[0.04em] text-center group-hover/cta:text-[#1a1a1a]"
+            style={{
+              fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+              color: '#ffffff',
+            }}
           >
             {ctaButtonText}
           </span>
@@ -155,8 +169,12 @@ export function PDPStickyDrawer({
         className="hidden lg:flex w-full items-center justify-between px-6 py-4 bg-[#f2f2f2]"
         style={{ borderTop: '0.25px solid #999999' }}
       >
-        {/* Left side - Thumbnail + Product info */}
-        <div className="flex items-center gap-4 min-w-0">
+        {/* Left side - Thumbnail + Product info - clickable to scroll to top */}
+        <button
+          type="button"
+          onClick={handleScrollToTop}
+          className="flex items-center gap-4 min-w-0 cursor-pointer text-left"
+        >
           {/* Thumbnail */}
           {thumbnailUrl && (
             <div className="w-14 h-14 relative flex-shrink-0 rounded-lg overflow-hidden">
@@ -189,23 +207,27 @@ export function PDPStickyDrawer({
               </span>
             )}
           </div>
-        </div>
+        </button>
 
-        {/* CTA Button with price - right side */}
+        {/* CTA Button with price - right side - taller on desktop */}
         <Link
           href={ctaUrl}
           target={ctaNewTab ? '_blank' : '_self'}
           rel={ctaNewTab ? 'noopener noreferrer' : undefined}
           className={cn(
-            'flex items-center justify-center px-6 py-2.5',
-            'bg-[#1a1a1a] text-white',
-            'hover:bg-[#bbdae9] hover:text-[#1a1a1a]',
-            'transition-colors duration-200'
+            'flex items-center justify-center px-8 py-4',
+            'bg-[#1a1a1a]',
+            'hover:bg-[#bbdae9]',
+            'transition-colors duration-200',
+            'group/cta'
           )}
         >
           <span
-            className="text-[12px] font-medium uppercase tracking-[0.04em]"
-            style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+            className="text-[13px] font-medium uppercase tracking-[0.04em] group-hover/cta:text-[#1a1a1a]"
+            style={{
+              fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+              color: '#ffffff',
+            }}
           >
             {ctaButtonText} {formattedPrice && `- ${formattedPrice}`}
           </span>

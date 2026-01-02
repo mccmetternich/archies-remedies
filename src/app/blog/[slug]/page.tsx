@@ -327,14 +327,15 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
               heroCarouselImages={heroCarouselImages}
             />
 
-            {/* Right: Redesigned content column with per-post background */}
-            <div className={`${colors.bg} min-h-[50vh] lg:min-h-full flex flex-col p-8 lg:p-12`}>
+            {/* Right: Redesigned content column with per-post background - contained height on desktop */}
+            <div className={`${colors.bg} min-h-[50vh] lg:min-h-full lg:max-h-[90vh] lg:overflow-hidden flex flex-col p-8 lg:p-12`}>
               {/* Top Row: Back to Journal (left) + Date + Nav Arrows (right) */}
               <div className="flex items-start justify-between mb-8">
                 {/* Left: Back to Journal - underline on hover only */}
                 <Link
                   href="/blog"
                   className={`${colors.textMuted} inline-flex items-center gap-2 text-sm hover:underline px-3 py-2 -ml-3 transition-colors`}
+                  style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
                 >
                   <ArrowLeft className="w-4 h-4" />
                   Back to Journal
@@ -343,7 +344,10 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
                 {/* Right: Date + Nav Arrows */}
                 <div className="flex items-center gap-3">
                   {post.publishedAt && (
-                    <span className={`text-sm ${colors.dateMuted}`}>
+                    <span
+                      className={`text-sm ${colors.dateMuted}`}
+                      style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+                    >
                       {formatEditorialDate(post.publishedAt)}
                     </span>
                   )}
@@ -373,7 +377,10 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
               <div className="flex-1 flex flex-col justify-center">
                 {/* Title Block - 1/3rd column width */}
                 <div className={`text-center ${hasTitleThumbnail ? 'mb-6' : 'mb-4'} w-2/3 mx-auto`}>
-                  <h1 className={`blog-header text-[clamp(2rem,5vw,3.5rem)] leading-[0.88] ${colors.text}`}>
+                  <h1
+                    className={`blog-header text-[clamp(2rem,5vw,3.5rem)] leading-[0.88] ${colors.text} line-clamp-4`}
+                    style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+                  >
                     {post.title}
                   </h1>
                 </div>
@@ -402,7 +409,10 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
 
                 {/* Excerpt - 1.5x bigger */}
                 {post.excerpt && (
-                  <p className={`blog-body text-center text-xl leading-relaxed ${colors.textMuted} max-w-lg mx-auto ${hasTitleThumbnail ? '' : 'mt-4'}`}>
+                  <p
+                    className={`blog-body text-center text-xl leading-relaxed ${colors.textMuted} max-w-lg mx-auto ${hasTitleThumbnail ? '' : 'mt-4'} line-clamp-3`}
+                    style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+                  >
                     {post.excerpt}
                   </p>
                 )}
@@ -417,6 +427,7 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
                       <span
                         key={tag.id}
                         className={`px-5 py-2.5 ${colors.tagBg} ${colors.tagText} text-sm font-medium uppercase tracking-wider`}
+                        style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
                       >
                         {tag.name}
                       </span>
@@ -456,7 +467,10 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
                     </a>
                   </div>
                   <span className={`text-sm ${colors.textMuted}`}>|</span>
-                  <span className={`text-sm ${colors.textMuted}`}>
+                  <span
+                    className={`text-sm ${colors.textMuted}`}
+                    style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+                  >
                     {post.readingTime || 5} min read
                   </span>
                   {showVanityMetrics && (
@@ -503,7 +517,7 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
                     </span>
                   </div>
                 )}
-                <div>
+                <div style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}>
                   <p className="blog-meta text-xs opacity-50">Written by</p>
                   <p className="blog-meta text-sm">{authorName}</p>
                 </div>
@@ -522,7 +536,10 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
         {relatedPosts.length > 0 && (
           <section className="py-16 px-4 border-t border-[var(--blog-divider)]">
             <div className="max-w-7xl mx-auto">
-              <h2 className="blog-header blog-header-md text-center mb-12">
+              <h2
+                className="blog-header blog-header-md text-center mb-12"
+                style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+              >
                 More from the Journal
               </h2>
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -540,7 +557,7 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
                         className="transform transition-transform duration-[400ms] ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:scale-[1.02]"
                       />
                     </div>
-                    <div className="mt-6">
+                    <div className="mt-6" style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}>
                       <h3 className="blog-header blog-header-sm transition-colors duration-[400ms] ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:text-[var(--blog-accent)]">
                         {relatedPost.title}
                       </h3>

@@ -2,7 +2,10 @@
  * Dynamic Page Route
  *
  * Catches all page slugs and renders them dynamically from the pages table.
- * Uses WidgetRenderer to render widgets from pages.widgets JSON.
+ * Supports:
+ * - Hero section (heroImageUrl, heroTitle, heroSubtitle)
+ * - Rich text content (content field)
+ * - Widget system (widgets JSON array)
  */
 
 import { db } from '@/lib/db';
@@ -19,6 +22,7 @@ import { getPopupSettings } from '@/lib/get-popup-settings';
 import { getWidgetData } from '@/lib/get-widget-data';
 import { WidgetRenderer, type PageWidget } from '@/components/widgets/widget-renderer';
 import { unstable_cache } from 'next/cache';
+import { isVideoUrl } from '@/lib/media-utils';
 
 export const revalidate = 60;
 
@@ -113,14 +117,133 @@ export default async function DynamicPage({
   const widgetDataWithSettings = {
     ...widgetData,
     instagramUrl: settings?.instagramUrl,
+    settings: settings,
   };
+
+  // Check if page has hero content
+  const hasHero = page.heroImageUrl || page.heroTitle;
+  const heroIsVideo = page.heroImageUrl && isVideoUrl(page.heroImageUrl);
+
+  // Check if page has rich text content
+  const hasContent = page.content && page.content.trim().length > 0;
+
+  // Check if content is HTML or plain text
+  const contentIsHtml = hasContent && page.content!.includes('<') && page.content!.includes('>');
 
   return (
     <>
       <Header {...headerProps} />
 
-      <main>
-        <WidgetRenderer widgets={widgets} data={widgetDataWithSettings} />
+      <main className="min-h-screen">
+        {/* Page Hero Section */}
+        {hasHero && (
+          <section className="relative min-h-[50vh] lg:min-h-[60vh] flex items-center justify-center overflow-hidden">
+            {/* Background Media */}
+            {page.heroImageUrl && (
+              <div className="absolute inset-0">
+                {heroIsVideo ? (
+                  <video
+                    src={page.heroImageUrl}
+                    className="w-full h-full object-cover"
+                    muted
+                    autoPlay
+                    loop
+                    playsInline
+                  />
+                ) : (
+                  <img
+                    src={page.heroImageUrl}
+                    alt={page.heroTitle || page.title}
+                    className="w-full h-full object-cover"
+                  />
+                )}
+                {/* Gradient overlay for text readability */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-black/20" />
+              </div>
+            )}
+
+            {/* Hero Content */}
+            <div className="relative z-10 text-center px-6 py-16 max-w-4xl mx-auto">
+              {page.heroTitle && (
+                <h1
+                  className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-4"
+                  style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+                >
+                  {page.heroTitle}
+                </h1>
+              )}
+              {page.heroSubtitle && (
+                <p
+                  className="text-lg md:text-xl text-white/80 max-w-2xl mx-auto"
+                  style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+                >
+                  {page.heroSubtitle}
+                </p>
+              )}
+            </div>
+          </section>
+        )}
+
+        {/* Page Title (if no hero but has title) */}
+        {!hasHero && page.title && (
+          <section className="pt-32 pb-12 px-6">
+            <div className="max-w-4xl mx-auto text-center">
+              <h1
+                className="text-4xl md:text-5xl font-bold text-[#1a1a1a] leading-tight"
+                style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+              >
+                {page.title}
+              </h1>
+            </div>
+          </section>
+        )}
+
+        {/* Rich Text Content */}
+        {hasContent && (
+          <article className="py-12 lg:py-16">
+            <div className="max-w-3xl mx-auto px-6">
+              {contentIsHtml ? (
+                <div
+                  className="prose prose-lg max-w-none prose-headings:font-semibold prose-a:text-[#4a90a4] prose-a:underline"
+                  style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+                  dangerouslySetInnerHTML={{ __html: page.content! }}
+                />
+              ) : (
+                <div
+                  className="text-lg text-[#333] leading-relaxed whitespace-pre-wrap"
+                  style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+                >
+                  {page.content}
+                </div>
+              )}
+            </div>
+          </article>
+        )}
+
+        {/* Widget System - renders below content */}
+        {widgets.length > 0 && (
+          <WidgetRenderer widgets={widgets} data={widgetDataWithSettings} />
+        )}
+
+        {/* Empty State - show message if no content at all */}
+        {!hasHero && !hasContent && widgets.length === 0 && (
+          <section className="py-24 px-6">
+            <div className="max-w-2xl mx-auto text-center">
+              <h1
+                className="text-3xl md:text-4xl font-bold text-[#1a1a1a] mb-4"
+                style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+              >
+                {page.title}
+              </h1>
+              <p
+                className="text-lg text-[#666]"
+                style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+              >
+                This page is being updated. Check back soon.
+              </p>
+            </div>
+          </section>
+        )}
       </main>
 
       <Footer {...await getFooterProps(headerProps.settings)} />
