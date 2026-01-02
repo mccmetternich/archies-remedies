@@ -81,25 +81,22 @@ export function PDPStickyDrawer({
   const DrawerContent = () => (
     <>
       {/* Mobile/Tablet Layout: Thumbnail + Info + CTA */}
-      <div className="lg:hidden flex w-full">
+      <div className="lg:hidden flex w-full bg-[#f2f2f2]" style={{ borderTop: '0.25px solid #999999' }}>
         {/* Thumbnail (if provided) - clickable to scroll to top */}
         {thumbnailUrl && (
           <button
             type="button"
             onClick={handleScrollToTop}
-            className="flex-shrink-0 w-14 h-14 relative bg-[#f2f2f2] flex items-center justify-center cursor-pointer"
-            style={{ borderTop: '0.25px solid #999999' }}
+            className="flex-shrink-0 w-12 h-12 relative cursor-pointer m-2 rounded-md overflow-hidden"
             aria-label="Scroll to top"
           >
-            <div className="w-11 h-11 relative rounded-md overflow-hidden">
-              <Image
-                src={thumbnailUrl}
-                alt={productName}
-                fill
-                className="object-cover"
-                sizes="44px"
-              />
-            </div>
+            <Image
+              src={thumbnailUrl}
+              alt={productName}
+              fill
+              className="object-cover"
+              sizes="48px"
+            />
           </button>
         )}
 
@@ -107,20 +104,19 @@ export function PDPStickyDrawer({
         <button
           type="button"
           onClick={handleScrollToTop}
-          className="flex-[4] flex flex-col justify-center px-4 py-3 bg-[#f2f2f2] cursor-pointer text-left"
-          style={{ borderTop: '0.25px solid #999999' }}
+          className="flex-1 flex flex-col justify-center px-3 py-2 cursor-pointer text-left min-w-0"
         >
           {/* Title + Price on same line */}
-          <div className="flex items-center justify-between w-full">
+          <div className="flex items-center gap-2 w-full">
             <span
-              className="text-[15px] font-medium uppercase tracking-[0.02em] text-[#1a1a1a] truncate leading-tight"
+              className="text-[14px] font-medium uppercase tracking-[0.02em] text-[#1a1a1a] truncate leading-tight"
               style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
             >
               {productName}
             </span>
             {formattedPrice && (
               <span
-                className="text-[12px] font-medium text-[#1a1a1a]/70 ml-3 flex-shrink-0"
+                className="text-[12px] font-medium text-[#1a1a1a]/70 flex-shrink-0"
                 style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
               >
                 {formattedPrice}
@@ -130,7 +126,7 @@ export function PDPStickyDrawer({
           {/* Variant info below */}
           {variantName && (
             <span
-              className="text-[13px] uppercase tracking-[0.02em] text-[#1a1a1a] leading-tight mt-0.5"
+              className="text-[12px] uppercase tracking-[0.02em] text-[#1a1a1a]/70 leading-tight mt-0.5 truncate"
               style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
             >
               {variantName}
@@ -138,22 +134,21 @@ export function PDPStickyDrawer({
           )}
         </button>
 
-        {/* CTA button column */}
+        {/* CTA button column - fixed width, no text wrap */}
         <Link
           href={ctaUrl}
           target={ctaNewTab ? '_blank' : '_self'}
           rel={ctaNewTab ? 'noopener noreferrer' : undefined}
           className={cn(
-            'flex-1 flex items-center justify-center px-3 py-3',
+            'flex-shrink-0 flex items-center justify-center px-4 py-3',
             'bg-[#1a1a1a]',
             'hover:bg-[#bbdae9]',
             'transition-colors duration-200',
             'group/cta'
           )}
-          style={{ borderTop: '0.25px solid #999999', borderRight: '0.25px solid #999999' }}
         >
           <span
-            className="text-[11px] font-medium uppercase tracking-[0.04em] text-center group-hover/cta:text-[#1a1a1a]"
+            className="text-[11px] font-medium uppercase tracking-[0.04em] whitespace-nowrap group-hover/cta:text-[#1a1a1a]"
             style={{
               fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
               color: '#ffffff',
@@ -249,8 +244,11 @@ export function PDPStickyDrawer({
             ease: [0.25, 0.1, 0.25, 1], // Smooth ease-out curve
           }}
           className="fixed bottom-0 left-0 right-0 z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.15)]"
+          style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
         >
-          <DrawerContent />
+          <div className="bg-[#f2f2f2]">
+            <DrawerContent />
+          </div>
         </motion.div>
       )}
     </AnimatePresence>
