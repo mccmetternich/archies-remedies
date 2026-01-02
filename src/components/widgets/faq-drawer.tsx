@@ -81,28 +81,33 @@ function FAQItemRow({
   onToggle,
   styles,
   isFirst,
+  isLast,
 }: {
   item: FAQItem;
   isOpen: boolean;
   onToggle: () => void;
   styles: (typeof themeStyles)[FAQDrawerTheme];
   isFirst: boolean;
+  isLast: boolean;
 }) {
   return (
-    <div
-      className={cn('w-full', !isFirst && 'border-t')}
-      style={{ borderColor: styles.borderColor }}
-    >
+    <div className="w-full">
+      {/* Top border - always show for first item, border-t for others */}
+      <div
+        className="w-full border-t"
+        style={{ borderColor: styles.borderColor }}
+      />
+
       {/* Question Row - Clickable */}
       <button
         type="button"
         onClick={onToggle}
-        className="w-full flex items-center justify-between gap-6 py-6 md:py-8 text-left transition-colors group"
+        className="w-full flex items-center justify-between gap-6 py-8 md:py-10 lg:py-12 text-left transition-colors group"
         aria-expanded={isOpen}
       >
-        {/* Question Text - Extra Large */}
+        {/* Question Text - Extra Large (2x size) */}
         <span
-          className="text-xl md:text-2xl lg:text-3xl font-medium leading-tight flex-1"
+          className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-medium leading-[1.1] flex-1"
           style={{
             color: styles.questionColor,
             fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
@@ -146,19 +151,27 @@ function FAQItemRow({
             className="overflow-hidden"
           >
             <div
-              className="pb-6 md:pb-8 pr-16 md:pr-20"
+              className="pb-8 md:pb-10 lg:pb-12 pr-16 md:pr-20"
               style={{
                 color: styles.answerColor,
                 fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
               }}
             >
-              <p className="text-sm md:text-base leading-relaxed max-w-3xl">
+              <p className="text-base md:text-lg leading-relaxed max-w-4xl">
                 {item.answer}
               </p>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Bottom border for last item */}
+      {isLast && (
+        <div
+          className="w-full border-t"
+          style={{ borderColor: styles.borderColor }}
+        />
+      )}
     </div>
   );
 }
@@ -188,10 +201,11 @@ export function FAQDrawer({
 
   return (
     <section className={cn('w-full py-12 md:py-16 lg:py-20', styles.bg, className)}>
-      <div className="container">
+      {/* Wider container - less padding than default */}
+      <div className="w-full px-6 md:px-10 lg:px-16 xl:px-24">
         {/* F.A.Q. Title - Small lettering */}
         <h2
-          className="text-left uppercase mb-8 md:mb-10"
+          className="text-left uppercase mb-8 md:mb-12 lg:mb-14"
           style={{
             fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
             fontSize: '11px',
@@ -213,6 +227,7 @@ export function FAQDrawer({
               onToggle={() => handleToggle(item.id)}
               styles={styles}
               isFirst={index === 0}
+              isLast={index === validItems.length - 1}
             />
           ))}
         </div>
