@@ -81,70 +81,80 @@ export function PDPStickyDrawer({
     <>
       {/* Mobile/Tablet Layout: Thumbnail + Info + CTA */}
       <div className="lg:hidden flex w-full" style={{ borderTop: '0.25px solid #999999' }}>
-        {/* Thumbnail (if provided) - clickable to scroll to top */}
-        {thumbnailUrl && (
+        {/* Left section: Thumbnail + Info - has safe area padding */}
+        <div
+          className="flex flex-1 min-w-0"
+          style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+        >
+          {/* Thumbnail - larger, clips at edges */}
+          {thumbnailUrl && (
+            <button
+              type="button"
+              onClick={handleScrollToTop}
+              className="flex-shrink-0 w-16 h-16 relative cursor-pointer overflow-hidden"
+              aria-label="Scroll to top"
+            >
+              <Image
+                src={thumbnailUrl}
+                alt={productName}
+                fill
+                className="object-cover"
+                sizes="64px"
+              />
+            </button>
+          )}
+
+          {/* Product info column - clickable to scroll to top */}
           <button
             type="button"
             onClick={handleScrollToTop}
-            className="flex-shrink-0 w-12 h-12 relative cursor-pointer m-2 rounded-md overflow-hidden"
-            aria-label="Scroll to top"
+            className="flex-1 flex flex-col justify-center px-3 py-2 cursor-pointer text-left min-w-0"
           >
-            <Image
-              src={thumbnailUrl}
-              alt={productName}
-              fill
-              className="object-cover"
-              sizes="48px"
-            />
-          </button>
-        )}
-
-        {/* Product info column - clickable to scroll to top */}
-        <button
-          type="button"
-          onClick={handleScrollToTop}
-          className="flex-1 flex flex-col justify-center px-3 py-2 cursor-pointer text-left min-w-0"
-        >
-          {/* Title + Price on same line */}
-          <div className="flex items-center gap-2 w-full">
+            {/* Title - can wrap to 2 lines */}
             <span
-              className="text-[14px] font-medium uppercase tracking-[0.02em] text-[#1a1a1a] truncate leading-tight"
+              className="text-[14px] font-medium uppercase tracking-[0.02em] text-[#1a1a1a] leading-tight line-clamp-2"
               style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
             >
               {productName}
             </span>
-            {formattedPrice && (
-              <span
-                className="text-[12px] font-medium text-[#1a1a1a]/70 flex-shrink-0"
-                style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
-              >
-                {formattedPrice}
-              </span>
-            )}
-          </div>
-          {/* Variant info below */}
-          {variantName && (
-            <span
-              className="text-[12px] uppercase tracking-[0.02em] text-[#1a1a1a]/70 leading-tight mt-0.5 truncate"
-              style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
-            >
-              {variantName}
-            </span>
-          )}
-        </button>
+            {/* Price + Variant below */}
+            <div className="flex items-center gap-2 mt-0.5">
+              {formattedPrice && (
+                <span
+                  className="text-[12px] font-medium text-[#1a1a1a]/70"
+                  style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+                >
+                  {formattedPrice}
+                </span>
+              )}
+              {variantName && formattedPrice && (
+                <span className="text-[#1a1a1a]/30">•</span>
+              )}
+              {variantName && (
+                <span
+                  className="text-[11px] uppercase tracking-[0.02em] text-[#1a1a1a]/60 truncate"
+                  style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+                >
+                  {variantName}
+                </span>
+              )}
+            </div>
+          </button>
+        </div>
 
-        {/* CTA button - compact on mobile, always "Buy Now" */}
+        {/* CTA button - extends full height including safe area */}
         <Link
           href={ctaUrl}
           target={ctaNewTab ? '_blank' : '_self'}
           rel={ctaNewTab ? 'noopener noreferrer' : undefined}
           className={cn(
-            'flex-shrink-0 flex items-center justify-center px-5 py-3',
+            'flex-shrink-0 flex items-center justify-center px-6',
             'bg-[#1a1a1a]',
             'active:bg-[#bbdae9]',
             'transition-colors duration-200',
             'group/cta'
           )}
+          style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
         >
           <span
             className="text-[12px] font-semibold uppercase tracking-[0.02em] whitespace-nowrap group-active/cta:text-[#1a1a1a]"
@@ -238,7 +248,6 @@ export function PDPStickyDrawer({
         'transition-transform duration-300 ease-out',
         isVisible ? 'translate-y-0' : 'translate-y-full'
       )}
-      style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
     >
       <DrawerContent />
     </div>
