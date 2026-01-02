@@ -1,10 +1,9 @@
 'use client';
 
 import React from 'react';
-import Image from 'next/image';
-import { ImageIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { MediaPickerButton } from '@/components/admin/media-picker';
+import { InternalLinkSelector } from '@/components/admin/internal-link-selector';
 import type { IconHighlightColumn, IconHighlightsTheme } from '@/components/widgets/icon-highlights';
 
 // ============================================
@@ -183,7 +182,7 @@ export function IconHighlightsConfig({
         <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
           Learn More Link <span className="text-[var(--admin-text-muted)] font-normal">(optional)</span>
         </label>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-3">
           <div>
             <label className="block text-xs text-[var(--admin-text-muted)] mb-1.5">
               Link Text
@@ -196,18 +195,12 @@ export function IconHighlightsConfig({
               className="w-full px-3 py-2 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-sm text-[var(--admin-text-primary)] placeholder-[var(--admin-text-muted)] focus:outline-none focus:border-[var(--primary)] transition-colors"
             />
           </div>
-          <div>
-            <label className="block text-xs text-[var(--admin-text-muted)] mb-1.5">
-              URL
-            </label>
-            <input
-              type="text"
-              value={linkUrl}
-              onChange={(e) => onLinkUrlChange(e.target.value)}
-              placeholder="/about"
-              className="w-full px-3 py-2 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-sm text-[var(--admin-text-primary)] placeholder-[var(--admin-text-muted)] focus:outline-none focus:border-[var(--primary)] transition-colors"
-            />
-          </div>
+          <InternalLinkSelector
+            label="URL"
+            value={linkUrl}
+            onChange={onLinkUrlChange}
+            placeholder="Select page or enter URL"
+          />
         </div>
       </div>
     </div>

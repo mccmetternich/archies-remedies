@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { ChevronDown, Globe, FileText, Package, ExternalLink, Search } from 'lucide-react';
+import { ChevronDown, Globe, FileText, Package, ExternalLink, Search, Newspaper } from 'lucide-react';
 
 // Static pages that always exist
 const STATIC_PAGES = [
@@ -18,7 +18,7 @@ const STATIC_PAGES = [
 interface PageOption {
   slug: string;
   label: string;
-  icon: 'page' | 'product' | 'custom';
+  icon: 'page' | 'product' | 'custom' | 'blog';
 }
 
 interface InternalLinkSelectorProps {
@@ -41,19 +41,21 @@ export function InternalLinkSelector({
   const [pages, setPages] = useState<PageOption[]>([]);
   const [products, setProducts] = useState<PageOption[]>([]);
   const [customPages, setCustomPages] = useState<PageOption[]>([]);
+  const [blogPosts, setBlogPosts] = useState<PageOption[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Fetch pages and products on mount
+  // Fetch pages, products, and blog posts on mount
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const [pagesRes, productsRes] = await Promise.all([
+        const [pagesRes, productsRes, blogRes] = await Promise.all([
           fetch('/api/admin/pages'),
           fetch('/api/admin/products'),
+          fetch('/api/admin/blog/posts'),
         ]);
 
         if (pagesRes.ok) {
@@ -79,8 +81,21 @@ export function InternalLinkSelector({
             }));
           setProducts(productOptions);
         }
+
+        if (blogRes.ok) {
+          const blogData = await blogRes.json();
+          const posts = blogData.posts || blogData;
+          const blogOptions: PageOption[] = (Array.isArray(posts) ? posts : [])
+            .filter((p: { isPublished: boolean }) => p.isPublished)
+            .map((p: { slug: string; title: string }) => ({
+              slug: `/blog/${p.slug}`,
+              label: p.title,
+              icon: 'blog' as const,
+            }));
+          setBlogPosts(blogOptions);
+        }
       } catch (error) {
-        console.error('Failed to fetch pages/products:', error);
+        console.error('Failed to fetch pages/products/blog:', error);
       } finally {
         setIsLoading(false);
       }
@@ -95,9 +110,10 @@ export function InternalLinkSelector({
       ...STATIC_PAGES.map(p => ({ ...p, icon: 'page' as const })),
       ...customPages,
       ...products,
+      ...blogPosts,
     ];
     setPages(allPages);
-  }, [customPages, products]);
+  }, [customPages, products, blogPosts]);
 
   // Filter pages based on search
   const filteredPages = pages.filter(page =>
@@ -109,6 +125,7 @@ export function InternalLinkSelector({
   const staticFiltered = filteredPages.filter(p => STATIC_PAGES.some(sp => sp.slug === p.slug));
   const customFiltered = filteredPages.filter(p => p.icon === 'custom');
   const productFiltered = filteredPages.filter(p => p.icon === 'product');
+  const blogFiltered = filteredPages.filter(p => p.icon === 'blog');
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -167,6 +184,8 @@ export function InternalLinkSelector({
         return <Package className="w-3.5 h-3.5 text-[var(--admin-text-muted)]" />;
       case 'custom':
         return <FileText className="w-3.5 h-3.5 text-[var(--admin-text-muted)]" />;
+      case 'blog':
+        return <Newspaper className="w-3.5 h-3.5 text-[var(--admin-text-muted)]" />;
       default:
         return <Globe className="w-3.5 h-3.5 text-[var(--admin-text-muted)]" />;
     }
@@ -296,6 +315,28 @@ export function InternalLinkSelector({
                         Products
                       </div>
                       {productFiltered.map((page) => (
+                        <button
+                          key={page.slug}
+                          onClick={() => handleSelect(page.slug)}
+                          className={`w-full flex items-center gap-2.5 px-3 py-2 text-left text-sm hover:bg-[var(--admin-hover)] transition-colors ${
+                            value === page.slug ? 'bg-[var(--admin-hover)]' : ''
+                          }`}
+                        >
+                          {getIcon(page.icon)}
+                          <span className="flex-1 text-[var(--admin-text-primary)]">{page.label}</span>
+                          <span className="text-xs text-[var(--admin-text-muted)]">{page.slug}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Blog Posts */}
+                  {blogFiltered.length > 0 && (
+                    <div>
+                      <div className="px-3 py-1.5 text-[10px] font-medium uppercase tracking-wider text-[var(--admin-text-muted)] bg-[var(--admin-bg)]">
+                        Blog Posts
+                      </div>
+                      {blogFiltered.map((page) => (
                         <button
                           key={page.slug}
                           onClick={() => handleSelect(page.slug)}
