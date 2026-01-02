@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
@@ -231,29 +230,17 @@ export function PDPStickyDrawer({
     </>
   );
 
-  // Safe area padding for iOS devices
-  const safeAreaStyle = {
-    paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 0px)',
-  };
-
   return (
-    <AnimatePresence>
-      {isVisible && (
-        <motion.div
-          initial={{ y: '100%' }}
-          animate={{ y: 0 }}
-          exit={{ y: '100%' }}
-          transition={{
-            type: 'tween',
-            duration: 0.4,
-            ease: [0.25, 0.1, 0.25, 1],
-          }}
-          className="fixed left-0 right-0 z-[9999] bg-[#f2f2f2] shadow-[0_-4px_20px_rgba(0,0,0,0.15)]"
-          style={{ bottom: 0, ...safeAreaStyle }}
-        >
-          <DrawerContent />
-        </motion.div>
+    <div
+      className={cn(
+        'fixed left-0 right-0 bottom-0 z-[9999]',
+        'bg-[#f2f2f2] shadow-[0_-4px_20px_rgba(0,0,0,0.15)]',
+        'transition-transform duration-300 ease-out',
+        isVisible ? 'translate-y-0' : 'translate-y-full'
       )}
-    </AnimatePresence>
+      style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+    >
+      <DrawerContent />
+    </div>
   );
 }
