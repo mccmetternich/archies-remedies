@@ -18,6 +18,14 @@ import type { MediaCarouselItem } from '@/components/admin/widget-configs/media-
 import { ReviewsConfig } from '@/components/admin/widget-configs/reviews-config';
 import { IconHighlightsConfig } from '@/components/admin/widget-configs/icon-highlights-config';
 import type { IconHighlightColumn, IconHighlightsTheme } from '@/components/widgets/icon-highlights';
+import { TwoColumnFeatureConfig } from '@/components/admin/widget-configs/two-column-feature-config';
+import type {
+  TwoColumnFeatureTheme,
+  MediaPosition,
+  TextMode,
+  TextAlignment,
+  MediaMode,
+} from '@/components/widgets/two-column-feature';
 
 interface PageWidget {
   id: string;
@@ -47,8 +55,8 @@ export function WidgetConfigPanel({ widget, onUpdate }: WidgetConfigPanelProps) 
 
   return (
     <div className="space-y-4">
-      {/* Title & Subtitle - Common for most widgets (except reviews and icon_highlights which have their own) */}
-      {widget.type !== 'reviews' && widget.type !== 'icon_highlights' && (
+      {/* Title & Subtitle - Common for most widgets (except reviews, icon_highlights, and two_column_feature which have their own) */}
+      {widget.type !== 'reviews' && widget.type !== 'icon_highlights' && widget.type !== 'two_column_feature' && (
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
@@ -247,6 +255,92 @@ export function WidgetConfigPanel({ widget, onUpdate }: WidgetConfigPanelProps) 
             onUpdate({
               config: { ...config, linkUrl },
             })
+          }
+        />
+      )}
+
+      {/* Two Column Feature widget */}
+      {widget.type === 'two_column_feature' && (
+        <TwoColumnFeatureConfig
+          theme={(config.theme as TwoColumnFeatureTheme) || 'blue'}
+          mediaPosition={(config.mediaPosition as MediaPosition) || 'left'}
+          mediaMode={(config.mediaMode as MediaMode) || 'single'}
+          mediaUrl={(config.mediaUrl as string) || ''}
+          mediaIsVideo={(config.mediaIsVideo as boolean) || false}
+          beforeMediaUrl={(config.beforeMediaUrl as string) || ''}
+          beforeMediaIsVideo={(config.beforeMediaIsVideo as boolean) || false}
+          beforeLabel={(config.beforeLabel as string) || 'BEFORE'}
+          afterMediaUrl={(config.afterMediaUrl as string) || ''}
+          afterMediaIsVideo={(config.afterMediaIsVideo as boolean) || false}
+          afterLabel={(config.afterLabel as string) || 'AFTER'}
+          textMode={(config.textMode as TextMode) || 'title_body'}
+          textAlignment={(config.textAlignment as TextAlignment) || 'left'}
+          showStars={(config.showStars as boolean) || false}
+          starCount={(config.starCount as number) || 5}
+          title={(config.title as string) || ''}
+          body={(config.body as string) || ''}
+          bulletPoints={(config.bulletPoints as string[]) || ['']}
+          ctaText={(config.ctaText as string) || ''}
+          ctaUrl={(config.ctaUrl as string) || ''}
+          onThemeChange={(theme) =>
+            onUpdate({ config: { ...config, theme } })
+          }
+          onMediaPositionChange={(mediaPosition) =>
+            onUpdate({ config: { ...config, mediaPosition } })
+          }
+          onMediaModeChange={(mediaMode) =>
+            onUpdate({ config: { ...config, mediaMode } })
+          }
+          onMediaUrlChange={(mediaUrl) =>
+            onUpdate({ config: { ...config, mediaUrl } })
+          }
+          onMediaIsVideoChange={(mediaIsVideo) =>
+            onUpdate({ config: { ...config, mediaIsVideo } })
+          }
+          onBeforeMediaUrlChange={(beforeMediaUrl) =>
+            onUpdate({ config: { ...config, beforeMediaUrl } })
+          }
+          onBeforeMediaIsVideoChange={(beforeMediaIsVideo) =>
+            onUpdate({ config: { ...config, beforeMediaIsVideo } })
+          }
+          onBeforeLabelChange={(beforeLabel) =>
+            onUpdate({ config: { ...config, beforeLabel } })
+          }
+          onAfterMediaUrlChange={(afterMediaUrl) =>
+            onUpdate({ config: { ...config, afterMediaUrl } })
+          }
+          onAfterMediaIsVideoChange={(afterMediaIsVideo) =>
+            onUpdate({ config: { ...config, afterMediaIsVideo } })
+          }
+          onAfterLabelChange={(afterLabel) =>
+            onUpdate({ config: { ...config, afterLabel } })
+          }
+          onTextModeChange={(textMode) =>
+            onUpdate({ config: { ...config, textMode } })
+          }
+          onTextAlignmentChange={(textAlignment) =>
+            onUpdate({ config: { ...config, textAlignment } })
+          }
+          onShowStarsChange={(showStars) =>
+            onUpdate({ config: { ...config, showStars } })
+          }
+          onStarCountChange={(starCount) =>
+            onUpdate({ config: { ...config, starCount } })
+          }
+          onTitleChange={(title) =>
+            onUpdate({ config: { ...config, title } })
+          }
+          onBodyChange={(body) =>
+            onUpdate({ config: { ...config, body } })
+          }
+          onBulletPointsChange={(bulletPoints) =>
+            onUpdate({ config: { ...config, bulletPoints } })
+          }
+          onCtaTextChange={(ctaText) =>
+            onUpdate({ config: { ...config, ctaText } })
+          }
+          onCtaUrlChange={(ctaUrl) =>
+            onUpdate({ config: { ...config, ctaUrl } })
           }
         />
       )}

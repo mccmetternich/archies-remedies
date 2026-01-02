@@ -35,6 +35,7 @@ import {
   Zap,
   Target,
   GalleryHorizontalEnd,
+  LayoutPanelLeft,
   LucideIcon,
 } from 'lucide-react';
 
@@ -204,6 +205,18 @@ export const WIDGET_TYPES: WidgetTypeDefinition[] = [
     icon: Columns3,
     category: 'Content',
     description: '3-column feature bar with icons, titles, and copy',
+    table: null,
+    adminHref: null,
+    countKey: null,
+    addableToPages: true,
+    isGlobal: false,
+  },
+  {
+    type: 'two_column_feature',
+    name: 'Two Column Feature',
+    icon: LayoutPanelLeft,
+    category: 'Content',
+    description: 'Full-width split layout with media and text/bullets',
     table: null,
     adminHref: null,
     countKey: null,
@@ -524,6 +537,28 @@ export const DEFAULT_CONFIGS: Record<string, Record<string, unknown>> = {
     ],
     linkText: '',
     linkUrl: '',
+  },
+  two_column_feature: {
+    theme: 'blue', // 'blue' | 'dark' | 'cream'
+    mediaPosition: 'left', // 'left' | 'right'
+    mediaMode: 'single', // 'single' | 'before_after'
+    mediaUrl: '',
+    mediaIsVideo: false,
+    beforeMediaUrl: '',
+    beforeMediaIsVideo: false,
+    beforeLabel: 'BEFORE',
+    afterMediaUrl: '',
+    afterMediaIsVideo: false,
+    afterLabel: 'AFTER',
+    textMode: 'title_body', // 'title_body' | 'bullet_points'
+    textAlignment: 'left', // 'left' | 'center' | 'right'
+    showStars: false,
+    starCount: 5,
+    title: '',
+    body: '',
+    bulletPoints: [''],
+    ctaText: '',
+    ctaUrl: '',
   },
 };
 

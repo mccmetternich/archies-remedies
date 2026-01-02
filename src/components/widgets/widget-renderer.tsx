@@ -31,6 +31,14 @@ import { ContactForm } from '@/components/contact/contact-form';
 import { PDPReviews } from '@/components/product/pdp-reviews';
 import { IconHighlights } from '@/components/widgets/icon-highlights';
 import type { IconHighlightColumn, IconHighlightsTheme } from '@/components/widgets/icon-highlights';
+import { TwoColumnFeature } from '@/components/widgets/two-column-feature';
+import type {
+  TwoColumnFeatureTheme,
+  MediaPosition,
+  TextMode,
+  TextAlignment,
+  MediaMode,
+} from '@/components/widgets/two-column-feature';
 
 // Widget interface matching pages.widgets JSON structure
 export interface PageWidget {
@@ -206,6 +214,33 @@ function renderWidget(widget: PageWidget, data: WidgetRendererProps['data']): Re
           columns={(config.columns as IconHighlightColumn[]) || []}
           linkText={(config.linkText as string) || ''}
           linkUrl={(config.linkUrl as string) || ''}
+        />
+      );
+
+    case 'two_column_feature':
+      return (
+        <TwoColumnFeature
+          key={widget.id}
+          theme={(config.theme as TwoColumnFeatureTheme) || 'blue'}
+          mediaPosition={(config.mediaPosition as MediaPosition) || 'left'}
+          mediaMode={(config.mediaMode as MediaMode) || 'single'}
+          mediaUrl={(config.mediaUrl as string) || ''}
+          mediaIsVideo={(config.mediaIsVideo as boolean) || false}
+          beforeMediaUrl={(config.beforeMediaUrl as string) || ''}
+          beforeMediaIsVideo={(config.beforeMediaIsVideo as boolean) || false}
+          beforeLabel={(config.beforeLabel as string) || 'BEFORE'}
+          afterMediaUrl={(config.afterMediaUrl as string) || ''}
+          afterMediaIsVideo={(config.afterMediaIsVideo as boolean) || false}
+          afterLabel={(config.afterLabel as string) || 'AFTER'}
+          textMode={(config.textMode as TextMode) || 'title_body'}
+          textAlignment={(config.textAlignment as TextAlignment) || 'left'}
+          showStars={(config.showStars as boolean) || false}
+          starCount={(config.starCount as number) || 5}
+          title={(config.title as string) || ''}
+          body={(config.body as string) || ''}
+          bulletPoints={(config.bulletPoints as string[]) || []}
+          ctaText={(config.ctaText as string) || ''}
+          ctaUrl={(config.ctaUrl as string) || ''}
         />
       );
 
