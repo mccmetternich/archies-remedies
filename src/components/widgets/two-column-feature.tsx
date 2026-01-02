@@ -336,16 +336,19 @@ export function TwoColumnFeature({
   return (
     <section className={cn('w-full', styles.bg, className)}>
       {/* Desktop & Tablet: Two columns side by side - Full bleed */}
-      <div className="hidden md:flex min-h-[80vh] lg:min-h-screen">
-        {/* Media Column - Full bleed, no padding, no rounded corners */}
+      <div className={cn(
+        "hidden md:flex",
+        mediaMode === 'single' ? 'min-h-[80vh] lg:min-h-screen' : 'min-h-[70vh] lg:min-h-[80vh]'
+      )}>
+        {/* Media Column - Full bleed for single, padded for before/after */}
         <div
           className={cn(
             'w-1/2 relative',
             isMediaRight ? 'order-2' : 'order-1'
           )}
         >
-          <div className="absolute inset-0">
-            {mediaMode === 'single' ? (
+          {mediaMode === 'single' ? (
+            <div className="absolute inset-0">
               <div className="relative w-full h-full overflow-hidden">
                 {mediaUrl && (
                   <MediaItem
@@ -355,7 +358,9 @@ export function TwoColumnFeature({
                   />
                 )}
               </div>
-            ) : (
+            </div>
+          ) : (
+            <div className="absolute inset-0 p-6 lg:p-10">
               <BeforeAfterMedia
                 beforeUrl={beforeMediaUrl}
                 beforeIsVideo={beforeMediaIsVideo}
@@ -366,8 +371,8 @@ export function TwoColumnFeature({
                 labelBg={styles.labelBg}
                 labelText={styles.labelText}
               />
-            )}
-          </div>
+            </div>
+          )}
         </div>
 
         {/* Text Column */}
@@ -474,10 +479,13 @@ export function TwoColumnFeature({
         </div>
       </div>
 
-      {/* Mobile: Stacked layout - Media first (70%), then text (30%) */}
+      {/* Mobile: Stacked layout - Media first, then text */}
       <div className="md:hidden min-h-screen flex flex-col">
-        {/* Media - 70% of viewport - Full bleed */}
-        <div className="h-[70vh] relative">
+        {/* Media - Full bleed for single, reduced height with padding for before/after */}
+        <div className={cn(
+          "relative",
+          mediaMode === 'single' ? 'h-[70vh]' : 'h-[55vh] p-4'
+        )}>
           {mediaMode === 'single' ? (
             <div className="relative w-full h-full overflow-hidden">
               {mediaUrl && (
