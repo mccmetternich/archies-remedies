@@ -86,12 +86,12 @@ export function PDPStickyDrawer({
           className="flex flex-1 min-w-0"
           style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
         >
-          {/* Thumbnail - larger, clips at edges */}
+          {/* Thumbnail - large, approximates CTA button size */}
           {thumbnailUrl && (
             <button
               type="button"
               onClick={handleScrollToTop}
-              className="flex-shrink-0 w-16 h-16 relative cursor-pointer overflow-hidden"
+              className="flex-shrink-0 w-[72px] self-stretch relative cursor-pointer overflow-hidden"
               aria-label="Scroll to top"
             >
               <Image
@@ -99,7 +99,7 @@ export function PDPStickyDrawer({
                 alt={productName}
                 fill
                 className="object-cover"
-                sizes="64px"
+                sizes="72px"
               />
             </button>
           )}
@@ -110,9 +110,9 @@ export function PDPStickyDrawer({
             onClick={handleScrollToTop}
             className="flex-1 flex flex-col justify-center px-3 py-2 cursor-pointer text-left min-w-0"
           >
-            {/* Title - can wrap to 2 lines */}
+            {/* Title - wraps naturally */}
             <span
-              className="text-[14px] font-medium uppercase tracking-[0.02em] text-[#1a1a1a] leading-tight line-clamp-2"
+              className="text-[14px] font-medium uppercase tracking-[0.02em] text-[#1a1a1a] leading-snug"
               style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
             >
               {productName}
