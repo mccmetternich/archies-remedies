@@ -299,6 +299,8 @@ function DraggableWidgetRow({
                     products={products}
                     onSlidesChange={onHeroSlidesChange}
                     previewDevice={previewDevice}
+                    widgetConfig={(widget.config || {}) as Record<string, unknown>}
+                    onWidgetConfigChange={(config) => onUpdate({ config })}
                   />
                 )
               ) : (

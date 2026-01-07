@@ -65,6 +65,11 @@ interface HeroSlide {
   textColor: string | null;
 }
 
+interface WidgetConfig {
+  showTextGradient?: boolean;
+  [key: string]: unknown;
+}
+
 interface HeroCarouselConfigProps {
   slides: HeroSlide[];
   onSlidesChange: (slides: HeroSlide[]) => void;
@@ -73,6 +78,8 @@ interface HeroCarouselConfigProps {
   maxSlides?: number;
   autoAdvanceInterval?: number;
   onAutoAdvanceIntervalChange?: (interval: number) => void;
+  widgetConfig?: WidgetConfig;
+  onWidgetConfigChange?: (config: WidgetConfig) => void;
 }
 
 /**
@@ -87,12 +94,24 @@ export function HeroCarouselConfig({
   maxSlides = 3,
   autoAdvanceInterval = 5,
   onAutoAdvanceIntervalChange,
+  widgetConfig = {},
+  onWidgetConfigChange,
 }: HeroCarouselConfigProps) {
   const [expandedSlide, setExpandedSlide] = useState<string | null>(
     slides.length === 1 ? slides[0]?.id : null
   );
 
   const canAddSlide = slides.length < maxSlides;
+
+  // Toggle widget config option
+  const toggleWidgetConfig = (key: keyof WidgetConfig) => {
+    if (onWidgetConfigChange) {
+      onWidgetConfigChange({
+        ...widgetConfig,
+        [key]: !widgetConfig[key],
+      });
+    }
+  };
 
   // ─────────────────────────────────────────
   // Slide Operations
@@ -165,6 +184,40 @@ export function HeroCarouselConfig({
 
   return (
     <div className="space-y-4">
+      {/* Widget-Level Settings */}
+      {onWidgetConfigChange && (
+        <div className="bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl p-4">
+          <h4 className="text-sm font-medium text-[var(--admin-text-primary)] mb-3">Display Options</h4>
+
+          {/* Text Legibility Gradient Toggle */}
+          <div className="flex items-center justify-between">
+            <div>
+              <label className="block text-sm text-[var(--admin-text-secondary)]">
+                Text Legibility Gradient
+              </label>
+              <p className="text-xs text-[var(--admin-text-muted)]">
+                Adds white gradient on left side for full-width slides (improves text readability)
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => toggleWidgetConfig('showTextGradient')}
+              className={cn(
+                'relative inline-flex h-6 w-11 items-center rounded-full transition-colors',
+                widgetConfig.showTextGradient ? 'bg-[var(--primary)]' : 'bg-[var(--admin-border)]'
+              )}
+            >
+              <span
+                className={cn(
+                  'inline-block h-5 w-5 transform rounded-full bg-white shadow-sm transition-transform',
+                  widgetConfig.showTextGradient ? 'translate-x-5' : 'translate-x-0.5'
+                )}
+              />
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Slide Timing Control - at top of widget config */}
       {slides.length > 1 && onAutoAdvanceIntervalChange && (
         <div className="bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl p-4">

@@ -12,7 +12,6 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { cn } from '@/lib/utils';
 import { MediaPickerButton } from '@/components/admin/media-picker';
 import { MediaCarouselConfig } from '@/components/admin/widget-configs/media-carousel-config';
 import type { MediaCarouselItem } from '@/components/admin/widget-configs/media-carousel-config';
@@ -609,46 +608,8 @@ export function WidgetConfigPanel({ widget, onUpdate }: WidgetConfigPanelProps) 
         />
       )}
 
-      {/* Hero Carousel - Note: This has its own dedicated config component */}
-      {widget.type === 'hero_carousel' && (
-        <div className="space-y-4">
-          <div className="p-4 bg-[var(--admin-input)] rounded-lg">
-            <p className="text-sm text-[var(--admin-text-secondary)]">
-              Hero carousel slides are managed globally.
-            </p>
-            <Link href="/admin/hero-slides" className="text-sm text-[var(--primary)] hover:underline mt-1 inline-block">
-              Manage Hero Slides →
-            </Link>
-          </div>
-
-          {/* Text Gradient Overlay Toggle */}
-          <div className="flex items-center justify-between p-4 bg-[var(--admin-input)] rounded-lg">
-            <div>
-              <label className="block text-sm font-medium text-[var(--admin-text-primary)]">
-                Text Legibility Gradient
-              </label>
-              <p className="text-xs text-[var(--admin-text-muted)] mt-0.5">
-                Adds white gradient on left side for full-width hero images/videos
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => onUpdate({ config: { ...config, showTextGradient: !config.showTextGradient } })}
-              className={cn(
-                'relative inline-flex h-6 w-11 items-center rounded-full transition-colors',
-                config.showTextGradient ? 'bg-[var(--primary)]' : 'bg-[var(--admin-border)]'
-              )}
-            >
-              <span
-                className={cn(
-                  'inline-block h-5 w-5 transform rounded-full bg-white shadow-sm transition-transform',
-                  config.showTextGradient ? 'translate-x-5' : 'translate-x-0.5'
-                )}
-              />
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Hero Carousel - has its own dedicated config component (HeroCarouselConfig) */}
+      {/* The gradient toggle and other options are managed there, not here */}
     </div>
   );
 }
