@@ -28,7 +28,6 @@ export interface HeroSlideData {
   testimonialAvatarUrl: string | null;
   layout?: string | null;
   textColor?: string | null;
-  showTextGradient?: boolean | null;
 }
 
 export interface HeroSlideProps {
@@ -57,7 +56,6 @@ export function FullWidthSlide({ slide, currentIndex }: HeroSlideProps) {
         testimonialText={slide.testimonialText}
         testimonialAuthor={slide.testimonialAuthor}
         testimonialAvatarUrl={slide.testimonialAvatarUrl}
-        showTextGradient={slide.showTextGradient}
       />
 
       {/* Desktop: Original overlay layout */}

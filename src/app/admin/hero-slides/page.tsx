@@ -45,7 +45,6 @@ interface HeroSlide {
   sortOrder: number | null;
   layout: string | null; // 'full-width' | 'two-column' | 'two-column-reversed'
   textColor: string | null; // 'dark' | 'light'
-  showTextGradient: boolean | null; // White gradient for text legibility (full-width only)
 }
 
 export default function HeroSlidesPage() {
@@ -105,7 +104,6 @@ export default function HeroSlidesPage() {
       sortOrder: slides.length,
       layout: 'full-width',
       textColor: 'dark',
-      showTextGradient: false,
     };
     setSlides([...slides, newSlide]);
     setEditingId(newSlide.id);
@@ -336,29 +334,6 @@ export default function HeroSlidesPage() {
                   </p>
                 </div>
               </div>
-
-              {/* Text Gradient Toggle - Only for full-width layout */}
-              {editForm.layout === 'full-width' && (
-                <div className="flex items-center gap-3 p-4 bg-[var(--background)] rounded-lg border border-[var(--border-light)]">
-                  <input
-                    type="checkbox"
-                    id="showTextGradient"
-                    checked={editForm.showTextGradient || false}
-                    onChange={(e) =>
-                      setEditForm({ ...editForm, showTextGradient: e.target.checked })
-                    }
-                    className="w-5 h-5 rounded border-[var(--border)] text-[var(--primary)] focus:ring-[var(--primary)]"
-                  />
-                  <div>
-                    <label htmlFor="showTextGradient" className="block text-sm font-medium cursor-pointer">
-                      Show Text Gradient Overlay
-                    </label>
-                    <p className="text-xs text-[var(--muted-foreground)]">
-                      Adds a white gradient from left to center for better text legibility over busy backgrounds
-                    </p>
-                  </div>
-                </div>
-              )}
 
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
