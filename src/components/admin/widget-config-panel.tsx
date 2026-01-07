@@ -129,10 +129,16 @@ export function WidgetConfigPanel({ widget, onUpdate }: WidgetConfigPanelProps) 
         <RichTextConfig
           content={widget.content || ''}
           maxWidth={(config.maxWidth as 'sm' | 'md' | 'lg' | 'xl' | 'full') || 'lg'}
+          theme={(config.theme as 'light' | 'dark' | 'cream') || 'light'}
           onContentChange={(content) => onUpdate({ content })}
           onMaxWidthChange={(maxWidth) =>
             onUpdate({
               config: { ...config, maxWidth },
+            })
+          }
+          onThemeChange={(theme) =>
+            onUpdate({
+              config: { ...config, theme },
             })
           }
         />

@@ -7,11 +7,15 @@ import { RichTextEditor } from '@/components/admin/rich-text-editor';
 // TYPES
 // ============================================
 
+export type RichTextTheme = 'light' | 'dark' | 'cream';
+
 interface RichTextConfigProps {
   content: string;
   maxWidth: 'sm' | 'md' | 'lg' | 'xl' | 'full';
+  theme: RichTextTheme;
   onContentChange: (content: string) => void;
   onMaxWidthChange: (maxWidth: 'sm' | 'md' | 'lg' | 'xl' | 'full') => void;
+  onThemeChange: (theme: RichTextTheme) => void;
 }
 
 // ============================================
@@ -27,17 +31,57 @@ const maxWidthOptions: { value: RichTextConfigProps['maxWidth']; label: string; 
 ];
 
 // ============================================
+// THEME OPTIONS
+// ============================================
+
+const themeOptions: { value: RichTextTheme; label: string; bgColor: string; textColor: string }[] = [
+  { value: 'light', label: 'Light', bgColor: '#ffffff', textColor: '#333333' },
+  { value: 'dark', label: 'Dark', bgColor: '#1a1a1a', textColor: '#ffffff' },
+  { value: 'cream', label: 'Cream', bgColor: '#f5f1eb', textColor: '#333333' },
+];
+
+// ============================================
 // MAIN COMPONENT
 // ============================================
 
 export function RichTextConfig({
   content,
   maxWidth,
+  theme,
   onContentChange,
   onMaxWidthChange,
+  onThemeChange,
 }: RichTextConfigProps) {
   return (
     <div className="space-y-6">
+      {/* Theme Selection */}
+      <div>
+        <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
+          Theme
+        </label>
+        <div className="flex gap-2">
+          {themeOptions.map((option) => (
+            <button
+              key={option.value}
+              type="button"
+              onClick={() => onThemeChange(option.value)}
+              className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-all border ${
+                theme === option.value
+                  ? 'ring-2 ring-[var(--primary)] ring-offset-2 ring-offset-[var(--admin-card)]'
+                  : 'hover:opacity-80'
+              }`}
+              style={{
+                backgroundColor: option.bgColor,
+                color: option.textColor,
+                borderColor: option.value === 'light' ? '#e5e5e5' : 'transparent',
+              }}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Max Width */}
       <div>
         <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">

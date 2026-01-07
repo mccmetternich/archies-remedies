@@ -148,6 +148,23 @@ function renderWidget(
         full: 'max-w-none',
       }[(config.maxWidth as string) || 'lg'] || 'max-w-3xl';
 
+      // Theme-based styling
+      const textTheme = (config.theme as 'light' | 'dark' | 'cream') || 'light';
+      const textThemeStyles = {
+        light: {
+          bg: 'bg-white',
+          prose: 'prose-headings:text-[var(--foreground)] prose-p:text-[#333] prose-strong:text-[var(--foreground)] prose-ul:text-[#333] prose-ol:text-[#333] prose-a:text-[#4a90a4]',
+        },
+        dark: {
+          bg: 'bg-[#1a1a1a]',
+          prose: 'prose-headings:text-white prose-p:text-white/80 prose-strong:text-white prose-ul:text-white/80 prose-ol:text-white/80 prose-a:text-[#7bb8cc]',
+        },
+        cream: {
+          bg: 'bg-[#f5f1eb]',
+          prose: 'prose-headings:text-[var(--foreground)] prose-p:text-[#333] prose-strong:text-[var(--foreground)] prose-ul:text-[#333] prose-ol:text-[#333] prose-a:text-[#4a90a4]',
+        },
+      }[textTheme];
+
       // First widget on widget-only page: use header-clearing padding
       // Normal: standard section padding
       const textPadding = isFirstOnWidgetOnlyPage
@@ -155,10 +172,10 @@ function renderWidget(
         : 'py-12 lg:py-16';
 
       return (
-        <section key={widget.id} className={textPadding}>
+        <section key={widget.id} className={`${textPadding} ${textThemeStyles.bg}`}>
           <div className={`${textMaxWidth} mx-auto px-6`}>
             <div
-              className="prose prose-lg max-w-none prose-headings:font-semibold prose-headings:text-[var(--foreground)] prose-p:text-[#333] prose-p:leading-relaxed prose-a:text-[#4a90a4] prose-a:underline prose-strong:text-[var(--foreground)] prose-ul:text-[#333] prose-ol:text-[#333] prose-li:my-1"
+              className={`prose prose-lg max-w-none prose-headings:font-semibold prose-p:leading-relaxed prose-a:underline prose-li:my-1 ${textThemeStyles.prose}`}
             >
               {widget.content && (
                 <div dangerouslySetInnerHTML={{ __html: widget.content }} />

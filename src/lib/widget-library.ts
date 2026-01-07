@@ -488,6 +488,7 @@ export const DEFAULT_CONFIGS: Record<string, Record<string, unknown>> = {
   text: {
     content: '',
     maxWidth: 'lg',
+    theme: 'light',
   },
   image_text: {
     imageUrl: '',
