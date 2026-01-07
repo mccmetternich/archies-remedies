@@ -26,9 +26,9 @@ interface StoryHeroProps extends StoryHeroConfig {
 // ============================================
 
 const heightStyles: Record<StoryHeroHeight, { desktop: string; mobile: string }> = {
-  short: { desktop: 'lg:h-[33vh]', mobile: 'h-[50vh]' },
-  medium: { desktop: 'lg:h-[50vh]', mobile: 'h-[60vh]' },
-  tall: { desktop: 'lg:h-[66vh]', mobile: 'h-[75vh]' },
+  short: { desktop: 'lg:h-[33vh]', mobile: 'h-[35vh]' },
+  medium: { desktop: 'lg:h-[50vh]', mobile: 'h-[40vh]' },
+  tall: { desktop: 'lg:h-[66vh]', mobile: 'h-[50vh]' },
 };
 
 // ============================================

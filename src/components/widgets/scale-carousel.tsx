@@ -209,6 +209,175 @@ function MediaItem({
 }
 
 // ============================================
+// MOBILE CAROUSEL COMPONENT
+// ============================================
+
+interface MobileCarouselProps {
+  items: ScaleCarouselItem[];
+  selectedIndex: number;
+  onSelect: (index: number) => void;
+  aspectRatio: ScaleCarouselAspectRatio;
+  theme: ScaleCarouselTheme;
+  onVideoEnd: () => void;
+}
+
+function MobileCarousel({
+  items,
+  selectedIndex,
+  onSelect,
+  aspectRatio,
+  theme,
+  onVideoEnd,
+}: MobileCarouselProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [currentTranslate, setCurrentTranslate] = useState(0);
+  const [prevTranslate, setPrevTranslate] = useState(0);
+
+  // Item dimensions for mobile
+  const itemWidth = 70; // vw
+  const itemGap = 3; // vw
+  const itemWidthPx = (typeof window !== 'undefined' ? window.innerWidth : 375) * (itemWidth / 100);
+
+  // Calculate translate for centering the selected item
+  const getTranslateForIndex = useCallback((index: number) => {
+    const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 375;
+    const itemWidthActual = viewportWidth * (itemWidth / 100);
+    const gapActual = viewportWidth * (itemGap / 100);
+    // Center the item: offset by half viewport minus half item width
+    const centerOffset = (viewportWidth - itemWidthActual) / 2;
+    return centerOffset - (index * (itemWidthActual + gapActual));
+  }, [itemWidth, itemGap]);
+
+  // Update translate when selected index changes
+  useEffect(() => {
+    const newTranslate = getTranslateForIndex(selectedIndex);
+    setCurrentTranslate(newTranslate);
+    setPrevTranslate(newTranslate);
+  }, [selectedIndex, getTranslateForIndex]);
+
+  // Touch handlers
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setIsDragging(true);
+    setStartX(e.touches[0].clientX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging) return;
+    const currentX = e.touches[0].clientX;
+    const diff = currentX - startX;
+    setCurrentTranslate(prevTranslate + diff);
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+    const movedBy = currentTranslate - prevTranslate;
+    const threshold = 50;
+
+    if (movedBy < -threshold && selectedIndex < items.length - 1) {
+      onSelect(selectedIndex + 1);
+    } else if (movedBy > threshold && selectedIndex > 0) {
+      onSelect(selectedIndex - 1);
+    } else {
+      // Snap back to current
+      setCurrentTranslate(prevTranslate);
+    }
+  };
+
+  // Mouse handlers for desktop testing
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true);
+    setStartX(e.clientX);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging) return;
+    const diff = e.clientX - startX;
+    setCurrentTranslate(prevTranslate + diff);
+  };
+
+  const handleMouseUp = () => {
+    if (!isDragging) return;
+    handleTouchEnd();
+  };
+
+  const handleMouseLeave = () => {
+    if (isDragging) {
+      handleTouchEnd();
+    }
+  };
+
+  return (
+    <div
+      ref={containerRef}
+      className="relative touch-pan-y"
+      style={{ height: aspectRatio === '9:16' ? '65vh' : '55vh', maxHeight: 500 }}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseLeave}
+    >
+      <div
+        className={cn(
+          'flex items-center h-full',
+          isDragging ? '' : 'transition-transform duration-300 ease-out'
+        )}
+        style={{
+          transform: `translateX(${currentTranslate}px)`,
+          gap: `${itemGap}vw`,
+        }}
+      >
+        {items.map((item, index) => {
+          const isSelected = index === selectedIndex;
+
+          return (
+            <div
+              key={item.id}
+              className={cn(
+                'flex-shrink-0 transition-all duration-300',
+                isSelected ? 'scale-100 opacity-100' : 'scale-90 opacity-60'
+              )}
+              style={{ width: `${itemWidth}vw` }}
+              onClick={() => !isDragging && onSelect(index)}
+            >
+              <MediaItem
+                item={item}
+                isSelected={isSelected}
+                aspectRatio={aspectRatio}
+                theme={theme}
+                onVideoEnd={isSelected ? onVideoEnd : undefined}
+              />
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Dot indicators */}
+      <div className="flex justify-center gap-2 mt-4">
+        {items.map((_, index) => (
+          <button
+            key={index}
+            type="button"
+            onClick={() => onSelect(index)}
+            className={cn(
+              'w-2 h-2 rounded-full transition-all duration-300',
+              index === selectedIndex
+                ? 'bg-[var(--foreground)] w-6'
+                : 'bg-[var(--foreground)]/30'
+            )}
+            aria-label={`Go to slide ${index + 1}`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ============================================
 // MAIN COMPONENT
 // ============================================
 
@@ -338,44 +507,16 @@ export function ScaleCarousel({
         </div>
       </div>
 
-      {/* Mobile: Horizontal scroll with fixed height container */}
-      <div className="md:hidden">
-        <div
-          className="flex items-center gap-3 px-6 overflow-x-auto scrollbar-hide snap-x snap-mandatory"
-          style={{
-            WebkitOverflowScrolling: 'touch',
-            scrollbarWidth: 'none',
-            msOverflowStyle: 'none',
-            minHeight: aspectRatio === '9:16' ? 400 : 360,
-          }}
-        >
-          {items.map((item, index) => {
-            const isSelected = index === selectedIndex;
-
-            return (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => handleSelect(index)}
-                className="flex-shrink-0 snap-center transition-all duration-300 focus:outline-none"
-                style={{
-                  width: isSelected ? '75vw' : '60vw',
-                  maxWidth: isSelected ? 300 : 240,
-                }}
-              >
-                <MediaItem
-                  item={item}
-                  isSelected={isSelected}
-                  aspectRatio={aspectRatio}
-                  theme={theme}
-                  onVideoEnd={isSelected ? handleVideoEnd : undefined}
-                />
-              </button>
-            );
-          })}
-          {/* Spacer for last item */}
-          <div className="flex-shrink-0 w-4" aria-hidden="true" />
-        </div>
+      {/* Mobile/Tablet: Swipeable carousel with centered active item */}
+      <div className="md:hidden overflow-hidden">
+        <MobileCarousel
+          items={items}
+          selectedIndex={selectedIndex}
+          onSelect={handleSelect}
+          aspectRatio={aspectRatio}
+          theme={theme}
+          onVideoEnd={handleVideoEnd}
+        />
       </div>
     </section>
   );

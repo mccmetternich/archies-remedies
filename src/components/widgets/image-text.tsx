@@ -119,10 +119,10 @@ export function ImageText({
             target={ctaType === 'external' && ctaTarget === '_blank' ? '_blank' : undefined}
             rel={ctaType === 'external' && ctaTarget === '_blank' ? 'noopener noreferrer' : undefined}
             onClick={handleClick}
-            className="group inline-flex items-center gap-3 px-8 py-4 bg-[var(--primary)] text-[var(--foreground)] rounded-full text-base font-semibold hover:bg-[var(--primary-dark)] transition-all duration-300 shadow-md hover:shadow-lg"
+            className="group flex md:inline-flex items-center justify-center gap-3 w-full md:w-auto px-8 py-4 bg-[var(--foreground)] text-white text-sm font-semibold uppercase tracking-[0.1em] hover:bg-[var(--primary)] hover:text-[var(--foreground)] transition-all duration-300"
           >
             {ctaText}
-            <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
           </Link>
         </div>
       )}

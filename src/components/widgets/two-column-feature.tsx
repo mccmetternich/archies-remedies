@@ -482,12 +482,12 @@ export function TwoColumnFeature({
         </div>
       </div>
 
-      {/* Mobile: Stacked layout - Media first, then text */}
-      <div className="md:hidden min-h-screen flex flex-col">
-        {/* Media - Full bleed for single, reduced height with padding for before/after */}
+      {/* Mobile: Stacked layout - Media first (70% viewport), then text visible below */}
+      <div className="md:hidden flex flex-col">
+        {/* Media - 70% viewport height so text peeks below inviting scroll */}
         <div className={cn(
           "relative",
-          mediaMode === 'single' ? 'h-[70vh]' : 'h-[55vh] p-4'
+          mediaMode === 'single' ? 'h-[70svh]' : 'h-[55svh] p-4'
         )}>
           {mediaMode === 'single' ? (
             <div className="relative w-full h-full overflow-hidden">
@@ -569,19 +569,13 @@ export function TwoColumnFeature({
               </div>
             )}
 
-            {/* CTA Button */}
+            {/* CTA Button - Full width on mobile */}
             {ctaText && ctaUrl && (
-              <div
-                className={cn(
-                  'mt-5',
-                  textAlignment === 'center' && 'flex justify-center',
-                  textAlignment === 'right' && 'flex justify-end'
-                )}
-              >
+              <div className="mt-6">
                 <Link
                   href={isScrollAction ? '#' : ctaUrl}
                   onClick={handleCtaClick}
-                  className="inline-flex items-center px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.1em] transition-all duration-200"
+                  className="flex items-center justify-center w-full px-6 py-4 text-sm font-semibold uppercase tracking-[0.1em] transition-all duration-200"
                   style={{
                     backgroundColor: styles.ctaBg,
                     color: styles.ctaText,

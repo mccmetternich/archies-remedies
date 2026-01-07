@@ -266,7 +266,7 @@ export function MediaCarousel({ items, className }: MediaCarouselProps) {
                   muted
                   loop
                   playsInline
-                  preload="metadata"
+                  preload={index < 4 ? 'auto' : 'metadata'}
                   className="absolute inset-0 w-full h-full object-cover"
                 />
               ) : (
