@@ -41,7 +41,7 @@ import type {
 } from '@/components/widgets/two-column-feature';
 import { FAQDrawer } from '@/components/widgets/faq-drawer';
 import type { FAQDrawerTheme, FAQItem } from '@/components/widgets/faq-drawer';
-import { FloatingBadgesViewport } from '@/components/widgets/floating-badges';
+import { FloatingBadges } from '@/components/widgets/floating-badges';
 import type { FloatingBadge } from '@/components/widgets/floating-badges';
 import { StoryHero } from '@/components/widgets/story-hero';
 import type { StoryHeroHeight } from '@/components/widgets/story-hero';
@@ -622,7 +622,7 @@ function renderWidget(
       // Filter out badges without images
       const validBadges = floatingBadges.filter((b) => b.imageUrl);
       if (validBadges.length === 0) return null;
-      return <FloatingBadgesViewport key={widget.id} badges={validBadges} />;
+      return <FloatingBadges key={widget.id} badges={validBadges} />;
 
     default:
       // Unknown widget type - skip
