@@ -90,7 +90,6 @@ interface MediaItemProps {
   aspectRatio: ScaleCarouselAspectRatio;
   theme: ScaleCarouselTheme;
   onVideoEnd?: () => void;
-  onClick: () => void;
 }
 
 function MediaItem({
@@ -99,39 +98,51 @@ function MediaItem({
   aspectRatio,
   theme,
   onVideoEnd,
-  onClick,
 }: MediaItemProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const shouldUseVideo = item.isVideo || isVideoUrl(item.mediaUrl);
   const styles = themeStyles[theme];
+  const wasSelectedRef = useRef(isSelected);
 
   // Handle video playback
   useEffect(() => {
     const video = videoRef.current;
     if (!video || !shouldUseVideo) return;
 
-    // All videos play continuously
-    video.play().catch(() => {
-      // Autoplay blocked
-    });
-
     // Mute/unmute based on selection
     video.muted = !isSelected;
 
-    // Restart video when selected
-    if (isSelected) {
+    // When becoming selected, restart video
+    if (isSelected && !wasSelectedRef.current) {
       video.currentTime = 0;
+      video.loop = false; // Don't loop when selected - we want to advance on end
       video.play().catch(() => {});
     }
+
+    // When becoming unselected, enable looping for background play
+    if (!isSelected && wasSelectedRef.current) {
+      video.loop = true;
+      video.play().catch(() => {});
+    }
+
+    // Initial play for all videos
+    if (!wasSelectedRef.current && !isSelected) {
+      video.loop = true;
+      video.play().catch(() => {});
+    }
+
+    wasSelectedRef.current = isSelected;
   }, [isSelected, shouldUseVideo]);
 
-  // Handle video end for auto-advance
+  // Handle video end for auto-advance (only when selected)
   useEffect(() => {
     const video = videoRef.current;
     if (!video || !shouldUseVideo || !isSelected) return;
 
     const handleEnded = () => {
-      onVideoEnd?.();
+      if (onVideoEnd) {
+        onVideoEnd();
+      }
     };
 
     video.addEventListener('ended', handleEnded);
@@ -143,17 +154,16 @@ function MediaItem({
   return (
     <div
       className={cn(
-        'relative w-full overflow-hidden rounded-xl cursor-pointer transition-all duration-300',
+        'relative w-full h-full overflow-hidden rounded-xl transition-all duration-300',
         aspectClass
       )}
-      onClick={onClick}
     >
       {shouldUseVideo ? (
         <video
           ref={videoRef}
           src={item.mediaUrl}
           className="w-full h-full object-cover"
-          loop={!isSelected} // Only loop when not selected (for background play)
+          loop={!isSelected}
           muted={!isSelected}
           playsInline
           autoPlay
@@ -243,11 +253,11 @@ export function ScaleCarousel({
     return null;
   }
 
-  // Calculate dimensions for selected vs non-selected items
+  // Sizing: Selected stays as is, unselected is 80% of selected (20% smaller)
   const selectedWidth = aspectRatio === '9:16' ? 280 : 360;
   const selectedHeight = aspectRatio === '9:16' ? 500 : 480;
-  const thumbnailWidth = aspectRatio === '9:16' ? 140 : 180;
-  const thumbnailHeight = aspectRatio === '9:16' ? 250 : 240;
+  const unselectedWidth = Math.round(selectedWidth * 0.8);
+  const unselectedHeight = Math.round(selectedHeight * 0.8);
 
   return (
     <section className={cn('py-12 md:py-16 lg:py-20', styles.bg, className)}>
@@ -269,17 +279,19 @@ export function ScaleCarousel({
 
       {/* Desktop: Center-focused layout */}
       <div className="hidden md:block">
-        <div className="flex items-center justify-center gap-6 lg:gap-8 px-6">
+        <div className="flex items-center justify-center gap-4 lg:gap-6 px-6">
           {items.map((item, index) => {
             const isSelected = index === selectedIndex;
 
             return (
-              <div
+              <button
                 key={item.id}
-                className="flex-shrink-0 transition-all duration-500 ease-out"
+                type="button"
+                onClick={() => handleSelect(index)}
+                className="flex-shrink-0 transition-all duration-500 ease-out focus:outline-none"
                 style={{
-                  width: isSelected ? selectedWidth : thumbnailWidth,
-                  height: isSelected ? selectedHeight : thumbnailHeight,
+                  width: isSelected ? selectedWidth : unselectedWidth,
+                  height: isSelected ? selectedHeight : unselectedHeight,
                 }}
               >
                 <MediaItem
@@ -288,9 +300,8 @@ export function ScaleCarousel({
                   aspectRatio={aspectRatio}
                   theme={theme}
                   onVideoEnd={isSelected ? handleVideoEnd : undefined}
-                  onClick={() => handleSelect(index)}
                 />
-              </div>
+              </button>
             );
           })}
         </div>
@@ -299,7 +310,7 @@ export function ScaleCarousel({
       {/* Mobile: Horizontal scroll */}
       <div className="md:hidden">
         <div
-          className="flex items-center gap-4 px-6 overflow-x-auto scrollbar-hide snap-x snap-mandatory"
+          className="flex items-center gap-3 px-6 overflow-x-auto scrollbar-hide snap-x snap-mandatory"
           style={{
             WebkitOverflowScrolling: 'touch',
             scrollbarWidth: 'none',
@@ -310,12 +321,14 @@ export function ScaleCarousel({
             const isSelected = index === selectedIndex;
 
             return (
-              <div
+              <button
                 key={item.id}
-                className="flex-shrink-0 snap-center transition-all duration-300"
+                type="button"
+                onClick={() => handleSelect(index)}
+                className="flex-shrink-0 snap-center transition-all duration-300 focus:outline-none"
                 style={{
-                  width: isSelected ? '80vw' : '60vw',
-                  maxWidth: isSelected ? 320 : 240,
+                  width: isSelected ? '75vw' : '60vw',
+                  maxWidth: isSelected ? 300 : 240,
                 }}
               >
                 <MediaItem
@@ -324,34 +337,14 @@ export function ScaleCarousel({
                   aspectRatio={aspectRatio}
                   theme={theme}
                   onVideoEnd={isSelected ? handleVideoEnd : undefined}
-                  onClick={() => handleSelect(index)}
                 />
-              </div>
+              </button>
             );
           })}
           {/* Spacer for last item */}
           <div className="flex-shrink-0 w-4" aria-hidden="true" />
         </div>
       </div>
-
-      {/* Dot indicators */}
-      {items.length > 1 && (
-        <div className="flex items-center justify-center gap-2 mt-6 md:mt-8">
-          {items.map((item, index) => (
-            <button
-              key={item.id}
-              onClick={() => handleSelect(index)}
-              className={cn(
-                'w-2 h-2 rounded-full transition-all duration-300',
-                index === selectedIndex
-                  ? 'w-6 bg-[var(--foreground)]'
-                  : 'bg-[var(--foreground)]/30 hover:bg-[var(--foreground)]/50'
-              )}
-              aria-label={`Go to slide ${index + 1}`}
-            />
-          ))}
-        </div>
-      )}
     </section>
   );
 }
