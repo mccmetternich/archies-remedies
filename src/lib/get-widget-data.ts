@@ -128,7 +128,15 @@ export async function getWidgetData(widgetTypes: string[]): Promise<WidgetData> 
         .where(eq(heroSlides.isActive, true))
         .orderBy(heroSlides.sortOrder)
         .then((slides) => {
+          console.log('[getWidgetData] Hero slides fetched:', slides.length, 'slides');
+          if (slides.length === 0) {
+            console.log('[getWidgetData] WARNING: No active hero slides found!');
+          }
           data.heroSlides = slides;
+        })
+        .catch((error) => {
+          console.error('[getWidgetData] ERROR fetching hero slides:', error);
+          data.heroSlides = [];
         })
     );
   }

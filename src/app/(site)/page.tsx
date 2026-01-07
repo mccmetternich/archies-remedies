@@ -66,8 +66,14 @@ export default async function HomePage() {
     .filter((w) => w.isVisible)
     .map((w) => w.type);
 
+  console.log('[HomePage] Page widgets count:', pageWidgets.length);
+  console.log('[HomePage] Visible widget types:', visibleWidgetTypes);
+
   // Fetch widget data based on which widget types are present
   const widgetData = await getWidgetData(visibleWidgetTypes);
+
+  console.log('[HomePage] Widget data keys:', Object.keys(widgetData));
+  console.log('[HomePage] Hero slides in data:', widgetData.heroSlides?.length ?? 'undefined');
 
   // Add instagramUrl from settings
   const widgetDataWithSettings = {
