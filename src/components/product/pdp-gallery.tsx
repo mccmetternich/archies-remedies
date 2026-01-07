@@ -450,15 +450,14 @@ export function PDPGallery({
           <div
             className={cn(
               'relative flex flex-col',
-              // Tray width ~28% of viewport to fit 3 larger square thumbnails (~15% bigger)
-              // Height matches hero (viewport - tray width since hero is square)
-              'w-[28vw] lg:w-[var(--pdp-tray-width)]', // 28% scaling on mobile/tablet, fluid 100px → 80px desktop
-              'h-[calc(100vw-28vw)] lg:h-auto lg:self-stretch', // Height = hero width = viewport - tray
+              // Width/height set via inline style for mobile, CSS vars on desktop
+              'lg:w-[var(--pdp-tray-width)] lg:h-auto lg:self-stretch',
               'bg-[var(--foreground)]', // Dark background for thumbnail tray
               'flex-none flex-shrink-0',
               'lg:ml-auto', // Push tray to right edge on desktop (gutter expands)
               'overflow-hidden' // Strict clipping - nothing escapes to marquee
             )}
+            style={isMobile ? { width: '28vw', height: 'calc(100vw - 28vw)' } : undefined}
           >
             {/* Top Gradient Fade - click-through overlay */}
             <div
@@ -504,12 +503,13 @@ export function PDPGallery({
                   onMouseEnter={() => handleThumbnailHover(index)}
                   className={cn(
                     'relative overflow-hidden bg-white',
-                    // Explicit width: tray (28vw) minus padding (10px) = thumbnail size
-                    'flex-none aspect-square w-[calc(28vw-10px)] lg:w-full',
+                    // Width set via inline style for mobile, full width on desktop
+                    'flex-none aspect-square lg:w-full',
                     index === 0 && 'mt-[20px] lg:mt-[var(--pdp-tray-padding)]', // First thumbnail: 20px mobile, fluid desktop
                     'transition-shadow duration-200', // Only animate the ring, not size
                     index === activeIndex && 'ring-2 ring-[var(--primary)]'
                   )}
+                  style={isMobile ? { width: 'calc(28vw - 10px)' } : undefined}
                 >
                   {/* Detect video from isVideo flag OR from URL pattern */}
                   {(image.isVideo && image.videoUrl) || isVideoUrl(image.imageUrl) ? (
