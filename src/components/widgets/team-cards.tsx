@@ -16,6 +16,7 @@ export interface TeamCard {
   name: string;
   title: string;
   bio: string;
+  signatureUrl?: string;
 }
 
 export interface TeamCardsConfig {
@@ -116,6 +117,19 @@ function Card({
         <p className={cn('text-sm leading-relaxed', styles.bioColor)}>
           {card.bio}
         </p>
+
+        {/* Optional Signature Image */}
+        {card.signatureUrl && (
+          <div className="mt-4 relative h-10 md:h-12 w-32 md:w-40">
+            <Image
+              src={card.signatureUrl}
+              alt={`${card.name} signature`}
+              fill
+              className="object-contain object-left"
+              sizes="160px"
+            />
+          </div>
+        )}
       </div>
     </div>
   );

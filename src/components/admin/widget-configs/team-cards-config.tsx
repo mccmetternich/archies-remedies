@@ -212,6 +212,21 @@ export function TeamCardsConfig({
                     className="w-full px-3 py-2 bg-[var(--admin-bg)] border border-[var(--admin-border)] rounded-lg text-sm text-[var(--admin-text-primary)] placeholder-[var(--admin-text-muted)] focus:outline-none focus:border-[var(--primary)] transition-colors resize-none"
                   />
                 </div>
+
+                {/* Signature Image (optional) */}
+                <div>
+                  <label className="block text-xs font-medium text-[var(--admin-text-muted)] mb-2">
+                    Signature Image <span className="font-normal">(optional)</span>
+                  </label>
+                  <MediaPickerButton
+                    label="Choose Signature"
+                    value={card.signatureUrl || ''}
+                    onChange={(url) => updateCard(index, { signatureUrl: url || '' })}
+                  />
+                  <p className="mt-1 text-[10px] text-[var(--admin-text-muted)]">
+                    PNG with transparent background recommended
+                  </p>
+                </div>
               </div>
             </div>
           ))}
