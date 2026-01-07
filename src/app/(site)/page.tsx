@@ -85,7 +85,7 @@ export default async function HomePage() {
     <>
       <Header {...headerProps} />
 
-      <main>
+      <main className="relative">
         <WidgetRenderer widgets={pageWidgets} data={widgetDataWithSettings} />
       </main>
 

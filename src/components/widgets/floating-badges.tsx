@@ -57,7 +57,7 @@ export function FloatingBadges({ badges }: FloatingBadgesProps) {
   if (!badges || badges.length === 0) return null;
 
   return (
-    <div className="relative w-full" style={{ height: 0 }}>
+    <div className="absolute top-0 left-0 right-0 pointer-events-none" style={{ height: 0 }}>
       {badges.map((badge) => {
         if (!badge.imageUrl) return null;
 

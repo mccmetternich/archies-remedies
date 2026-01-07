@@ -173,7 +173,7 @@ export default async function ProductPage({ params }: PageProps) {
     <>
       <Header {...headerProps} />
 
-      <main className="pt-0">
+      <main className="relative pt-0">
         {/* Product Hero Section - Split Screen Layout (Buy Box Left, Gallery Right) */}
         {/* No container class - hero section handles its own padding to allow flush-right thumbnails */}
         <section className="mb-8 lg:mb-16">
