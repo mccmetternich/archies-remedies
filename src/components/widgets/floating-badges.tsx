@@ -34,9 +34,9 @@ const SPEED_DURATION: Record<string, number> = {
 
 // Layer to z-index mapping - actual z-index values for proper stacking
 // "below" should be behind page content but above background
-// "above" should be above all page content
+// "above" should be above page content but below nav (z-50)
 const LAYER_ZINDEX: Record<string, number> = {
-  above: 9999, // Above everything including modals
+  above: 40,   // Above content but below nav (z-50)
   below: -1,   // Behind page content
 };
 
