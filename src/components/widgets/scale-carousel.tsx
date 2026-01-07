@@ -265,7 +265,7 @@ export function ScaleCarousel({
       {(title || subtitle) && (
         <div className="container px-6 lg:px-12 mb-10 md:mb-12 text-center">
           {title && (
-            <h2 className={cn('text-3xl md:text-4xl lg:text-5xl font-medium mb-4', styles.titleColor)}>
+            <h2 className={cn('text-3xl md:text-4xl lg:text-5xl font-normal tracking-tight mb-4', styles.titleColor)}>
               {title}
             </h2>
           )}

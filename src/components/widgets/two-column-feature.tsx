@@ -415,7 +415,7 @@ export function TwoColumnFeature({
               <>
                 {title && (
                   <div
-                    className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-medium leading-[1.1] mb-6 [&_p]:my-0 [&_br]:leading-tight"
+                    className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-normal tracking-tight leading-[1.1] mb-6 [&_p]:my-0 [&_br]:leading-tight"
                     style={{ color: styles.titleColor }}
                     dangerouslySetInnerHTML={{ __html: title }}
                   />
@@ -440,7 +440,7 @@ export function TwoColumnFeature({
                 {validBulletPoints.map((point, index) => (
                   <div
                     key={index}
-                    className="text-2xl md:text-3xl lg:text-4xl font-bold leading-tight [&_p]:my-0"
+                    className="text-2xl md:text-3xl lg:text-4xl font-normal tracking-tight leading-tight [&_p]:my-0"
                     style={{ color: styles.titleColor }}
                     dangerouslySetInnerHTML={{ __html: point }}
                   />
@@ -540,7 +540,7 @@ export function TwoColumnFeature({
               <>
                 {title && (
                   <div
-                    className="text-2xl font-medium leading-tight mb-3 [&_p]:my-0 [&_br]:leading-tight"
+                    className="text-2xl font-normal tracking-tight leading-tight mb-3 [&_p]:my-0 [&_br]:leading-tight"
                     style={{ color: styles.titleColor }}
                     dangerouslySetInnerHTML={{ __html: title }}
                   />
@@ -561,7 +561,7 @@ export function TwoColumnFeature({
                 {validBulletPoints.map((point, index) => (
                   <div
                     key={index}
-                    className="text-xl font-bold leading-tight [&_p]:my-0"
+                    className="text-xl font-normal tracking-tight leading-tight [&_p]:my-0"
                     style={{ color: styles.titleColor }}
                     dangerouslySetInnerHTML={{ __html: point }}
                   />

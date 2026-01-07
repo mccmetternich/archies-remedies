@@ -111,7 +111,7 @@ function Card({
         >
           {card.title}
         </p>
-        <h3 className={cn('text-lg md:text-xl font-medium mb-3', styles.nameColor)}>
+        <h3 className={cn('text-lg md:text-xl font-normal tracking-tight mb-3', styles.nameColor)}>
           {card.name}
         </h3>
         <p className={cn('text-sm leading-relaxed', styles.bioColor)}>
@@ -152,7 +152,7 @@ export function TeamCards({ title, subtitle, cards, theme = 'light', className }
       {(title || subtitle) && (
         <div className="container px-6 lg:px-12 mb-10 md:mb-12 lg:mb-16 text-center">
           {title && (
-            <h2 className={cn('text-3xl md:text-4xl lg:text-5xl font-medium mb-4', styles.sectionTitleColor)}>
+            <h2 className={cn('text-3xl md:text-4xl lg:text-5xl font-normal tracking-tight mb-4', styles.sectionTitleColor)}>
               {title}
             </h2>
           )}

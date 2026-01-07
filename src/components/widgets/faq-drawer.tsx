@@ -107,7 +107,7 @@ function FAQItemRow({
       >
         {/* Question Text - Extra Large (2x size) */}
         <span
-          className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-medium leading-[1.1] flex-1"
+          className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-normal tracking-tight leading-[1.1] flex-1"
           style={{
             color: styles.questionColor,
             
