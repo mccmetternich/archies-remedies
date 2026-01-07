@@ -124,7 +124,7 @@ export function HeroTextContent({
           )}
           {/* Secondary button - uses hero-btn-outline-dark/light classes */}
           <Link
-            href={secondaryButtonUrl || '/about'}
+            href={secondaryButtonUrl || '/our-story'}
             className={cn(
               'hidden md:inline-flex group items-center justify-center gap-3 px-10 py-4 text-sm font-medium uppercase tracking-wider border-2 transition-all duration-300',
               isLightText ? 'hero-btn-outline-light' : 'hero-btn-outline-dark'
