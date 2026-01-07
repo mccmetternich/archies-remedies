@@ -137,7 +137,7 @@ export default async function DynamicPage({
     <>
       <Header {...headerProps} />
 
-      <main className="relative min-h-screen">
+      <main className="relative">
         {/* Page Hero Section */}
         {hasHero && (
           <section className="relative min-h-[50vh] lg:min-h-[60vh] flex items-center justify-center overflow-hidden">
