@@ -190,7 +190,7 @@ export default async function DynamicPage({
         {/* Page Display Header - optional title/subtitle that appears above widgets */}
         {/* This is shown when pageTitle is set, regardless of widgets */}
         {!hasHero && hasPageHeader && (
-          <section className={`px-6 ${hasContent || widgets.length > 0 ? 'pt-32 pb-8' : 'pt-32 pb-12'}`}>
+          <section className={`px-6 ${hasContent || widgets.length > 0 ? 'pt-32 pb-16 md:pb-20' : 'pt-32 pb-12'}`}>
             <div className="max-w-4xl mx-auto text-center">
               <h1 className="text-4xl md:text-5xl font-bold text-[var(--foreground)] leading-tight">
                 {page.pageTitle}
