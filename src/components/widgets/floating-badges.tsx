@@ -50,13 +50,14 @@ const LAYER_ZINDEX: Record<string, number> = {
  * - Layer control (above or below page content)
  * - Supports unlimited badges per widget instance
  *
- * NOTE: Uses position: fixed to stay in place during scroll.
+ * NOTE: Uses position: absolute within a relative container.
+ * The badge scrolls with the section where it's placed.
  */
 export function FloatingBadges({ badges }: FloatingBadgesProps) {
   if (!badges || badges.length === 0) return null;
 
   return (
-    <>
+    <div className="relative w-full" style={{ height: 0 }}>
       {badges.map((badge) => {
         if (!badge.imageUrl) return null;
 
@@ -67,10 +68,10 @@ export function FloatingBadges({ badges }: FloatingBadgesProps) {
           <React.Fragment key={badge.id}>
             {/* Mobile/Tablet badge */}
             <div
-              className="lg:hidden fixed pointer-events-none"
+              className="lg:hidden absolute pointer-events-none"
               style={{
                 left: `${badge.mobileX}%`,
-                top: `${badge.mobileY}%`,
+                top: `${badge.mobileY}px`,
                 width: badge.mobileSize,
                 height: badge.mobileSize,
                 transform: 'translate(-50%, -50%)',
@@ -93,10 +94,10 @@ export function FloatingBadges({ badges }: FloatingBadgesProps) {
 
             {/* Desktop badge */}
             <div
-              className="hidden lg:block fixed pointer-events-none"
+              className="hidden lg:block absolute pointer-events-none"
               style={{
                 left: `${badge.desktopX}%`,
-                top: `${badge.desktopY}%`,
+                top: `${badge.desktopY}px`,
                 width: badge.desktopSize,
                 height: badge.desktopSize,
                 transform: 'translate(-50%, -50%)',
@@ -134,7 +135,7 @@ export function FloatingBadges({ badges }: FloatingBadgesProps) {
           animation: spin-slow linear infinite;
         }
       `}</style>
-    </>
+    </div>
   );
 }
 
