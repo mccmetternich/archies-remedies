@@ -347,7 +347,7 @@ export function PDPBuyBox({
 
                   {/* Variant Thumbnail with Radio Button overlay */}
                   {variant.thumbnailUrl && (
-                    <div className="w-[72px] h-[72px] md:w-24 md:h-24 lg:w-[120px] lg:h-[120px] relative mb-1 md:mb-2">
+                    <div className="w-[85px] h-[85px] md:w-24 md:h-24 lg:w-[120px] lg:h-[120px] relative mb-1 md:mb-2">
                       <Image
                         src={variant.thumbnailUrl}
                         alt={variant.name}
