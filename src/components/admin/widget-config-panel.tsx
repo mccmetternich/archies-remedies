@@ -672,8 +672,16 @@ export function WidgetConfigPanel({ widget, onUpdate }: WidgetConfigPanelProps) 
       {/* Team Cards */}
       {widget.type === 'team_cards' && (
         <TeamCardsConfig
+          title={(config.title as string) || ''}
+          subtitle={(config.subtitle as string) || ''}
           cards={(config.cards as TeamCard[]) || []}
           theme={(config.theme as TeamCardsTheme) || 'light'}
+          onTitleChange={(title) =>
+            onUpdate({ config: { ...config, title } })
+          }
+          onSubtitleChange={(subtitle) =>
+            onUpdate({ config: { ...config, subtitle } })
+          }
           onCardsChange={(cards) =>
             onUpdate({ config: { ...config, cards } })
           }

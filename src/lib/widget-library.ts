@@ -676,6 +676,8 @@ export const DEFAULT_CONFIGS: Record<string, Record<string, unknown>> = {
     height: 'short',
   },
   team_cards: {
+    title: '',
+    subtitle: '',
     cards: [],
     theme: 'light',
   },

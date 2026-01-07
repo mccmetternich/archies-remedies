@@ -19,6 +19,8 @@ export interface TeamCard {
 }
 
 export interface TeamCardsConfig {
+  title?: string;
+  subtitle?: string;
   cards: TeamCard[];
   theme?: TeamCardsTheme;
 }
@@ -37,6 +39,8 @@ const themeStyles: Record<
     bg: string;
     cardBg: string;
     cardBorder: string;
+    sectionTitleColor: string;
+    sectionSubtitleColor: string;
     nameColor: string;
     titleColor: string;
     bioColor: string;
@@ -46,6 +50,8 @@ const themeStyles: Record<
     bg: 'bg-white',
     cardBg: 'bg-[#f5f1eb]',
     cardBorder: 'border-[#e5e0d8]',
+    sectionTitleColor: 'text-[var(--foreground)]',
+    sectionSubtitleColor: 'text-[#555]',
     nameColor: 'text-[var(--foreground)]',
     titleColor: 'text-[var(--foreground)]',
     bioColor: 'text-[#555]',
@@ -54,6 +60,8 @@ const themeStyles: Record<
     bg: 'bg-[var(--foreground)]',
     cardBg: 'bg-[#1a1a1a]',
     cardBorder: 'border-[#333]',
+    sectionTitleColor: 'text-white',
+    sectionSubtitleColor: 'text-white/70',
     nameColor: 'text-white',
     titleColor: 'text-white/90',
     bioColor: 'text-white/70',
@@ -117,7 +125,7 @@ function Card({
 // MAIN COMPONENT
 // ============================================
 
-export function TeamCards({ cards, theme = 'light', className }: TeamCardsProps) {
+export function TeamCards({ title, subtitle, cards, theme = 'light', className }: TeamCardsProps) {
   const styles = themeStyles[theme];
 
   if (!cards || cards.length === 0) {
@@ -126,6 +134,22 @@ export function TeamCards({ cards, theme = 'light', className }: TeamCardsProps)
 
   return (
     <section className={cn('py-16 md:py-20 lg:py-24', styles.bg, className)}>
+      {/* Section Header */}
+      {(title || subtitle) && (
+        <div className="container px-6 lg:px-12 mb-10 md:mb-12 lg:mb-16 text-center">
+          {title && (
+            <h2 className={cn('text-3xl md:text-4xl lg:text-5xl font-medium mb-4', styles.sectionTitleColor)}>
+              {title}
+            </h2>
+          )}
+          {subtitle && (
+            <p className={cn('text-base md:text-lg max-w-2xl mx-auto', styles.sectionSubtitleColor)}>
+              {subtitle}
+            </p>
+          )}
+        </div>
+      )}
+
       {/* Desktop: Side by side with generous gap */}
       <div className="hidden md:block">
         <div className="container px-6 lg:px-12">

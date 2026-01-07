@@ -11,8 +11,12 @@ import type { TeamCard, TeamCardsTheme } from '@/components/widgets/team-cards';
 // ============================================
 
 interface TeamCardsConfigProps {
+  title: string;
+  subtitle: string;
   cards: TeamCard[];
   theme: TeamCardsTheme;
+  onTitleChange: (title: string) => void;
+  onSubtitleChange: (subtitle: string) => void;
   onCardsChange: (cards: TeamCard[]) => void;
   onThemeChange: (theme: TeamCardsTheme) => void;
 }
@@ -31,8 +35,12 @@ const themeOptions: { value: TeamCardsTheme; label: string }[] = [
 // ============================================
 
 export function TeamCardsConfig({
+  title,
+  subtitle,
   cards,
   theme,
+  onTitleChange,
+  onSubtitleChange,
   onCardsChange,
   onThemeChange,
 }: TeamCardsConfigProps) {
@@ -59,6 +67,34 @@ export function TeamCardsConfig({
 
   return (
     <div className="space-y-6">
+      {/* Section Title */}
+      <div>
+        <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
+          Section Title <span className="text-[var(--admin-text-muted)] font-normal">(optional)</span>
+        </label>
+        <input
+          type="text"
+          value={title}
+          onChange={(e) => onTitleChange(e.target.value)}
+          placeholder="Meet the Team"
+          className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-muted)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+        />
+      </div>
+
+      {/* Section Subtitle */}
+      <div>
+        <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
+          Section Subtitle <span className="text-[var(--admin-text-muted)] font-normal">(optional)</span>
+        </label>
+        <textarea
+          value={subtitle}
+          onChange={(e) => onSubtitleChange(e.target.value)}
+          placeholder="The minds behind the formulas..."
+          rows={2}
+          className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-muted)] focus:outline-none focus:border-[var(--primary)] transition-colors resize-none"
+        />
+      </div>
+
       {/* Theme Selection */}
       <div>
         <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
