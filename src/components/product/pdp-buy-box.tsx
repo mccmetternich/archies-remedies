@@ -327,19 +327,12 @@ export function PDPBuyBox({
                 <button
                   key={variant.id}
                   onClick={() => handleVariantSelect(variant)}
-                  className="relative flex flex-col items-center justify-center p-3 md:p-4 transition-all duration-200 text-center bg-white border border-[var(--border)]"
+                  className="relative flex flex-col items-center justify-center p-3 md:p-4 transition-all duration-200 text-center bg-[var(--cream)] border border-[var(--border)]"
                 >
-                  {/* Radio Button - top left */}
-                  <div className="absolute top-2 left-2 w-4 h-4 rounded-full border border-[var(--muted-foreground)] flex items-center justify-center">
-                    {isSelected && (
-                      <div className="w-2.5 h-2.5 rounded-full bg-[var(--primary)]" />
-                    )}
-                  </div>
-
                   {/* Variant Badge */}
                   {variant.badge && (
                     <span
-                      className="absolute -top-2 left-1/2 -translate-x-1/2 text-[9px] md:text-[10px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap"
+                      className="absolute -top-2 left-1/2 -translate-x-1/2 text-[9px] md:text-[10px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap z-10"
                       style={{
                         backgroundColor: variant.badgeBgColor || 'var(--primary)',
                         color: variant.badgeTextColor || 'var(--foreground)',
@@ -349,15 +342,30 @@ export function PDPBuyBox({
                     </span>
                   )}
 
-                  {/* Variant Thumbnail */}
+                  {/* Variant Thumbnail with Radio Button overlay */}
                   {variant.thumbnailUrl && (
-                    <div className="w-24 h-24 md:w-32 md:h-32 lg:w-40 lg:h-40 relative mb-1 md:mb-2">
+                    <div className="w-[72px] h-[72px] md:w-24 md:h-24 lg:w-[120px] lg:h-[120px] relative mb-1 md:mb-2">
                       <Image
                         src={variant.thumbnailUrl}
                         alt={variant.name}
                         fill
                         className="object-contain"
                       />
+                      {/* Radio Button - overlaid on thumbnail */}
+                      <div className="absolute top-1 left-1 w-4 h-4 rounded-full border border-[var(--muted-foreground)] bg-white/80 flex items-center justify-center z-10">
+                        {isSelected && (
+                          <div className="w-2.5 h-2.5 rounded-full bg-[var(--primary)]" />
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Radio Button - shown when no thumbnail */}
+                  {!variant.thumbnailUrl && (
+                    <div className="absolute top-2 left-2 w-4 h-4 rounded-full border border-[var(--muted-foreground)] flex items-center justify-center">
+                      {isSelected && (
+                        <div className="w-2.5 h-2.5 rounded-full bg-[var(--primary)]" />
+                      )}
                     </div>
                   )}
 
