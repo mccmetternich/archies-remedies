@@ -460,7 +460,7 @@ export function TwoColumnFeature({
                 <Link
                   href={isScrollAction ? '#' : ctaUrl}
                   onClick={handleCtaClick}
-                  className="inline-flex items-center px-6 py-3 lg:px-8 lg:py-4 rounded-lg text-sm lg:text-base font-medium transition-all duration-200"
+                  className="inline-flex items-center px-6 py-3 lg:px-8 lg:py-4 text-sm lg:text-base font-medium transition-all duration-200"
                   style={{
                     backgroundColor: styles.ctaBg,
                     color: styles.ctaText,
@@ -581,7 +581,7 @@ export function TwoColumnFeature({
                 <Link
                   href={isScrollAction ? '#' : ctaUrl}
                   onClick={handleCtaClick}
-                  className="inline-flex items-center px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-200"
+                  className="inline-flex items-center px-5 py-2.5 text-sm font-medium transition-all duration-200"
                   style={{
                     backgroundColor: styles.ctaBg,
                     color: styles.ctaText,
