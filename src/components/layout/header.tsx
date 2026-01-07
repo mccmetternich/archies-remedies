@@ -157,8 +157,10 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
 
                 {/* Mega Nav Dropdown - CSS transitions, z-40 to sit below nav bar (z-50) */}
                 <div
-                  className="hidden lg:block fixed left-0 right-0 z-40 opacity-0 invisible translate-y-2 group-hover/shop:opacity-100 group-hover/shop:visible group-hover/shop:translate-y-0 transition-all duration-300 ease-out pointer-events-none group-hover/shop:pointer-events-auto"
-                  style={{ top: showBumper ? '100px' : '64px' }}
+                  className="hidden lg:block fixed left-0 right-0 z-40 opacity-0 invisible translate-y-2 group-hover/shop:opacity-100 group-hover/shop:visible group-hover/shop:translate-y-0 transition-all duration-300 ease-out"
+                  style={{ top: showBumper ? '100px' : '64px', pointerEvents: 'none' }}
+                  onMouseEnter={(e) => { e.currentTarget.style.pointerEvents = 'auto'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.pointerEvents = 'none'; }}
                 >
 
                   <div className="relative z-50 w-full bg-[var(--background)] shadow-[0_8px_16px_-4px_rgba(0,0,0,0.12)] overflow-visible">
