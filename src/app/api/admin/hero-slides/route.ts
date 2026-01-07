@@ -53,45 +53,51 @@ export async function PUT(request: Request) {
   try {
     const { slides } = await request.json();
 
-    // Delete all existing slides
-    const existing = await db.select({ id: heroSlides.id }).from(heroSlides);
-    for (const slide of existing) {
-      await db.delete(heroSlides).where(eq(heroSlides.id, slide.id));
-    }
+    // Prepare all slide data first (before any database operations)
+    const slideData = slides.map((slide: Record<string, unknown>, index: number) => ({
+      id: (slide.id as string)?.startsWith('new-') || (slide.id as string)?.startsWith('slide-') ? generateId() : slide.id as string,
+      title: slide.title as string || null,
+      subtitle: slide.subtitle as string || null,
+      bodyText: slide.bodyText as string || null,
+      productId: slide.productId as string || null,
+      buttonText: slide.buttonText as string || null,
+      buttonUrl: slide.buttonUrl as string || null,
+      secondaryButtonText: slide.secondaryButtonText as string || null,
+      secondaryButtonUrl: slide.secondaryButtonUrl as string || null,
+      secondaryButtonType: slide.secondaryButtonType as string || 'page',
+      secondaryAnchorTarget: slide.secondaryAnchorTarget as string || null,
+      imageUrl: slide.imageUrl as string || '',
+      mobileImageUrl: slide.mobileImageUrl as string || null,
+      videoUrl: slide.videoUrl as string || null,
+      mobileVideoUrl: slide.mobileVideoUrl as string || null,
+      testimonialText: slide.testimonialText as string || null,
+      testimonialAuthor: slide.testimonialAuthor as string || null,
+      testimonialAvatarUrl: slide.testimonialAvatarUrl as string || null,
+      testimonialVerifiedText: slide.testimonialVerifiedText as string || 'Verified Purchase',
+      testimonialShowCheckmark: slide.testimonialShowCheckmark ?? true,
+      ratingOverride: slide.ratingOverride as number || null,
+      reviewCountOverride: slide.reviewCountOverride as number || null,
+      isActive: slide.isActive ?? true,
+      showOnDesktop: slide.showOnDesktop ?? true,
+      showOnMobile: slide.showOnMobile ?? true,
+      layout: slide.layout as string || 'full-width',
+      textColor: slide.textColor as string || 'dark',
+      sortOrder: slide.sortOrder as number ?? index,
+    }));
 
-    // Insert all slides with new order
-    for (const slide of slides) {
-      await db.insert(heroSlides).values({
-        id: slide.id.startsWith('new-') || slide.id.startsWith('slide-') ? generateId() : slide.id,
-        title: slide.title || null,
-        subtitle: slide.subtitle || null,
-        bodyText: slide.bodyText || null,
-        productId: slide.productId || null,
-        buttonText: slide.buttonText || null,
-        buttonUrl: slide.buttonUrl || null,
-        secondaryButtonText: slide.secondaryButtonText || null,
-        secondaryButtonUrl: slide.secondaryButtonUrl || null,
-        secondaryButtonType: slide.secondaryButtonType || 'page',
-        secondaryAnchorTarget: slide.secondaryAnchorTarget || null,
-        imageUrl: slide.imageUrl || '',
-        mobileImageUrl: slide.mobileImageUrl || null,
-        videoUrl: slide.videoUrl || null,
-        mobileVideoUrl: slide.mobileVideoUrl || null,
-        testimonialText: slide.testimonialText || null,
-        testimonialAuthor: slide.testimonialAuthor || null,
-        testimonialAvatarUrl: slide.testimonialAvatarUrl || null,
-        testimonialVerifiedText: slide.testimonialVerifiedText || 'Verified Purchase',
-        testimonialShowCheckmark: slide.testimonialShowCheckmark ?? true,
-        ratingOverride: slide.ratingOverride || null,
-        reviewCountOverride: slide.reviewCountOverride || null,
-        isActive: slide.isActive ?? true,
-        showOnDesktop: slide.showOnDesktop ?? true,
-        showOnMobile: slide.showOnMobile ?? true,
-        layout: slide.layout || 'full-width',
-        textColor: slide.textColor || 'dark',
-        sortOrder: slide.sortOrder || 0,
-      });
-    }
+    // Use a transaction to ensure atomicity - if insert fails, delete is rolled back
+    await db.transaction(async (tx) => {
+      // Delete all existing slides
+      const existing = await tx.select({ id: heroSlides.id }).from(heroSlides);
+      for (const slide of existing) {
+        await tx.delete(heroSlides).where(eq(heroSlides.id, slide.id));
+      }
+
+      // Insert all slides with new order
+      for (const slide of slideData) {
+        await tx.insert(heroSlides).values(slide);
+      }
+    });
 
     // Invalidate caches - hero carousel is on homepage
     revalidateTag('homepage-data', 'max');
