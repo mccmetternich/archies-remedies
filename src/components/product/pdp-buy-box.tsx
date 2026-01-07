@@ -319,15 +319,18 @@ export function PDPBuyBox({
           <span className="block text-[10px] md:text-xs font-bold tracking-[0.15em] uppercase text-[var(--foreground)]">
             Choose Size
           </span>
-          <div className={cn('grid gap-2 md:gap-3 mt-3 md:mt-[15px] lg:mt-[20px]', getVariantGridCols())}>
-            {variants.map((variant) => {
+          <div className={cn('flex flex-wrap mt-3 md:mt-[15px] lg:mt-[20px]', getVariantGridCols())}>
+            {variants.map((variant, index) => {
               const isSelected = selectedVariant?.id === variant.id;
 
               return (
                 <button
                   key={variant.id}
                   onClick={() => handleVariantSelect(variant)}
-                  className="relative flex flex-col items-center justify-center p-3 md:p-4 transition-all duration-200 text-center bg-[var(--cream)] border border-[var(--border)]"
+                  className={cn(
+                    "relative flex flex-col items-start justify-center p-3 md:p-4 transition-all duration-200 text-left bg-transparent border border-[var(--border)]",
+                    index > 0 && "-ml-px" // Collapse borders by overlapping
+                  )}
                 >
                   {/* Variant Badge */}
                   {variant.badge && (
@@ -369,10 +372,8 @@ export function PDPBuyBox({
                     </div>
                   )}
 
-                  {/* Variant Name - All caps, CTA font style */}
-                  <span
-                    className="block font-medium text-[11px] md:text-sm text-[var(--foreground)] uppercase tracking-wide lg:tracking-wider"
-                  >
+                  {/* Variant Name - All caps, CTA font style, left aligned */}
+                  <span className="block font-medium text-[11px] md:text-sm text-[var(--foreground)] uppercase tracking-wide lg:tracking-wider text-left">
                     {variant.name}
                   </span>
                 </button>
