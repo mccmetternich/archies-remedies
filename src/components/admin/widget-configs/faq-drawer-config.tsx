@@ -225,7 +225,7 @@ export function FAQDrawerConfig({
                     option.value === 'blue'
                       ? 'var(--primary)'
                       : option.value === 'dark'
-                        ? 'var(--foreground)'
+                        ? '#1a1a1a'
                         : '#f5f1eb',
                   border: option.value === 'cream' ? '1px solid #e5e5e5' : undefined,
                 }}
