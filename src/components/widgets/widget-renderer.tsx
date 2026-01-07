@@ -172,10 +172,10 @@ function renderWidget(
       }[textTheme];
 
       // First widget on widget-only page: use header-clearing padding
-      // Normal: standard section padding
+      // Normal: generous section padding for luxurious feel
       const textPadding = isFirstOnWidgetOnlyPage
-        ? 'pt-24 md:pt-28 pb-8 md:pb-12' // 96-112px top clears header, reduced bottom
-        : 'py-12 lg:py-16';
+        ? 'pt-24 md:pt-28 pb-12 md:pb-16 lg:pb-24' // 96-112px top clears header
+        : 'py-16 md:py-20 lg:py-28 xl:py-32';
 
       return (
         <section key={widget.id} className={`${textPadding} ${textThemeStyles.bg}`}>
