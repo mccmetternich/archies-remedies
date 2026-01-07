@@ -32,6 +32,7 @@ import { ProductGridConfig } from '@/components/admin/widget-configs/product-gri
 import type { ProductGridConfig as ProductGridConfigType, ProductOverride } from '@/components/admin/widget-configs/product-grid-config';
 import { FloatingBadgesConfig } from '@/components/admin/widget-configs/floating-badges-config';
 import type { FloatingBadge } from '@/components/widgets/floating-badges';
+import { RichTextConfig } from '@/components/admin/widget-configs/rich-text-config';
 
 // Helper: Check if URL is video
 function isVideoUrl(url: string): boolean {
@@ -74,7 +75,7 @@ export function WidgetConfigPanel({ widget, onUpdate }: WidgetConfigPanelProps) 
   return (
     <div className="space-y-4">
       {/* Title & Subtitle - Common for most widgets (except those with their own config) */}
-      {widget.type !== 'reviews' && widget.type !== 'icon_highlights' && widget.type !== 'two_column_feature' && widget.type !== 'faq_drawer' && widget.type !== 'product_grid' && widget.type !== 'floating_badges' && (
+      {widget.type !== 'reviews' && widget.type !== 'icon_highlights' && widget.type !== 'two_column_feature' && widget.type !== 'faq_drawer' && widget.type !== 'product_grid' && widget.type !== 'floating_badges' && widget.type !== 'text' && (
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
@@ -101,8 +102,8 @@ export function WidgetConfigPanel({ widget, onUpdate }: WidgetConfigPanelProps) 
         </div>
       )}
 
-      {/* Text/Quote/Mission content */}
-      {(widget.type === 'text' || widget.type === 'quote' || widget.type === 'mission') && (
+      {/* Quote/Mission content (simple textarea) */}
+      {(widget.type === 'quote' || widget.type === 'mission') && (
         <div>
           <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
             Content
@@ -115,6 +116,20 @@ export function WidgetConfigPanel({ widget, onUpdate }: WidgetConfigPanelProps) 
             className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors resize-none"
           />
         </div>
+      )}
+
+      {/* Rich Text widget - full editor */}
+      {widget.type === 'text' && (
+        <RichTextConfig
+          content={widget.content || ''}
+          maxWidth={(config.maxWidth as 'sm' | 'md' | 'lg' | 'xl' | 'full') || 'lg'}
+          onContentChange={(content) => onUpdate({ content })}
+          onMaxWidthChange={(maxWidth) =>
+            onUpdate({
+              config: { ...config, maxWidth },
+            })
+          }
+        />
       )}
 
       {/* Image widgets */}

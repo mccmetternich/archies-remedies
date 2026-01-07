@@ -88,14 +88,21 @@ function renderWidget(widget: PageWidget, data: WidgetRendererProps['data']): Re
     // CONTENT
     // ─────────────────────────────────────────
     case 'text':
+      // Map maxWidth config to Tailwind max-width classes
+      const textMaxWidth = {
+        sm: 'max-w-screen-sm',
+        md: 'max-w-screen-md',
+        lg: 'max-w-3xl',
+        xl: 'max-w-4xl',
+        full: 'max-w-none',
+      }[(config.maxWidth as string) || 'lg'] || 'max-w-3xl';
+
       return (
-        <section key={widget.id} className="section">
-          <div className="container">
+        <section key={widget.id} className="py-12 lg:py-16">
+          <div className={`${textMaxWidth} mx-auto px-6`}>
             <div
-              className={`prose prose-lg max-w-${(config.maxWidth as string) || 'prose'} mx-auto`}
-              style={{ textAlign: (config.alignment as 'left' | 'center' | 'right') || 'left' }}
+              className="prose prose-lg max-w-none prose-headings:font-semibold prose-headings:text-[var(--foreground)] prose-p:text-[#333] prose-p:leading-relaxed prose-a:text-[#4a90a4] prose-a:underline prose-strong:text-[var(--foreground)] prose-ul:text-[#333] prose-ol:text-[#333] prose-li:my-1"
             >
-              {widget.title && <h2>{widget.title}</h2>}
               {widget.content && (
                 <div dangerouslySetInnerHTML={{ __html: widget.content }} />
               )}

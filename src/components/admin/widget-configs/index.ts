@@ -8,3 +8,4 @@ export { MissionSectionConfig } from './mission-config';
 export { ProductGridConfig } from './product-grid-config';
 export type { ProductGridConfig as ProductGridConfigType, ProductOverride } from './product-grid-config';
 export { FloatingBadgesConfig } from './floating-badges-config';
+export { RichTextConfig } from './rich-text-config';

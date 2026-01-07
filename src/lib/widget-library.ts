@@ -130,10 +130,10 @@ export const WIDGET_TYPES: WidgetTypeDefinition[] = [
   // ─────────────────────────────────────────
   {
     type: 'text',
-    name: 'Text Block',
+    name: 'Rich Text',
     icon: Type,
     category: 'Content',
-    description: 'Rich text content section',
+    description: 'Formatted text for legal pages, about sections, etc.',
     table: null,
     adminHref: null,
     countKey: null,
@@ -451,8 +451,7 @@ export const WIDGET_TYPES: WidgetTypeDefinition[] = [
 export const DEFAULT_CONFIGS: Record<string, Record<string, unknown>> = {
   text: {
     content: '',
-    alignment: 'left',
-    maxWidth: 'prose',
+    maxWidth: 'lg',
   },
   image_text: {
     imageUrl: '',

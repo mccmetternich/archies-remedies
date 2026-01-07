@@ -13,6 +13,7 @@ const STATIC_PAGES = [
   { slug: '/', label: 'Home', icon: 'page' },
   { slug: '/about', label: 'About', icon: 'page' },
   { slug: '/our-story', label: 'Our Story', icon: 'page' },
+  { slug: '/community-reviews', label: 'Community Reviews', icon: 'page' },
   { slug: '/contact', label: 'Contact', icon: 'page' },
   { slug: '/faq', label: 'FAQ', icon: 'page' },
   { slug: '/blog', label: 'Blog', icon: 'page' },
