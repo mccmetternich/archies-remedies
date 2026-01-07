@@ -124,10 +124,46 @@ export const WIDGET_TYPES: WidgetTypeDefinition[] = [
     addableToPages: true,
     isGlobal: true,
   },
+  {
+    type: 'story_hero',
+    name: 'Story Hero',
+    icon: ImageIcon,
+    category: 'Hero',
+    description: 'Compact hero with media background and centered text overlay',
+    table: null,
+    adminHref: null,
+    countKey: null,
+    addableToPages: true,
+    isGlobal: false,
+  },
 
   // ─────────────────────────────────────────
   // CONTENT
   // ─────────────────────────────────────────
+  {
+    type: 'team_cards',
+    name: 'Team Cards',
+    icon: Columns,
+    category: 'Content',
+    description: 'Side-by-side team member cards with portrait photos',
+    table: null,
+    adminHref: null,
+    countKey: null,
+    addableToPages: true,
+    isGlobal: false,
+  },
+  {
+    type: 'scale_carousel',
+    name: 'Scale Carousel',
+    icon: GalleryHorizontalEnd,
+    category: 'Content',
+    description: 'Center-scaled carousel with media items',
+    table: null,
+    adminHref: null,
+    countKey: null,
+    addableToPages: true,
+    isGlobal: false,
+  },
   {
     type: 'text',
     name: 'Rich Text',
@@ -631,6 +667,23 @@ export const DEFAULT_CONFIGS: Record<string, Record<string, unknown>> = {
         layer: 'below',
       },
     ],
+  },
+  story_hero: {
+    mediaUrl: '',
+    headline: '',
+    subheadline: '',
+    overlayOpacity: 40,
+    height: 'short',
+  },
+  team_cards: {
+    cards: [],
+    theme: 'light',
+  },
+  scale_carousel: {
+    items: [],
+    aspectRatio: '3:4',
+    scaleIntensity: 1.2,
+    autoPlayCenter: true,
   },
 };
 

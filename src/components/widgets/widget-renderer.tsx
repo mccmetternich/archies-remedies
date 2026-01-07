@@ -43,6 +43,12 @@ import { FAQDrawer } from '@/components/widgets/faq-drawer';
 import type { FAQDrawerTheme, FAQItem } from '@/components/widgets/faq-drawer';
 import { FloatingBadgesViewport } from '@/components/widgets/floating-badges';
 import type { FloatingBadge } from '@/components/widgets/floating-badges';
+import { StoryHero } from '@/components/widgets/story-hero';
+import type { StoryHeroHeight } from '@/components/widgets/story-hero';
+import { TeamCards } from '@/components/widgets/team-cards';
+import type { TeamCard, TeamCardsTheme } from '@/components/widgets/team-cards';
+import { ScaleCarousel } from '@/components/widgets/scale-carousel';
+import type { ScaleCarouselItem, ScaleCarouselAspectRatio } from '@/components/widgets/scale-carousel';
 
 // Widget interface matching pages.widgets JSON structure
 export interface PageWidget {
@@ -91,9 +97,45 @@ function renderWidget(
         />
       );
 
+    case 'story_hero':
+      return (
+        <StoryHero
+          key={widget.id}
+          mediaUrl={(config.mediaUrl as string) || ''}
+          headline={(config.headline as string) || ''}
+          subheadline={(config.subheadline as string) || ''}
+          overlayOpacity={(config.overlayOpacity as number) ?? 40}
+          height={(config.height as StoryHeroHeight) || 'short'}
+        />
+      );
+
     // ─────────────────────────────────────────
     // CONTENT
     // ─────────────────────────────────────────
+    case 'team_cards':
+      const teamCards = (config.cards as TeamCard[]) || [];
+      if (teamCards.length === 0) return null;
+      return (
+        <TeamCards
+          key={widget.id}
+          cards={teamCards}
+          theme={(config.theme as TeamCardsTheme) || 'light'}
+        />
+      );
+
+    case 'scale_carousel':
+      const scaleItems = (config.items as ScaleCarouselItem[]) || [];
+      if (scaleItems.length === 0) return null;
+      return (
+        <ScaleCarousel
+          key={widget.id}
+          items={scaleItems}
+          aspectRatio={(config.aspectRatio as ScaleCarouselAspectRatio) || '3:4'}
+          scaleIntensity={(config.scaleIntensity as number) || 1.2}
+          autoPlayCenter={(config.autoPlayCenter as boolean) ?? true}
+        />
+      );
+
     case 'text':
       // Map maxWidth config to Tailwind max-width classes
       const textMaxWidth = {

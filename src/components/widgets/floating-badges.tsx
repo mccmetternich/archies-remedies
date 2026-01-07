@@ -2,7 +2,6 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { cn } from '@/lib/utils';
 
 export interface FloatingBadge {
   id: string;
@@ -33,10 +32,12 @@ const SPEED_DURATION: Record<string, number> = {
   fast: 6,
 };
 
-// Layer to z-index mapping
-const LAYER_ZINDEX: Record<string, string> = {
-  above: 'z-50',
-  below: 'z-0',
+// Layer to z-index mapping - actual z-index values for proper stacking
+// "below" should be behind page content but above background
+// "above" should be above all page content
+const LAYER_ZINDEX: Record<string, number> = {
+  above: 9999, // Above everything including modals
+  below: -1,   // Behind page content
 };
 
 /**
@@ -48,6 +49,8 @@ const LAYER_ZINDEX: Record<string, string> = {
  * - Speed control for rotation
  * - Layer control (above or below page content)
  * - Supports unlimited badges per widget instance
+ *
+ * NOTE: Uses position: fixed to stay in place during scroll.
  */
 export function FloatingBadges({ badges }: FloatingBadgesProps) {
   if (!badges || badges.length === 0) return null;
@@ -58,60 +61,62 @@ export function FloatingBadges({ badges }: FloatingBadgesProps) {
         if (!badge.imageUrl) return null;
 
         const duration = SPEED_DURATION[badge.speed] || 12;
-        const zIndexClass = LAYER_ZINDEX[badge.layer] || 'z-0';
+        const zIndex = LAYER_ZINDEX[badge.layer] ?? 0;
 
         return (
-          <div
-            key={badge.id}
-            className={cn(
-              'fixed pointer-events-none',
-              zIndexClass
-            )}
-            style={{
-              // Mobile positioning (default, also applies to tablet)
-              left: `${badge.mobileX}%`,
-              top: `${badge.mobileY}%`,
-              width: badge.mobileSize,
-              height: badge.mobileSize,
-            }}
-          >
+          <React.Fragment key={badge.id}>
             {/* Mobile/Tablet badge */}
             <div
-              className="lg:hidden w-full h-full animate-spin-slow"
+              className="lg:hidden fixed pointer-events-none"
               style={{
-                animationDuration: `${duration}s`,
+                left: `${badge.mobileX}%`,
+                top: `${badge.mobileY}%`,
+                width: badge.mobileSize,
+                height: badge.mobileSize,
+                transform: 'translate(-50%, -50%)',
+                zIndex,
               }}
             >
-              <Image
-                src={badge.imageUrl}
-                alt=""
-                fill
-                className="object-contain"
-                sizes={`${badge.mobileSize}px`}
-              />
+              <div
+                className="w-full h-full animate-spin-slow"
+                style={{ animationDuration: `${duration}s` }}
+              >
+                <Image
+                  src={badge.imageUrl}
+                  alt=""
+                  fill
+                  className="object-contain"
+                  sizes={`${badge.mobileSize}px`}
+                />
+              </div>
             </div>
 
-            {/* Desktop badge - different positioning and size */}
+            {/* Desktop badge */}
             <div
-              className="hidden lg:block absolute animate-spin-slow"
+              className="hidden lg:block fixed pointer-events-none"
               style={{
-                // Override position for desktop
-                left: `calc(${badge.desktopX}vw - ${badge.mobileX}%)`,
-                top: `calc(${badge.desktopY}vh - ${badge.mobileY}%)`,
+                left: `${badge.desktopX}%`,
+                top: `${badge.desktopY}%`,
                 width: badge.desktopSize,
                 height: badge.desktopSize,
-                animationDuration: `${duration}s`,
+                transform: 'translate(-50%, -50%)',
+                zIndex,
               }}
             >
-              <Image
-                src={badge.imageUrl}
-                alt=""
-                width={badge.desktopSize}
-                height={badge.desktopSize}
-                className="object-contain"
-              />
+              <div
+                className="w-full h-full animate-spin-slow"
+                style={{ animationDuration: `${duration}s` }}
+              >
+                <Image
+                  src={badge.imageUrl}
+                  alt=""
+                  fill
+                  className="object-contain"
+                  sizes={`${badge.desktopSize}px`}
+                />
+              </div>
             </div>
-          </div>
+          </React.Fragment>
         );
       })}
 
@@ -135,74 +140,90 @@ export function FloatingBadges({ badges }: FloatingBadgesProps) {
 
 /**
  * Alternative implementation using viewport-relative positioning
- * This version positions badges relative to the viewport rather than parent
+ * This version positions badges relative to the viewport rather than parent.
+ *
+ * Uses position: fixed to ensure badges stay in place during scroll.
+ * Each badge has its own z-index based on layer setting:
+ * - "above": z-index 9999 (above all content)
+ * - "below": z-index -1 (behind page content, creates subtle depth)
  */
 export function FloatingBadgesViewport({ badges }: FloatingBadgesProps) {
   if (!badges || badges.length === 0) return null;
 
+  // Separate badges by layer for proper stacking
+  const belowBadges = badges.filter((b) => b.layer === 'below');
+  const aboveBadges = badges.filter((b) => b.layer === 'above');
+
+  const renderBadge = (badge: FloatingBadge) => {
+    if (!badge.imageUrl) return null;
+
+    const duration = SPEED_DURATION[badge.speed] || 12;
+    const zIndex = LAYER_ZINDEX[badge.layer] ?? 0;
+
+    return (
+      <React.Fragment key={badge.id}>
+        {/* Mobile/Tablet version */}
+        <div
+          className="lg:hidden fixed pointer-events-none"
+          style={{
+            left: `${badge.mobileX}%`,
+            top: `${badge.mobileY}%`,
+            width: badge.mobileSize,
+            height: badge.mobileSize,
+            transform: 'translate(-50%, -50%)',
+            zIndex,
+          }}
+        >
+          <div
+            className="w-full h-full animate-spin-slow"
+            style={{ animationDuration: `${duration}s` }}
+          >
+            <Image
+              src={badge.imageUrl}
+              alt=""
+              fill
+              className="object-contain"
+              sizes={`${badge.mobileSize}px`}
+            />
+          </div>
+        </div>
+
+        {/* Desktop version */}
+        <div
+          className="hidden lg:block fixed pointer-events-none"
+          style={{
+            left: `${badge.desktopX}%`,
+            top: `${badge.desktopY}%`,
+            width: badge.desktopSize,
+            height: badge.desktopSize,
+            transform: 'translate(-50%, -50%)',
+            zIndex,
+          }}
+        >
+          <div
+            className="w-full h-full animate-spin-slow"
+            style={{ animationDuration: `${duration}s` }}
+          >
+            <Image
+              src={badge.imageUrl}
+              alt=""
+              fill
+              className="object-contain"
+              sizes={`${badge.desktopSize}px`}
+            />
+          </div>
+        </div>
+      </React.Fragment>
+    );
+  };
+
   return (
-    <div className="fixed inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
-      {badges.map((badge) => {
-        if (!badge.imageUrl) return null;
-
-        const duration = SPEED_DURATION[badge.speed] || 12;
-        const zIndexClass = LAYER_ZINDEX[badge.layer] || 'z-0';
-
-        return (
-          <React.Fragment key={badge.id}>
-            {/* Mobile/Tablet version */}
-            <div
-              className={cn('lg:hidden absolute', zIndexClass)}
-              style={{
-                left: `${badge.mobileX}%`,
-                top: `${badge.mobileY}%`,
-                width: badge.mobileSize,
-                height: badge.mobileSize,
-                transform: 'translate(-50%, -50%)',
-              }}
-            >
-              <div
-                className="w-full h-full animate-spin-slow"
-                style={{ animationDuration: `${duration}s` }}
-              >
-                <Image
-                  src={badge.imageUrl}
-                  alt=""
-                  fill
-                  className="object-contain"
-                  sizes={`${badge.mobileSize}px`}
-                />
-              </div>
-            </div>
-
-            {/* Desktop version */}
-            <div
-              className={cn('hidden lg:block absolute', zIndexClass)}
-              style={{
-                left: `${badge.desktopX}%`,
-                top: `${badge.desktopY}%`,
-                width: badge.desktopSize,
-                height: badge.desktopSize,
-                transform: 'translate(-50%, -50%)',
-              }}
-            >
-              <div
-                className="w-full h-full animate-spin-slow"
-                style={{ animationDuration: `${duration}s` }}
-              >
-                <Image
-                  src={badge.imageUrl}
-                  alt=""
-                  fill
-                  className="object-contain"
-                  sizes={`${badge.desktopSize}px`}
-                />
-              </div>
-            </div>
-          </React.Fragment>
-        );
-      })}
-    </div>
+    <>
+      {/* Render "below" badges first (they'll be behind content with z-index: -1) */}
+      {belowBadges.map(renderBadge)}
+      {/* Render "above" badges (they'll be above content with z-index: 9999) */}
+      {aboveBadges.map(renderBadge)}
+    </>
   );
 }
 

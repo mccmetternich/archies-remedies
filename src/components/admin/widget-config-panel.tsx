@@ -33,6 +33,12 @@ import type { ProductGridConfig as ProductGridConfigType, ProductOverride } from
 import { FloatingBadgesConfig } from '@/components/admin/widget-configs/floating-badges-config';
 import type { FloatingBadge } from '@/components/widgets/floating-badges';
 import { RichTextConfig } from '@/components/admin/widget-configs/rich-text-config';
+import { StoryHeroConfig } from '@/components/admin/widget-configs/story-hero-config';
+import type { StoryHeroHeight } from '@/components/widgets/story-hero';
+import { TeamCardsConfig } from '@/components/admin/widget-configs/team-cards-config';
+import type { TeamCard, TeamCardsTheme } from '@/components/widgets/team-cards';
+import { ScaleCarouselConfig } from '@/components/admin/widget-configs/scale-carousel-config';
+import type { ScaleCarouselItem, ScaleCarouselAspectRatio } from '@/components/widgets/scale-carousel';
 
 // Helper: Check if URL is video
 function isVideoUrl(url: string): boolean {
@@ -75,7 +81,7 @@ export function WidgetConfigPanel({ widget, onUpdate }: WidgetConfigPanelProps) 
   return (
     <div className="space-y-4">
       {/* Title & Subtitle - Common for most widgets (except those with their own config) */}
-      {widget.type !== 'reviews' && widget.type !== 'icon_highlights' && widget.type !== 'two_column_feature' && widget.type !== 'faq_drawer' && widget.type !== 'product_grid' && widget.type !== 'floating_badges' && widget.type !== 'text' && (
+      {widget.type !== 'reviews' && widget.type !== 'icon_highlights' && widget.type !== 'two_column_feature' && widget.type !== 'faq_drawer' && widget.type !== 'product_grid' && widget.type !== 'floating_badges' && widget.type !== 'text' && widget.type !== 'story_hero' && widget.type !== 'team_cards' && widget.type !== 'scale_carousel' && (
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
@@ -633,6 +639,68 @@ export function WidgetConfigPanel({ widget, onUpdate }: WidgetConfigPanelProps) 
             onUpdate({
               config: { ...config, badges },
             })
+          }
+        />
+      )}
+
+      {/* Story Hero */}
+      {widget.type === 'story_hero' && (
+        <StoryHeroConfig
+          mediaUrl={(config.mediaUrl as string) || ''}
+          headline={(config.headline as string) || ''}
+          subheadline={(config.subheadline as string) || ''}
+          overlayOpacity={(config.overlayOpacity as number) ?? 40}
+          height={(config.height as StoryHeroHeight) || 'short'}
+          onMediaUrlChange={(mediaUrl) =>
+            onUpdate({ config: { ...config, mediaUrl } })
+          }
+          onHeadlineChange={(headline) =>
+            onUpdate({ config: { ...config, headline } })
+          }
+          onSubheadlineChange={(subheadline) =>
+            onUpdate({ config: { ...config, subheadline } })
+          }
+          onOverlayOpacityChange={(overlayOpacity) =>
+            onUpdate({ config: { ...config, overlayOpacity } })
+          }
+          onHeightChange={(height) =>
+            onUpdate({ config: { ...config, height } })
+          }
+        />
+      )}
+
+      {/* Team Cards */}
+      {widget.type === 'team_cards' && (
+        <TeamCardsConfig
+          cards={(config.cards as TeamCard[]) || []}
+          theme={(config.theme as TeamCardsTheme) || 'light'}
+          onCardsChange={(cards) =>
+            onUpdate({ config: { ...config, cards } })
+          }
+          onThemeChange={(theme) =>
+            onUpdate({ config: { ...config, theme } })
+          }
+        />
+      )}
+
+      {/* Scale Carousel */}
+      {widget.type === 'scale_carousel' && (
+        <ScaleCarouselConfig
+          items={(config.items as ScaleCarouselItem[]) || []}
+          aspectRatio={(config.aspectRatio as ScaleCarouselAspectRatio) || '3:4'}
+          scaleIntensity={(config.scaleIntensity as number) || 1.2}
+          autoPlayCenter={(config.autoPlayCenter as boolean) ?? true}
+          onItemsChange={(items) =>
+            onUpdate({ config: { ...config, items } })
+          }
+          onAspectRatioChange={(aspectRatio) =>
+            onUpdate({ config: { ...config, aspectRatio } })
+          }
+          onScaleIntensityChange={(scaleIntensity) =>
+            onUpdate({ config: { ...config, scaleIntensity } })
+          }
+          onAutoPlayCenterChange={(autoPlayCenter) =>
+            onUpdate({ config: { ...config, autoPlayCenter } })
           }
         />
       )}
