@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Package, Plus, Eye, EyeOff, ExternalLink, DollarSign, Loader2, Trash2, AlertCircle } from 'lucide-react';
+import { Package, Plus, Eye, EyeOff, ExternalLink, Loader2, Trash2, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { StatusBadge } from '@/components/admin/status-badge';
 import { MobileActionBar } from '@/components/admin/mobile-action-bar';
@@ -236,15 +236,8 @@ export default function ProductsPage() {
         </div>
         <div className="bg-[var(--admin-input)] rounded-xl border border-[var(--admin-border)] p-3 sm:p-5">
           <div className="flex items-center gap-2 sm:gap-3">
-            <div className={cn(
-              "w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0",
-              siteInDraftMode ? "bg-orange-500/10" : "bg-green-500/10"
-            )}>
-              {siteInDraftMode ? (
-                <EyeOff className="w-4 h-4 sm:w-5 sm:h-5 text-orange-400" />
-              ) : (
-                <Eye className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
-              )}
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-green-500/10 flex items-center justify-center shrink-0">
+              <Eye className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
             </div>
             <div className="min-w-0">
               <p className="text-lg sm:text-2xl font-semibold text-[var(--admin-text-primary)]">{activeCount}</p>
@@ -254,14 +247,8 @@ export default function ProductsPage() {
         </div>
         <div className="bg-[var(--admin-input)] rounded-xl border border-[var(--admin-border)] p-3 sm:p-5">
           <div className="flex items-center gap-2 sm:gap-3">
-            <div className={cn(
-              "w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0",
-              siteInDraftMode ? "bg-orange-500/10" : "bg-gray-500/10"
-            )}>
-              <EyeOff className={cn(
-                "w-4 h-4 sm:w-5 sm:h-5",
-                siteInDraftMode ? "text-orange-400" : "text-[var(--admin-text-secondary)]"
-              )} />
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-orange-500/10 flex items-center justify-center shrink-0">
+              <EyeOff className="w-4 h-4 sm:w-5 sm:h-5 text-orange-400" />
             </div>
             <div className="min-w-0">
               <p className="text-lg sm:text-2xl font-semibold text-[var(--admin-text-primary)]">{draftCount}</p>
@@ -272,13 +259,13 @@ export default function ProductsPage() {
         <div className="bg-[var(--admin-input)] rounded-xl border border-[var(--admin-border)] p-3 sm:p-5">
           <div className="flex items-center gap-2 sm:gap-3">
             <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-[var(--primary)]/10 flex items-center justify-center shrink-0">
-              <DollarSign className="w-4 h-4 sm:w-5 sm:h-5 text-[var(--primary)]" />
+              <Package className="w-4 h-4 sm:w-5 sm:h-5 text-[var(--primary)]" />
             </div>
             <div className="min-w-0">
               <p className="text-lg sm:text-2xl font-semibold text-[var(--admin-text-primary)]">
-                {products.filter((p) => p.price).length}
+                {products.filter((p) => p.price && p.heroImageUrl).length}
               </p>
-              <p className="text-xs sm:text-sm text-[var(--admin-text-muted)]">Priced</p>
+              <p className="text-xs sm:text-sm text-[var(--admin-text-muted)]">Ready</p>
             </div>
           </div>
         </div>

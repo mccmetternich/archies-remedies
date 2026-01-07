@@ -712,7 +712,7 @@ export default function PagesListPage() {
               <Package className="w-5 h-5 text-blue-400" />
             </div>
             <div>
-              <p className="text-2xl font-semibold text-[var(--admin-text-primary)]">{productPages.length}</p>
+              <p className="text-2xl font-semibold text-[var(--admin-text-primary)]">{products.length}</p>
               <p className="text-sm text-[var(--admin-text-muted)]">Products</p>
             </div>
           </div>
@@ -770,24 +770,132 @@ export default function PagesListPage() {
         <Section
           title="Product Pages"
           icon={Package}
-          count={productPages.length}
+          count={products.length}
           expanded={expandedSections.products}
           onToggle={() => toggleSection('products')}
           actionHref="/admin/products/new"
           actionLabel="New Product"
         >
-          {productPages.length > 0 ? (
-            productPages.map((page) => (
-              <ProductPageRow
-                key={page.id}
-                page={page}
-                onToggle={() => togglePageStatus(page)}
-                onDelete={() => setDeleteModal({ isOpen: true, page })}
-              />
-            ))
+          {products.length > 0 ? (
+            products.map((product) => {
+              // Find linked page if exists
+              const linkedPage = pages.find(p => p.productId === product.id);
+              const effectivelyLive = isEffectivelyLive(product.isActive);
+
+              return (
+                <div
+                  key={product.id}
+                  className="flex items-center justify-between p-4 hover:bg-[var(--primary)]/5 transition-colors group cursor-pointer"
+                  onClick={() => {
+                    window.location.href = `/admin/products/${product.id}`;
+                  }}
+                >
+                  <div className="flex items-center gap-4 flex-1 min-w-0">
+                    <div className="w-10 h-10 rounded-lg bg-[var(--admin-input)] flex items-center justify-center shrink-0 group-hover:bg-[var(--primary)]/10 transition-colors">
+                      <Package className="w-5 h-5 text-[var(--admin-text-secondary)] group-hover:text-[var(--primary)]" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-medium text-[var(--admin-text-primary)] group-hover:text-[var(--primary)] transition-colors truncate text-sm sm:text-base">
+                          {product.name}
+                        </h3>
+                        <div className="sm:hidden">
+                          <StatusBadge isLive={effectivelyLive} size="sm" />
+                        </div>
+                      </div>
+                      <p className="text-xs sm:text-sm text-[var(--admin-text-muted)] truncate">/products/{product.slug}</p>
+                    </div>
+                  </div>
+
+                  <div className="hidden sm:flex items-center gap-4" onClick={(e) => e.stopPropagation()}>
+                    {/* Edit Page Content (if page exists) */}
+                    {linkedPage && (
+                      <Link
+                        href={`/admin/pages/${linkedPage.id}`}
+                        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-[var(--admin-text-secondary)] hover:text-[var(--primary)] hover:bg-[var(--primary)]/10 transition-colors"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <Layout className="w-3.5 h-3.5" />
+                        <span>Edit Page</span>
+                      </Link>
+                    )}
+
+                    {/* Draft/Live Toggle Switch */}
+                    <div className="flex items-center gap-2">
+                      <span className={cn(
+                        "text-xs font-medium transition-colors",
+                        !effectivelyLive ? "text-orange-400" : "text-[var(--admin-text-muted)]"
+                      )}>
+                        Draft
+                      </span>
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          if (!siteInDraftMode) toggleProductStatus(product);
+                        }}
+                        disabled={siteInDraftMode}
+                        className={cn(
+                          "relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none",
+                          siteInDraftMode && "opacity-50 cursor-not-allowed"
+                        )}
+                        style={{
+                          backgroundColor: effectivelyLive ? '#22c55e' : '#f97316'
+                        }}
+                        title={siteInDraftMode ? 'Site is in Draft Mode - all pages are draft' : undefined}
+                      >
+                        <span
+                          className={cn(
+                            "inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow",
+                            effectivelyLive ? "translate-x-6" : "translate-x-1"
+                          )}
+                        />
+                      </button>
+                      <span className={cn(
+                        "text-xs font-medium transition-colors",
+                        effectivelyLive ? "text-green-400" : "text-[var(--admin-text-muted)]"
+                      )}>
+                        Live
+                      </span>
+                    </div>
+
+                    {/* Preview */}
+                    <button
+                      onClick={async (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handlePreviewProduct(product);
+                      }}
+                      className={cn(
+                        "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors",
+                        effectivelyLive
+                          ? "text-[var(--admin-text-secondary)] hover:text-green-400 hover:bg-green-500/10"
+                          : "text-orange-400 hover:text-orange-300 hover:bg-orange-500/10"
+                      )}
+                      title={effectivelyLive ? 'View Live Page' : 'View Draft Page'}
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                      <span className="hidden sm:inline">{effectivelyLive ? 'View' : 'View Draft'}</span>
+                    </button>
+
+                    {/* Delete */}
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleDeleteProduct(product);
+                      }}
+                      className="p-2 rounded-lg text-[var(--admin-text-muted)] hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              );
+            })
           ) : (
             <div className="p-8 text-center">
-              <p className="text-[var(--admin-text-muted)] text-sm mb-4">No product pages yet</p>
+              <p className="text-[var(--admin-text-muted)] text-sm mb-4">No products yet</p>
               <Link
                 href="/admin/products/new"
                 className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--admin-input)] text-[var(--admin-text-secondary)] rounded-lg text-sm hover:bg-[var(--admin-hover)] transition-colors"
