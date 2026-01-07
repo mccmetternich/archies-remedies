@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { ChevronDown, Globe, FileText, Package, ExternalLink, Search, Newspaper, ArrowUp } from 'lucide-react';
 
 // Special actions
@@ -50,8 +51,11 @@ export function InternalLinkSelector({
   const [blogPosts, setBlogPosts] = useState<PageOption[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number; width: number } | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const triggerRef = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Fetch pages, products, and blog posts on mount
   useEffect(() => {
@@ -135,10 +139,27 @@ export function InternalLinkSelector({
   const productFiltered = filteredPages.filter(p => p.icon === 'product');
   const blogFiltered = filteredPages.filter(p => p.icon === 'blog');
 
+  // Calculate dropdown position when open
+  useEffect(() => {
+    if (isOpen && triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect();
+      setDropdownPosition({
+        top: rect.bottom + window.scrollY + 4,
+        left: rect.left + window.scrollX,
+        width: rect.width,
+      });
+    }
+  }, [isOpen]);
+
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+      const target = event.target as Node;
+      const isOutsideContainer = containerRef.current && !containerRef.current.contains(target);
+      const isOutsideDropdown = dropdownRef.current && !dropdownRef.current.contains(target);
+
+      // Close only if click is outside both the container and the dropdown
+      if (isOutsideContainer && (!dropdownRef.current || isOutsideDropdown)) {
         setIsOpen(false);
         setIsEditing(false);
       }
@@ -210,6 +231,7 @@ export function InternalLinkSelector({
       <div className="relative">
         {/* Main input/button */}
         <div
+          ref={triggerRef}
           className="w-full flex items-center gap-2 px-3 py-2 bg-[var(--admin-input)] border border-[var(--admin-border-light)] rounded-lg text-sm cursor-pointer hover:border-[var(--primary)] transition-colors"
           onClick={() => {
             setIsOpen(true);
@@ -236,9 +258,17 @@ export function InternalLinkSelector({
           <ChevronDown className={`w-4 h-4 text-[var(--admin-text-muted)] transition-transform ${isOpen ? 'rotate-180' : ''}`} />
         </div>
 
-        {/* Dropdown */}
-        {isOpen && (
-          <div className="absolute z-50 w-full mt-1 bg-[var(--admin-card)] border border-[var(--admin-border-light)] rounded-xl shadow-lg overflow-hidden">
+        {/* Dropdown - rendered via portal to escape overflow:hidden containers */}
+        {isOpen && dropdownPosition && typeof document !== 'undefined' && createPortal(
+          <div
+            ref={dropdownRef}
+            className="fixed z-[9999] bg-[var(--admin-card)] border border-[var(--admin-border-light)] rounded-xl shadow-lg overflow-hidden"
+            style={{
+              top: dropdownPosition.top,
+              left: dropdownPosition.left,
+              width: dropdownPosition.width,
+            }}
+          >
             {/* Search hint */}
             {!searchQuery && (
               <div className="px-3 py-2 border-b border-[var(--admin-border-light)] bg-[var(--admin-bg)]">
@@ -399,7 +429,8 @@ export function InternalLinkSelector({
                 </>
               )}
             </div>
-          </div>
+          </div>,
+          document.body
         )}
       </div>
     </div>
