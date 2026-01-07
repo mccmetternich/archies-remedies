@@ -306,7 +306,7 @@ export function MediaPickerButton({
               onChangeRef.current(url);
               setShowModal(false);
             }}
-            filterType={acceptAudio ? 'audio' : acceptVideo ? 'video' : null}
+            filterType={acceptAudio ? 'audio' : null}
           />
         )}
       </div>

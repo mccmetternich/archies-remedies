@@ -91,18 +91,18 @@ export function ProductGridConfig({
       fetch('/api/admin/products')
         .then(res => res.json())
         .then(data => {
-          if (data.products) {
-            setFetchedProducts(data.products.map((p: { id: string; name: string; slug: string; shortDescription: string | null; heroImageUrl: string | null; secondaryImageUrl: string | null; badge: string | null; badgeEmoji: string | null }) => ({
-              id: p.id,
-              name: p.name,
-              slug: p.slug,
-              shortDescription: p.shortDescription,
-              heroImageUrl: p.heroImageUrl,
-              secondaryImageUrl: p.secondaryImageUrl,
-              badge: p.badge,
-              badgeEmoji: p.badgeEmoji,
-            })));
-          }
+          // API returns array directly, not { products: [...] }
+          const productList = Array.isArray(data) ? data : (data.products || []);
+          setFetchedProducts(productList.map((p: { id: string; name: string; slug: string; shortDescription: string | null; heroImageUrl: string | null; secondaryImageUrl: string | null; badge: string | null; badgeEmoji: string | null }) => ({
+            id: p.id,
+            name: p.name,
+            slug: p.slug,
+            shortDescription: p.shortDescription,
+            heroImageUrl: p.heroImageUrl,
+            secondaryImageUrl: p.secondaryImageUrl,
+            badge: p.badge,
+            badgeEmoji: p.badgeEmoji,
+          })));
         })
         .catch(console.error)
         .finally(() => setIsLoading(false));

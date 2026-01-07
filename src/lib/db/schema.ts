@@ -494,6 +494,7 @@ export const heroSlides = sqliteTable('hero_slides', {
   // Layout options
   layout: text('layout').default('full-width'), // 'full-width', 'two-column', 'two-column-reversed'
   textColor: text('text_color').default('dark'), // 'dark', 'light' - for text over images
+  showTextGradient: integer('show_text_gradient', { mode: 'boolean' }).default(false), // White gradient overlay for text legibility (full-width only)
 
   // Visibility controls
   isActive: integer('is_active', { mode: 'boolean' }).default(true),
