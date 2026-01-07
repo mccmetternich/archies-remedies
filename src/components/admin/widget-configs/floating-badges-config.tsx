@@ -294,7 +294,7 @@ export function FloatingBadgesConfig({
                 </label>
                 <div className="space-y-4">
                   <Slider
-                    label="X Position"
+                    label="X Position (% from left)"
                     value={badge.desktopX}
                     onChange={(v) => updateBadge(index, { desktopX: v })}
                     min={0}
@@ -302,12 +302,13 @@ export function FloatingBadgesConfig({
                     unit="%"
                   />
                   <Slider
-                    label="Y Position"
+                    label="Y Position (px from widget)"
                     value={badge.desktopY}
                     onChange={(v) => updateBadge(index, { desktopY: v })}
                     min={0}
-                    max={100}
-                    unit="%"
+                    max={5000}
+                    unit="px"
+                    step={50}
                   />
                   <Slider
                     label="Size"
@@ -328,7 +329,7 @@ export function FloatingBadgesConfig({
                 </label>
                 <div className="space-y-4">
                   <Slider
-                    label="X Position"
+                    label="X Position (% from left)"
                     value={badge.mobileX}
                     onChange={(v) => updateBadge(index, { mobileX: v })}
                     min={0}
@@ -336,12 +337,13 @@ export function FloatingBadgesConfig({
                     unit="%"
                   />
                   <Slider
-                    label="Y Position"
+                    label="Y Position (px from widget)"
                     value={badge.mobileY}
                     onChange={(v) => updateBadge(index, { mobileY: v })}
                     min={0}
-                    max={100}
-                    unit="%"
+                    max={5000}
+                    unit="px"
+                    step={50}
                   />
                   <Slider
                     label="Size"
