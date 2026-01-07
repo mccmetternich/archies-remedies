@@ -240,11 +240,11 @@ export function NavColumns({
       )}
       <div className={cn('flex', isMobile ? 'justify-center gap-[74px]' : 'gap-5')}>
         {displayCertifications.map((cert, index) => (
-          <div key={index} className={cn('flex flex-col gap-2', isMobile ? 'items-center' : 'items-start')}>
+          <div key={index} className={cn('flex flex-col gap-2', isMobile ? 'items-center w-16' : 'items-center w-14')}>
             <div className={cn('rounded-full border flex items-center justify-center', borderAccentClass, isMobile ? 'w-9 h-9' : 'w-10 h-10')}>
               {renderCertIcon(cert, certIconClass)}
             </div>
-            <span className={cn('uppercase tracking-wide', textFadedClass, isMobile ? 'text-[9px] text-center' : 'text-[10px]')}>{cert.label}</span>
+            <span className={cn('uppercase tracking-wide text-center leading-tight', textFadedClass, isMobile ? 'text-[9px]' : 'text-[10px]')}>{cert.label}</span>
           </div>
         ))}
       </div>

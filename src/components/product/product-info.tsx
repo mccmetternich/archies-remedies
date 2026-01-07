@@ -184,7 +184,7 @@ export function ProductInfo({ product, variants }: ProductInfoProps) {
               window.open(amazonUrl, '_blank', 'noopener,noreferrer');
             }, 100);
           }}
-          className="group flex items-center justify-center gap-3 w-full py-5 bg-[var(--foreground)] text-white rounded-full font-medium hover:bg-black transition-all duration-300"
+          className="group flex items-center justify-center gap-3 w-full py-5 bg-[var(--foreground)] text-white rounded-full font-medium hover:bg-[var(--primary)] hover:text-[var(--foreground)] transition-all duration-300"
         >
           Buy Now on Amazon
           <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />

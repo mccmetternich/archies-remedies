@@ -117,7 +117,7 @@ export function AboutTeam() {
               </p>
               <a
                 href="mailto:careers@archiesremedies.com"
-                className="inline-flex items-center gap-2 px-8 py-4 bg-[var(--foreground)] text-white rounded-full font-medium hover:bg-[var(--foreground)]/90 transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+                className="inline-flex items-center gap-2 px-8 py-4 bg-[var(--foreground)] text-white rounded-full font-medium hover:bg-[var(--primary)] hover:text-[var(--foreground)] transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
               >
                 Get in Touch
               </a>

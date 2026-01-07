@@ -60,12 +60,19 @@ interface WidgetRendererProps {
   data: WidgetData & {
     instagramUrl?: string | null;
   };
+  /** When true, first widget gets header-clearing padding instead of normal section padding */
+  isWidgetOnlyPage?: boolean;
 }
 
 /**
  * Render a single widget based on its type
+ * @param isFirstOnWidgetOnlyPage - When true, widget should have header-clearing top padding
  */
-function renderWidget(widget: PageWidget, data: WidgetRendererProps['data']): React.ReactNode {
+function renderWidget(
+  widget: PageWidget,
+  data: WidgetRendererProps['data'],
+  isFirstOnWidgetOnlyPage: boolean = false
+): React.ReactNode {
   if (!widget.isVisible) return null;
 
   const config = widget.config || {};
@@ -97,8 +104,14 @@ function renderWidget(widget: PageWidget, data: WidgetRendererProps['data']): Re
         full: 'max-w-none',
       }[(config.maxWidth as string) || 'lg'] || 'max-w-3xl';
 
+      // First widget on widget-only page: use header-clearing padding
+      // Normal: standard section padding
+      const textPadding = isFirstOnWidgetOnlyPage
+        ? 'pt-24 md:pt-28 pb-8 md:pb-12' // 96-112px top clears header, reduced bottom
+        : 'py-12 lg:py-16';
+
       return (
-        <section key={widget.id} className="py-12 lg:py-16">
+        <section key={widget.id} className={textPadding}>
           <div className={`${textMaxWidth} mx-auto px-6`}>
             <div
               className="prose prose-lg max-w-none prose-headings:font-semibold prose-headings:text-[var(--foreground)] prose-p:text-[#333] prose-p:leading-relaxed prose-a:text-[#4a90a4] prose-a:underline prose-strong:text-[var(--foreground)] prose-ul:text-[#333] prose-ol:text-[#333] prose-li:my-1"
@@ -512,7 +525,7 @@ function renderWidget(widget: PageWidget, data: WidgetRendererProps['data']): Re
                 />
                 <button
                   type="submit"
-                  className="px-6 py-3 bg-[var(--foreground)] text-white rounded-full font-medium hover:bg-[var(--foreground)]/90 transition-colors"
+                  className="px-6 py-3 bg-[var(--foreground)] text-white rounded-full font-medium hover:bg-[var(--primary)] hover:text-[var(--foreground)] transition-colors"
                 >
                   {(config.buttonText as string) || 'Subscribe'}
                 </button>
@@ -557,14 +570,25 @@ function renderWidget(widget: PageWidget, data: WidgetRendererProps['data']): Re
  * Renders an array of widgets in order.
  * Filters out invisible widgets and handles data passing.
  */
-export function WidgetRenderer({ widgets, data }: WidgetRendererProps) {
+export function WidgetRenderer({ widgets, data, isWidgetOnlyPage = false }: WidgetRendererProps) {
   if (!widgets || widgets.length === 0) {
     return null;
   }
 
+  // Track if we've rendered the first visible widget
+  let firstVisibleRendered = false;
+
   return (
     <>
-      {widgets.map((widget) => renderWidget(widget, data))}
+      {widgets.map((widget) => {
+        if (!widget.isVisible) return null;
+
+        // Check if this is the first visible widget on a widget-only page
+        const isFirstOnWidgetOnlyPage = isWidgetOnlyPage && !firstVisibleRendered;
+        firstVisibleRendered = true;
+
+        return renderWidget(widget, data, isFirstOnWidgetOnlyPage);
+      })}
     </>
   );
 }
