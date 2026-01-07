@@ -120,13 +120,13 @@ function Card({
 
         {/* Optional Signature Image */}
         {card.signatureUrl && (
-          <div className="mt-4 relative h-10 md:h-12 w-32 md:w-40">
+          <div className="mt-4 relative h-14 md:h-16 w-48 md:w-60">
             <Image
               src={card.signatureUrl}
               alt={`${card.name} signature`}
               fill
               className="object-contain object-left"
-              sizes="160px"
+              sizes="240px"
             />
           </div>
         )}
