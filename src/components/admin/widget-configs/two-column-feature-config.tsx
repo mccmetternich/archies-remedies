@@ -4,6 +4,7 @@ import React from 'react';
 import { cn } from '@/lib/utils';
 import { MediaPickerButton } from '@/components/admin/media-picker';
 import { InternalLinkSelector } from '@/components/admin/internal-link-selector';
+import { RichTextEditor } from '@/components/admin/rich-text-editor';
 import { Plus, Trash2 } from 'lucide-react';
 import type {
   TwoColumnFeatureTheme,
@@ -484,24 +485,25 @@ export function TwoColumnFeatureConfig({
               <label className="block text-xs text-[var(--admin-text-muted)] mb-1.5">
                 Title
               </label>
-              <input
-                type="text"
+              <RichTextEditor
                 value={title}
-                onChange={(e) => onTitleChange(e.target.value)}
-                placeholder="Your headline here"
-                className="w-full px-3 py-2 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-sm text-[var(--admin-text-primary)] placeholder-[var(--admin-text-muted)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+                onChange={onTitleChange}
+                placeholder="Your headline here (use line breaks for multi-line titles)"
+                minHeight="80px"
               />
+              <p className="mt-1 text-[10px] text-[var(--admin-text-muted)]">
+                Use the editor to add line breaks or format the title as needed.
+              </p>
             </div>
             <div>
               <label className="block text-xs text-[var(--admin-text-muted)] mb-1.5">
                 Body
               </label>
-              <textarea
+              <RichTextEditor
                 value={body}
-                onChange={(e) => onBodyChange(e.target.value)}
-                placeholder="Supporting text goes here..."
-                rows={4}
-                className="w-full px-3 py-2 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-sm text-[var(--admin-text-primary)] placeholder-[var(--admin-text-muted)] focus:outline-none focus:border-[var(--primary)] transition-colors resize-none"
+                onChange={onBodyChange}
+                placeholder="Supporting text goes here... Use paragraphs for better formatting."
+                minHeight="150px"
               />
             </div>
           </>
@@ -509,28 +511,32 @@ export function TwoColumnFeatureConfig({
 
         {/* Bullet Points Mode Fields */}
         {textMode === 'bullet_points' && (
-          <div className="space-y-3">
+          <div className="space-y-4">
             <label className="block text-xs text-[var(--admin-text-muted)]">
               Bullet Points (max 6)
             </label>
             {normalizedBulletPoints.map((point, index) => (
-              <div key={index} className="flex gap-2">
-                <input
-                  type="text"
+              <div key={index} className="relative p-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-medium text-[var(--admin-text-secondary)]">
+                    Point {index + 1}
+                  </span>
+                  {bulletPoints.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeBulletPoint(index)}
+                      className="p-1.5 text-[var(--admin-text-muted)] hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
+                <RichTextEditor
                   value={point}
-                  onChange={(e) => updateBulletPoint(index, e.target.value)}
-                  placeholder={`Point ${index + 1}`}
-                  className="flex-1 px-3 py-2 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-sm text-[var(--admin-text-primary)] placeholder-[var(--admin-text-muted)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+                  onChange={(value) => updateBulletPoint(index, value)}
+                  placeholder={`Enter bullet point ${index + 1}...`}
+                  minHeight="60px"
                 />
-                {bulletPoints.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => removeBulletPoint(index)}
-                    className="p-2 text-[var(--admin-text-muted)] hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                )}
               </div>
             ))}
             {bulletPoints.length < 6 && (

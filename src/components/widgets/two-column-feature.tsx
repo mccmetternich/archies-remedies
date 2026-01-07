@@ -414,28 +414,22 @@ export function TwoColumnFeature({
             {textMode === 'title_body' && (
               <>
                 {title && (
-                  <h2
-                    className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-medium leading-[1.1] mb-6"
-                    style={{
-                      color: styles.titleColor,
-                      
-                    }}
-                  >
-                    {title}
-                  </h2>
+                  <div
+                    className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-medium leading-[1.1] mb-6 [&_p]:my-0 [&_br]:leading-tight"
+                    style={{ color: styles.titleColor }}
+                    dangerouslySetInnerHTML={{ __html: title }}
+                  />
                 )}
                 {body && (
-                  <p
-                    className="text-base lg:text-lg leading-relaxed max-w-lg"
+                  <div
+                    className="text-base lg:text-lg leading-relaxed max-w-lg [&_p]:my-3 [&_p:first-child]:mt-0 [&_p:last-child]:mb-0"
                     style={{
                       color: styles.textColor,
-                      
                       marginLeft: textAlignment === 'center' ? 'auto' : undefined,
                       marginRight: textAlignment === 'center' || textAlignment === 'left' ? 'auto' : undefined,
                     }}
-                  >
-                    {body}
-                  </p>
+                    dangerouslySetInnerHTML={{ __html: body }}
+                  />
                 )}
               </>
             )}
@@ -444,16 +438,12 @@ export function TwoColumnFeature({
             {textMode === 'bullet_points' && validBulletPoints.length > 0 && (
               <div className="space-y-4 lg:space-y-6">
                 {validBulletPoints.map((point, index) => (
-                  <p
+                  <div
                     key={index}
-                    className="text-2xl md:text-3xl lg:text-4xl font-bold leading-tight"
-                    style={{
-                      color: styles.titleColor,
-                      
-                    }}
-                  >
-                    {point}
-                  </p>
+                    className="text-2xl md:text-3xl lg:text-4xl font-bold leading-tight [&_p]:my-0"
+                    style={{ color: styles.titleColor }}
+                    dangerouslySetInnerHTML={{ __html: point }}
+                  />
                 ))}
               </div>
             )}
@@ -544,26 +534,18 @@ export function TwoColumnFeature({
             {textMode === 'title_body' && (
               <>
                 {title && (
-                  <h2
-                    className="text-2xl font-medium leading-tight mb-3"
-                    style={{
-                      color: styles.titleColor,
-                      
-                    }}
-                  >
-                    {title}
-                  </h2>
+                  <div
+                    className="text-2xl font-medium leading-tight mb-3 [&_p]:my-0 [&_br]:leading-tight"
+                    style={{ color: styles.titleColor }}
+                    dangerouslySetInnerHTML={{ __html: title }}
+                  />
                 )}
                 {body && (
-                  <p
-                    className="text-sm leading-relaxed"
-                    style={{
-                      color: styles.textColor,
-                      
-                    }}
-                  >
-                    {body}
-                  </p>
+                  <div
+                    className="text-sm leading-relaxed [&_p]:my-2 [&_p:first-child]:mt-0 [&_p:last-child]:mb-0"
+                    style={{ color: styles.textColor }}
+                    dangerouslySetInnerHTML={{ __html: body }}
+                  />
                 )}
               </>
             )}
@@ -572,16 +554,12 @@ export function TwoColumnFeature({
             {textMode === 'bullet_points' && validBulletPoints.length > 0 && (
               <div className="space-y-2">
                 {validBulletPoints.map((point, index) => (
-                  <p
+                  <div
                     key={index}
-                    className="text-xl font-bold leading-tight"
-                    style={{
-                      color: styles.titleColor,
-                      
-                    }}
-                  >
-                    {point}
-                  </p>
+                    className="text-xl font-bold leading-tight [&_p]:my-0"
+                    style={{ color: styles.titleColor }}
+                    dangerouslySetInnerHTML={{ __html: point }}
+                  />
                 ))}
               </div>
             )}
