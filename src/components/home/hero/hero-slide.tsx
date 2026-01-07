@@ -93,7 +93,7 @@ export function FullWidthSlide({ slide, currentIndex }: HeroSlideProps) {
         />
 
         {/* Content below media - min-height accommodates 3-4 lines of body copy */}
-        <div className="bg-[#f2f2f2] px-4 pt-6 pb-6 min-h-[280px]">
+        <div className="bg-[var(--background)] px-4 pt-6 pb-6 min-h-[280px]">
           <MobileTextContent
             title={slide.title}
             subtitle={slide.subtitle}
@@ -129,7 +129,7 @@ export function TwoColumnSlide({ slide, currentIndex }: HeroSlideProps) {
           )}
         >
           {/* Text column - split into two compartments */}
-          <div className="relative h-auto lg:h-full px-4 lg:px-12 order-2 lg:order-none bg-[#f2f2f2] lg:bg-transparent">
+          <div className="relative h-auto lg:h-full px-4 lg:px-12 order-2 lg:order-none bg-[var(--background)] lg:bg-transparent hero-text-column">
             {/* Mobile: Compact content - min-height accommodates 3-4 lines of body copy */}
             <div className="lg:hidden pt-6 pb-6 min-h-[280px]">
               <MobileTextContent

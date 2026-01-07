@@ -601,15 +601,15 @@ function SettingsPageContent() {
                   <div className="flex gap-2">
                     <input
                       type="color"
-                      value={settings.primaryColor || '#bbdae9'}
+                      value={settings.primaryColor || 'var(--primary)'}
                       onChange={(e) => updateField('primaryColor', e.target.value)}
                       className="w-14 h-12 rounded-lg border border-[var(--admin-border)] cursor-pointer bg-transparent"
                     />
                     <input
                       type="text"
-                      value={settings.primaryColor || '#bbdae9'}
+                      value={settings.primaryColor || 'var(--primary)'}
                       onChange={(e) => updateField('primaryColor', e.target.value)}
-                      placeholder="#bbdae9"
+                      placeholder="var(--primary)"
                       className="flex-1 px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
                     />
                   </div>
@@ -1080,7 +1080,7 @@ function ComingSoonTab({
       {/* Full Preview of Coming Soon page */}
       <div>
         <h3 className="font-medium text-[var(--admin-text-primary)] mb-4">Preview</h3>
-        <div className="p-8 bg-gradient-to-br from-[#f5f0eb] via-white to-[#bbdae9]/20 rounded-xl text-center">
+        <div className="p-8 bg-gradient-to-br from-[#f5f0eb] via-white to-[var(--primary)]/20 rounded-xl text-center">
           {/* Logo with badge preview */}
           <div className="mb-8 flex justify-center">
             <div className="relative inline-block">
@@ -1137,7 +1137,7 @@ function ComingSoonTab({
               />
               <button
                 disabled
-                className="absolute right-1.5 top-1/2 -translate-y-1/2 px-4 py-2 bg-[#1a1a1a] text-white text-sm rounded-full font-medium flex items-center gap-1.5 hover:bg-[#bbdae9] hover:text-[#1a1a1a] transition-colors"
+                className="absolute right-1.5 top-1/2 -translate-y-1/2 px-4 py-2 bg-[var(--foreground)] text-white text-sm rounded-full font-medium flex items-center gap-1.5 hover:bg-[var(--primary)] hover:text-[var(--foreground)] transition-colors"
               >
                 Notify Me
                 <ArrowRight className="w-3 h-3" />
@@ -1150,25 +1150,25 @@ function ComingSoonTab({
             <div className="flex flex-wrap justify-center gap-4 text-xs text-gray-400">
               {settings.draftModeCallout1 && (
                 <span className="flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 bg-[#bbdae9] rounded-full" />
+                  <span className="w-1.5 h-1.5 bg-[var(--primary)] rounded-full" />
                   {settings.draftModeCallout1}
                 </span>
               )}
               {settings.draftModeCallout2 && (
                 <span className="flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 bg-[#bbdae9] rounded-full" />
+                  <span className="w-1.5 h-1.5 bg-[var(--primary)] rounded-full" />
                   {settings.draftModeCallout2}
                 </span>
               )}
               {settings.draftModeCallout3 && (
                 <span className="flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 bg-[#bbdae9] rounded-full" />
+                  <span className="w-1.5 h-1.5 bg-[var(--primary)] rounded-full" />
                   {settings.draftModeCallout3}
                 </span>
               )}
             </div>
           ) : (
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#bbdae9]/30 border border-[#bbdae9]/40 rounded-full shadow-[0_0_15px_rgba(187,218,233,0.3)] animate-pulse">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--primary)]/30 border border-[var(--primary)]/40 rounded-full shadow-[0_0_15px_rgba(187,218,233,0.3)] animate-pulse">
               <span className="text-sm">✨</span>
               <span className="text-xs text-gray-600 font-medium">
                 {settings.draftModeBrandQuip || 'Where clean beauty meets clear vision.'}

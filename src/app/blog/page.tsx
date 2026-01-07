@@ -195,7 +195,7 @@ function EditorialCard({
         <div className="px-5 py-4 min-h-[80px]">
           <h3
             className={cn('font-semibold leading-snug line-clamp-3 text-black', titleSize)}
-            style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+           
           >
             {post.title}
           </h3>
@@ -208,7 +208,7 @@ function EditorialCard({
           <div className="px-5 py-3">
             <p
               className="text-sm text-gray-600 line-clamp-3"
-              style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+             
             >
               {post.excerpt}
             </p>
@@ -224,7 +224,7 @@ function EditorialCard({
               <span
                 key={tag.id}
                 className="px-3 py-1.5 bg-[#bad9ea] text-xs font-medium text-black uppercase tracking-wider"
-                style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+               
               >
                 {tag.name}
               </span>
@@ -249,7 +249,7 @@ function FeaturePost({ post, variant = 'full' }: { post: BlogPost; variant?: 'fu
                 <span
                   key={tag.id}
                   className="px-3 py-1.5 bg-[#bad9ea] text-xs font-medium text-black uppercase tracking-wider"
-                  style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+                 
                 >
                   {tag.name}
                 </span>
@@ -258,28 +258,28 @@ function FeaturePost({ post, variant = 'full' }: { post: BlogPost; variant?: 'fu
           )}
           <h3
             className="text-3xl lg:text-4xl font-bold leading-tight mb-4 text-black"
-            style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+           
           >
             {post.title}
           </h3>
           {post.excerpt && (
             <p
               className="text-gray-600 mb-6 line-clamp-4 text-lg"
-              style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+             
             >
               {post.excerpt}
             </p>
           )}
           <div
             className="flex items-center gap-4 text-sm text-gray-500 mb-6"
-            style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+           
           >
             {post.readingTime && <span>{post.readingTime} min read</span>}
           </div>
           <Link
             href={`/blog/${post.slug}`}
             className="inline-flex items-center gap-2 px-6 py-3 bg-black text-white font-medium hover:bg-[#bad9ea] hover:text-black transition-colors self-start"
-            style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+           
           >
             Read Article
             <ChevronRight className="w-4 h-4" />
@@ -357,7 +357,7 @@ function FeaturePost({ post, variant = 'full' }: { post: BlogPost; variant?: 'fu
                 <span
                   key={tag.id}
                   className="px-3 py-1.5 bg-[#bad9ea] text-xs font-medium text-black uppercase tracking-wider"
-                  style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+                 
                 >
                   {tag.name}
                 </span>
@@ -366,14 +366,14 @@ function FeaturePost({ post, variant = 'full' }: { post: BlogPost; variant?: 'fu
           )}
           <h3
             className="text-xl lg:text-2xl font-bold leading-tight mb-3 text-black"
-            style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+           
           >
             {post.title}
           </h3>
           {post.excerpt && (
             <p
               className="text-sm text-gray-600 line-clamp-4"
-              style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+             
             >
               {post.excerpt}
             </p>
@@ -610,14 +610,14 @@ function ListLayout({ posts }: { posts: BlogPost[] }) {
           <div className="flex-1 py-2">
             <h3
               className="font-semibold text-xl lg:text-2xl leading-snug line-clamp-2 text-black mb-3"
-              style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+             
             >
               {post.title}
             </h3>
             {post.excerpt && (
               <p
                 className="text-gray-600 line-clamp-3 mb-4"
-                style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+               
               >
                 {post.excerpt}
               </p>
@@ -628,7 +628,7 @@ function ListLayout({ posts }: { posts: BlogPost[] }) {
                   <span
                     key={tag.id}
                     className="px-3 py-1.5 bg-[#bad9ea] text-xs font-medium text-black uppercase tracking-wider"
-                    style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+                   
                   >
                     {tag.name}
                   </span>
@@ -706,7 +706,7 @@ export default async function BlogPage() {
                 {settings.heroTitle && (
                   <h1
                     className="text-5xl lg:text-7xl font-bold text-white leading-[0.95] tracking-tight mb-4"
-                    style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+                   
                   >
                     {settings.heroTitle}
                   </h1>
@@ -714,7 +714,7 @@ export default async function BlogPage() {
                 {settings.heroSubtitle && (
                   <p
                     className="text-xl lg:text-2xl text-white/80 max-w-2xl"
-                    style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+                   
                   >
                     {settings.heroSubtitle}
                   </p>
@@ -748,7 +748,7 @@ export default async function BlogPage() {
                     key={tag.id}
                     href={`/blog/tag/${tag.slug}`}
                     className="px-6 py-3 bg-[#bad9ea] text-sm font-medium text-black uppercase tracking-wider hover:bg-[#a5cce0] transition-colors flex items-center gap-2"
-                    style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+                   
                   >
                     {tag.name}
                     {tag.postCount > 1 && (

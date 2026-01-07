@@ -90,8 +90,8 @@ export function PDPBuyBox({
   discountSignupText = 'Get 10% off your first order',
   reviewBadge,
   reviewBadgeEmoji,
-  reviewBadgeBgColor = '#bbdae9',
-  reviewBadgeTextColor = '#1a1a1a',
+  reviewBadgeBgColor,
+  reviewBadgeTextColor,
   audioUrl,
   audioAvatarUrl,
   audioTitle,
@@ -248,21 +248,21 @@ export function PDPBuyBox({
             className={cn(
               'w-4 h-4',
               i <= Math.round(averageRating)
-                ? 'fill-[#bbdae9] text-[#bbdae9]'
-                : 'fill-transparent text-[#bbdae9]/30'
+                ? 'fill-[var(--primary)] text-[var(--primary)]'
+                : 'fill-transparent text-[var(--primary)]/30'
             )}
           />
         ))}
       </div>
-      <span className="text-[11px] md:text-sm text-[#1a1a1a] font-normal transition-colors">
+      <span className="text-[11px] md:text-sm text-[var(--foreground)] font-medium transition-colors">
         {reviewCount.toLocaleString()} Verified Reviews
       </span>
       {reviewBadge && (
         <span
           className="hidden md:inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full shadow-sm"
           style={{
-            backgroundColor: reviewBadgeBgColor || '#bbdae9',
-            color: reviewBadgeTextColor || '#1a1a1a',
+            backgroundColor: reviewBadgeBgColor || 'var(--primary)',
+            color: reviewBadgeTextColor || 'var(--foreground)',
           }}
         >
           {reviewBadgeEmoji && <span>{reviewBadgeEmoji}</span>}
@@ -277,18 +277,12 @@ export function PDPBuyBox({
       {/* Title & Subtitle - tight leading, unified typography */}
       <div className="space-y-0">
         <h1
-          className="uppercase leading-tight"
-          style={{
-            fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-            fontSize: '25px',
-            fontWeight: 700,
-            letterSpacing: '0.01em'
-          }}
+          className="uppercase leading-tight !text-[32px] md:!text-[33px] !font-bold !tracking-[-0.01em]"
         >
           {product.name}
         </h1>
         {product.subtitle && (
-          <p className="text-[13px] md:text-[14px] font-bold uppercase text-[#1a1a1a] tracking-[0.04em]" style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}>
+          <p className="text-[16px] md:text-[17px] font-medium uppercase text-[var(--foreground)] tracking-[-0.01em]">
             {product.subtitle}
           </p>
         )}
@@ -298,11 +292,11 @@ export function PDPBuyBox({
       <ReviewsDisplay className="-mt-1 lg:mt-[10px]" />
 
       {/* Horizontal Rule - 5px extra gap above on desktop */}
-      <div className="h-px bg-[#bbdae9] lg:mt-[5px]" />
+      <div className="h-px bg-[var(--primary)] lg:mt-[5px]" />
 
       {/* Short Description - 5px extra gap above on desktop */}
       {product.shortDescription && (
-        <p className="text-[13px] md:text-base text-[#1a1a1a] leading-relaxed max-w-[95%] md:max-w-[85%] lg:mt-[5px]">
+        <p className="text-[13px] md:text-base text-[var(--foreground)] leading-relaxed max-w-[95%] md:max-w-[85%] lg:mt-[5px]">
           {product.shortDescription}
         </p>
       )}
@@ -312,8 +306,8 @@ export function PDPBuyBox({
         <ul className="space-y-1.5 md:space-y-2 -mt-1 lg:mb-[20px]">
           {validBulletPoints.map((point, i) => (
             <li key={i} className="flex items-start gap-2 md:gap-3">
-              <Check className="w-4 h-4 md:w-5 md:h-5 text-[#666666] mt-0.5 flex-shrink-0 stroke-[2.5]" />
-              <span className="text-[13px] md:text-base text-[#1a1a1a]">{point}</span>
+              <Check className="w-4 h-4 md:w-5 md:h-5 text-[var(--muted-foreground)] mt-0.5 flex-shrink-0 stroke-[2.5]" />
+              <span className="text-[13px] md:text-base text-[var(--foreground)]">{point}</span>
             </li>
           ))}
         </ul>
@@ -322,7 +316,7 @@ export function PDPBuyBox({
       {/* Variant Tiles - radio buttons, dark gray borders, all caps CTA font */}
       {variants.length > 0 && (
         <div className="lg:mt-[15px]">
-          <span className="block text-[10px] md:text-xs font-bold tracking-[0.15em] uppercase text-[#1a1a1a]">
+          <span className="block text-[10px] md:text-xs font-bold tracking-[0.15em] uppercase text-[var(--foreground)]">
             Choose Size
           </span>
           <div className={cn('grid gap-2 md:gap-3 mt-3 md:mt-[15px] lg:mt-[20px]', getVariantGridCols())}>
@@ -333,12 +327,12 @@ export function PDPBuyBox({
                 <button
                   key={variant.id}
                   onClick={() => handleVariantSelect(variant)}
-                  className="relative flex flex-col items-center justify-center p-3 md:p-4 transition-all duration-200 text-center bg-white border border-[#d0d0d0]"
+                  className="relative flex flex-col items-center justify-center p-3 md:p-4 transition-all duration-200 text-center bg-white border border-[var(--border)]"
                 >
                   {/* Radio Button - top left */}
-                  <div className="absolute top-2 left-2 w-4 h-4 rounded-full border border-[#999999] flex items-center justify-center">
+                  <div className="absolute top-2 left-2 w-4 h-4 rounded-full border border-[var(--muted-foreground)] flex items-center justify-center">
                     {isSelected && (
-                      <div className="w-2.5 h-2.5 rounded-full bg-[#bbdae9]" />
+                      <div className="w-2.5 h-2.5 rounded-full bg-[var(--primary)]" />
                     )}
                   </div>
 
@@ -347,8 +341,8 @@ export function PDPBuyBox({
                     <span
                       className="absolute -top-2 left-1/2 -translate-x-1/2 text-[9px] md:text-[10px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap"
                       style={{
-                        backgroundColor: variant.badgeBgColor || '#bbdae9',
-                        color: variant.badgeTextColor || '#1a1a1a',
+                        backgroundColor: variant.badgeBgColor || 'var(--primary)',
+                        color: variant.badgeTextColor || 'var(--foreground)',
                       }}
                     >
                       {variant.badge}
@@ -369,7 +363,7 @@ export function PDPBuyBox({
 
                   {/* Variant Name - All caps, CTA font style */}
                   <span
-                    className="block font-medium text-[11px] md:text-sm text-[#1a1a1a] uppercase tracking-wide lg:tracking-wider"
+                    className="block font-medium text-[11px] md:text-sm text-[var(--foreground)] uppercase tracking-wide lg:tracking-wider"
                   >
                     {variant.name}
                   </span>
@@ -446,7 +440,7 @@ export function PDPBuyBox({
               <button
                 type="submit"
                 disabled={emailStatus === 'loading'}
-                className="px-4 md:px-5 py-2 md:py-2.5 bg-[#1a1a1a] text-white text-xs md:text-sm font-medium hover:bg-[#bbdae9] hover:text-[#1a1a1a] transition-colors disabled:opacity-50"
+                className="pdp-cta-button px-4 md:px-5 py-2 md:py-2.5 text-xs md:text-sm font-medium transition-colors disabled:opacity-50"
               >
                 {emailStatus === 'loading' ? '...' : emailStatus === 'success' ? <Check className="w-4 h-4" /> : 'Join'}
               </button>
@@ -522,16 +516,10 @@ export function PDPBuyBox({
       <div className="pt-6 md:pt-8 lg:pt-[22px]">
         {/* Title and Subtitle */}
         <div className="mb-3">
-          <span
-            className="block text-[11px] md:text-[12px] font-semibold text-[#1a1a1a] uppercase leading-tight"
-            style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif', letterSpacing: '0.02em' }}
-          >
+          <span className="block text-[11px] md:text-[12px] font-semibold text-[var(--foreground)] uppercase leading-tight tracking-[0.02em]">
             {signupSectionTitle}
           </span>
-          <span
-            className="block text-[10px] md:text-[11px] text-[#666666] leading-tight mt-0.5"
-            style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif', letterSpacing: '0.01em' }}
-          >
+          <span className="block text-[10px] md:text-[11px] text-[var(--muted-foreground)] leading-tight mt-0.5 tracking-[0.01em]">
             {signupSectionSubtitle}
           </span>
         </div>
@@ -542,10 +530,10 @@ export function PDPBuyBox({
               key="success"
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="h-[44px] bg-[#bbdae9]/20 border border-[#bbdae9]/40 flex items-center justify-center gap-2"
+              className="h-[44px] bg-[var(--primary)]/20 border border-[var(--primary)]/40 flex items-center justify-center gap-2"
             >
-              <Check className="w-4 h-4 text-[#1a1a1a]" />
-              <span className="text-[11px] text-[#1a1a1a] font-medium uppercase tracking-wide" style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}>
+              <Check className="w-4 h-4 text-[var(--foreground)]" />
+              <span className="text-[11px] text-[var(--foreground)] font-medium uppercase tracking-wide">
                 {signupSectionSuccessMessage}
               </span>
             </motion.div>
@@ -555,7 +543,7 @@ export function PDPBuyBox({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               onSubmit={handleSignupSubmit}
-              className="flex items-stretch h-[44px] border border-[#e0e0e0]"
+              className="flex items-stretch h-[44px] border border-[var(--border)]"
             >
               {/* Toggle: Email/Phone - blue when selected */}
               <div className="flex">
@@ -565,8 +553,8 @@ export function PDPBuyBox({
                   className={cn(
                     'px-3 flex items-center justify-center transition-colors',
                     signupContactType === 'email'
-                      ? 'bg-[#bbdae9] text-[#1a1a1a]'
-                      : 'bg-[#f5f5f0] text-[#666666] hover:text-[#1a1a1a] hover:bg-[#ebebeb]'
+                      ? 'bg-[var(--primary)] text-[var(--foreground)]'
+                      : 'bg-[var(--cream)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--stone)]'
                   )}
                   title="Email"
                 >
@@ -576,10 +564,10 @@ export function PDPBuyBox({
                   type="button"
                   onClick={() => toggleSignupContactType('phone')}
                   className={cn(
-                    'px-3 flex items-center justify-center transition-colors border-r border-[#e0e0e0]',
+                    'px-3 flex items-center justify-center transition-colors border-r border-[var(--border)]',
                     signupContactType === 'phone'
-                      ? 'bg-[#bbdae9] text-[#1a1a1a]'
-                      : 'bg-[#f5f5f0] text-[#666666] hover:text-[#1a1a1a] hover:bg-[#ebebeb]'
+                      ? 'bg-[var(--primary)] text-[var(--foreground)]'
+                      : 'bg-[var(--cream)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--stone)]'
                   )}
                   title="Phone"
                 >
@@ -594,15 +582,13 @@ export function PDPBuyBox({
                 onChange={handleSignupInputChange}
                 placeholder={signupContactType === 'email' ? 'Enter your email' : 'Enter phone #'}
                 autoComplete={signupContactType === 'email' ? 'email' : 'tel'}
-                className="flex-1 min-w-0 bg-[#f5f5f0] text-[#1a1a1a] px-4 text-[12px] focus:outline-none placeholder:text-gray-400"
-                style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+                className="flex-1 min-w-0 bg-[var(--cream)] text-[var(--foreground)] px-4 text-[12px] focus:outline-none placeholder:text-gray-400"
               />
               {/* Submit - blue hover */}
               <button
                 type="submit"
                 disabled={signupStatus === 'loading'}
-                className="px-5 bg-[#1a1a1a] text-white font-semibold text-[11px] uppercase tracking-[0.04em] hover:bg-[#bbdae9] hover:text-[#1a1a1a] transition-colors disabled:opacity-50 flex items-center gap-1.5 flex-shrink-0"
-                style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+                className="pdp-cta-button px-5 font-medium text-[11px] uppercase tracking-[0.04em] transition-colors disabled:opacity-50 flex items-center gap-1.5 flex-shrink-0"
               >
                 {signupStatus === 'loading' ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -624,7 +610,7 @@ export function PDPBuyBox({
               initial={{ opacity: 0, y: -5 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -5 }}
-              className="text-[10px] text-center text-[#666666] mt-2"
+              className="text-[10px] text-center text-[var(--muted-foreground)] mt-2"
             >
               {signupValidationError || 'Something went wrong. Please try again.'}
             </motion.p>
@@ -647,17 +633,17 @@ interface AccordionItemProps {
 function AccordionItem({ title, content, isOpen, onToggle, isFirst }: AccordionItemProps) {
   return (
     <div className={cn(
-      "border-b border-[#bbdae9]",
-      isFirst && "border-t border-t-[#bbdae9]"
+      "border-b border-[var(--primary)]",
+      isFirst && "border-t border-t-[var(--primary)]"
     )}>
       <button
         onClick={onToggle}
         className="w-full flex items-center justify-between py-2 md:py-2.5 text-left px-[6px] md:px-0"
       >
-        <span className="font-medium text-[11px] md:text-[13px] uppercase tracking-[0.04em]" style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}>{title}</span>
+        <span className="font-medium text-[11px] md:text-[13px] uppercase tracking-[0.04em]">{title}</span>
         <ChevronRight
           className={cn(
-            'w-4 h-4 md:w-5 md:h-5 text-[#4a4a4a] stroke-[2.5] transition-transform duration-300',
+            'w-4 h-4 md:w-5 md:h-5 text-[var(--muted-foreground)] stroke-[2.5] transition-transform duration-300',
             isOpen && 'rotate-90'
           )}
         />
@@ -673,7 +659,6 @@ function AccordionItem({ title, content, isOpen, onToggle, isFirst }: AccordionI
           >
             <div
               className="pb-2 md:pb-3 px-[6px] md:px-0 text-[10px] md:text-[12px] text-[var(--muted-foreground)] leading-relaxed tracking-[0.02em]"
-              style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
               dangerouslySetInnerHTML={{ __html: content }}
             />
           </motion.div>

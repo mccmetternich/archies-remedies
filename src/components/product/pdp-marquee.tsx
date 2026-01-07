@@ -14,7 +14,7 @@ interface PDPMarqueeProps {
 export function PDPMarquee({
   text,
   enabled = true,
-  backgroundColor = '#1a1a1a',
+  backgroundColor = 'var(--foreground)',
   textColor = '#ffffff',
   className,
 }: PDPMarqueeProps) {
@@ -41,7 +41,7 @@ export function PDPMarquee({
         className
       )}
       style={{
-        backgroundColor: backgroundColor || '#1a1a1a',
+        backgroundColor: backgroundColor || 'var(--foreground)',
         color: textColor || '#ffffff',
       }}
     >

@@ -167,7 +167,7 @@ export default async function DynamicPage({
               {page.heroTitle && (
                 <h1
                   className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-4"
-                  style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+                 
                 >
                   {page.heroTitle}
                 </h1>
@@ -175,7 +175,7 @@ export default async function DynamicPage({
               {page.heroSubtitle && (
                 <p
                   className="text-lg md:text-xl text-white/80 max-w-2xl mx-auto"
-                  style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+                 
                 >
                   {page.heroSubtitle}
                 </p>
@@ -189,8 +189,8 @@ export default async function DynamicPage({
           <section className="pt-32 pb-12 px-6">
             <div className="max-w-4xl mx-auto text-center">
               <h1
-                className="text-4xl md:text-5xl font-bold text-[#1a1a1a] leading-tight"
-                style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+                className="text-4xl md:text-5xl font-bold text-[var(--foreground)] leading-tight"
+               
               >
                 {page.title}
               </h1>
@@ -205,13 +205,13 @@ export default async function DynamicPage({
               {contentIsHtml ? (
                 <div
                   className="prose prose-lg max-w-none prose-headings:font-semibold prose-a:text-[#4a90a4] prose-a:underline"
-                  style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+                 
                   dangerouslySetInnerHTML={{ __html: page.content! }}
                 />
               ) : (
                 <div
                   className="text-lg text-[#333] leading-relaxed whitespace-pre-wrap"
-                  style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+                 
                 >
                   {page.content}
                 </div>
@@ -230,14 +230,14 @@ export default async function DynamicPage({
           <section className="py-24 px-6">
             <div className="max-w-2xl mx-auto text-center">
               <h1
-                className="text-3xl md:text-4xl font-bold text-[#1a1a1a] mb-4"
-                style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+                className="text-3xl md:text-4xl font-bold text-[var(--foreground)] mb-4"
+               
               >
                 {page.title}
               </h1>
               <p
                 className="text-lg text-[#666]"
-                style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+               
               >
                 This page is being updated. Check back soon.
               </p>

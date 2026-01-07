@@ -184,7 +184,7 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
         heroCarouselImages: null,
         badge: null,
         badgeEmoji: null,
-        badgeBgColor: '#1a1a1a',
+        badgeBgColor: 'var(--foreground)',
         badgeTextColor: '#ffffff',
         rotatingBadgeEnabled: false,
         rotatingBadgeText: null,
@@ -192,8 +192,8 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
         reviewCount: 2900,
         reviewBadge: null,
         reviewBadgeEmoji: null,
-        reviewBadgeBgColor: '#bbdae9',
-        reviewBadgeTextColor: '#1a1a1a',
+        reviewBadgeBgColor: 'var(--primary)',
+        reviewBadgeTextColor: 'var(--foreground)',
         rotatingSealEnabled: false,
         rotatingSealImageUrl: null,
         rotatingSealPosition: 'bottom-right',
@@ -225,7 +225,7 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
         audioQuote: null,
         marqueeEnabled: false,
         marqueeText: null,
-        marqueeBackgroundColor: '#1a1a1a',
+        marqueeBackgroundColor: 'var(--foreground)',
         marqueeTextColor: '#ffffff',
         benefitDrawers: JSON.stringify(createDefaultDrawers()),
         stickyDrawerThumbnailUrl: null,
@@ -603,7 +603,7 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
                     const key = `bulletPoint${i + 1}` as keyof Product;
                     return (
                       <div key={i} className="flex items-center gap-2">
-                        <Check className="w-4 h-4 text-[#bbdae9] flex-shrink-0" />
+                        <Check className="w-4 h-4 text-[var(--primary)] flex-shrink-0" />
                         <Input
                           value={(product[key] as string) || ''}
                           onChange={(e) =>
@@ -877,12 +877,12 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
                     <div className="flex gap-2">
                       <input
                         type="color"
-                        value={product.reviewBadgeBgColor || '#bbdae9'}
+                        value={product.reviewBadgeBgColor || 'var(--primary)'}
                         onChange={(e) => setProduct({ ...product, reviewBadgeBgColor: e.target.value })}
                         className="w-10 h-10 rounded cursor-pointer border border-[var(--admin-border-light)]"
                       />
                       <Input
-                        value={product.reviewBadgeBgColor || '#bbdae9'}
+                        value={product.reviewBadgeBgColor || 'var(--primary)'}
                         onChange={(e) => setProduct({ ...product, reviewBadgeBgColor: e.target.value })}
                         className="flex-1 bg-[var(--admin-input)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)]"
                       />
@@ -895,12 +895,12 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
                     <div className="flex gap-2">
                       <input
                         type="color"
-                        value={product.reviewBadgeTextColor || '#1a1a1a'}
+                        value={product.reviewBadgeTextColor || 'var(--foreground)'}
                         onChange={(e) => setProduct({ ...product, reviewBadgeTextColor: e.target.value })}
                         className="w-10 h-10 rounded cursor-pointer border border-[var(--admin-border-light)]"
                       />
                       <Input
-                        value={product.reviewBadgeTextColor || '#1a1a1a'}
+                        value={product.reviewBadgeTextColor || 'var(--foreground)'}
                         onChange={(e) => setProduct({ ...product, reviewBadgeTextColor: e.target.value })}
                         className="flex-1 bg-[var(--admin-input)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)]"
                       />
@@ -1017,12 +1017,12 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
                               <div className="flex gap-1">
                                 <input
                                   type="color"
-                                  value={selectedMediaVariant.badgeBgColor || '#bbdae9'}
+                                  value={selectedMediaVariant.badgeBgColor || 'var(--primary)'}
                                   onChange={(e) => updateVariantMedia('badgeBgColor', e.target.value)}
                                   className="w-8 h-8 rounded cursor-pointer border border-[var(--admin-border-light)]"
                                 />
                                 <Input
-                                  value={selectedMediaVariant.badgeBgColor || '#bbdae9'}
+                                  value={selectedMediaVariant.badgeBgColor || 'var(--primary)'}
                                   onChange={(e) => updateVariantMedia('badgeBgColor', e.target.value)}
                                   className="flex-1 bg-[var(--admin-card)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)] text-xs"
                                 />
@@ -1035,12 +1035,12 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
                               <div className="flex gap-1">
                                 <input
                                   type="color"
-                                  value={selectedMediaVariant.badgeTextColor || '#1a1a1a'}
+                                  value={selectedMediaVariant.badgeTextColor || 'var(--foreground)'}
                                   onChange={(e) => updateVariantMedia('badgeTextColor', e.target.value)}
                                   className="w-8 h-8 rounded cursor-pointer border border-[var(--admin-border-light)]"
                                 />
                                 <Input
-                                  value={selectedMediaVariant.badgeTextColor || '#1a1a1a'}
+                                  value={selectedMediaVariant.badgeTextColor || 'var(--foreground)'}
                                   onChange={(e) => updateVariantMedia('badgeTextColor', e.target.value)}
                                   className="flex-1 bg-[var(--admin-card)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)] text-xs"
                                 />
@@ -1223,12 +1223,12 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
                   <div className="flex gap-2">
                     <input
                       type="color"
-                      value={product.badgeBgColor || '#1a1a1a'}
+                      value={product.badgeBgColor || 'var(--foreground)'}
                       onChange={(e) => setProduct({ ...product, badgeBgColor: e.target.value })}
                       className="w-10 h-10 rounded cursor-pointer border border-[var(--admin-border-light)]"
                     />
                     <Input
-                      value={product.badgeBgColor || '#1a1a1a'}
+                      value={product.badgeBgColor || 'var(--foreground)'}
                       onChange={(e) => setProduct({ ...product, badgeBgColor: e.target.value })}
                       className="flex-1 bg-[var(--admin-input)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)]"
                     />
@@ -1536,12 +1536,12 @@ export default function ProductEditPage({ params }: { params: Promise<{ id: stri
                     <div className="flex gap-2">
                       <input
                         type="color"
-                        value={product.marqueeBackgroundColor || '#1a1a1a'}
+                        value={product.marqueeBackgroundColor || 'var(--foreground)'}
                         onChange={(e) => setProduct({ ...product, marqueeBackgroundColor: e.target.value })}
                         className="w-10 h-10 rounded cursor-pointer border border-[var(--admin-border-light)]"
                       />
                       <Input
-                        value={product.marqueeBackgroundColor || '#1a1a1a'}
+                        value={product.marqueeBackgroundColor || 'var(--foreground)'}
                         onChange={(e) => setProduct({ ...product, marqueeBackgroundColor: e.target.value })}
                         className="flex-1 bg-[var(--admin-input)] border-[var(--admin-border-light)] text-[var(--admin-text-primary)]"
                       />

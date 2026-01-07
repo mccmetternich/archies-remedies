@@ -217,7 +217,7 @@ function InboxContent() {
             <Inbox className="w-5 h-5 sm:w-6 sm:h-6 text-[var(--primary)]" />
             Inbox
             {newMessages.length > 0 && (
-              <span className="px-2 sm:px-2.5 py-0.5 sm:py-1 text-xs sm:text-sm font-medium bg-[#bbdae9] text-[#1a1a1a] rounded-full">
+              <span className="px-2 sm:px-2.5 py-0.5 sm:py-1 text-xs sm:text-sm font-medium bg-[var(--primary)] text-[var(--foreground)] rounded-full">
                 {newMessages.length}
               </span>
             )}
@@ -243,7 +243,7 @@ function InboxContent() {
               <Mail className="w-4 h-4" />
               New
               {newMessages.length > 0 && (
-                <span className="px-1.5 py-0.5 text-xs rounded-full bg-[#bbdae9] text-[#1a1a1a]">
+                <span className="px-1.5 py-0.5 text-xs rounded-full bg-[var(--primary)] text-[var(--foreground)]">
                   {newMessages.length}
                 </span>
               )}
@@ -313,7 +313,7 @@ function InboxContent() {
                         'w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium shrink-0',
                         message.isRead
                           ? 'bg-[var(--admin-border)] text-[var(--admin-text-muted)]'
-                          : 'bg-[#bbdae9] text-[#1a1a1a]'
+                          : 'bg-[var(--primary)] text-[var(--foreground)]'
                       )}>
                         {getInitials(message.name)}
                       </div>
@@ -351,7 +351,7 @@ function InboxContent() {
 
                       {/* Unread indicator */}
                       {!message.isRead && (
-                        <div className="w-2.5 h-2.5 rounded-full bg-[#bbdae9] shrink-0 mt-1.5" />
+                        <div className="w-2.5 h-2.5 rounded-full bg-[var(--primary)] shrink-0 mt-1.5" />
                       )}
                     </div>
                   </button>
@@ -369,7 +369,7 @@ function InboxContent() {
               <div className="p-6 border-b border-[var(--admin-border)]">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-start gap-4">
-                    <div className="w-14 h-14 rounded-full bg-[#bbdae9] flex items-center justify-center text-lg font-semibold text-[#1a1a1a]">
+                    <div className="w-14 h-14 rounded-full bg-[var(--primary)] flex items-center justify-center text-lg font-semibold text-[var(--foreground)]">
                       {getInitials(selectedMessage.name)}
                     </div>
                     <div>
@@ -497,7 +497,7 @@ function InboxContent() {
             {/* Mobile Content */}
             <div className="flex-1 overflow-y-auto p-4">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 rounded-full bg-[#bbdae9] flex items-center justify-center text-base font-semibold text-[#1a1a1a]">
+                <div className="w-12 h-12 rounded-full bg-[var(--primary)] flex items-center justify-center text-base font-semibold text-[var(--foreground)]">
                   {getInitials(selectedMessage.name)}
                 </div>
                 <div>

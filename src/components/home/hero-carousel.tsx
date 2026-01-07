@@ -59,7 +59,7 @@ export function HeroCarousel({
 
   return (
     <section
-      className="relative overflow-hidden h-auto lg:h-[85vh] lg:min-h-[600px] lg:max-h-[850px]"
+      className="relative overflow-hidden h-auto lg:h-[85vh] lg:min-h-[600px] lg:max-h-[850px] hero-flush-nav"
       onMouseEnter={() => {
         isHoveredRef.current = true;
       }}

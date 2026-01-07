@@ -25,7 +25,7 @@ export function DevicePreviewToggle({ device, onChange, className }: DevicePrevi
         className={cn(
           'flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all',
           device === 'desktop'
-            ? 'bg-[var(--primary)] text-[#1a1a1a]'
+            ? 'bg-[var(--primary)] text-[var(--foreground)]'
             : 'text-[var(--admin-text-muted)] hover:text-[var(--admin-text-secondary)] hover:bg-[var(--admin-hover)]'
         )}
       >
@@ -38,7 +38,7 @@ export function DevicePreviewToggle({ device, onChange, className }: DevicePrevi
         className={cn(
           'flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all',
           device === 'mobile'
-            ? 'bg-[var(--primary)] text-[#1a1a1a]'
+            ? 'bg-[var(--primary)] text-[var(--foreground)]'
             : 'text-[var(--admin-text-muted)] hover:text-[var(--admin-text-secondary)] hover:bg-[var(--admin-hover)]'
         )}
       >

@@ -180,7 +180,7 @@ export function CustomPopup({ popup, enabled = true }: CustomPopupProps) {
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
             className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-[94%] max-w-md md:max-w-4xl max-h-[90vh] overflow-y-auto md:overflow-hidden"
           >
-            <div className="bg-[#f2f2f2] overflow-hidden shadow-2xl md:flex md:min-h-[480px]">
+            <div className="bg-[var(--background)] overflow-hidden shadow-2xl md:flex md:min-h-[480px]">
               {/* Close button */}
               <button
                 onClick={handleClose}
@@ -197,7 +197,7 @@ export function CustomPopup({ popup, enabled = true }: CustomPopupProps) {
                     <VideoPlayer url={popup.videoUrl} autoPlay />
                   </div>
                 ) : (
-                  <div className="relative aspect-video md:aspect-auto md:absolute md:inset-0 w-full bg-gradient-to-br from-[#f5f0eb] via-white to-[#bbdae9]/30">
+                  <div className="relative aspect-video md:aspect-auto md:absolute md:inset-0 w-full bg-gradient-to-br from-[#f5f0eb] via-white to-[var(--primary)]/30">
                     {popup.imageUrl ? (
                       <Image
                         src={popup.imageUrl}
@@ -218,7 +218,7 @@ export function CustomPopup({ popup, enabled = true }: CustomPopupProps) {
                           className="absolute inset-0 flex items-center justify-center bg-black/20 hover:bg-black/30 transition-colors"
                         >
                           <div className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center shadow-lg">
-                            <Play className="w-6 h-6 text-[#1a1a1a] ml-1" fill="currentColor" />
+                            <Play className="w-6 h-6 text-[var(--foreground)] ml-1" fill="currentColor" />
                           </div>
                         </button>
                       </>
@@ -228,7 +228,7 @@ export function CustomPopup({ popup, enabled = true }: CustomPopupProps) {
                         className="absolute inset-0 flex items-center justify-center hover:bg-black/10 transition-colors"
                       >
                         <div className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center shadow-lg">
-                          <Play className="w-6 h-6 text-[#1a1a1a] ml-1" fill="currentColor" />
+                          <Play className="w-6 h-6 text-[var(--foreground)] ml-1" fill="currentColor" />
                         </div>
                       </button>
                     ) : (
@@ -247,10 +247,10 @@ export function CustomPopup({ popup, enabled = true }: CustomPopupProps) {
                 {status === 'success' ? (
                   <div className="py-4 text-center">
                     <div className="flex items-center justify-center gap-3 mb-4">
-                      <div className="w-12 h-12 bg-[#bbdae9] rounded-full flex items-center justify-center flex-shrink-0">
-                        <Check className="w-6 h-6 text-[#1a1a1a]" strokeWidth={3} />
+                      <div className="w-12 h-12 bg-[var(--primary)] rounded-full flex items-center justify-center flex-shrink-0">
+                        <Check className="w-6 h-6 text-[var(--foreground)]" strokeWidth={3} />
                       </div>
-                      <h3 className="text-2xl md:text-3xl font-normal tracking-tight text-[#1a1a1a]">
+                      <h3 className="text-2xl md:text-3xl font-normal tracking-tight text-[var(--foreground)]">
                         Thank You!
                       </h3>
                     </div>
@@ -265,7 +265,7 @@ export function CustomPopup({ popup, enabled = true }: CustomPopupProps) {
                 ) : (
                   <>
                     {popup.title && (
-                      <h3 className="text-2xl md:text-3xl font-normal mb-3 tracking-tight text-center text-[#1a1a1a]">
+                      <h3 className="text-2xl md:text-3xl font-normal mb-3 tracking-tight text-center text-[var(--foreground)]">
                         {popup.title}
                       </h3>
                     )}
@@ -308,7 +308,7 @@ export function CustomPopup({ popup, enabled = true }: CustomPopupProps) {
                                       type="button"
                                       onClick={() => toggleContactType('phone')}
                                       className={`w-full flex items-center gap-2 px-4 py-2.5 text-sm text-left hover:bg-gray-50 transition-colors ${
-                                        contactType === 'phone' ? 'text-[#1a1a1a] font-medium' : 'text-gray-600'
+                                        contactType === 'phone' ? 'text-[var(--foreground)] font-medium' : 'text-gray-600'
                                       }`}
                                     >
                                       <Phone className="w-4 h-4" />
@@ -318,7 +318,7 @@ export function CustomPopup({ popup, enabled = true }: CustomPopupProps) {
                                       type="button"
                                       onClick={() => toggleContactType('email')}
                                       className={`w-full flex items-center gap-2 px-4 py-2.5 text-sm text-left hover:bg-gray-50 transition-colors ${
-                                        contactType === 'email' ? 'text-[#1a1a1a] font-medium' : 'text-gray-600'
+                                        contactType === 'email' ? 'text-[var(--foreground)] font-medium' : 'text-gray-600'
                                       }`}
                                     >
                                       <Mail className="w-4 h-4" />
@@ -337,8 +337,8 @@ export function CustomPopup({ popup, enabled = true }: CustomPopupProps) {
                               onBlur={handleBlur}
                               placeholder={contactType === 'email' ? 'Enter your email' : 'Enter Phone #'}
                               autoComplete={contactType === 'email' ? 'email' : 'tel'}
-                              className={`w-full pl-20 pr-5 py-4 text-base bg-[#f5f5f0] border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#bbdae9] focus:border-[#bbdae9] placeholder:text-gray-400 ${
-                                validationError ? 'ring-2 ring-[#bbdae9] border-[#bbdae9]' : ''
+                              className={`w-full pl-20 pr-5 py-4 text-base bg-[var(--cream)] border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] placeholder:text-gray-400 ${
+                                validationError ? 'ring-2 ring-[var(--primary)] border-[var(--primary)]' : ''
                               }`}
                               style={{ fontSize: '16px' }}
                             />
@@ -353,8 +353,8 @@ export function CustomPopup({ popup, enabled = true }: CustomPopupProps) {
                             value={contactValue}
                             onChange={handleInputChange}
                             onBlur={handleBlur}
-                            className={`w-full px-5 py-4 text-base bg-[#f5f5f0] border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#bbdae9] focus:border-[#bbdae9] placeholder:text-gray-400 ${
-                              validationError ? 'ring-2 ring-[#bbdae9] border-[#bbdae9]' : ''
+                            className={`w-full px-5 py-4 text-base bg-[var(--cream)] border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] placeholder:text-gray-400 ${
+                              validationError ? 'ring-2 ring-[var(--primary)] border-[var(--primary)]' : ''
                             }`}
                             style={{ fontSize: '16px' }}
                           />
@@ -370,8 +370,8 @@ export function CustomPopup({ popup, enabled = true }: CustomPopupProps) {
                             onChange={handleInputChange}
                             onBlur={handleBlur}
                             autoComplete="tel"
-                            className={`w-full px-5 py-4 text-base bg-[#f5f5f0] border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#bbdae9] focus:border-[#bbdae9] placeholder:text-gray-400 ${
-                              validationError ? 'ring-2 ring-[#bbdae9] border-[#bbdae9]' : ''
+                            className={`w-full px-5 py-4 text-base bg-[var(--cream)] border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] placeholder:text-gray-400 ${
+                              validationError ? 'ring-2 ring-[var(--primary)] border-[var(--primary)]' : ''
                             }`}
                             style={{ fontSize: '16px' }}
                           />
@@ -387,7 +387,7 @@ export function CustomPopup({ popup, enabled = true }: CustomPopupProps) {
                               transition={{ duration: 0.15 }}
                               className="flex justify-center"
                             >
-                              <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#bbdae9]/20 border border-[#bbdae9]/40 rounded-full">
+                              <div className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--primary)]/20 border border-[var(--primary)]/40 rounded-full">
                                 <svg className="w-4 h-4 text-[#7ab8d4] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
@@ -402,7 +402,7 @@ export function CustomPopup({ popup, enabled = true }: CustomPopupProps) {
                         <button
                           type="submit"
                           disabled={status === 'loading'}
-                          className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-[#1a1a1a] text-white font-medium text-sm uppercase tracking-wider hover:bg-[#bbdae9] hover:text-[#1a1a1a] transition-colors disabled:opacity-50"
+                          className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-[var(--foreground)] text-white font-medium text-sm uppercase tracking-wider hover:bg-[var(--primary)] hover:text-[var(--foreground)] transition-colors disabled:opacity-50"
                         >
                           {status === 'loading' ? (
                             <Loader2 className="w-5 h-5 animate-spin" />
@@ -425,7 +425,7 @@ export function CustomPopup({ popup, enabled = true }: CustomPopupProps) {
                       <div className="space-y-3">
                         <button
                           onClick={handleDownloadOnly}
-                          className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-[#1a1a1a] text-white font-medium text-base hover:bg-[#bbdae9] hover:text-[#1a1a1a] transition-colors"
+                          className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-[var(--foreground)] text-white font-medium text-base hover:bg-[var(--primary)] hover:text-[var(--foreground)] transition-colors"
                         >
                           <Download className="w-4 h-4" />
                           {popup.ctaButtonText || 'Download Now'}
@@ -438,7 +438,7 @@ export function CustomPopup({ popup, enabled = true }: CustomPopupProps) {
                       <div className="text-center">
                         <button
                           onClick={handleClose}
-                          className="px-8 py-3 text-base font-medium text-gray-500 hover:text-[#1a1a1a] transition-colors"
+                          className="px-8 py-3 text-base font-medium text-gray-500 hover:text-[var(--foreground)] transition-colors"
                         >
                           Continue browsing
                         </button>

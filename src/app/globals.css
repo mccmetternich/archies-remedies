@@ -436,10 +436,26 @@ h4 {
   color: var(--foreground);
 }
 
-/* Focus States */
-:focus-visible {
+/* Focus States - only for buttons and links, not inputs */
+button:focus-visible,
+a:focus-visible,
+[role="button"]:focus-visible {
   outline: 2px solid var(--primary);
   outline-offset: 3px;
+}
+
+/* Remove ALL focus styling from text inputs site-wide */
+input:focus,
+input:focus-visible,
+textarea:focus,
+textarea:focus-visible,
+select:focus,
+select:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+  --tw-ring-shadow: 0 0 #0000 !important;
+  --tw-ring-color: transparent !important;
+  --tw-ring-offset-shadow: 0 0 #0000 !important;
 }
 
 /* Links */
@@ -549,7 +565,7 @@ input[type="button"]:disabled,
   padding: 0.875rem 1.75rem;
   border-radius: 0;
   font-size: 0.75rem;
-  font-weight: 700;
+  font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
@@ -568,6 +584,7 @@ input[type="button"]:disabled,
 .pdp-cta-button {
   background-color: #1a1a1a;
   color: #ffffff;
+  font-weight: 500;
   transition: background-color 250ms ease, color 250ms ease;
 }
 
@@ -645,8 +662,6 @@ input[type="button"]:disabled,
 
 .input:focus {
   outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 4px var(--primary-light);
 }
 
 .input::placeholder {
@@ -721,6 +736,21 @@ input[type="button"]:disabled,
   }
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
+  }
+}
+
+/* Hero flush with nav - pulls hero up behind fixed header on desktop */
+@media (min-width: 1024px) {
+  .hero-flush-nav {
+    margin-top: calc(-1 * var(--pdp-header-height, 80px));
+  }
+  /* Push hero content down below the nav - full-width layout */
+  .hero-flush-nav .container {
+    padding-top: var(--pdp-header-height, 80px);
+  }
+  /* Push only text column down - two-column layout (media stays flush) */
+  .hero-flush-nav .hero-text-column {
+    padding-top: var(--pdp-header-height, 80px);
   }
 }
 

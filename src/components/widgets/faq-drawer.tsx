@@ -43,16 +43,16 @@ const themeStyles: Record<
   }
 > = {
   blue: {
-    bg: 'bg-[#bbdae9]',
-    titleColor: '#1a1a1a',
-    questionColor: '#1a1a1a',
+    bg: 'bg-[var(--primary)]',
+    titleColor: 'var(--foreground)',
+    questionColor: 'var(--foreground)',
     answerColor: '#333333',
     borderColor: 'rgba(26, 26, 26, 0.15)',
-    iconColor: '#1a1a1a',
+    iconColor: 'var(--foreground)',
     iconHoverBg: 'rgba(26, 26, 26, 0.05)',
   },
   dark: {
-    bg: 'bg-[#1a1a1a]',
+    bg: 'bg-[var(--foreground)]',
     titleColor: '#ffffff',
     questionColor: '#ffffff',
     answerColor: 'rgba(255, 255, 255, 0.75)',
@@ -62,11 +62,11 @@ const themeStyles: Record<
   },
   cream: {
     bg: 'bg-[#f5f1eb]',
-    titleColor: '#1a1a1a',
-    questionColor: '#1a1a1a',
+    titleColor: 'var(--foreground)',
+    questionColor: 'var(--foreground)',
     answerColor: '#333333',
     borderColor: 'rgba(26, 26, 26, 0.12)',
-    iconColor: '#1a1a1a',
+    iconColor: 'var(--foreground)',
     iconHoverBg: 'rgba(26, 26, 26, 0.05)',
   },
 };
@@ -110,7 +110,7 @@ function FAQItemRow({
           className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-medium leading-[1.1] flex-1"
           style={{
             color: styles.questionColor,
-            fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+            
           }}
         >
           {item.question}
@@ -151,7 +151,7 @@ function FAQItemRow({
               className="pb-8 md:pb-10 lg:pb-12 pr-16 md:pr-20"
               style={{
                 color: styles.answerColor,
-                fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+                
               }}
             >
               <p className="text-base md:text-lg leading-relaxed max-w-4xl">
@@ -204,7 +204,7 @@ export function FAQDrawer({
         <h2
           className="text-left uppercase mb-8 md:mb-12 lg:mb-14"
           style={{
-            fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+            
             fontSize: '11px',
             fontWeight: 700,
             letterSpacing: '0.08em',

@@ -310,7 +310,7 @@ export function ExitPopup({
             style={{ willChange: 'opacity, transform' }}
             className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-[94%] max-w-md md:max-w-4xl max-h-[90vh] overflow-y-auto md:overflow-hidden"
           >
-            <div className="bg-[#f2f2f2] overflow-hidden shadow-2xl border-2 border-[#bbdae9] md:flex md:min-h-[480px]">
+            <div className="bg-[var(--background)] overflow-hidden shadow-2xl border-2 border-[var(--primary)] md:flex md:min-h-[480px]">
               {/* Close button */}
               <button
                 onClick={handleClose}
@@ -322,7 +322,7 @@ export function ExitPopup({
 
               {/* Media Section - Left side on desktop, top on mobile */}
               <div className="relative md:w-1/2 md:min-h-full">
-                <div className="relative aspect-video md:aspect-auto md:absolute md:inset-0 w-full bg-gradient-to-br from-[#f5f0eb] via-white to-[#bbdae9]/30 overflow-hidden">
+                <div className="relative aspect-video md:aspect-auto md:absolute md:inset-0 w-full bg-gradient-to-br from-[#f5f0eb] via-white to-[var(--primary)]/30 overflow-hidden">
                   {/* Desktop Media */}
                   <div className="hidden md:block absolute inset-0">
                     {hasDesktopVideo && effectiveDesktopVideoUrl ? (
@@ -402,8 +402,8 @@ export function ExitPopup({
                                     className="rounded-full object-cover flex-shrink-0 ring-2 ring-white shadow-sm"
                                   />
                                 ) : (
-                                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#bbdae9]/40 to-[#bbdae9]/20 flex items-center justify-center flex-shrink-0 ring-2 ring-white shadow-sm">
-                                    <span className="text-base font-semibold text-[#1a1a1a]">
+                                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[var(--primary)]/40 to-[var(--primary)]/20 flex items-center justify-center flex-shrink-0 ring-2 ring-white shadow-sm">
+                                    <span className="text-base font-semibold text-[var(--foreground)]">
                                       {(testimonialAuthor || 'A')[0]}
                                     </span>
                                   </div>
@@ -412,11 +412,11 @@ export function ExitPopup({
                                   {/* Author name + stars on same row */}
                                   <div className="flex items-center gap-2 mb-1">
                                     {testimonialAuthor && (
-                                      <span className="text-sm font-semibold text-[#1a1a1a]">{testimonialAuthor}</span>
+                                      <span className="text-sm font-semibold text-[var(--foreground)]">{testimonialAuthor}</span>
                                     )}
                                     <div className="flex items-center gap-0.5">
                                       {[...Array(testimonialStars)].map((_, i) => (
-                                        <Star key={i} className="w-3 h-3 fill-[#bbdae9] text-[#bbdae9]" />
+                                        <Star key={i} className="w-3 h-3 fill-[var(--primary)] text-[var(--primary)]" />
                                       ))}
                                     </div>
                                   </div>
@@ -442,8 +442,8 @@ export function ExitPopup({
                                     className="rounded-full object-cover flex-shrink-0 ring-1 ring-white shadow-sm w-7 h-7"
                                   />
                                 ) : (
-                                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#bbdae9]/40 to-[#bbdae9]/20 flex items-center justify-center flex-shrink-0 ring-1 ring-white shadow-sm">
-                                    <span className="text-[10px] font-semibold text-[#1a1a1a]">
+                                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[var(--primary)]/40 to-[var(--primary)]/20 flex items-center justify-center flex-shrink-0 ring-1 ring-white shadow-sm">
+                                    <span className="text-[10px] font-semibold text-[var(--foreground)]">
                                       {(testimonialAuthor || 'A')[0]}
                                     </span>
                                   </div>
@@ -452,11 +452,11 @@ export function ExitPopup({
                                   {/* Author name + stars on same row */}
                                   <div className="flex items-center gap-1 mb-0.5">
                                     {testimonialAuthor && (
-                                      <span className="text-[10px] font-semibold text-[#1a1a1a]">{testimonialAuthor}</span>
+                                      <span className="text-[10px] font-semibold text-[var(--foreground)]">{testimonialAuthor}</span>
                                     )}
                                     <div className="flex items-center gap-0.5">
                                       {[...Array(testimonialStars)].map((_, i) => (
-                                        <Star key={i} className="w-2 h-2 fill-[#bbdae9] text-[#bbdae9]" />
+                                        <Star key={i} className="w-2 h-2 fill-[var(--primary)] text-[var(--primary)]" />
                                       ))}
                                     </div>
                                   </div>
@@ -483,10 +483,10 @@ export function ExitPopup({
                 {isSuccessState ? (
                   <div className="py-4 text-center">
                     <div className="flex items-center justify-center gap-3 mb-4">
-                      <div className="w-12 h-12 bg-[#bbdae9] rounded-full flex items-center justify-center flex-shrink-0">
-                        <Check className="w-6 h-6 text-[#1a1a1a]" strokeWidth={3} />
+                      <div className="w-12 h-12 bg-[var(--primary)] rounded-full flex items-center justify-center flex-shrink-0">
+                        <Check className="w-6 h-6 text-[var(--foreground)]" strokeWidth={3} />
                       </div>
-                      <h3 className="text-2xl md:text-3xl font-normal tracking-tight text-[#1a1a1a]">
+                      <h3 className="text-2xl md:text-3xl font-normal tracking-tight text-[var(--foreground)]">
                         {successTitle}
                       </h3>
                     </div>
@@ -507,12 +507,12 @@ export function ExitPopup({
                       <div className="flex items-center justify-center gap-2 mt-4">
                         {status === 'downloading' ? (
                           <>
-                            <Loader2 className="w-5 h-5 animate-spin text-[#bbdae9]" />
+                            <Loader2 className="w-5 h-5 animate-spin text-[var(--primary)]" />
                             <span className="text-sm text-gray-600">Downloading...</span>
                           </>
                         ) : status === 'downloaded' ? (
                           <>
-                            <div className="w-6 h-6 bg-[#bbdae9] rounded-full flex items-center justify-center">
+                            <div className="w-6 h-6 bg-[var(--primary)] rounded-full flex items-center justify-center">
                               <Check className="w-4 h-4 text-white" strokeWidth={3} />
                             </div>
                             <span className="text-sm text-gray-600">Download complete!</span>
@@ -527,7 +527,7 @@ export function ExitPopup({
                         {successLink1Text && successLink1Url && (
                           <a
                             href={successLink1Url}
-                            className="block text-center px-5 py-2.5 bg-[#1a1a1a] text-white font-medium text-sm hover:bg-[#bbdae9] hover:text-[#1a1a1a] transition-colors"
+                            className="block text-center px-5 py-2.5 bg-[var(--foreground)] text-white font-medium text-sm hover:bg-[var(--primary)] hover:text-[var(--foreground)] transition-colors"
                           >
                             {successLink1Text}
                           </a>
@@ -535,7 +535,7 @@ export function ExitPopup({
                         {successLink2Text && successLink2Url && (
                           <a
                             href={successLink2Url}
-                            className="block text-center px-5 py-2.5 border border-gray-300 text-gray-700 font-medium text-sm hover:border-[#1a1a1a] hover:text-[#1a1a1a] transition-colors"
+                            className="block text-center px-5 py-2.5 border border-gray-300 text-gray-700 font-medium text-sm hover:border-[var(--foreground)] hover:text-[var(--foreground)] transition-colors"
                           >
                             {successLink2Text}
                           </a>
@@ -545,7 +545,7 @@ export function ExitPopup({
                   </div>
                 ) : (
                   <>
-                    <h3 className="text-2xl md:text-3xl font-normal mb-3 tracking-tight text-center text-[#1a1a1a]">
+                    <h3 className="text-2xl md:text-3xl font-normal mb-3 tracking-tight text-center text-[var(--foreground)]">
                       {title}
                     </h3>
                     <p className="text-gray-600 mb-4 text-center text-base leading-relaxed">
@@ -586,7 +586,7 @@ export function ExitPopup({
                                       type="button"
                                       onClick={() => toggleContactType('phone')}
                                       className={`w-full flex items-center gap-2 px-4 py-2.5 text-sm text-left active:bg-gray-50 hover:bg-gray-50 transition-colors ${
-                                        contactType === 'phone' ? 'text-[#1a1a1a] font-medium' : 'text-gray-600'
+                                        contactType === 'phone' ? 'text-[var(--foreground)] font-medium' : 'text-gray-600'
                                       }`}
                                     >
                                       <Phone className="w-4 h-4" />
@@ -596,7 +596,7 @@ export function ExitPopup({
                                       type="button"
                                       onClick={() => toggleContactType('email')}
                                       className={`w-full flex items-center gap-2 px-4 py-2.5 text-sm text-left active:bg-gray-50 hover:bg-gray-50 transition-colors ${
-                                        contactType === 'email' ? 'text-[#1a1a1a] font-medium' : 'text-gray-600'
+                                        contactType === 'email' ? 'text-[var(--foreground)] font-medium' : 'text-gray-600'
                                       }`}
                                     >
                                       <Mail className="w-4 h-4" />
@@ -616,8 +616,8 @@ export function ExitPopup({
                               onBlur={handleBlur}
                               placeholder={contactType === 'email' ? 'Enter your email' : 'Enter Phone #'}
                               autoComplete={contactType === 'email' ? 'email' : 'tel'}
-                              className={`w-full pl-20 pr-5 py-4 text-base bg-[#f5f5f0] border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#bbdae9] focus:border-[#bbdae9] placeholder:text-gray-400 ${
-                                validationError ? 'ring-2 ring-[#bbdae9] border-[#bbdae9]' : ''
+                              className={`w-full pl-20 pr-5 py-4 text-base bg-[var(--cream)] border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] placeholder:text-gray-400 ${
+                                validationError ? 'ring-2 ring-[var(--primary)] border-[var(--primary)]' : ''
                               }`}
                               style={{ fontSize: '16px' }}
                             />
@@ -632,8 +632,8 @@ export function ExitPopup({
                             value={contactValue}
                             onChange={handleInputChange}
                             onBlur={handleBlur}
-                            className={`w-full px-5 py-4 text-base bg-[#f5f5f0] border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#bbdae9] focus:border-[#bbdae9] placeholder:text-gray-400 ${
-                              validationError ? 'ring-2 ring-[#bbdae9] border-[#bbdae9]' : ''
+                            className={`w-full px-5 py-4 text-base bg-[var(--cream)] border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] placeholder:text-gray-400 ${
+                              validationError ? 'ring-2 ring-[var(--primary)] border-[var(--primary)]' : ''
                             }`}
                             style={{ fontSize: '16px' }}
                           />
@@ -649,8 +649,8 @@ export function ExitPopup({
                             onChange={handleInputChange}
                             onBlur={handleBlur}
                             autoComplete="tel"
-                            className={`w-full px-5 py-4 text-base bg-[#f5f5f0] border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#bbdae9] focus:border-[#bbdae9] placeholder:text-gray-400 ${
-                              validationError ? 'ring-2 ring-[#bbdae9] border-[#bbdae9]' : ''
+                            className={`w-full px-5 py-4 text-base bg-[var(--cream)] border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] placeholder:text-gray-400 ${
+                              validationError ? 'ring-2 ring-[var(--primary)] border-[var(--primary)]' : ''
                             }`}
                             style={{ fontSize: '16px' }}
                           />
@@ -666,7 +666,7 @@ export function ExitPopup({
                               transition={{ duration: 0.15 }}
                               className="flex justify-center"
                             >
-                              <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#bbdae9]/20 border border-[#bbdae9]/40 rounded-full">
+                              <div className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--primary)]/20 border border-[var(--primary)]/40 rounded-full">
                                 <svg className="w-4 h-4 text-[#7ab8d4] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
@@ -681,7 +681,7 @@ export function ExitPopup({
                         <button
                           type="submit"
                           disabled={status === 'loading'}
-                          className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-[#1a1a1a] text-white font-medium text-base hover:bg-[#bbdae9] hover:text-[#1a1a1a] transition-colors disabled:opacity-50"
+                          className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-[var(--foreground)] text-white font-medium text-base hover:bg-[var(--primary)] hover:text-[var(--foreground)] transition-colors disabled:opacity-50"
                         >
                           {status === 'loading' ? (
                             <Loader2 className="w-5 h-5 animate-spin" />
@@ -696,7 +696,7 @@ export function ExitPopup({
                         {/* Download badge */}
                         {downloadEnabled && downloadFileUrl && (
                           <div className="flex justify-center pt-1">
-                            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#bbdae9]/20 border border-[#bbdae9]/40 rounded-full">
+                            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[var(--primary)]/20 border border-[var(--primary)]/40 rounded-full">
                               <Download className="w-3.5 h-3.5 text-[#7ab8d4]" />
                               <span className="text-xs text-gray-600">{downloadText}</span>
                             </div>
@@ -717,7 +717,7 @@ export function ExitPopup({
                       <div className="space-y-3">
                         <button
                           onClick={handleDownloadOnly}
-                          className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-[#1a1a1a] text-white font-medium text-base hover:bg-[#bbdae9] hover:text-[#1a1a1a] transition-colors"
+                          className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-[var(--foreground)] text-white font-medium text-base hover:bg-[var(--primary)] hover:text-[var(--foreground)] transition-colors"
                         >
                           <Download className="w-4 h-4" />
                           {buttonText || 'Download Now'}
@@ -730,7 +730,7 @@ export function ExitPopup({
                       <div className="text-center">
                         <button
                           onClick={handleClose}
-                          className="px-8 py-3 text-base font-medium text-gray-500 hover:text-[#1a1a1a] transition-colors"
+                          className="px-8 py-3 text-base font-medium text-gray-500 hover:text-[var(--foreground)] transition-colors"
                         >
                           Continue browsing
                         </button>
@@ -740,7 +740,7 @@ export function ExitPopup({
                     {/* No thanks link */}
                     <button
                       onClick={handleClose}
-                      className="w-full mt-4 text-center text-sm text-gray-500 hover:text-[#1a1a1a] transition-colors"
+                      className="w-full mt-4 text-center text-sm text-gray-500 hover:text-[var(--foreground)] transition-colors"
                     >
                       No thanks, I&apos;ll pay full price
                     </button>

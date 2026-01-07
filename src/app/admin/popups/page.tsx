@@ -1168,8 +1168,8 @@ export default function PopupsPage() {
               <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6 space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-[#bbdae9]/20 flex items-center justify-center">
-                      <Quote className="w-5 h-5 text-[#bbdae9]" />
+                    <div className="w-10 h-10 rounded-lg bg-[var(--primary)]/20 flex items-center justify-center">
+                      <Quote className="w-5 h-5 text-[var(--primary)]" />
                     </div>
                     <div>
                       <h3 className="font-medium text-[var(--admin-text-primary)]">Testimonial Bubble</h3>
@@ -1186,7 +1186,7 @@ export default function PopupsPage() {
                       )}
                       className="sr-only peer"
                     />
-                    <div className="w-14 h-7 bg-[var(--admin-border-light)] peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#bbdae9]/50 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-gray-400 after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-[#bbdae9] peer-checked:after:bg-white"></div>
+                    <div className="w-14 h-7 bg-[var(--admin-border-light)] peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[var(--primary)]/50 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-gray-400 after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-[var(--primary)] peer-checked:after:bg-white"></div>
                   </label>
                 </div>
 
@@ -1202,7 +1202,7 @@ export default function PopupsPage() {
                             isWelcome ? 'welcomePopupTestimonialEnabledDesktop' : 'exitPopupTestimonialEnabledDesktop',
                             e.target.checked
                           )}
-                          className="w-4 h-4 rounded border-[var(--admin-border-light)] text-[#bbdae9] focus:ring-[#bbdae9]"
+                          className="w-4 h-4 rounded border-[var(--admin-border-light)] text-[var(--primary)] focus:ring-[var(--primary)]"
                         />
                         <Monitor className="w-4 h-4 text-[var(--admin-text-muted)]" />
                         <span className="text-sm text-[var(--admin-text-secondary)]">Desktop</span>
@@ -1215,7 +1215,7 @@ export default function PopupsPage() {
                             isWelcome ? 'welcomePopupTestimonialEnabledMobile' : 'exitPopupTestimonialEnabledMobile',
                             e.target.checked
                           )}
-                          className="w-4 h-4 rounded border-[var(--admin-border-light)] text-[#bbdae9] focus:ring-[#bbdae9]"
+                          className="w-4 h-4 rounded border-[var(--admin-border-light)] text-[var(--primary)] focus:ring-[var(--primary)]"
                         />
                         <Smartphone className="w-4 h-4 text-[var(--admin-text-muted)]" />
                         <span className="text-sm text-[var(--admin-text-secondary)]">Mobile</span>
@@ -1282,7 +1282,7 @@ export default function PopupsPage() {
                               className={cn(
                                 'w-6 h-6 transition-colors',
                                 star <= (currentTestimonialStars ?? 5)
-                                  ? 'fill-[#bbdae9] text-[#bbdae9]'
+                                  ? 'fill-[var(--primary)] text-[var(--primary)]'
                                   : 'text-gray-300'
                               )}
                             />
@@ -1300,8 +1300,8 @@ export default function PopupsPage() {
               {/* Success Links */}
               <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6 space-y-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-[#bbdae9]/20 flex items-center justify-center">
-                    <LinkIcon className="w-5 h-5 text-[#bbdae9]" />
+                  <div className="w-10 h-10 rounded-lg bg-[var(--primary)]/20 flex items-center justify-center">
+                    <LinkIcon className="w-5 h-5 text-[var(--primary)]" />
                   </div>
                   <div>
                     <h3 className="font-medium text-[var(--admin-text-primary)]">Success View Links</h3>
@@ -1440,7 +1440,7 @@ export default function PopupsPage() {
                       className={cn(
                         'p-2 rounded-md transition-colors',
                         previewDevice === 'desktop'
-                          ? 'bg-[#bbdae9] text-[#1a1a1a]'
+                          ? 'bg-[var(--primary)] text-[var(--foreground)]'
                           : 'text-[var(--admin-text-muted)] hover:text-[var(--admin-text-secondary)]'
                       )}
                     >
@@ -1451,7 +1451,7 @@ export default function PopupsPage() {
                       className={cn(
                         'p-2 rounded-md transition-colors',
                         previewDevice === 'mobile'
-                          ? 'bg-[#bbdae9] text-[#1a1a1a]'
+                          ? 'bg-[var(--primary)] text-[var(--foreground)]'
                           : 'text-[var(--admin-text-muted)] hover:text-[var(--admin-text-secondary)]'
                       )}
                     >
@@ -1470,7 +1470,7 @@ export default function PopupsPage() {
                 {previewDevice === 'mobile' ? (
                   <div className="bg-white rounded-3xl overflow-hidden shadow-2xl w-full max-w-sm">
                     {/* Media Header - Full width on mobile */}
-                    <div className="relative aspect-video w-full bg-gradient-to-br from-[#f5f0eb] via-white to-[#bbdae9]/30">
+                    <div className="relative aspect-video w-full bg-gradient-to-br from-[#f5f0eb] via-white to-[var(--primary)]/30">
                       {hasVideo && effectiveVideoUrl ? (
                         <video
                           src={effectiveVideoUrl}
@@ -1507,8 +1507,8 @@ export default function PopupsPage() {
                                   className="rounded-full object-cover flex-shrink-0 ring-1 ring-white shadow-sm w-7 h-7"
                                 />
                               ) : (
-                                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#bbdae9]/40 to-[#bbdae9]/20 flex items-center justify-center flex-shrink-0 ring-1 ring-white shadow-sm">
-                                  <span className="text-[10px] font-semibold text-[#1a1a1a]">
+                                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[var(--primary)]/40 to-[var(--primary)]/20 flex items-center justify-center flex-shrink-0 ring-1 ring-white shadow-sm">
+                                  <span className="text-[10px] font-semibold text-[var(--foreground)]">
                                     {(currentTestimonialAuthor || 'A')[0]}
                                   </span>
                                 </div>
@@ -1517,11 +1517,11 @@ export default function PopupsPage() {
                                 {/* Author name + stars on same row */}
                                 <div className="flex items-center gap-1 mb-0.5">
                                   {currentTestimonialAuthor && (
-                                    <span className="text-[10px] font-semibold text-[#1a1a1a]">{currentTestimonialAuthor}</span>
+                                    <span className="text-[10px] font-semibold text-[var(--foreground)]">{currentTestimonialAuthor}</span>
                                   )}
                                   <div className="flex items-center gap-0.5">
                                     {[...Array(currentTestimonialStars ?? 5)].map((_, i) => (
-                                      <Star key={i} className="w-2 h-2 fill-[#bbdae9] text-[#bbdae9]" />
+                                      <Star key={i} className="w-2 h-2 fill-[var(--primary)] text-[var(--primary)]" />
                                     ))}
                                   </div>
                                 </div>
@@ -1540,8 +1540,8 @@ export default function PopupsPage() {
                       {previewState === 'success' ? (
                         <div className="text-center py-4">
                           <div className="flex items-center justify-center gap-3 mb-4">
-                            <div className="w-12 h-12 bg-[#bbdae9] rounded-full flex items-center justify-center">
-                              <Check className="w-6 h-6 text-[#1a1a1a]" />
+                            <div className="w-12 h-12 bg-[var(--primary)] rounded-full flex items-center justify-center">
+                              <Check className="w-6 h-6 text-[var(--foreground)]" />
                             </div>
                             <h3 className="text-2xl font-normal tracking-tight">{currentSuccessTitle || "You're In!"}</h3>
                           </div>
@@ -1550,7 +1550,7 @@ export default function PopupsPage() {
                           </p>
                           {currentDownloadEnabled && (
                             <div className="mt-4 flex items-center justify-center gap-2">
-                              <div className="w-6 h-6 bg-[#bbdae9] rounded-full flex items-center justify-center">
+                              <div className="w-6 h-6 bg-[var(--primary)] rounded-full flex items-center justify-center">
                                 <Check className="w-4 h-4 text-white" />
                               </div>
                               <span className="text-sm text-gray-600">Download complete!</span>
@@ -1560,7 +1560,7 @@ export default function PopupsPage() {
                           {(currentSuccessLink1Text || currentSuccessLink2Text) && (
                             <div className="mt-6 space-y-2 max-w-xs mx-auto">
                               {currentSuccessLink1Text && (
-                                <button className="block w-full text-center px-5 py-2.5 bg-[#1a1a1a] text-white rounded-full font-medium text-sm">
+                                <button className="block w-full text-center px-5 py-2.5 bg-[var(--foreground)] text-white rounded-full font-medium text-sm">
                                   {currentSuccessLink1Text}
                                 </button>
                               )}
@@ -1597,7 +1597,7 @@ export default function PopupsPage() {
                                   <input
                                     type="tel"
                                     placeholder="Enter Phone #"
-                                    className="w-full pl-20 pr-5 py-4 text-base bg-[#f5f5f0] border border-gray-300 rounded-full placeholder:text-gray-400"
+                                    className="w-full pl-20 pr-5 py-4 text-base bg-[var(--cream)] border border-gray-300 rounded-full placeholder:text-gray-400"
                                     readOnly
                                   />
                                 </div>
@@ -1605,25 +1605,25 @@ export default function PopupsPage() {
                                 <input
                                   type="email"
                                   placeholder="Your email address"
-                                  className="w-full px-5 py-4 text-base bg-[#f5f5f0] border border-gray-300 rounded-full placeholder:text-gray-400"
+                                  className="w-full px-5 py-4 text-base bg-[var(--cream)] border border-gray-300 rounded-full placeholder:text-gray-400"
                                   readOnly
                                 />
                               ) : currentCtaType === 'sms' && (
                                 <input
                                   type="tel"
                                   placeholder="Phone number"
-                                  className="w-full px-5 py-4 text-base bg-[#f5f5f0] border border-gray-300 rounded-full placeholder:text-gray-400"
+                                  className="w-full px-5 py-4 text-base bg-[var(--cream)] border border-gray-300 rounded-full placeholder:text-gray-400"
                                   readOnly
                                 />
                               )}
 
-                              <button className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-[#1a1a1a] text-white rounded-full font-medium text-sm">
+                              <button className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-[var(--foreground)] text-white rounded-full font-medium text-sm">
                                 {currentButtonText || 'Subscribe'}
                               </button>
 
                               {currentDownloadEnabled && (
                                 <div className="flex justify-center">
-                                  <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#bbdae9]/20 border border-[#bbdae9]/40 rounded-full">
+                                  <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[var(--primary)]/20 border border-[var(--primary)]/40 rounded-full">
                                     <Download className="w-3.5 h-3.5 text-[#7ab8d4]" />
                                     <span className="text-xs text-gray-600">{currentDownloadText || 'Download starts on submission'}</span>
                                   </div>
@@ -1643,7 +1643,7 @@ export default function PopupsPage() {
                   /* Desktop Layout - Side by Side */
                   <div className="bg-white rounded-3xl overflow-hidden shadow-2xl w-full max-w-3xl flex min-h-[420px]">
                     {/* Media Section - Left side */}
-                    <div className="relative w-1/2 bg-gradient-to-br from-[#f5f0eb] via-white to-[#bbdae9]/30">
+                    <div className="relative w-1/2 bg-gradient-to-br from-[#f5f0eb] via-white to-[var(--primary)]/30">
                       {hasVideo && effectiveVideoUrl ? (
                         <video
                           src={effectiveVideoUrl}
@@ -1680,8 +1680,8 @@ export default function PopupsPage() {
                                   className="rounded-full object-cover flex-shrink-0 ring-2 ring-white shadow-sm"
                                 />
                               ) : (
-                                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#bbdae9]/40 to-[#bbdae9]/20 flex items-center justify-center flex-shrink-0 ring-2 ring-white shadow-sm">
-                                  <span className="text-base font-semibold text-[#1a1a1a]">
+                                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[var(--primary)]/40 to-[var(--primary)]/20 flex items-center justify-center flex-shrink-0 ring-2 ring-white shadow-sm">
+                                  <span className="text-base font-semibold text-[var(--foreground)]">
                                     {(currentTestimonialAuthor || 'A')[0]}
                                   </span>
                                 </div>
@@ -1690,11 +1690,11 @@ export default function PopupsPage() {
                                 {/* Author name + stars on same row */}
                                 <div className="flex items-center gap-2 mb-1">
                                   {currentTestimonialAuthor && (
-                                    <span className="text-sm font-semibold text-[#1a1a1a]">{currentTestimonialAuthor}</span>
+                                    <span className="text-sm font-semibold text-[var(--foreground)]">{currentTestimonialAuthor}</span>
                                   )}
                                   <div className="flex items-center gap-0.5">
                                     {[...Array(currentTestimonialStars ?? 5)].map((_, i) => (
-                                      <Star key={i} className="w-3 h-3 fill-[#bbdae9] text-[#bbdae9]" />
+                                      <Star key={i} className="w-3 h-3 fill-[var(--primary)] text-[var(--primary)]" />
                                     ))}
                                   </div>
                                 </div>
@@ -1718,8 +1718,8 @@ export default function PopupsPage() {
                       {previewState === 'success' ? (
                         <div className="text-center py-4">
                           <div className="flex items-center justify-center gap-3 mb-4">
-                            <div className="w-12 h-12 bg-[#bbdae9] rounded-full flex items-center justify-center">
-                              <Check className="w-6 h-6 text-[#1a1a1a]" />
+                            <div className="w-12 h-12 bg-[var(--primary)] rounded-full flex items-center justify-center">
+                              <Check className="w-6 h-6 text-[var(--foreground)]" />
                             </div>
                             <h3 className="text-2xl font-normal tracking-tight">{currentSuccessTitle || "You're In!"}</h3>
                           </div>
@@ -1728,7 +1728,7 @@ export default function PopupsPage() {
                           </p>
                           {currentDownloadEnabled && (
                             <div className="mt-4 flex items-center justify-center gap-2">
-                              <div className="w-6 h-6 bg-[#bbdae9] rounded-full flex items-center justify-center">
+                              <div className="w-6 h-6 bg-[var(--primary)] rounded-full flex items-center justify-center">
                                 <Check className="w-4 h-4 text-white" />
                               </div>
                               <span className="text-sm text-gray-600">Download complete!</span>
@@ -1738,12 +1738,12 @@ export default function PopupsPage() {
                           {(currentSuccessLink1Text || currentSuccessLink2Text) && (
                             <div className="mt-6 space-y-2 max-w-xs mx-auto">
                               {currentSuccessLink1Text && (
-                                <button className="block w-full text-center px-5 py-2.5 bg-[#1a1a1a] text-white rounded-full font-medium text-sm hover:bg-[#bbdae9] hover:text-[#1a1a1a] transition-colors">
+                                <button className="block w-full text-center px-5 py-2.5 bg-[var(--foreground)] text-white rounded-full font-medium text-sm hover:bg-[var(--primary)] hover:text-[var(--foreground)] transition-colors">
                                   {currentSuccessLink1Text}
                                 </button>
                               )}
                               {currentSuccessLink2Text && (
-                                <button className="block w-full text-center px-5 py-2.5 border border-gray-300 text-gray-700 rounded-full font-medium text-sm hover:border-[#1a1a1a] hover:text-[#1a1a1a] transition-colors">
+                                <button className="block w-full text-center px-5 py-2.5 border border-gray-300 text-gray-700 rounded-full font-medium text-sm hover:border-[var(--foreground)] hover:text-[var(--foreground)] transition-colors">
                                   {currentSuccessLink2Text}
                                 </button>
                               )}
@@ -1775,7 +1775,7 @@ export default function PopupsPage() {
                                   <input
                                     type="tel"
                                     placeholder="Enter Phone #"
-                                    className="w-full pl-20 pr-5 py-4 text-base bg-[#f5f5f0] border border-gray-300 rounded-full placeholder:text-gray-400"
+                                    className="w-full pl-20 pr-5 py-4 text-base bg-[var(--cream)] border border-gray-300 rounded-full placeholder:text-gray-400"
                                     readOnly
                                   />
                                 </div>
@@ -1783,25 +1783,25 @@ export default function PopupsPage() {
                                 <input
                                   type="email"
                                   placeholder="Your email address"
-                                  className="w-full px-5 py-4 text-base bg-[#f5f5f0] border border-gray-300 rounded-full placeholder:text-gray-400"
+                                  className="w-full px-5 py-4 text-base bg-[var(--cream)] border border-gray-300 rounded-full placeholder:text-gray-400"
                                   readOnly
                                 />
                               ) : currentCtaType === 'sms' && (
                                 <input
                                   type="tel"
                                   placeholder="Phone number"
-                                  className="w-full px-5 py-4 text-base bg-[#f5f5f0] border border-gray-300 rounded-full placeholder:text-gray-400"
+                                  className="w-full px-5 py-4 text-base bg-[var(--cream)] border border-gray-300 rounded-full placeholder:text-gray-400"
                                   readOnly
                                 />
                               )}
 
-                              <button className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-[#1a1a1a] text-white rounded-full font-medium text-sm hover:bg-[#bbdae9] hover:text-[#1a1a1a] transition-colors">
+                              <button className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-[var(--foreground)] text-white rounded-full font-medium text-sm hover:bg-[var(--primary)] hover:text-[var(--foreground)] transition-colors">
                                 {currentButtonText || 'Subscribe'}
                               </button>
 
                               {currentDownloadEnabled && (
                                 <div className="flex justify-center">
-                                  <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#bbdae9]/20 border border-[#bbdae9]/40 rounded-full">
+                                  <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[var(--primary)]/20 border border-[var(--primary)]/40 rounded-full">
                                     <Download className="w-3.5 h-3.5 text-[#7ab8d4]" />
                                     <span className="text-xs text-gray-600">{currentDownloadText || 'Download starts on submission'}</span>
                                   </div>

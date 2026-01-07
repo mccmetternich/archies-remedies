@@ -420,7 +420,7 @@ export function PDPGallery({
                   loop
                   muted
                   playsInline
-                  className="w-full h-full object-contain pointer-events-none select-none bg-[#f2f2f2]"
+                  className="w-full h-full object-contain pointer-events-none select-none bg-[var(--background)]"
                   draggable={false}
                 />
               ) : activeImage?.imageUrl ? (
@@ -454,7 +454,7 @@ export function PDPGallery({
               // Height matches hero (viewport - tray width since hero is square)
               'w-[24vw] lg:w-[var(--pdp-tray-width)]', // 24% scaling on mobile/tablet, fluid 100px → 80px desktop
               'h-[calc(100vw-24vw)] lg:h-auto lg:self-stretch', // Height = hero width = viewport - tray
-              'bg-[#1a1a1a]', // Dark background for thumbnail tray
+              'bg-[var(--foreground)]', // Dark background for thumbnail tray
               'flex-none flex-shrink-0',
               'lg:ml-auto', // Push tray to right edge on desktop (gutter expands)
               'overflow-hidden' // Strict clipping - nothing escapes to marquee
@@ -465,7 +465,7 @@ export function PDPGallery({
               className={cn(
                 'absolute top-0 left-0 right-0 z-30',
                 'h-16', // Same height globally
-                'bg-gradient-to-b from-[#1a1a1a] to-transparent', // Dark gradient globally
+                'bg-gradient-to-b from-[var(--foreground)] to-transparent', // Dark gradient globally
                 'pointer-events-none',
                 'transition-opacity duration-200',
                 !canScrollUp && 'opacity-0' // Hide when can't scroll up
@@ -508,7 +508,7 @@ export function PDPGallery({
                     'flex-none aspect-square w-[calc(24vw-10px)] lg:w-full',
                     index === 0 && 'mt-[20px] lg:mt-[var(--pdp-tray-padding)]', // First thumbnail: 20px mobile, fluid desktop
                     'transition-shadow duration-200', // Only animate the ring, not size
-                    index === activeIndex && 'ring-2 ring-[#bbdae9]'
+                    index === activeIndex && 'ring-2 ring-[var(--primary)]'
                   )}
                 >
                   {/* Detect video from isVideo flag OR from URL pattern */}
@@ -539,7 +539,7 @@ export function PDPGallery({
               className={cn(
                 'absolute bottom-0 left-0 right-0 z-30',
                 'h-16', // Same height globally
-                'bg-gradient-to-t from-[#1a1a1a] to-transparent', // Dark gradient globally
+                'bg-gradient-to-t from-[var(--foreground)] to-transparent', // Dark gradient globally
                 'pointer-events-none',
                 'transition-opacity duration-200',
                 !canScrollDown && 'opacity-0' // Hide when can't scroll down

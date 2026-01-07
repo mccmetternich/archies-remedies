@@ -112,8 +112,8 @@ export function PDPStickyDrawer({
           >
             {/* Title - wraps naturally */}
             <span
-              className="text-[14px] font-medium uppercase tracking-[0.02em] text-[#1a1a1a] leading-snug"
-              style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+              className="text-[14px] font-medium uppercase tracking-[0.02em] text-[var(--foreground)] leading-snug"
+             
             >
               {productName}
             </span>
@@ -121,19 +121,19 @@ export function PDPStickyDrawer({
             <div className="flex items-center gap-2 mt-0.5">
               {formattedPrice && (
                 <span
-                  className="text-[12px] font-medium text-[#1a1a1a]/70"
-                  style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+                  className="text-[12px] font-medium text-[var(--foreground)]/70"
+                 
                 >
                   {formattedPrice}
                 </span>
               )}
               {variantName && formattedPrice && (
-                <span className="text-[#1a1a1a]/30">•</span>
+                <span className="text-[var(--foreground)]/30">•</span>
               )}
               {variantName && (
                 <span
-                  className="text-[11px] uppercase tracking-[0.02em] text-[#1a1a1a]/60 truncate"
-                  style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+                  className="text-[11px] uppercase tracking-[0.02em] text-[var(--foreground)]/60 truncate"
+                 
                 >
                   {variantName}
                 </span>
@@ -149,17 +149,17 @@ export function PDPStickyDrawer({
           rel={ctaNewTab ? 'noopener noreferrer' : undefined}
           className={cn(
             'flex-shrink-0 flex items-center justify-center px-6',
-            'bg-[#1a1a1a]',
-            'active:bg-[#bbdae9]',
+            'bg-[var(--foreground)]',
+            'active:bg-[var(--primary)]',
             'transition-colors duration-200',
             'group/cta'
           )}
           style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
         >
           <span
-            className="text-[12px] font-semibold uppercase tracking-[0.02em] whitespace-nowrap group-active/cta:text-[#1a1a1a]"
+            className="text-[12px] font-semibold uppercase tracking-[0.02em] whitespace-nowrap group-active/cta:text-[var(--foreground)]"
             style={{
-              fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+              
               color: '#ffffff',
             }}
           >
@@ -170,7 +170,7 @@ export function PDPStickyDrawer({
 
       {/* Desktop Layout: Thumbnail + Info + CTA */}
       <div
-        className="hidden lg:flex w-full items-center justify-between px-6 py-4 bg-[#f2f2f2]"
+        className="hidden lg:flex w-full items-center justify-between px-6 py-4 bg-[var(--background)]"
         style={{ borderTop: '0.25px solid #999999' }}
       >
         {/* Left side - Thumbnail + Product info - clickable to scroll to top */}
@@ -196,16 +196,16 @@ export function PDPStickyDrawer({
           <div className="flex flex-col min-w-0">
             {/* Product Title */}
             <span
-              className="text-[19px] font-medium uppercase tracking-[0.02em] text-[#1a1a1a] truncate leading-tight"
-              style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+              className="text-[19px] font-medium uppercase tracking-[0.02em] text-[var(--foreground)] truncate leading-tight"
+             
             >
               {productName}
             </span>
             {/* Variant info */}
             {variantName && (
               <span
-                className="text-[16px] uppercase tracking-[0.02em] text-[#1a1a1a] leading-tight mt-0.5"
-                style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+                className="text-[16px] uppercase tracking-[0.02em] text-[var(--foreground)] leading-tight mt-0.5"
+               
               >
                 {variantName}
               </span>
@@ -220,16 +220,16 @@ export function PDPStickyDrawer({
           rel={ctaNewTab ? 'noopener noreferrer' : undefined}
           className={cn(
             'flex items-center justify-center px-8 py-4',
-            'bg-[#1a1a1a]',
-            'hover:bg-[#bbdae9]',
+            'bg-[var(--foreground)]',
+            'hover:bg-[var(--primary)]',
             'transition-colors duration-200',
             'group/cta'
           )}
         >
           <span
-            className="text-[13px] font-medium uppercase tracking-[0.04em] group-hover/cta:text-[#1a1a1a]"
+            className="text-[13px] font-medium uppercase tracking-[0.04em] group-hover/cta:text-[var(--foreground)]"
             style={{
-              fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+              
               color: '#ffffff',
             }}
           >
@@ -244,7 +244,7 @@ export function PDPStickyDrawer({
     <div
       className={cn(
         'fixed left-0 right-0 bottom-0 z-[9999]',
-        'bg-[#f2f2f2] shadow-[0_-4px_20px_rgba(0,0,0,0.15)]',
+        'bg-[var(--background)] shadow-[0_-4px_20px_rgba(0,0,0,0.15)]',
         'transition-transform duration-300 ease-out',
         isVisible ? 'translate-y-0' : 'translate-y-full'
       )}

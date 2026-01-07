@@ -38,8 +38,8 @@ const sizeClasses: Record<MarqueeSize, string> = {
 // Theme presets
 const themeStyles: Record<MarqueeTheme, { bg: string; text: string }> = {
   dark: { bg: '#000000', text: '#ffffff' },
-  light: { bg: '#ffffff', text: '#1a1a1a' },
-  'baby-blue': { bg: 'var(--primary)', text: '#1a1a1a' },
+  light: { bg: '#ffffff', text: 'var(--foreground)' },
+  'baby-blue': { bg: 'var(--primary)', text: 'var(--foreground)' },
 };
 
 export function MarqueeBar({

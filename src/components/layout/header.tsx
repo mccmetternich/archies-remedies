@@ -85,7 +85,7 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
 
       <header
         className={cn(
-          'lg:fixed left-0 right-0 lg:z-50 bg-[#f2f2f2] shadow-[0_2px_8px_rgba(0,0,0,0.18)] py-2 md:py-3',
+          'lg:fixed left-0 right-0 lg:z-50 bg-[var(--background)] shadow-[0_2px_8px_rgba(0,0,0,0.18)] py-2 md:py-3',
           showBumper ? 'lg:top-[33px]' : 'lg:top-0'
         )}
       >
@@ -142,9 +142,9 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
               logoPosition === 'center' ? '' : 'ml-12'
             )}>
               {/* Shop Dropdown - CSS hover based (no React state) */}
-              <div className="relative group/shop inline-flex">
+              <div className="relative group/shop inline-flex items-center">
                 <button
-                  className="flex items-center gap-2 text-[13px] font-bold uppercase tracking-[0.04em] transition-colors py-3 text-[#1a1a1a] group-hover/shop:text-[#737373]" style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+                  className="flex items-center gap-2 text-[13px] font-bold uppercase tracking-[0.04em] transition-colors text-[var(--foreground)] group-hover/shop:text-[var(--muted-foreground)]"
                 >
                   Shop
                   <ChevronDown
@@ -167,7 +167,7 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                   style={{ top: showBumper ? '109px' : '72px' }}
                 >
 
-                  <div className="relative z-50 w-full bg-[#f2f2f2] shadow-[0_4px_16px_rgba(0,0,0,0.12)] overflow-visible">
+                  <div className="relative z-50 w-full bg-[var(--background)] shadow-[0_4px_16px_rgba(0,0,0,0.12)] overflow-visible">
                     {/* Shelf container with generous padding - pb-[30px] for whitespace below tiles */}
                     <div className="container pt-8 pb-[30px] overflow-visible">
                       {/* Content grid - spacer between product tiles and marketing tile grows with viewport */}
@@ -239,7 +239,7 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                                     <span
                                       className="absolute top-3 right-3 text-sm px-3 py-1.5 rounded-full font-medium flex items-center gap-1.5"
                                       style={{
-                                        backgroundColor: globalNav?.tile1BadgeBgColor || '#1a1a1a',
+                                        backgroundColor: globalNav?.tile1BadgeBgColor || 'var(--foreground)',
                                         color: globalNav?.tile1BadgeTextColor || '#ffffff'
                                       }}
                                     >
@@ -329,8 +329,8 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                                     <span
                                       className="absolute top-3 right-3 text-sm px-3 py-1.5 rounded-full font-medium flex items-center gap-1.5"
                                       style={{
-                                        backgroundColor: globalNav?.tile2BadgeBgColor || '#bbdae9',
-                                        color: globalNav?.tile2BadgeTextColor || '#1a1a1a'
+                                        backgroundColor: globalNav?.tile2BadgeBgColor || 'var(--primary)',
+                                        color: globalNav?.tile2BadgeTextColor || 'var(--foreground)'
                                       }}
                                     >
                                       {globalNav.tile2BadgeEmoji} {globalNav.tile2Badge}
@@ -446,7 +446,7 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                 <Link
                   key={page.id}
                   href={`/${page.slug}`}
-                  className="text-[13px] font-bold uppercase tracking-[0.04em] text-[#1a1a1a] hover:text-[#737373] transition-colors py-3" style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+                  className="text-[13px] font-bold uppercase tracking-[0.04em] text-[var(--foreground)] hover:text-[var(--muted-foreground)] transition-colors"
                 >
                   {page.title}
                 </Link>
@@ -456,7 +456,7 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
               {desktopNavPages.length === 0 && (
                 <Link
                   href="/our-story"
-                  className="text-[13px] font-bold uppercase tracking-[0.04em] text-[#1a1a1a] hover:text-[#737373] transition-colors py-3" style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+                  className="text-[13px] font-bold uppercase tracking-[0.04em] text-[var(--foreground)] hover:text-[var(--muted-foreground)] transition-colors"
                 >
                   Our Story
                 </Link>

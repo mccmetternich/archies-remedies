@@ -151,7 +151,7 @@ export function AudioPlayer({ audioUrl, avatarUrl, title, quote }: AudioPlayerPr
             className="relative flex-shrink-0 w-[72px] h-[72px] group"
           >
             {/* Avatar Image */}
-            <div className="w-full h-full overflow-hidden bg-[#bbdae9]/30">
+            <div className="w-full h-full overflow-hidden bg-[var(--primary)]/30">
               {avatarUrl ? (
                 <Image
                   src={avatarUrl}
@@ -160,7 +160,7 @@ export function AudioPlayer({ audioUrl, avatarUrl, title, quote }: AudioPlayerPr
                   className="object-cover"
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#bbdae9] to-[#8ec4db]">
+                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[var(--primary)] to-[#8ec4db]">
                   <svg
                     viewBox="0 0 24 24"
                     className="w-8 h-8 text-white"
@@ -177,7 +177,7 @@ export function AudioPlayer({ audioUrl, avatarUrl, title, quote }: AudioPlayerPr
             <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors duration-200">
               {showPulse ? (
                 <motion.div
-                  className="w-8 h-8 rounded-full bg-[#1a1a1a] flex items-center justify-center"
+                  className="w-8 h-8 rounded-full bg-[var(--foreground)] flex items-center justify-center"
                   animate={{
                     scale: [1, 1.25, 1],
                     opacity: [0.8, 1, 0.8]
@@ -191,7 +191,7 @@ export function AudioPlayer({ audioUrl, avatarUrl, title, quote }: AudioPlayerPr
                   <Play className="w-4 h-4 text-white ml-0.5" fill="currentColor" />
                 </motion.div>
               ) : (
-                <div className="w-8 h-8 rounded-full bg-[#1a1a1a] flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
+                <div className="w-8 h-8 rounded-full bg-[var(--foreground)] flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
                   {isPlaying ? (
                     <Pause className="w-4 h-4 text-white" fill="currentColor" />
                   ) : (
@@ -207,21 +207,21 @@ export function AudioPlayer({ audioUrl, avatarUrl, title, quote }: AudioPlayerPr
             {/* Verified Customer + Timestamp on same line */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1">
-                <div className="w-3 h-3 rounded-full bg-[#bbdae9] flex items-center justify-center flex-shrink-0">
-                  <Check className="w-2 h-2 text-[#1a1a1a]" strokeWidth={3} />
+                <div className="w-3 h-3 rounded-full bg-[var(--primary)] flex items-center justify-center flex-shrink-0">
+                  <Check className="w-2 h-2 text-[var(--foreground)]" strokeWidth={3} />
                 </div>
-                <span className="text-[9px] font-medium uppercase tracking-wide text-[#1a1a1a]/50">
+                <span className="text-[9px] font-medium uppercase tracking-wide text-[var(--foreground)]/50">
                   Verified Customer
                 </span>
               </div>
-              <span className="text-[10px] font-medium text-[#1a1a1a]/40 tabular-nums">
+              <span className="text-[10px] font-medium text-[var(--foreground)]/40 tabular-nums">
                 {formatTime(currentTime)} / {formatTime(effectiveDuration)}
               </span>
             </div>
 
             {/* Title Row */}
             {title && (
-              <p className="text-[12px] font-medium text-[#1a1a1a]/70 truncate leading-tight mt-0.5">
+              <p className="text-[12px] font-medium text-[var(--foreground)]/70 truncate leading-tight mt-0.5">
                 {title}
               </p>
             )}
@@ -244,7 +244,7 @@ export function AudioPlayer({ audioUrl, avatarUrl, title, quote }: AudioPlayerPr
                     key={i}
                     className={cn(
                       'flex-1 rounded-[0.5px] transition-colors duration-100',
-                      isActive ? 'bg-[#bbdae9]' : 'bg-[#1a1a1a]/10 group-hover:bg-[#1a1a1a]/15'
+                      isActive ? 'bg-[var(--primary)]' : 'bg-[var(--foreground)]/10 group-hover:bg-[var(--foreground)]/15'
                     )}
                     style={{ height: `${height * 100}%` }}
                   />
@@ -256,9 +256,9 @@ export function AudioPlayer({ audioUrl, avatarUrl, title, quote }: AudioPlayerPr
 
         {/* Quote Capsule - Full width, spans entire container */}
         {quote && (
-          <div className="mt-2 w-full px-3 py-1.5 bg-[#bbdae9]/30 border border-[#bbdae9]/40 rounded-full">
+          <div className="mt-2 w-full px-3 py-1.5 bg-[var(--primary)]/30 border border-[var(--primary)]/40 rounded-full">
             <p
-              className="text-[#1a1a1a]/70 text-left leading-tight italic"
+              className="text-[var(--foreground)]/70 text-left leading-tight italic"
               style={{ fontSize: '12.5px' }}
             >
               {quote}

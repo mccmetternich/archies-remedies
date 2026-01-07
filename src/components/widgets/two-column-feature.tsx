@@ -80,40 +80,40 @@ const themeStyles: Record<
   }
 > = {
   blue: {
-    bg: 'bg-[#bbdae9]',
-    titleColor: '#1a1a1a',
-    textColor: '#1a1a1a',
-    trayBg: '#1a1a1a',
-    labelBg: '#1a1a1a',
+    bg: 'bg-[var(--primary)]',
+    titleColor: 'var(--foreground)',
+    textColor: 'var(--foreground)',
+    trayBg: 'var(--foreground)',
+    labelBg: 'var(--foreground)',
     labelText: '#ffffff',
-    ctaBg: '#1a1a1a',
+    ctaBg: 'var(--foreground)',
     ctaText: '#ffffff',
     ctaHoverBg: '#333333',
-    starColor: '#1a1a1a',
+    starColor: 'var(--foreground)',
   },
   dark: {
-    bg: 'bg-[#1a1a1a]',
+    bg: 'bg-[var(--foreground)]',
     titleColor: '#ffffff',
     textColor: 'rgba(255,255,255,0.85)',
-    trayBg: '#bbdae9',
-    labelBg: '#bbdae9',
-    labelText: '#1a1a1a',
+    trayBg: 'var(--primary)',
+    labelBg: 'var(--primary)',
+    labelText: 'var(--foreground)',
     ctaBg: '#ffffff',
-    ctaText: '#1a1a1a',
+    ctaText: 'var(--foreground)',
     ctaHoverBg: '#f0f0f0',
     starColor: '#ffffff',
   },
   cream: {
     bg: 'bg-[#f5f1eb]',
-    titleColor: '#1a1a1a',
+    titleColor: 'var(--foreground)',
     textColor: '#333333',
-    trayBg: '#bbdae9',
-    labelBg: '#bbdae9',
-    labelText: '#1a1a1a',
-    ctaBg: '#1a1a1a',
+    trayBg: 'var(--primary)',
+    labelBg: 'var(--primary)',
+    labelText: 'var(--foreground)',
+    ctaBg: 'var(--foreground)',
     ctaText: '#ffffff',
     ctaHoverBg: '#333333',
-    starColor: '#1a1a1a',
+    starColor: 'var(--foreground)',
   },
 };
 
@@ -242,7 +242,7 @@ function BeforeAfterMedia({
         <div className="py-3 md:py-4 text-center">
           <span
             className="text-[11px] md:text-[13px] font-bold uppercase tracking-[0.04em]"
-            style={{ color: labelText, fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+            style={{ color: labelText }}
           >
             {beforeLabel}
           </span>
@@ -264,7 +264,7 @@ function BeforeAfterMedia({
         <div className="py-3 md:py-4 text-center">
           <span
             className="text-[11px] md:text-[13px] font-bold uppercase tracking-[0.04em]"
-            style={{ color: labelText, fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+            style={{ color: labelText }}
           >
             {afterLabel}
           </span>
@@ -418,7 +418,7 @@ export function TwoColumnFeature({
                     className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-medium leading-[1.1] mb-6"
                     style={{
                       color: styles.titleColor,
-                      fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+                      
                     }}
                   >
                     {title}
@@ -429,7 +429,7 @@ export function TwoColumnFeature({
                     className="text-base lg:text-lg leading-relaxed max-w-lg"
                     style={{
                       color: styles.textColor,
-                      fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+                      
                       marginLeft: textAlignment === 'center' ? 'auto' : undefined,
                       marginRight: textAlignment === 'center' || textAlignment === 'left' ? 'auto' : undefined,
                     }}
@@ -449,7 +449,7 @@ export function TwoColumnFeature({
                     className="text-2xl md:text-3xl lg:text-4xl font-bold leading-tight"
                     style={{
                       color: styles.titleColor,
-                      fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+                      
                     }}
                   >
                     {point}
@@ -474,7 +474,7 @@ export function TwoColumnFeature({
                   style={{
                     backgroundColor: styles.ctaBg,
                     color: styles.ctaText,
-                    fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+                    
                   }}
                   onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = styles.ctaHoverBg)}
                   onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = styles.ctaBg)}
@@ -548,7 +548,7 @@ export function TwoColumnFeature({
                     className="text-2xl font-medium leading-tight mb-3"
                     style={{
                       color: styles.titleColor,
-                      fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+                      
                     }}
                   >
                     {title}
@@ -559,7 +559,7 @@ export function TwoColumnFeature({
                     className="text-sm leading-relaxed"
                     style={{
                       color: styles.textColor,
-                      fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+                      
                     }}
                   >
                     {body}
@@ -577,7 +577,7 @@ export function TwoColumnFeature({
                     className="text-xl font-bold leading-tight"
                     style={{
                       color: styles.titleColor,
-                      fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+                      
                     }}
                   >
                     {point}
@@ -602,7 +602,7 @@ export function TwoColumnFeature({
                   style={{
                     backgroundColor: styles.ctaBg,
                     color: styles.ctaText,
-                    fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+                    
                   }}
                 >
                   {ctaText}

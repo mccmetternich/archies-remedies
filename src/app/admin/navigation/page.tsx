@@ -271,7 +271,7 @@ export default function NavigationPage() {
     tile1Subtitle: null,
     tile1Badge: null,
     tile1BadgeEmoji: null,
-    tile1BadgeBgColor: '#1a1a1a',
+    tile1BadgeBgColor: 'var(--foreground)',
     tile1BadgeTextColor: '#ffffff',
     tile1ImageUrl: null,
     tile1HoverImageUrl: null,
@@ -280,8 +280,8 @@ export default function NavigationPage() {
     tile2Subtitle: null,
     tile2Badge: null,
     tile2BadgeEmoji: null,
-    tile2BadgeBgColor: '#bbdae9',
-    tile2BadgeTextColor: '#1a1a1a',
+    tile2BadgeBgColor: 'var(--primary)',
+    tile2BadgeTextColor: 'var(--foreground)',
     tile2ImageUrl: null,
     tile2HoverImageUrl: null,
     marketingTileTitle: 'Clean Formulas',
@@ -443,7 +443,7 @@ export default function NavigationPage() {
         tile1Subtitle: data.globalNav.tile1Subtitle || null,
         tile1Badge: data.globalNav.tile1Badge || null,
         tile1BadgeEmoji: data.globalNav.tile1BadgeEmoji || null,
-        tile1BadgeBgColor: data.globalNav.tile1BadgeBgColor || '#1a1a1a',
+        tile1BadgeBgColor: data.globalNav.tile1BadgeBgColor || 'var(--foreground)',
         tile1BadgeTextColor: data.globalNav.tile1BadgeTextColor || '#ffffff',
         tile1ImageUrl: data.globalNav.tile1ImageUrl || null,
         tile1HoverImageUrl: data.globalNav.tile1HoverImageUrl || null,
@@ -452,8 +452,8 @@ export default function NavigationPage() {
         tile2Subtitle: data.globalNav.tile2Subtitle || null,
         tile2Badge: data.globalNav.tile2Badge || null,
         tile2BadgeEmoji: data.globalNav.tile2BadgeEmoji || null,
-        tile2BadgeBgColor: data.globalNav.tile2BadgeBgColor || '#bbdae9',
-        tile2BadgeTextColor: data.globalNav.tile2BadgeTextColor || '#1a1a1a',
+        tile2BadgeBgColor: data.globalNav.tile2BadgeBgColor || 'var(--primary)',
+        tile2BadgeTextColor: data.globalNav.tile2BadgeTextColor || 'var(--foreground)',
         tile2ImageUrl: data.globalNav.tile2ImageUrl || null,
         tile2HoverImageUrl: data.globalNav.tile2HoverImageUrl || null,
         marketingTileTitle: data.globalNav.marketingTileTitle || data.globalNav.cleanFormulasTitle || 'Clean Formulas',
@@ -1204,7 +1204,7 @@ export default function NavigationPage() {
                               type="text"
                               value={globalNavSettings.tile1BadgeBgColor}
                               onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, tile1BadgeBgColor: e.target.value })}
-                              placeholder="#1a1a1a"
+                              placeholder="var(--foreground)"
                               className="flex-1 px-3 py-2 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors font-mono text-xs"
                             />
                           </div>
@@ -1265,7 +1265,7 @@ export default function NavigationPage() {
                   <label className="hidden lg:block text-sm font-medium text-[var(--admin-text-secondary)] mb-3">Live Preview</label>
                   <div className="p-5 rounded-2xl bg-white border border-[var(--admin-border)] hover:shadow-md transition-all duration-300 group/tile1">
                     <div className="relative mb-4">
-                      <div className="aspect-square w-full rounded-xl overflow-hidden bg-[#f5f5f0] relative">
+                      <div className="aspect-square w-full rounded-xl overflow-hidden bg-[var(--cream)] relative">
                         {(() => {
                           const primaryUrl = globalNavSettings.tile1ImageUrl || getProductById(globalNavSettings.tile1ProductId)?.heroImageUrl;
                           const hoverUrl = globalNavSettings.tile1HoverImageUrl;
@@ -1339,18 +1339,18 @@ export default function NavigationPage() {
                       )}
                     </div>
                     <div className="flex items-center gap-2 mb-1.5">
-                      <span className="text-sm text-[#1a1a1a] font-medium">{(getProductById(globalNavSettings.tile1ProductId)?.reviewCount || 2900).toLocaleString()}+</span>
+                      <span className="text-sm text-[var(--foreground)] font-medium">{(getProductById(globalNavSettings.tile1ProductId)?.reviewCount || 2900).toLocaleString()}+</span>
                       <div className="flex gap-0.5">
                         {[1,2,3,4,5].map(i => (
                           <Star key={i} className="w-3.5 h-3.5 fill-[#7CB4B8] text-[#7CB4B8]" />
                         ))}
                       </div>
-                      <span className="text-xs text-[#737373]">Verified Reviews</span>
+                      <span className="text-xs text-[var(--muted-foreground)]">Verified Reviews</span>
                     </div>
-                    <h4 className="text-lg font-medium mb-1 text-[#1a1a1a] group-hover/tile1:text-[#737373] transition-colors">
+                    <h4 className="text-lg font-medium mb-1 text-[var(--foreground)] group-hover/tile1:text-[var(--muted-foreground)] transition-colors">
                       {globalNavSettings.tile1Title || getProductById(globalNavSettings.tile1ProductId)?.name || 'Product Name'}
                     </h4>
-                    <p className="text-sm text-[#737373]">
+                    <p className="text-sm text-[var(--muted-foreground)]">
                       {globalNavSettings.tile1Subtitle || getProductById(globalNavSettings.tile1ProductId)?.shortDescription || 'Product description'}
                     </p>
                   </div>
@@ -1460,7 +1460,7 @@ export default function NavigationPage() {
                               type="text"
                               value={globalNavSettings.tile2BadgeBgColor}
                               onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, tile2BadgeBgColor: e.target.value })}
-                              placeholder="#bbdae9"
+                              placeholder="var(--primary)"
                               className="flex-1 px-3 py-2 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors font-mono text-xs"
                             />
                           </div>
@@ -1478,7 +1478,7 @@ export default function NavigationPage() {
                               type="text"
                               value={globalNavSettings.tile2BadgeTextColor}
                               onChange={(e) => setGlobalNavSettings({ ...globalNavSettings, tile2BadgeTextColor: e.target.value })}
-                              placeholder="#1a1a1a"
+                              placeholder="var(--foreground)"
                               className="flex-1 px-3 py-2 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors font-mono text-xs"
                             />
                           </div>
@@ -1521,7 +1521,7 @@ export default function NavigationPage() {
                   <label className="hidden lg:block text-sm font-medium text-[var(--admin-text-secondary)] mb-3">Live Preview</label>
                   <div className="p-5 rounded-2xl bg-white border border-[var(--admin-border)] hover:shadow-md transition-all duration-300 group/tile2">
                     <div className="relative mb-4">
-                      <div className="aspect-square w-full rounded-xl overflow-hidden bg-[#f5f5f0] relative">
+                      <div className="aspect-square w-full rounded-xl overflow-hidden bg-[var(--cream)] relative">
                         {(() => {
                           const primaryUrl = globalNavSettings.tile2ImageUrl || getProductById(globalNavSettings.tile2ProductId)?.heroImageUrl;
                           const hoverUrl = globalNavSettings.tile2HoverImageUrl;
@@ -1595,18 +1595,18 @@ export default function NavigationPage() {
                       )}
                     </div>
                     <div className="flex items-center gap-2 mb-1.5">
-                      <span className="text-sm text-[#1a1a1a] font-medium">{(getProductById(globalNavSettings.tile2ProductId)?.reviewCount || 2900).toLocaleString()}+</span>
+                      <span className="text-sm text-[var(--foreground)] font-medium">{(getProductById(globalNavSettings.tile2ProductId)?.reviewCount || 2900).toLocaleString()}+</span>
                       <div className="flex gap-0.5">
                         {[1,2,3,4,5].map(i => (
                           <Star key={i} className="w-3.5 h-3.5 fill-[#7CB4B8] text-[#7CB4B8]" />
                         ))}
                       </div>
-                      <span className="text-xs text-[#737373]">Verified Reviews</span>
+                      <span className="text-xs text-[var(--muted-foreground)]">Verified Reviews</span>
                     </div>
-                    <h4 className="text-lg font-medium mb-1 text-[#1a1a1a] group-hover/tile2:text-[#737373] transition-colors">
+                    <h4 className="text-lg font-medium mb-1 text-[var(--foreground)] group-hover/tile2:text-[var(--muted-foreground)] transition-colors">
                       {globalNavSettings.tile2Title || getProductById(globalNavSettings.tile2ProductId)?.name || 'Product Name'}
                     </h4>
-                    <p className="text-sm text-[#737373]">
+                    <p className="text-sm text-[var(--muted-foreground)]">
                       {globalNavSettings.tile2Subtitle || getProductById(globalNavSettings.tile2ProductId)?.shortDescription || 'Product description'}
                     </p>
                   </div>
@@ -2319,7 +2319,7 @@ export default function NavigationPage() {
                   )}
                 >
                   <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 rounded-lg bg-[#1a1a1a] flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-lg bg-[var(--foreground)] flex items-center justify-center">
                       <Moon className="w-5 h-5 text-white" />
                     </div>
                     <div className="text-left">
@@ -2327,7 +2327,7 @@ export default function NavigationPage() {
                       <p className="text-xs text-[var(--admin-text-muted)]">Dark background, light text</p>
                     </div>
                   </div>
-                  <div className="h-16 rounded-lg bg-[#1a1a1a] flex items-center justify-center">
+                  <div className="h-16 rounded-lg bg-[var(--foreground)] flex items-center justify-center">
                     <span className="text-xs text-white/60">Preview</span>
                   </div>
                 </button>
@@ -2430,7 +2430,7 @@ export default function NavigationPage() {
                 </div>
                 {/* Opacity Preview */}
                 {fullWidthLogoUrl && (
-                  <div className="mt-4 p-4 bg-[#1a1a1a] rounded-lg overflow-hidden">
+                  <div className="mt-4 p-4 bg-[var(--foreground)] rounded-lg overflow-hidden">
                     <p className="text-xs text-white/50 mb-2">Preview (dark background)</p>
                     <img
                       src={fullWidthLogoUrl}
@@ -2515,7 +2515,7 @@ export default function NavigationPage() {
           {/* Theme Preview */}
           <div className={cn(
             'rounded-xl p-8',
-            footerTheme === 'dark' ? 'bg-[#1a1a1a]' : 'bg-gray-100'
+            footerTheme === 'dark' ? 'bg-[var(--foreground)]' : 'bg-gray-100'
           )}>
             <p className={cn(
               'text-xs uppercase tracking-wider mb-6',
@@ -2634,7 +2634,7 @@ export default function NavigationPage() {
           {/* Preview */}
           <div className={cn(
             'rounded-xl p-8',
-            footerTheme === 'dark' ? 'bg-[#1a1a1a]' : 'bg-gray-100'
+            footerTheme === 'dark' ? 'bg-[var(--foreground)]' : 'bg-gray-100'
           )}>
             <p className={cn(
               'text-xs uppercase tracking-wider mb-6',
@@ -2935,7 +2935,7 @@ export default function NavigationPage() {
           {/* Preview */}
           <div className={cn(
             'rounded-xl p-8',
-            footerTheme === 'dark' ? 'bg-[#1a1a1a]' : 'bg-gray-100'
+            footerTheme === 'dark' ? 'bg-[var(--foreground)]' : 'bg-gray-100'
           )}>
             <p className={cn(
               'text-xs uppercase tracking-wider mb-6',

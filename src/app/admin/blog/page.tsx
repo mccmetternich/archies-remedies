@@ -193,7 +193,7 @@ export default function BlogAdminPage() {
           {/* New Blog Post - always visible with hex blue */}
           <Link
             href="/admin/blog/new"
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#bad9ea] text-[#1a1a1a] rounded-lg font-medium hover:bg-[#a5cce0] transition-colors"
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#bad9ea] text-[var(--foreground)] rounded-lg font-medium hover:bg-[#a5cce0] transition-colors"
           >
             <Plus className="w-4 h-4" />
             New Blog Post

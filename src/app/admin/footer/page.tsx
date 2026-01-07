@@ -473,7 +473,7 @@ export default function FooterAdminPage() {
                   )}
                 >
                   <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 rounded-lg bg-[#1a1a1a] flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-lg bg-[var(--foreground)] flex items-center justify-center">
                       <Moon className="w-5 h-5 text-white" />
                     </div>
                     <div className="text-left">
@@ -481,7 +481,7 @@ export default function FooterAdminPage() {
                       <p className="text-xs text-[var(--admin-text-muted)]">Dark background, light text</p>
                     </div>
                   </div>
-                  <div className="h-16 rounded-lg bg-[#1a1a1a] flex items-center justify-center">
+                  <div className="h-16 rounded-lg bg-[var(--foreground)] flex items-center justify-center">
                     <span className="text-xs text-white/60">Preview</span>
                   </div>
                 </button>
@@ -646,7 +646,7 @@ export default function FooterAdminPage() {
           {/* Full Footer Preview */}
           <div className={cn(
             'rounded-xl overflow-hidden',
-            footerTheme === 'dark' ? 'bg-[#1a1a1a]' : 'bg-gray-50'
+            footerTheme === 'dark' ? 'bg-[var(--foreground)]' : 'bg-gray-50'
           )}>
             <p className={cn(
               'text-xs uppercase tracking-wider px-6 pt-4',
@@ -884,7 +884,7 @@ export default function FooterAdminPage() {
           {/* Preview */}
           <div className={cn(
             'rounded-xl p-8',
-            footerTheme === 'dark' ? 'bg-[#1a1a1a]' : 'bg-gray-100'
+            footerTheme === 'dark' ? 'bg-[var(--foreground)]' : 'bg-gray-100'
           )}>
             <p className={cn(
               'text-xs uppercase tracking-wider mb-6',
@@ -1205,7 +1205,7 @@ export default function FooterAdminPage() {
           {/* Preview */}
           <div className={cn(
             'rounded-xl p-8',
-            footerTheme === 'dark' ? 'bg-[#1a1a1a]' : 'bg-gray-100'
+            footerTheme === 'dark' ? 'bg-[var(--foreground)]' : 'bg-gray-100'
           )}>
             <p className={cn(
               'text-xs uppercase tracking-wider mb-6',

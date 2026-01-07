@@ -72,7 +72,7 @@ export const TestimonialCard = memo(function TestimonialCard({
               className={cn(
                 'font-semibold',
                 isMobile
-                  ? 'text-sm text-[#1a1a1a]'
+                  ? 'text-sm text-[var(--foreground)]'
                   : 'text-base text-[var(--foreground)]'
               )}
             >
@@ -85,7 +85,7 @@ export const TestimonialCard = memo(function TestimonialCard({
                   className={cn(
                     'w-4 h-4',
                     isMobile
-                      ? 'fill-[#bbdae9] text-[#bbdae9]'
+                      ? 'fill-[var(--primary)] text-[var(--primary)]'
                       : 'fill-[var(--primary)] text-[var(--primary)]'
                   )}
                 />
@@ -98,7 +98,7 @@ export const TestimonialCard = memo(function TestimonialCard({
             className={cn(
               'leading-snug line-clamp-2',
               isMobile
-                ? 'text-[13px] text-[#1a1a1a]/70'
+                ? 'text-[13px] text-[var(--foreground)]/70'
                 : 'text-base text-[var(--muted-foreground)]'
             )}
           >

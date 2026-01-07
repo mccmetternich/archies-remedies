@@ -577,7 +577,7 @@ function ProductTileEditor({
                         type="text"
                         value={badgeBgColor}
                         onChange={(e) => onBadgeBgColorChange(e.target.value)}
-                        placeholder="#1a1a1a"
+                        placeholder="var(--foreground)"
                         className="flex-1 px-3 py-2 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors font-mono text-xs"
                       />
                     </div>
@@ -637,7 +637,7 @@ function ProductTileEditor({
             <label className="hidden lg:block text-sm font-medium text-[var(--admin-text-secondary)] mb-3">Live Preview</label>
             <div className={`p-5 rounded-2xl bg-white border border-[var(--admin-border)] hover:shadow-md transition-all duration-300 ${groupClass}`}>
               <div className="relative mb-4">
-                <div className="aspect-square w-full rounded-xl overflow-hidden bg-[#f5f5f0] relative">
+                <div className="aspect-square w-full rounded-xl overflow-hidden bg-[var(--cream)] relative">
                   {(() => {
                     const primaryUrl = imageUrl || getProductById(productId)?.heroImageUrl;
                     const hoverUrl = hoverImageUrl;
@@ -709,18 +709,18 @@ function ProductTileEditor({
                 )}
               </div>
               <div className="flex items-center gap-2 mb-1.5">
-                <span className="text-sm text-[#1a1a1a] font-medium">{(getProductById(productId)?.reviewCount || 2900).toLocaleString()}+</span>
+                <span className="text-sm text-[var(--foreground)] font-medium">{(getProductById(productId)?.reviewCount || 2900).toLocaleString()}+</span>
                 <div className="flex gap-0.5">
                   {[1,2,3,4,5].map(i => (
                     <Star key={i} className="w-3.5 h-3.5 fill-[#7CB4B8] text-[#7CB4B8]" />
                   ))}
                 </div>
-                <span className="text-xs text-[#737373]">Verified Reviews</span>
+                <span className="text-xs text-[var(--muted-foreground)]">Verified Reviews</span>
               </div>
-              <h4 className={`text-lg font-medium mb-1 text-[#1a1a1a] group-hover/tile${tileNumber}:text-[#737373] transition-colors`}>
+              <h4 className={`text-lg font-medium mb-1 text-[var(--foreground)] group-hover/tile${tileNumber}:text-[var(--muted-foreground)] transition-colors`}>
                 {tileTitle || getProductById(productId)?.name || 'Product Name'}
               </h4>
-              <p className="text-sm text-[#737373]">
+              <p className="text-sm text-[var(--muted-foreground)]">
                 {subtitle || getProductById(productId)?.shortDescription || 'Product description'}
               </p>
             </div>

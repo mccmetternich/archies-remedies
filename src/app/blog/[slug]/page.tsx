@@ -191,22 +191,22 @@ function getColumnColors(bgColor: string | null) {
     case 'white':
       return {
         bg: 'bg-white',
-        text: 'text-[#1a1a1a]',
-        textMuted: 'text-[#1a1a1a]/60',
-        dateMuted: 'text-[#1a1a1a]/40', // Lighter than textMuted
-        border: 'border-[#1a1a1a]/20',
-        tagBg: 'bg-[#1a1a1a]/10',
-        tagText: 'text-[#1a1a1a]',
-        shareIcon: 'text-[#1a1a1a]',
-        shareHover: 'hover:text-[#1a1a1a]/70',
+        text: 'text-[var(--foreground)]',
+        textMuted: 'text-[var(--foreground)]/60',
+        dateMuted: 'text-[var(--foreground)]/40', // Lighter than textMuted
+        border: 'border-[var(--foreground)]/20',
+        tagBg: 'bg-[var(--foreground)]/10',
+        tagText: 'text-[var(--foreground)]',
+        shareIcon: 'text-[var(--foreground)]',
+        shareHover: 'hover:text-[var(--foreground)]/70',
         // Nav arrows: outline only
-        navBorder: 'border border-[#1a1a1a]/30',
-        navText: 'text-[#1a1a1a]/70',
-        navHover: 'hover:border-[#1a1a1a] hover:text-[#1a1a1a]',
+        navBorder: 'border border-[var(--foreground)]/30',
+        navText: 'text-[var(--foreground)]/70',
+        navHover: 'hover:border-[var(--foreground)] hover:text-[var(--foreground)]',
       };
     case 'black':
       return {
-        bg: 'bg-[#1a1a1a]',
+        bg: 'bg-[var(--foreground)]',
         text: 'text-white',
         textMuted: 'text-white/60',
         dateMuted: 'text-white/40', // Lighter than textMuted
@@ -224,18 +224,18 @@ function getColumnColors(bgColor: string | null) {
     default:
       return {
         bg: 'bg-[#bad9ea]',
-        text: 'text-[#1a1a1a]',
-        textMuted: 'text-[#1a1a1a]/60',
-        dateMuted: 'text-[#1a1a1a]/40', // Lighter than textMuted
-        border: 'border-[#1a1a1a]/20',
-        tagBg: 'bg-[#1a1a1a]/10',
-        tagText: 'text-[#1a1a1a]',
-        shareIcon: 'text-[#1a1a1a]',
-        shareHover: 'hover:text-[#1a1a1a]/70',
+        text: 'text-[var(--foreground)]',
+        textMuted: 'text-[var(--foreground)]/60',
+        dateMuted: 'text-[var(--foreground)]/40', // Lighter than textMuted
+        border: 'border-[var(--foreground)]/20',
+        tagBg: 'bg-[var(--foreground)]/10',
+        tagText: 'text-[var(--foreground)]',
+        shareIcon: 'text-[var(--foreground)]',
+        shareHover: 'hover:text-[var(--foreground)]/70',
         // Nav arrows: outline only
-        navBorder: 'border border-[#1a1a1a]/30',
-        navText: 'text-[#1a1a1a]/70',
-        navHover: 'hover:border-[#1a1a1a] hover:text-[#1a1a1a]',
+        navBorder: 'border border-[var(--foreground)]/30',
+        navText: 'text-[var(--foreground)]/70',
+        navHover: 'hover:border-[var(--foreground)] hover:text-[var(--foreground)]',
       };
   }
 }
@@ -335,7 +335,7 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
                 <Link
                   href="/blog"
                   className={`${colors.textMuted} inline-flex items-center gap-2 text-sm hover:underline px-3 py-2 -ml-3 transition-colors`}
-                  style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+                 
                 >
                   <ArrowLeft className="w-4 h-4" />
                   Back to Journal
@@ -346,7 +346,7 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
                   {post.publishedAt && (
                     <span
                       className={`text-sm ${colors.dateMuted}`}
-                      style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+                     
                     >
                       {formatEditorialDate(post.publishedAt)}
                     </span>
@@ -379,7 +379,7 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
                 <div className={`text-center ${hasTitleThumbnail ? 'mb-6' : 'mb-4'} w-2/3 mx-auto`}>
                   <h1
                     className={`blog-header text-[clamp(2rem,5vw,3.5rem)] leading-[0.88] ${colors.text} line-clamp-4`}
-                    style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+                   
                   >
                     {post.title}
                   </h1>
@@ -411,7 +411,7 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
                 {post.excerpt && (
                   <p
                     className={`blog-body text-center text-xl leading-relaxed ${colors.textMuted} max-w-lg mx-auto ${hasTitleThumbnail ? '' : 'mt-4'} line-clamp-3`}
-                    style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+                   
                   >
                     {post.excerpt}
                   </p>
@@ -427,7 +427,7 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
                       <span
                         key={tag.id}
                         className={`px-5 py-2.5 ${colors.tagBg} ${colors.tagText} text-sm font-medium uppercase tracking-wider`}
-                        style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+                       
                       >
                         {tag.name}
                       </span>
@@ -469,7 +469,7 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
                   <span className={`text-sm ${colors.textMuted}`}>|</span>
                   <span
                     className={`text-sm ${colors.textMuted}`}
-                    style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+                   
                   >
                     {post.readingTime || 5} min read
                   </span>
@@ -517,7 +517,7 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
                     </span>
                   </div>
                 )}
-                <div style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}>
+                <div>
                   <p className="blog-meta text-xs opacity-50">Written by</p>
                   <p className="blog-meta text-sm">{authorName}</p>
                 </div>
@@ -538,7 +538,7 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
             <div className="max-w-7xl mx-auto">
               <h2
                 className="blog-header blog-header-md text-center mb-12"
-                style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+               
               >
                 More from the Journal
               </h2>
@@ -557,7 +557,7 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
                         className="transform transition-transform duration-[400ms] ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:scale-[1.02]"
                       />
                     </div>
-                    <div className="mt-6" style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}>
+                    <div className="mt-6">
                       <h3 className="blog-header blog-header-sm transition-colors duration-[400ms] ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:text-[var(--blog-accent)]">
                         {relatedPost.title}
                       </h3>

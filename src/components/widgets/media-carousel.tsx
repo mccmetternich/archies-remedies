@@ -357,14 +357,14 @@ export function MediaCarousel({ items, className }: MediaCarouselProps) {
               className={cn(
                 'absolute left-0 top-1/2 -translate-y-1/2 z-20',
                 'w-12 h-12 rounded-full',
-                'bg-[#bbdae9] hover:bg-[#a8cdd9]',
+                'bg-[var(--primary)] hover:bg-[#a8cdd9]',
                 'flex items-center justify-center',
                 'transition-colors duration-200',
                 'shadow-lg'
               )}
               aria-label="Previous"
             >
-              <ChevronLeft className="w-6 h-6 text-[#1a1a1a]" />
+              <ChevronLeft className="w-6 h-6 text-[var(--foreground)]" />
             </button>
           )}
 
@@ -375,7 +375,7 @@ export function MediaCarousel({ items, className }: MediaCarouselProps) {
               className={cn(
                 'absolute top-1/2 -translate-y-1/2 z-20',
                 'w-12 h-12 rounded-full',
-                'bg-[#bbdae9] hover:bg-[#a8cdd9]',
+                'bg-[var(--primary)] hover:bg-[#a8cdd9]',
                 'flex items-center justify-center',
                 'transition-colors duration-200',
                 'shadow-lg'
@@ -385,7 +385,7 @@ export function MediaCarousel({ items, className }: MediaCarouselProps) {
               }}
               aria-label="Next"
             >
-              <ChevronRight className="w-6 h-6 text-[#1a1a1a]" />
+              <ChevronRight className="w-6 h-6 text-[var(--foreground)]" />
             </button>
           )}
         </>

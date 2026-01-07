@@ -110,7 +110,7 @@ export function EmailSignupSection({
                       className={cn(
                         'px-3 flex items-center justify-center transition-colors',
                         subscribeContactType === 'email'
-                          ? 'bg-[#bbdae9] text-black'
+                          ? 'bg-[var(--primary)] text-black'
                           : 'bg-white/10 text-white/70 hover:text-white hover:bg-white/20'
                       )}
                       title="Email"
@@ -123,7 +123,7 @@ export function EmailSignupSection({
                       className={cn(
                         'px-3 flex items-center justify-center transition-colors border-r border-white/20',
                         subscribeContactType === 'phone'
-                          ? 'bg-[#bbdae9] text-black'
+                          ? 'bg-[var(--primary)] text-black'
                           : 'bg-white/10 text-white/70 hover:text-white hover:bg-white/20'
                       )}
                       title="Phone"
@@ -144,7 +144,7 @@ export function EmailSignupSection({
                   <button
                     type="submit"
                     disabled={status === 'loading'}
-                    className="px-6 bg-white text-black font-semibold text-[11px] uppercase tracking-[0.1em] hover:bg-[#bbdae9] transition-colors disabled:opacity-50 flex items-center gap-2"
+                    className="px-6 bg-white text-black font-semibold text-[11px] uppercase tracking-[0.1em] hover:bg-[var(--primary)] transition-colors disabled:opacity-50 flex items-center gap-2"
                   >
                     {status === 'loading' ? (
                       <span className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
@@ -211,7 +211,7 @@ export function EmailSignupSection({
                       className={cn(
                         'px-4 flex items-center justify-center transition-colors',
                         subscribeContactType === 'email'
-                          ? 'bg-[#bbdae9] text-black'
+                          ? 'bg-[var(--primary)] text-black'
                           : 'bg-white/10 text-white/70 hover:text-white hover:bg-white/20'
                       )}
                       title="Email"
@@ -224,7 +224,7 @@ export function EmailSignupSection({
                       className={cn(
                         'px-4 flex items-center justify-center transition-colors border-r border-white/20',
                         subscribeContactType === 'phone'
-                          ? 'bg-[#bbdae9] text-black'
+                          ? 'bg-[var(--primary)] text-black'
                           : 'bg-white/10 text-white/70 hover:text-white hover:bg-white/20'
                       )}
                       title="Phone"
@@ -245,7 +245,7 @@ export function EmailSignupSection({
                   <button
                     type="submit"
                     disabled={status === 'loading'}
-                    className="w-[52px] flex-shrink-0 bg-white text-black hover:bg-[#bbdae9] transition-colors disabled:opacity-50 flex items-center justify-center"
+                    className="w-[52px] flex-shrink-0 bg-white text-black hover:bg-[var(--primary)] transition-colors disabled:opacity-50 flex items-center justify-center"
                   >
                     {status === 'loading' ? (
                       <span className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />

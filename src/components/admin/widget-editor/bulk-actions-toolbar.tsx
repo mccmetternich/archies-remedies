@@ -57,9 +57,9 @@ export function BulkActionsToolbar({
           className
         )}
       >
-        <div className="bg-[#1a1a1a] text-white rounded-2xl shadow-2xl border border-gray-700 px-3 py-3 flex flex-col items-center gap-2">
+        <div className="bg-[var(--foreground)] text-white rounded-2xl shadow-2xl border border-gray-700 px-3 py-3 flex flex-col items-center gap-2">
           {/* Selection count badge */}
-          <div className="w-8 h-8 rounded-full bg-[var(--primary)] text-[#1a1a1a] flex items-center justify-center text-sm font-bold">
+          <div className="w-8 h-8 rounded-full bg-[var(--primary)] text-[var(--foreground)] flex items-center justify-center text-sm font-bold">
             {selectedCount}
           </div>
 

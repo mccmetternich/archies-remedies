@@ -23,7 +23,7 @@ interface BlogTag {
 }
 
 const PRESET_COLORS = [
-  '#bbdae9', // Primary
+  'var(--primary)', // Primary
   '#ef4444', // Red
   '#f97316', // Orange
   '#eab308', // Yellow
@@ -38,7 +38,7 @@ export default function BlogTagsPage() {
   const [tags, setTags] = useState<BlogTag[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingTag, setEditingTag] = useState<BlogTag | null>(null);
-  const [newTag, setNewTag] = useState({ name: '', description: '', color: '#bbdae9' });
+  const [newTag, setNewTag] = useState({ name: '', description: '', color: 'var(--primary)' });
   const [showNewForm, setShowNewForm] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -70,7 +70,7 @@ export default function BlogTagsPage() {
       });
       const created = await res.json();
       setTags([...tags, created]);
-      setNewTag({ name: '', description: '', color: '#bbdae9' });
+      setNewTag({ name: '', description: '', color: 'var(--primary)' });
       setShowNewForm(false);
     } catch (error) {
       console.error('Failed to create tag:', error);
@@ -188,7 +188,7 @@ export default function BlogTagsPage() {
               <button
                 onClick={() => {
                   setShowNewForm(false);
-                  setNewTag({ name: '', description: '', color: '#bbdae9' });
+                  setNewTag({ name: '', description: '', color: 'var(--primary)' });
                 }}
                 className="px-4 py-2 text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)] transition-colors"
               >
@@ -276,7 +276,7 @@ export default function BlogTagsPage() {
                     <div className="flex items-center gap-4">
                       <span
                         className="w-4 h-4 rounded-full shrink-0"
-                        style={{ backgroundColor: tag.color || '#bbdae9' }}
+                        style={{ backgroundColor: tag.color || 'var(--primary)' }}
                       />
                       <div>
                         <p className="font-medium text-[var(--admin-text-primary)]">{tag.name}</p>

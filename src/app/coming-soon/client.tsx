@@ -161,11 +161,11 @@ export function ComingSoonClient({
         }
       `}</style>
 
-      <div className="min-h-screen bg-gradient-to-br from-[#f5f0eb] via-white to-[#bbdae9]/20 flex items-start md:items-center justify-center px-5 pt-[15vh] md:pt-0 md:py-8 overflow-x-hidden">
+      <div className="min-h-screen bg-gradient-to-br from-[#f5f0eb] via-white to-[var(--primary)]/20 flex items-start md:items-center justify-center px-5 pt-[15vh] md:pt-0 md:py-8 overflow-x-hidden">
         {/* Background decorative elements - contained within viewport */}
         <div className="fixed inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-1/4 -left-24 w-64 h-64 md:w-96 md:h-96 bg-[#bbdae9]/20 rounded-full blur-3xl" />
-          <div className="absolute bottom-1/4 -right-24 w-64 h-64 md:w-96 md:h-96 bg-[#bbdae9]/15 rounded-full blur-3xl" />
+          <div className="absolute top-1/4 -left-24 w-64 h-64 md:w-96 md:h-96 bg-[var(--primary)]/20 rounded-full blur-3xl" />
+          <div className="absolute bottom-1/4 -right-24 w-64 h-64 md:w-96 md:h-96 bg-[var(--primary)]/15 rounded-full blur-3xl" />
         </div>
 
         <div className="relative max-w-md md:max-w-xl w-full text-center">
@@ -196,8 +196,8 @@ export function ComingSoonClient({
                 />
               </div>
             ) : (
-              <div className="inline-flex items-center gap-3 px-5 py-2.5 bg-white rounded-full shadow-sm border border-[#e5e5e5]">
-                <Sparkles className="w-4 h-4 text-[#bbdae9]" />
+              <div className="inline-flex items-center gap-3 px-5 py-2.5 bg-white rounded-full shadow-sm border border-[var(--border)]">
+                <Sparkles className="w-4 h-4 text-[var(--primary)]" />
                 <span className="text-base font-medium tracking-tight">{siteName}</span>
               </div>
             )}
@@ -217,9 +217,9 @@ export function ComingSoonClient({
                 >
                   {/* Title with checkmark */}
                   <div className="flex items-center justify-center gap-3 mb-5">
-                    <div className="w-11 h-11 md:w-14 md:h-14 bg-[#bbdae9] rounded-full flex items-center justify-center flex-shrink-0">
+                    <div className="w-11 h-11 md:w-14 md:h-14 bg-[var(--primary)] rounded-full flex items-center justify-center flex-shrink-0">
                       <svg
-                        className="w-5 h-5 md:w-7 md:h-7 text-[#1a1a1a]"
+                        className="w-5 h-5 md:w-7 md:h-7 text-[var(--foreground)]"
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
@@ -245,7 +245,7 @@ export function ComingSoonClient({
                         href={instagramUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-[#bbdae9] flex items-center justify-center text-[#1a1a1a] active:bg-[#a8d0e0] transition-colors"
+                        className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-[var(--primary)] flex items-center justify-center text-[var(--foreground)] active:bg-[#a8d0e0] transition-colors"
                       >
                         <Instagram className="w-5 h-5 md:w-6 md:h-6" />
                       </a>
@@ -255,7 +255,7 @@ export function ComingSoonClient({
                         href={facebookUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-white border border-[#e5e5e5] flex items-center justify-center text-gray-600 active:border-[#bbdae9] transition-colors"
+                        className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-white border border-[var(--border)] flex items-center justify-center text-gray-600 active:border-[var(--primary)] transition-colors"
                       >
                         <svg className="w-5 h-5 md:w-6 md:h-6" fill="currentColor" viewBox="0 0 24 24">
                           <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
@@ -286,7 +286,7 @@ export function ComingSoonClient({
                     {/* Mobile: stacked input and button */}
                     <div className="relative">
                       {/* Dropdown selector */}
-                      <div className="absolute left-3 top-1/2 -translate-y-1/2 z-10 md:top-[26px] md:-translate-y-1/2">
+                      <div className="absolute left-3 top-1/2 -translate-y-1/2 z-10">
                         <button
                           type="button"
                           onClick={() => setShowDropdown(!showDropdown)}
@@ -313,7 +313,7 @@ export function ComingSoonClient({
                                 type="button"
                                 onClick={() => toggleContactType('phone')}
                                 className={`w-full flex items-center gap-2 px-4 py-2.5 text-sm text-left active:bg-gray-50 md:hover:bg-gray-50 transition-colors ${
-                                  contactType === 'phone' ? 'text-[#1a1a1a] font-medium' : 'text-gray-600'
+                                  contactType === 'phone' ? 'text-[var(--foreground)] font-medium' : 'text-gray-600'
                                 }`}
                               >
                                 <Phone className="w-4 h-4" />
@@ -323,7 +323,7 @@ export function ComingSoonClient({
                                 type="button"
                                 onClick={() => toggleContactType('email')}
                                 className={`w-full flex items-center gap-2 px-4 py-2.5 text-sm text-left active:bg-gray-50 md:hover:bg-gray-50 transition-colors ${
-                                  contactType === 'email' ? 'text-[#1a1a1a] font-medium' : 'text-gray-600'
+                                  contactType === 'email' ? 'text-[var(--foreground)] font-medium' : 'text-gray-600'
                                 }`}
                               >
                                 <Mail className="w-4 h-4" />
@@ -344,8 +344,8 @@ export function ComingSoonClient({
                         placeholder={contactType === 'email' ? 'Enter your email' : 'Enter Phone #'}
                         required
                         autoComplete={contactType === 'email' ? 'email' : 'tel'}
-                        className={`w-full pl-14 pr-4 py-4 md:pl-16 md:pr-36 md:py-5 text-base md:text-lg rounded-full border bg-white shadow-sm transition-colors outline-none ${
-                          validationError ? 'border-[#bbdae9]' : 'border-gray-200 focus:border-[#bbdae9]'
+                        className={`w-full pl-[72px] pr-4 py-4 md:pl-16 md:pr-36 md:py-5 text-base md:text-lg rounded-full border bg-white shadow-sm transition-colors ${
+                          validationError ? 'border-[var(--primary)]' : 'border-gray-200'
                         }`}
                         style={{ fontSize: '16px' }}
                       />
@@ -354,7 +354,7 @@ export function ComingSoonClient({
                       <button
                         type="submit"
                         disabled={status === 'loading'}
-                        className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 px-6 py-3 bg-[#1a1a1a] text-white rounded-full font-medium transition-all items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#bbdae9] hover:text-[#1a1a1a] group"
+                        className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 px-6 py-3 bg-[var(--foreground)] text-white rounded-full font-medium transition-all items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[var(--primary)] hover:text-[var(--foreground)] group"
                       >
                         {status === 'loading' ? (
                           <Loader2 className="w-5 h-5 animate-spin" />
@@ -371,7 +371,7 @@ export function ComingSoonClient({
                     <button
                       type="submit"
                       disabled={status === 'loading'}
-                      className="md:hidden w-full mt-3 py-4 bg-[#1a1a1a] text-white rounded-full font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-50 active:bg-[#bbdae9] active:text-[#1a1a1a]"
+                      className="md:hidden w-full mt-3 py-4 bg-[var(--foreground)] text-white rounded-full font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-50 active:bg-[var(--primary)] active:text-[var(--foreground)]"
                     >
                       {status === 'loading' ? (
                         <Loader2 className="w-5 h-5 animate-spin" />
@@ -393,7 +393,7 @@ export function ComingSoonClient({
                           transition={{ duration: 0.15 }}
                           className="mt-3 flex justify-center"
                         >
-                          <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#bbdae9]/20 border border-[#bbdae9]/40 rounded-full">
+                          <div className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--primary)]/20 border border-[var(--primary)]/40 rounded-full">
                             <svg className="w-4 h-4 text-[#7ab8d4] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
@@ -412,26 +412,26 @@ export function ComingSoonClient({
                       <div className="flex flex-wrap justify-center gap-4 md:gap-6 text-xs md:text-sm text-gray-500">
                         {callout1 && (
                           <span className="flex items-center gap-2">
-                            <span className="w-1.5 h-1.5 md:w-2 md:h-2 bg-[#bbdae9] rounded-full" />
+                            <span className="w-1.5 h-1.5 md:w-2 md:h-2 bg-[var(--primary)] rounded-full" />
                             {callout1}
                           </span>
                         )}
                         {callout2 && (
                           <span className="flex items-center gap-2">
-                            <span className="w-1.5 h-1.5 md:w-2 md:h-2 bg-[#bbdae9] rounded-full" />
+                            <span className="w-1.5 h-1.5 md:w-2 md:h-2 bg-[var(--primary)] rounded-full" />
                             {callout2}
                           </span>
                         )}
                         {callout3 && (
                           <span className="flex items-center gap-2">
-                            <span className="w-1.5 h-1.5 md:w-2 md:h-2 bg-[#bbdae9] rounded-full" />
+                            <span className="w-1.5 h-1.5 md:w-2 md:h-2 bg-[var(--primary)] rounded-full" />
                             {callout3}
                           </span>
                         )}
                       </div>
                     ) : (
                       <div className="flex justify-center">
-                        <div className="inline-flex items-center gap-2 px-4 py-2 md:px-5 md:py-2.5 bg-[#bbdae9]/40 border border-[#bbdae9]/50 rounded-full animate-gentle-glow">
+                        <div className="inline-flex items-center gap-2 px-4 py-2 md:px-5 md:py-2.5 bg-[var(--primary)]/40 border border-[var(--primary)]/50 rounded-full animate-gentle-glow">
                           <span className="text-sm md:text-base">✨</span>
                           <span className="text-xs md:text-sm text-gray-600 font-medium whitespace-nowrap">
                             {brandQuip}
@@ -457,7 +457,7 @@ export function ComingSoonClient({
         {/* Team Access Badge - Bottom right cog */}
         <Link
           href="/team-access"
-          className="fixed bottom-4 right-4 z-50 w-10 h-10 md:w-12 md:h-12 bg-white/90 backdrop-blur-sm border border-gray-200 rounded-full shadow-lg flex items-center justify-center text-gray-400 hover:text-[#1a1a1a] hover:border-[#bbdae9] hover:bg-white transition-all duration-200 group"
+          className="fixed bottom-4 right-4 z-50 w-10 h-10 md:w-12 md:h-12 bg-white/90 backdrop-blur-sm border border-gray-200 rounded-full shadow-lg flex items-center justify-center text-gray-400 hover:text-[var(--foreground)] hover:border-[var(--primary)] hover:bg-white transition-all duration-200 group"
           aria-label="Team Access"
         >
           <Settings className="w-5 h-5 md:w-6 md:h-6 transition-transform duration-300 group-hover:rotate-90" />

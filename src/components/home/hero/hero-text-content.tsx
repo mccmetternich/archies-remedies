@@ -164,7 +164,7 @@ export function MobileTextContent({
   return (
     <div className="flex flex-col">
       {/* Title */}
-      <h1 className="!text-[24px] !font-bold uppercase leading-tight tracking-tight text-[#1a1a1a]">
+      <h1 className="!text-[24px] !font-bold uppercase leading-tight tracking-tight text-[var(--foreground)]">
         {title || 'Instant Relief, Clean Formula'}
       </h1>
 
@@ -172,12 +172,12 @@ export function MobileTextContent({
       <div className="flex items-center gap-2 mt-3">
         <div className="flex gap-0.5">
           {[1, 2, 3, 4, 5].map((i) => (
-            <Star key={i} className="w-5 h-5 fill-[#bbdae9] text-[#bbdae9]" />
+            <Star key={i} className="w-5 h-5 fill-[var(--primary)] text-[var(--primary)]" />
           ))}
         </div>
-        <span className="text-[13px] text-[#1a1a1a] font-normal inline-flex items-center gap-1">
+        <span className="text-[13px] text-[var(--foreground)] font-normal inline-flex items-center gap-1">
           2,500+
-          <span className="w-4 h-4 rounded-full bg-[#1a1a1a] flex items-center justify-center">
+          <span className="w-4 h-4 rounded-full bg-[var(--foreground)] flex items-center justify-center">
             <Check className="w-2.5 h-2.5 text-white stroke-[4]" />
           </span>
           Verified Reviews
@@ -185,7 +185,7 @@ export function MobileTextContent({
       </div>
 
       {/* Body copy - natural height */}
-      <p className="text-[15px] text-[#1a1a1a]/70 leading-relaxed mt-3">
+      <p className="text-[15px] text-[var(--foreground)]/70 leading-relaxed mt-3">
         {subtitle || 'Preservative-free eye drops crafted for sensitive eyes.'}
       </p>
 
@@ -193,8 +193,7 @@ export function MobileTextContent({
       {buttonUrl && (
         <Link
           href={buttonUrl}
-          className="group flex items-center justify-center gap-2 w-full py-[18px] mt-5 text-xs font-medium uppercase tracking-wide transition-all duration-300"
-          style={{ backgroundColor: '#1a1a1a', color: '#ffffff' }}
+          className="hero-btn-dark group flex items-center justify-center gap-2 w-full py-[18px] mt-5 text-xs font-medium uppercase tracking-wide transition-all duration-300"
         >
           {buttonText || 'Shop Now'}
           <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />

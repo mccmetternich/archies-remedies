@@ -75,11 +75,11 @@ function TeamAccessContent() {
         }
       `}</style>
 
-      <div className="min-h-screen bg-gradient-to-br from-[#f5f0eb] via-white to-[#bbdae9]/20 flex items-start md:items-center justify-center px-5 pt-[15vh] md:pt-0 md:py-8 overflow-x-hidden">
+      <div className="min-h-screen bg-gradient-to-br from-[#f5f0eb] via-white to-[var(--primary)]/20 flex items-start md:items-center justify-center px-5 pt-[15vh] md:pt-0 md:py-8 overflow-x-hidden">
         {/* Background decorative elements */}
         <div className="fixed inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-1/4 -left-24 w-64 h-64 md:w-96 md:h-96 bg-[#bbdae9]/20 rounded-full blur-3xl" />
-          <div className="absolute bottom-1/4 -right-24 w-64 h-64 md:w-96 md:h-96 bg-[#bbdae9]/15 rounded-full blur-3xl" />
+          <div className="absolute top-1/4 -left-24 w-64 h-64 md:w-96 md:h-96 bg-[var(--primary)]/20 rounded-full blur-3xl" />
+          <div className="absolute bottom-1/4 -right-24 w-64 h-64 md:w-96 md:h-96 bg-[var(--primary)]/15 rounded-full blur-3xl" />
         </div>
 
         <div className="relative max-w-md w-full text-center">
@@ -110,8 +110,8 @@ function TeamAccessContent() {
                 />
               </div>
             ) : (
-              <div className="inline-flex items-center gap-3 px-5 py-2.5 bg-white rounded-full shadow-sm border border-[#e5e5e5]">
-                <Users className="w-4 h-4 text-[#bbdae9]" />
+              <div className="inline-flex items-center gap-3 px-5 py-2.5 bg-white rounded-full shadow-sm border border-[var(--border)]">
+                <Users className="w-4 h-4 text-[var(--primary)]" />
                 <span className="text-base font-medium tracking-tight">Archie's Remedies</span>
               </div>
             )}
@@ -129,9 +129,9 @@ function TeamAccessContent() {
                 className="text-center"
               >
                 <div className="flex items-center justify-center gap-3 mb-5">
-                  <div className="w-11 h-11 md:w-14 md:h-14 bg-[#bbdae9] rounded-full flex items-center justify-center flex-shrink-0">
+                  <div className="w-11 h-11 md:w-14 md:h-14 bg-[var(--primary)] rounded-full flex items-center justify-center flex-shrink-0">
                     <svg
-                      className="w-5 h-5 md:w-7 md:h-7 text-[#1a1a1a]"
+                      className="w-5 h-5 md:w-7 md:h-7 text-[var(--foreground)]"
                       viewBox="0 0 24 24"
                       fill="none"
                       stroke="currentColor"
@@ -143,13 +143,13 @@ function TeamAccessContent() {
                     </svg>
                   </div>
                   <h1 className="text-3xl md:text-4xl font-normal tracking-tight whitespace-nowrap">
-                    Welcome Back
+                    Oh hey, Anthony
                   </h1>
                 </div>
                 <p className="text-lg text-gray-600 mb-6">
                   Redirecting you now...
                 </p>
-                <Loader2 className="w-6 h-6 animate-spin text-[#bbdae9] mx-auto" />
+                <Loader2 className="w-6 h-6 animate-spin text-[var(--primary)] mx-auto" />
               </motion.div>
             ) : (
               <motion.div
@@ -160,14 +160,11 @@ function TeamAccessContent() {
                 transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
               >
                 {/* Team Access badge */}
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#bbdae9]/30 border border-[#bbdae9]/50 rounded-full mb-6">
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--primary)]/30 border border-[var(--primary)]/50 rounded-full mb-6">
                   <Lock className="w-4 h-4 text-[#7ab8d4]" />
                   <span className="text-sm font-medium text-gray-700">Team Access</span>
                 </div>
 
-                <h1 className="text-3xl md:text-4xl font-normal tracking-tight mb-3 whitespace-nowrap">
-                  Welcome, Team
-                </h1>
                 <p className="text-base md:text-lg text-gray-600 mb-8 leading-relaxed px-2">
                   Sign in to preview and navigate the site before launch.
                 </p>
@@ -186,7 +183,7 @@ function TeamAccessContent() {
                       placeholder="Username"
                       required
                       autoComplete="username"
-                      className="w-full px-5 py-4 text-base rounded-full border border-gray-200 bg-white shadow-sm transition-colors outline-none focus:border-[#bbdae9] placeholder:text-gray-400"
+                      className="w-full px-5 py-4 text-base rounded-full border border-gray-200 bg-white shadow-sm transition-colors placeholder:text-gray-400"
                       style={{ fontSize: '16px' }}
                     />
                   </div>
@@ -203,7 +200,7 @@ function TeamAccessContent() {
                       placeholder="Password"
                       required
                       autoComplete="current-password"
-                      className="w-full px-5 py-4 pr-14 text-base rounded-full border border-gray-200 bg-white shadow-sm transition-colors outline-none focus:border-[#bbdae9] placeholder:text-gray-400"
+                      className="w-full px-5 py-4 pr-14 text-base rounded-full border border-gray-200 bg-white shadow-sm transition-colors placeholder:text-gray-400"
                       style={{ fontSize: '16px' }}
                     />
                     <button
@@ -243,7 +240,7 @@ function TeamAccessContent() {
                   <button
                     type="submit"
                     disabled={status === 'loading' || !username || !password}
-                    className="w-full py-4 bg-[#1a1a1a] text-white rounded-full font-medium transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#bbdae9] hover:text-[#1a1a1a] active:bg-[#bbdae9] active:text-[#1a1a1a] group"
+                    className="w-full py-4 bg-[var(--foreground)] text-white rounded-full font-medium transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[var(--primary)] hover:text-[var(--foreground)] active:bg-[var(--primary)] active:text-[var(--foreground)] group"
                   >
                     {status === 'loading' ? (
                       <Loader2 className="w-5 h-5 animate-spin" />
@@ -272,8 +269,8 @@ function TeamAccessContent() {
 // Loading fallback for suspense
 function TeamAccessLoading() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#f5f0eb] via-white to-[#bbdae9]/20 flex items-center justify-center">
-      <Loader2 className="w-8 h-8 animate-spin text-[#bbdae9]" />
+    <div className="min-h-screen bg-gradient-to-br from-[#f5f0eb] via-white to-[var(--primary)]/20 flex items-center justify-center">
+      <Loader2 className="w-8 h-8 animate-spin text-[var(--primary)]" />
     </div>
   );
 }

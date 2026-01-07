@@ -54,8 +54,8 @@ export const MobileMenu = memo(function MobileMenu({
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed top-0 right-0 h-full w-[85vw] max-w-[400px] z-[61] bg-[#f2f2f2] shadow-2xl lg:hidden"
-            style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+            className="fixed top-0 right-0 h-full w-[85vw] max-w-[400px] z-[61] bg-[var(--background)] shadow-2xl lg:hidden"
+           
           >
             <div className="flex flex-col h-full">
               {/* Close button - aligned with content edge */}
@@ -70,8 +70,8 @@ export const MobileMenu = memo(function MobileMenu({
                 <nav className="space-y-4">
                   {/* Shop Section Header - Inter font, dark gray */}
                   <h3
-                    className="font-semibold tracking-[0.15em] uppercase text-[#666666]"
-                    style={{ fontSize: '22px', fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}
+                    className="font-semibold tracking-[0.15em] uppercase text-[var(--muted-foreground)]"
+                    style={{ fontSize: '22px' }}
                   >
                     Shop
                   </h3>
@@ -120,7 +120,7 @@ export const MobileMenu = memo(function MobileMenu({
                             onClick={onClose}
                             className="flex items-center justify-between py-3 px-3 hover:text-[var(--muted-foreground)] transition-colors"
                           >
-                            <span className="text-[14px] font-medium uppercase tracking-tight" style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}>{page.title}</span>
+                            <span className="text-[14px] font-medium uppercase tracking-tight">{page.title}</span>
                             <ArrowRight className="w-4 h-4" />
                           </Link>
                           {/* Bottom border */}

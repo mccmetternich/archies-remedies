@@ -300,7 +300,7 @@ export function BlogPostsList({
                 className="px-3 py-1.5 rounded-full text-sm font-medium"
                 style={{
                   backgroundColor: `${tag.color}20`,
-                  color: tag.color || '#bbdae9',
+                  color: tag.color || 'var(--primary)',
                 }}
               >
                 {tag.name}

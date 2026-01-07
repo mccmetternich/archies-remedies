@@ -45,15 +45,15 @@ const themeStyles: Record<
   }
 > = {
   blue: {
-    bg: 'bg-[#bbdae9]',
-    titleColor: '#1a1a1a',
-    textColor: '#1a1a1a',
+    bg: 'bg-[var(--primary)]',
+    titleColor: 'var(--foreground)',
+    textColor: 'var(--foreground)',
     mutedColor: '#333333',
-    linkColorHex: '#1a1a1a',
+    linkColorHex: 'var(--foreground)',
     linkHoverHex: '#333333',
   },
   dark: {
-    bg: 'bg-[#1a1a1a]',
+    bg: 'bg-[var(--foreground)]',
     titleColor: '#ffffff',
     textColor: '#ffffff',
     mutedColor: 'rgba(255,255,255,0.85)',
@@ -62,10 +62,10 @@ const themeStyles: Record<
   },
   cream: {
     bg: 'bg-[#f5f1eb]',
-    titleColor: '#1a1a1a',
-    textColor: '#1a1a1a',
+    titleColor: 'var(--foreground)',
+    textColor: 'var(--foreground)',
     mutedColor: '#333333',
-    linkColorHex: '#1a1a1a',
+    linkColorHex: 'var(--foreground)',
     linkHoverHex: '#333333',
   },
 };
@@ -101,7 +101,7 @@ export function IconHighlights({
           <h2
             className="text-center uppercase mb-10 md:mb-12"
             style={{
-              fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+              
               fontSize: '14px',
               fontWeight: 700,
               letterSpacing: '0.04em',
@@ -133,7 +133,7 @@ export function IconHighlights({
                 <h3
                   className="uppercase mb-2"
                   style={{
-                    fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+                    
                     fontSize: '11px',
                     fontWeight: 700,
                     letterSpacing: '0.04em',
@@ -149,7 +149,7 @@ export function IconHighlights({
                 <p
                   className="text-[13px] md:text-sm leading-relaxed max-w-[260px]"
                   style={{
-                    fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+                    
                     color: styles.mutedColor,
                   }}
                 >
@@ -167,7 +167,7 @@ export function IconHighlights({
               href={linkUrl}
               className="group inline-flex items-center gap-2 uppercase transition-colors"
               style={{
-                fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+                
                 fontSize: '11px',
                 fontWeight: 700,
                 letterSpacing: '0.04em',

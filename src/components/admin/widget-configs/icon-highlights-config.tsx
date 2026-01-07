@@ -102,9 +102,9 @@ export function IconHighlightsConfig({
                 style={{
                   backgroundColor:
                     option.value === 'blue'
-                      ? '#bbdae9'
+                      ? 'var(--primary)'
                       : option.value === 'dark'
-                        ? '#1a1a1a'
+                        ? 'var(--foreground)'
                         : '#f5f1eb',
                   border: option.value === 'cream' ? '1px solid #e5e5e5' : undefined,
                 }}

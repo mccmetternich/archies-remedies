@@ -304,7 +304,7 @@ export default function BlogPostEditorPage({ params }: { params: Promise<{ id: s
       const res = await fetch('/api/admin/blog/tags', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, slug, color: '#bbdae9' }),
+        body: JSON.stringify({ name, slug, color: 'var(--primary)' }),
       });
       if (res.ok) {
         const newTag = await res.json();
@@ -527,9 +527,9 @@ export default function BlogPostEditorPage({ params }: { params: Promise<{ id: s
             </label>
             <div className="flex gap-2">
               {[
-                { value: 'blue', label: 'Blue', bg: 'bg-[#bad9ea]', text: 'text-[#1a1a1a]' },
-                { value: 'white', label: 'White', bg: 'bg-white', text: 'text-[#1a1a1a]' },
-                { value: 'black', label: 'Black', bg: 'bg-[#1a1a1a]', text: 'text-white' },
+                { value: 'blue', label: 'Blue', bg: 'bg-[#bad9ea]', text: 'text-[var(--foreground)]' },
+                { value: 'white', label: 'White', bg: 'bg-white', text: 'text-[var(--foreground)]' },
+                { value: 'black', label: 'Black', bg: 'bg-[var(--foreground)]', text: 'text-white' },
               ].map((option) => (
                 <button
                   key={option.value}
@@ -774,7 +774,7 @@ export default function BlogPostEditorPage({ params }: { params: Promise<{ id: s
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium"
                     style={{
                       backgroundColor: `${tag.color}20`,
-                      color: tag.color || '#bbdae9',
+                      color: tag.color || 'var(--primary)',
                     }}
                   >
                     {tag.name}
@@ -837,7 +837,7 @@ export default function BlogPostEditorPage({ params }: { params: Promise<{ id: s
                           <div className="flex items-center gap-2">
                             <span
                               className="w-3 h-3 rounded-full"
-                              style={{ backgroundColor: tag.color || '#bbdae9' }}
+                              style={{ backgroundColor: tag.color || 'var(--primary)' }}
                             />
                             <span className="text-sm text-[var(--admin-text-primary)]">{tag.name}</span>
                           </div>

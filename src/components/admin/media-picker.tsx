@@ -245,7 +245,7 @@ export function MediaPickerButton({
     }
   };
 
-  // Compact mode - just a button for avatar uploads
+  // Compact mode - smaller buttons for inline usage
   if (compact) {
     return (
       <div className="space-y-1">
@@ -260,18 +260,28 @@ export function MediaPickerButton({
           className="hidden"
         />
 
-        <button
-          onClick={() => fileInputRef.current?.click()}
-          disabled={uploading}
-          className="flex items-center gap-2 px-3 py-1.5 bg-[var(--admin-input)] text-[var(--admin-text-secondary)] rounded-lg text-xs hover:bg-[var(--admin-hover)] transition-colors disabled:opacity-50 border border-[var(--admin-border-light)]"
-        >
-          {uploading ? (
-            <Loader2 className="w-3 h-3 animate-spin" />
-          ) : (
-            <Upload className="w-3 h-3" />
-          )}
-          {buttonText || 'Upload'}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploading}
+            className="flex items-center gap-2 px-3 py-1.5 bg-[var(--admin-input)] text-[var(--admin-text-secondary)] rounded-lg text-xs hover:bg-[var(--admin-hover)] transition-colors disabled:opacity-50 border border-[var(--admin-border-light)]"
+          >
+            {uploading ? (
+              <Loader2 className="w-3 h-3 animate-spin" />
+            ) : (
+              <Upload className="w-3 h-3" />
+            )}
+            {buttonText || 'Upload'}
+          </button>
+
+          <button
+            onClick={() => setShowModal(true)}
+            className="flex items-center gap-2 px-3 py-1.5 bg-[var(--primary)] text-[var(--admin-button-text)] rounded-lg text-xs font-medium hover:bg-[var(--primary-dark)] transition-colors"
+          >
+            <FolderOpen className="w-3 h-3" />
+            Browse Library
+          </button>
+        </div>
 
         {/* Upload Status Messages */}
         {uploadError && (
