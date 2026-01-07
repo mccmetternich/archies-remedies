@@ -33,6 +33,7 @@ export interface HeroSlideData {
 export interface HeroSlideProps {
   slide: HeroSlideData;
   currentIndex: number;
+  showTextGradient?: boolean;
 }
 
 /**
@@ -40,7 +41,7 @@ export interface HeroSlideProps {
  * Desktop: Overlay text content on full background.
  * Mobile: Stacked layout with media on top, content below.
  */
-export function FullWidthSlide({ slide, currentIndex }: HeroSlideProps) {
+export function FullWidthSlide({ slide, currentIndex, showTextGradient }: HeroSlideProps) {
   const isLightText = slide.textColor === 'light';
 
   return (
@@ -56,6 +57,7 @@ export function FullWidthSlide({ slide, currentIndex }: HeroSlideProps) {
         testimonialText={slide.testimonialText}
         testimonialAuthor={slide.testimonialAuthor}
         testimonialAvatarUrl={slide.testimonialAvatarUrl}
+        showTextGradient={showTextGradient}
       />
 
       {/* Desktop: Original overlay layout */}
@@ -176,7 +178,7 @@ export function TwoColumnSlide({ slide, currentIndex }: HeroSlideProps) {
 /**
  * Main HeroSlide component that delegates to the appropriate layout.
  */
-export function HeroSlide({ slide, currentIndex }: HeroSlideProps) {
+export function HeroSlide({ slide, currentIndex, showTextGradient }: HeroSlideProps) {
   const layout = slide.layout || 'full-width';
   const isTwoColumn =
     layout === 'two-column' || layout === 'two-column-reversed';
@@ -185,5 +187,5 @@ export function HeroSlide({ slide, currentIndex }: HeroSlideProps) {
     return <TwoColumnSlide slide={slide} currentIndex={currentIndex} />;
   }
 
-  return <FullWidthSlide slide={slide} currentIndex={currentIndex} />;
+  return <FullWidthSlide slide={slide} currentIndex={currentIndex} showTextGradient={showTextGradient} />;
 }

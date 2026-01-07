@@ -22,6 +22,7 @@ export interface HeroBackgroundProps {
   testimonialText?: string | null;
   testimonialAuthor?: string | null;
   testimonialAvatarUrl?: string | null;
+  showTextGradient?: boolean;
 }
 
 /**
@@ -38,6 +39,7 @@ export function HeroBackgroundDesktop({
   testimonialText,
   testimonialAuthor,
   testimonialAvatarUrl,
+  showTextGradient,
 }: HeroBackgroundProps) {
   const hasVideo = videoUrl || isVideoUrl(imageUrl);
 
@@ -75,6 +77,16 @@ export function HeroBackgroundDesktop({
             sizes="100vw"
           />
         ) : null}
+
+        {/* Text legibility gradient - white gradient from left to center */}
+        {showTextGradient && (
+          <div
+            className="absolute inset-0 z-[5] pointer-events-none"
+            style={{
+              background: 'linear-gradient(to right, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.6) 25%, rgba(255,255,255,0) 55%)',
+            }}
+          />
+        )}
 
         {/* Clickable overlay - links entire hero to primary button URL */}
         {buttonUrl && (

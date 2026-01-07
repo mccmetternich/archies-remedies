@@ -74,7 +74,13 @@ function renderWidget(widget: PageWidget, data: WidgetRendererProps['data']): Re
     // ─────────────────────────────────────────
     case 'hero_carousel':
       if (!data.heroSlides || data.heroSlides.length === 0) return null;
-      return <HeroCarousel key={widget.id} slides={data.heroSlides} />;
+      return (
+        <HeroCarousel
+          key={widget.id}
+          slides={data.heroSlides}
+          showTextGradient={config.showTextGradient as boolean}
+        />
+      );
 
     // ─────────────────────────────────────────
     // CONTENT

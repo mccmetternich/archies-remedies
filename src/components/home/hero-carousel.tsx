@@ -9,12 +9,14 @@ interface HeroCarouselProps {
   slides: HeroSlideData[];
   isPaused?: boolean; // Allow parent to pause carousel (e.g., when nav is open)
   autoAdvanceInterval?: number; // Seconds between slides (default 5)
+  showTextGradient?: boolean; // Show white gradient overlay for text legibility on full-width
 }
 
 export function HeroCarousel({
   slides,
   isPaused = false,
   autoAdvanceInterval = 5,
+  showTextGradient = false,
 }: HeroCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const isHoveredRef = useRef(false);
@@ -68,7 +70,7 @@ export function HeroCarousel({
       }}
     >
       {/* Render the current slide */}
-      <HeroSlide slide={slide} currentIndex={currentIndex} />
+      <HeroSlide slide={slide} currentIndex={currentIndex} showTextGradient={showTextGradient} />
 
       {/* Minimal progress indicator - desktop only */}
       {slides.length > 1 && (
