@@ -52,12 +52,7 @@ export function HeroTextContent({
             {[1, 2, 3, 4, 5].map((i) => (
               <Star
                 key={i}
-                className={cn(
-                  'w-6 h-6',
-                  isLightText
-                    ? 'fill-white text-white'
-                    : 'fill-[var(--primary)] text-[var(--primary)]'
-                )}
+                className="w-6 h-6 fill-[var(--primary)] text-[var(--primary)]"
               />
             ))}
           </div>
@@ -119,7 +114,7 @@ export function HeroTextContent({
             <Link
               href={buttonUrl}
               className={cn(
-                'group inline-flex items-center justify-center gap-3 px-7 py-4 text-sm font-medium uppercase tracking-wider transition-all duration-300',
+                'group inline-flex items-center justify-center gap-3 px-10 py-4 text-sm font-medium uppercase tracking-wider transition-all duration-300',
                 isLightText ? 'hero-btn-light' : 'hero-btn-dark'
               )}
             >
@@ -131,7 +126,7 @@ export function HeroTextContent({
           <Link
             href={secondaryButtonUrl || '/about'}
             className={cn(
-              'hidden md:inline-flex group items-center justify-center gap-3 px-7 py-4 text-sm font-medium uppercase tracking-wider border-2 transition-all duration-300',
+              'hidden md:inline-flex group items-center justify-center gap-3 px-10 py-4 text-sm font-medium uppercase tracking-wider border-2 transition-all duration-300',
               isLightText ? 'hero-btn-outline-light' : 'hero-btn-outline-dark'
             )}
           >
