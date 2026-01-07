@@ -5,3 +5,5 @@ export { FAQsConfig } from './faqs-config';
 export { VideoTestimonialsConfig } from './video-testimonials-config';
 export { InstagramConfig } from './instagram-config';
 export { MissionSectionConfig } from './mission-config';
+export { ProductGridConfig } from './product-grid-config';
+export type { ProductGridConfig as ProductGridConfigType, ProductOverride } from './product-grid-config';

@@ -125,7 +125,7 @@ export function HeroBackgroundMobile({
   const imageSrc = mobileImageUrl || imageUrl;
 
   return (
-    <div className="relative h-[35vh] min-h-[220px] w-full">
+    <div className="relative h-[42vh] min-h-[245px] w-full">
       <AnimatePresence mode="sync">
         <motion.div
           key={`mobile-media-${currentIndex}`}
@@ -157,7 +157,8 @@ export function HeroBackgroundMobile({
         </motion.div>
       </AnimatePresence>
 
-      {/* Mobile testimonial - overlaps bottom of media, no animation, dynamic width */}
+      {/* Mobile testimonial - hidden on mobile as media area is too small */}
+      {/* Keeping the code commented for potential future use
       {testimonialText && testimonialAvatarUrl && (
         <MobileTestimonialWrapper className="lg:flex">
           <TestimonialCard
@@ -168,6 +169,7 @@ export function HeroBackgroundMobile({
           />
         </MobileTestimonialWrapper>
       )}
+      */}
     </div>
   );
 }
@@ -202,7 +204,7 @@ export function TwoColumnMedia({
   const hasVideo = videoUrl || isVideoUrl(imageUrl);
 
   return (
-    <div className="relative w-full h-[35vh] lg:h-full min-h-[220px] lg:min-h-full order-1 lg:order-none">
+    <div className="relative w-full h-[42vh] lg:h-full min-h-[245px] lg:min-h-full order-1 lg:order-none">
       <AnimatePresence mode="sync">
         <motion.div
           key={`image-${currentIndex}`}
@@ -247,7 +249,8 @@ export function TwoColumnMedia({
         </motion.div>
       </AnimatePresence>
 
-      {/* Mobile testimonial - overlaps bottom of media, no animation, dynamic width */}
+      {/* Mobile testimonial - hidden on mobile as media area is too small */}
+      {/* Keeping the code commented for potential future use
       {testimonialText && testimonialAvatarUrl && (
         <MobileTestimonialWrapper>
           <TestimonialCard
@@ -257,6 +260,18 @@ export function TwoColumnMedia({
             variant="mobile"
           />
         </MobileTestimonialWrapper>
+      )}
+      */}
+
+      {/* Desktop testimonial - positioned at bottom of media column */}
+      {testimonialText && testimonialAvatarUrl && (
+        <TestimonialCard
+          avatarUrl={testimonialAvatarUrl}
+          author={testimonialAuthor || ''}
+          text={testimonialText}
+          variant="desktop"
+          className="hidden lg:flex absolute bottom-8 left-1/2 -translate-x-1/2 z-20 w-full max-w-md justify-center pointer-events-auto"
+        />
       )}
     </div>
   );

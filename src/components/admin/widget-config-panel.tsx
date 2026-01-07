@@ -28,6 +28,8 @@ import type {
 } from '@/components/widgets/two-column-feature';
 import { FAQDrawerConfig } from '@/components/admin/widget-configs/faq-drawer-config';
 import type { FAQDrawerTheme, FAQItem } from '@/components/widgets/faq-drawer';
+import { ProductGridConfig } from '@/components/admin/widget-configs/product-grid-config';
+import type { ProductGridConfig as ProductGridConfigType, ProductOverride } from '@/components/admin/widget-configs/product-grid-config';
 
 // Helper: Check if URL is video
 function isVideoUrl(url: string): boolean {
@@ -69,8 +71,8 @@ export function WidgetConfigPanel({ widget, onUpdate }: WidgetConfigPanelProps) 
 
   return (
     <div className="space-y-4">
-      {/* Title & Subtitle - Common for most widgets (except reviews, icon_highlights, two_column_feature, and faq_drawer which have their own) */}
-      {widget.type !== 'reviews' && widget.type !== 'icon_highlights' && widget.type !== 'two_column_feature' && widget.type !== 'faq_drawer' && (
+      {/* Title & Subtitle - Common for most widgets (except those with their own config) */}
+      {widget.type !== 'reviews' && widget.type !== 'icon_highlights' && widget.type !== 'two_column_feature' && widget.type !== 'faq_drawer' && widget.type !== 'product_grid' && (
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
@@ -565,14 +567,45 @@ export function WidgetConfigPanel({ widget, onUpdate }: WidgetConfigPanelProps) 
 
       {/* Product Grid */}
       {widget.type === 'product_grid' && (
-        <div className="p-4 bg-[var(--admin-input)] rounded-lg">
-          <p className="text-sm text-[var(--admin-text-secondary)]">
-            Product grid displays all active products.
-          </p>
-          <Link href="/admin/products" className="text-sm text-[var(--primary)] hover:underline mt-1 inline-block">
-            Manage Products →
-          </Link>
-        </div>
+        <ProductGridConfig
+          config={{
+            title: (config.title as string) || '',
+            subtitle: (config.subtitle as string) || '',
+            product1: (config.product1 as ProductOverride) || {
+              productId: null,
+              title: null,
+              description: null,
+              imageUrl: null,
+              hoverImageUrl: null,
+              badge: null,
+              badgeEmoji: null,
+              badgeBgColor: null,
+              badgeTextColor: null,
+            },
+            product2: (config.product2 as ProductOverride) || {
+              productId: null,
+              title: null,
+              description: null,
+              imageUrl: null,
+              hoverImageUrl: null,
+              badge: null,
+              badgeEmoji: null,
+              badgeBgColor: null,
+              badgeTextColor: null,
+            },
+          }}
+          onConfigChange={(newConfig) =>
+            onUpdate({
+              config: {
+                ...config,
+                title: newConfig.title,
+                subtitle: newConfig.subtitle,
+                product1: newConfig.product1,
+                product2: newConfig.product2,
+              },
+            })
+          }
+        />
       )}
 
       {/* Hero Carousel - Note: This has its own dedicated config component */}

@@ -4,6 +4,11 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight, Star } from 'lucide-react';
+import { cn } from '@/lib/utils';
+
+// ============================================
+// TYPES
+// ============================================
 
 interface Product {
   id: string;
@@ -18,15 +23,43 @@ interface Product {
   badgeEmoji?: string | null;
   rotatingBadgeEnabled?: boolean | null;
   rotatingBadgeText?: string | null;
+  reviewCount?: number | null;
+}
+
+interface ProductOverride {
+  productId: string | null;
+  title: string | null;
+  description: string | null;
+  imageUrl: string | null;
+  hoverImageUrl: string | null;
+  badge: string | null;
+  badgeEmoji: string | null;
+  badgeBgColor: string | null;
+  badgeTextColor: string | null;
 }
 
 interface ProductTilesProps {
   products: Product[];
   title?: string;
   subtitle?: string;
+  product1?: ProductOverride | null;
+  product2?: ProductOverride | null;
 }
 
-// Rotating badge component
+// ============================================
+// HELPERS
+// ============================================
+
+function isVideoUrl(url: string | null | undefined): boolean {
+  if (!url) return false;
+  const lowerUrl = url.toLowerCase();
+  return lowerUrl.match(/\.(mp4|webm|mov)$/i) !== null || lowerUrl.includes('/video/upload/');
+}
+
+// ============================================
+// ROTATING BADGE COMPONENT
+// ============================================
+
 function RotatingBadge({ text }: { text: string }) {
   const repeatedText = Array(8).fill(text).join(' • ');
 
@@ -60,8 +93,72 @@ function RotatingBadge({ text }: { text: string }) {
   );
 }
 
-export function ProductTiles({ products, title, subtitle }: ProductTilesProps) {
+// ============================================
+// MEDIA COMPONENT (supports image & video)
+// ============================================
+
+interface MediaProps {
+  url: string;
+  alt: string;
+  className?: string;
+  fill?: boolean;
+  sizes?: string;
+}
+
+function Media({ url, alt, className, fill = true, sizes }: MediaProps) {
+  if (isVideoUrl(url)) {
+    return (
+      <video
+        src={url}
+        autoPlay
+        muted
+        loop
+        playsInline
+        className={cn('object-cover', className, fill && 'absolute inset-0 w-full h-full')}
+      />
+    );
+  }
+
+  return (
+    <Image
+      src={url}
+      alt={alt}
+      fill={fill}
+      className={cn('object-cover', className)}
+      sizes={sizes || "(max-width: 768px) 100vw, 50vw"}
+    />
+  );
+}
+
+// ============================================
+// MAIN COMPONENT
+// ============================================
+
+export function ProductTiles({ products, title, subtitle, product1, product2 }: ProductTilesProps) {
   const [hoveredProduct, setHoveredProduct] = useState<string | null>(null);
+
+  // Get override for a product based on index
+  const getOverride = (index: number): ProductOverride | null => {
+    if (index === 0) return product1 || null;
+    if (index === 1) return product2 || null;
+    return null;
+  };
+
+  // Find matching product by override productId or use product at index
+  const getProductWithOverride = (index: number) => {
+    const override = getOverride(index);
+    let product = products[index];
+
+    // If override specifies a different product, find it
+    if (override?.productId) {
+      const matchingProduct = products.find(p => p.id === override.productId);
+      if (matchingProduct) {
+        product = matchingProduct;
+      }
+    }
+
+    return { product, override };
+  };
 
   return (
     <section className="section bg-white relative overflow-hidden">
@@ -87,9 +184,23 @@ export function ProductTiles({ products, title, subtitle }: ProductTilesProps) {
 
         {/* Products Grid - Magazine layout */}
         <div className="grid md:grid-cols-2 gap-10 lg:gap-16">
-          {products.map((product) => {
+          {products.slice(0, 2).map((_, index) => {
+            const { product, override } = getProductWithOverride(index);
+            if (!product) return null;
+
             const isHovered = hoveredProduct === product.id;
-            const showSecondaryImage = isHovered && product.secondaryImageUrl;
+
+            // Get display values with overrides
+            const displayTitle = override?.title || product.name;
+            const displayDescription = override?.description || product.shortDescription;
+            const displayImage = override?.imageUrl || product.heroImageUrl;
+            const displayHoverImage = override?.hoverImageUrl || product.secondaryImageUrl;
+            const displayBadge = override?.badge ?? product.badge;
+            const displayBadgeEmoji = override?.badgeEmoji ?? product.badgeEmoji;
+            const badgeBgColor = override?.badgeBgColor || 'rgba(255, 255, 255, 0.95)';
+            const badgeTextColor = override?.badgeTextColor || 'var(--foreground)';
+
+            const showHoverMedia = isHovered && displayHoverImage;
 
             return (
               <div key={product.id}>
@@ -101,45 +212,51 @@ export function ProductTiles({ products, title, subtitle }: ProductTilesProps) {
                 >
                   {/* Image Container - Editorial aspect ratio */}
                   <div className="relative overflow-hidden bg-[var(--cream)] aspect-[4/5] mb-8">
-                    {/* Main Product Image */}
-                    {product.heroImageUrl && (
-                      <Image
-                        src={product.heroImageUrl}
-                        alt={product.name}
-                        fill
-                        className={`object-cover transition-all duration-500 ease-out ${
-                          showSecondaryImage ? 'opacity-0 scale-105' : 'opacity-100 group-hover:scale-[1.03]'
-                        }`}
-                        sizes="(max-width: 768px) 100vw, 50vw"
-                      />
+                    {/* Main Product Image/Video */}
+                    {displayImage && (
+                      <div className={cn(
+                        'absolute inset-0 transition-all duration-500 ease-out',
+                        showHoverMedia ? 'opacity-0 scale-105' : 'opacity-100 group-hover:scale-[1.03]'
+                      )}>
+                        <Media
+                          url={displayImage}
+                          alt={displayTitle}
+                        />
+                      </div>
                     )}
 
-                    {/* Secondary (Rollover) Image */}
-                    {product.secondaryImageUrl && (
-                      <Image
-                        src={product.secondaryImageUrl}
-                        alt={`${product.name} - alternate view`}
-                        fill
-                        className={`object-cover transition-all duration-500 ease-out ${
-                          showSecondaryImage ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
-                        }`}
-                        sizes="(max-width: 768px) 100vw, 50vw"
-                      />
+                    {/* Hover Image/Video */}
+                    {displayHoverImage && (
+                      <div className={cn(
+                        'absolute inset-0 transition-all duration-500 ease-out',
+                        showHoverMedia ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
+                      )}>
+                        <Media
+                          url={displayHoverImage}
+                          alt={`${displayTitle} - alternate view`}
+                        />
+                      </div>
                     )}
 
                     {/* Fallback if no image */}
-                    {!product.heroImageUrl && (
+                    {!displayImage && (
                       <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[var(--primary-light)] to-[var(--cream)]">
                         <div className="w-40 h-40 rounded-full bg-white/50" />
                       </div>
                     )}
 
-                    {/* Badge - 2x bigger */}
-                    {product.badge && (
+                    {/* Badge - Top left, rounded corners */}
+                    {displayBadge && (
                       <div className="absolute top-6 left-6 z-10">
-                        <span className="inline-flex items-center gap-2 px-6 py-3 bg-white/95 backdrop-blur-sm text-sm font-semibold tracking-wide shadow-lg">
-                          {product.badgeEmoji && <span className="text-base">{product.badgeEmoji}</span>}
-                          {product.badge}
+                        <span
+                          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold tracking-wide shadow-lg backdrop-blur-sm"
+                          style={{
+                            backgroundColor: badgeBgColor,
+                            color: badgeTextColor,
+                          }}
+                        >
+                          {displayBadgeEmoji && <span className="text-base">{displayBadgeEmoji}</span>}
+                          {displayBadge}
                         </span>
                       </div>
                     )}
@@ -171,19 +288,19 @@ export function ProductTiles({ products, title, subtitle }: ProductTilesProps) {
                         ))}
                       </div>
                       <span className="text-base font-medium text-[var(--foreground)]">
-                        4.9 ({product.slug === 'eye-wipes' ? '847' : '2,100'} reviews)
+                        4.9 ({(product.reviewCount || (product.slug === 'eye-wipes' ? 847 : 2100)).toLocaleString()} reviews)
                       </span>
                     </div>
 
                     {/* Title */}
                     <h3 className="text-2xl md:text-3xl font-normal tracking-tight group-hover:text-[var(--muted-foreground)] transition-colors duration-300">
-                      {product.name}
+                      {displayTitle}
                     </h3>
 
                     {/* Description */}
-                    {product.shortDescription && (
+                    {displayDescription && (
                       <p className="text-[var(--muted-foreground)] leading-relaxed line-clamp-2">
-                        {product.shortDescription}
+                        {displayDescription}
                       </p>
                     )}
 
@@ -215,24 +332,6 @@ export function ProductTiles({ products, title, subtitle }: ProductTilesProps) {
           })}
         </div>
 
-        {/* Bottom accent - Editorial style divider */}
-        <div className="mt-24 h-px bg-gradient-to-r from-transparent via-[var(--border)] to-transparent" />
-
-        {/* Trust stats - Minimal */}
-        <div className="mt-16 flex flex-wrap justify-center gap-16 text-center">
-          <div>
-            <p className="text-4xl font-normal tracking-tight">2,500+</p>
-            <p className="text-sm text-[var(--muted-foreground)] mt-2">Happy Customers</p>
-          </div>
-          <div>
-            <p className="text-4xl font-normal tracking-tight">4.9</p>
-            <p className="text-sm text-[var(--muted-foreground)] mt-2">Average Rating</p>
-          </div>
-          <div>
-            <p className="text-4xl font-normal tracking-tight">98%</p>
-            <p className="text-sm text-[var(--muted-foreground)] mt-2">Would Recommend</p>
-          </div>
-        </div>
       </div>
     </section>
   );

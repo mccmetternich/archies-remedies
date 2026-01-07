@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { TestimonialCard } from '@/components/shared/testimonial-card';
 import { HeroTextContent, MobileTextContent } from './hero-text-content';
 import {
   HeroBackgroundDesktop,
@@ -139,9 +138,9 @@ export function TwoColumnSlide({ slide, currentIndex }: HeroSlideProps) {
                 buttonUrl={slide.buttonUrl}
               />
             </div>
-            {/* Desktop: Original centered content */}
+            {/* Desktop: Content centered, nudged up slightly */}
             <div className="hidden lg:flex items-center justify-center h-full py-16">
-              <div className="w-full max-w-xl">
+              <div className="w-full max-w-xl -translate-y-2.5">
                 <HeroTextContent
                   currentIndex={currentIndex}
                   title={slide.title}
@@ -154,18 +153,6 @@ export function TwoColumnSlide({ slide, currentIndex }: HeroSlideProps) {
                 />
               </div>
             </div>
-
-            {/* COMPARTMENT 2: Testimonial card - DESKTOP ONLY (mobile has its own overlapping the media) */}
-            {/* Uses same centering calculation: left-1/2 -translate-x-1/2 then offset to align with max-w-xl start */}
-            {slide.testimonialText && slide.testimonialAvatarUrl && (
-              <TestimonialCard
-                avatarUrl={slide.testimonialAvatarUrl}
-                author={slide.testimonialAuthor || ''}
-                text={slide.testimonialText}
-                variant="desktop"
-                className="hidden lg:block absolute bottom-16 lg:bottom-[79px] left-1/2 -translate-x-1/2 w-full max-w-xl px-6 lg:px-0 pointer-events-auto"
-              />
-            )}
           </div>
 
           {/* Media - Full width of column, full height */}

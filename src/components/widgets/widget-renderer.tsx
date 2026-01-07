@@ -340,6 +340,28 @@ function renderWidget(widget: PageWidget, data: WidgetRendererProps['data']): Re
           products={data.products}
           title={(config.title as string) || widget.title || 'Shop Our Collection'}
           subtitle={(config.subtitle as string) || widget.subtitle || 'Clean, effective eye care made without the questionable ingredients.'}
+          product1={config.product1 as {
+            productId: string | null;
+            title: string | null;
+            description: string | null;
+            imageUrl: string | null;
+            hoverImageUrl: string | null;
+            badge: string | null;
+            badgeEmoji: string | null;
+            badgeBgColor: string | null;
+            badgeTextColor: string | null;
+          } | null}
+          product2={config.product2 as {
+            productId: string | null;
+            title: string | null;
+            description: string | null;
+            imageUrl: string | null;
+            hoverImageUrl: string | null;
+            badge: string | null;
+            badgeEmoji: string | null;
+            badgeBgColor: string | null;
+            badgeTextColor: string | null;
+          } | null}
         />
       );
 
