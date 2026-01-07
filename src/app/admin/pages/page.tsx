@@ -280,7 +280,7 @@ export default function PagesListPage() {
       return (a.navOrder || 999) - (b.navOrder || 999);
     });
   // Footer/legal pages (include FAQ here)
-  const footerPages = nonProductPages.filter((p) => ['about', 'terms', 'privacy', 'shipping', 'returns', 'contact', 'faq'].includes(p.slug) && !p.showInNav);
+  const footerPages = nonProductPages.filter((p) => ['about', 'our-story', 'terms', 'privacy', 'shipping', 'returns', 'contact', 'faq', 'community-reviews'].includes(p.slug) && !p.showInNav);
   // Other pages: not in main nav, not in footer, and not product pages
   const otherPages = nonProductPages.filter((p) => !mainNavPages.includes(p) && !footerPages.includes(p));
 
