@@ -771,6 +771,26 @@ input[type="button"]:disabled,
   }
 }
 
+/* Reduced top padding for first section on widget-only pages (no hero) */
+.widgets-only-page > section:first-child,
+.widgets-only-page > div:first-child > section:first-child {
+  padding-top: 3rem;
+}
+
+@media (min-width: 768px) {
+  .widgets-only-page > section:first-child,
+  .widgets-only-page > div:first-child > section:first-child {
+    padding-top: 4rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .widgets-only-page > section:first-child,
+  .widgets-only-page > div:first-child > section:first-child {
+    padding-top: 5rem;
+  }
+}
+
 /* Editorial Badge */
 .badge {
   display: inline-flex;

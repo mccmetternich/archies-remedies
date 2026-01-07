@@ -184,13 +184,14 @@ export default async function DynamicPage({
           </section>
         )}
 
-        {/* Page Title (if no hero but has title) */}
-        {!hasHero && page.title && (
+        {/* Page Title (if no hero, no widgets, but has title) */}
+        {/* Skip standalone title if page has widgets - widgets handle their own titles */}
+        {!hasHero && page.title && widgets.length === 0 && (
           <section className="pt-32 pb-12 px-6">
             <div className="max-w-4xl mx-auto text-center">
               <h1
                 className="text-4xl md:text-5xl font-bold text-[var(--foreground)] leading-tight"
-               
+
               >
                 {page.title}
               </h1>
@@ -222,7 +223,9 @@ export default async function DynamicPage({
 
         {/* Widget System - renders below content */}
         {widgets.length > 0 && (
-          <WidgetRenderer widgets={widgets} data={widgetDataWithSettings} />
+          <div className={!hasHero && !hasContent ? 'widgets-only-page' : ''}>
+            <WidgetRenderer widgets={widgets} data={widgetDataWithSettings} />
+          </div>
         )}
 
         {/* Empty State - show message if no content at all */}
