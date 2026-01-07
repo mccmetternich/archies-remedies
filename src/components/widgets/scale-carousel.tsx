@@ -140,13 +140,29 @@ function MediaItem({
     if (!video || !shouldUseVideo || !isSelected) return;
 
     const handleEnded = () => {
-      if (onVideoEnd) {
-        onVideoEnd();
+      // Only trigger if video is actually at/near the end (within 0.5s)
+      if (video.duration && video.currentTime >= video.duration - 0.5) {
+        if (onVideoEnd) {
+          onVideoEnd();
+        }
+      }
+    };
+
+    // Also use timeupdate as backup for videos that don't fire 'ended' properly
+    const handleTimeUpdate = () => {
+      if (video.duration && video.currentTime >= video.duration - 0.1 && !video.loop) {
+        if (onVideoEnd) {
+          onVideoEnd();
+        }
       }
     };
 
     video.addEventListener('ended', handleEnded);
-    return () => video.removeEventListener('ended', handleEnded);
+    video.addEventListener('timeupdate', handleTimeUpdate);
+    return () => {
+      video.removeEventListener('ended', handleEnded);
+      video.removeEventListener('timeupdate', handleTimeUpdate);
+    };
   }, [isSelected, shouldUseVideo, onVideoEnd]);
 
   const aspectClass = aspectRatio === '9:16' ? 'aspect-[9/16]' : 'aspect-[3/4]';
@@ -226,28 +242,38 @@ export function ScaleCarousel({
     setSelectedIndex(index);
   }, [clearAutoAdvance]);
 
-  // Handle video end - advance to next
+  // Handle video end - advance to next (with guard to prevent double-firing)
+  const isAdvancingRef = useRef(false);
   const handleVideoEnd = useCallback(() => {
-    advanceToNext();
-  }, [advanceToNext]);
+    if (isAdvancingRef.current) return;
+    isAdvancingRef.current = true;
 
-  // Auto-advance for images
+    // Small delay to ensure clean transition
+    setTimeout(() => {
+      setSelectedIndex((prev) => (prev + 1) % items.length);
+      isAdvancingRef.current = false;
+    }, 100);
+  }, [items.length]);
+
+  // Auto-advance for images ONLY (not videos)
   useEffect(() => {
     if (!items || items.length === 0) return;
 
     const currentItem = items[selectedIndex];
     const isVideo = currentItem?.isVideo || isVideoUrl(currentItem?.mediaUrl || '');
 
-    // Only auto-advance for images (videos advance on end)
+    // Clear any existing timer first
+    clearAutoAdvance();
+
+    // Only set timer for images - videos advance on their 'ended' event
     if (!isVideo) {
-      clearAutoAdvance();
       autoAdvanceTimerRef.current = setTimeout(() => {
-        advanceToNext();
+        setSelectedIndex((prev) => (prev + 1) % items.length);
       }, imageDuration * 1000);
     }
 
     return clearAutoAdvance;
-  }, [selectedIndex, items, imageDuration, advanceToNext, clearAutoAdvance]);
+  }, [selectedIndex, items, imageDuration, clearAutoAdvance]);
 
   if (!items || items.length === 0) {
     return null;
@@ -277,9 +303,12 @@ export function ScaleCarousel({
         </div>
       )}
 
-      {/* Desktop: Center-focused layout */}
+      {/* Desktop: Center-focused layout with fixed height container */}
       <div className="hidden md:block">
-        <div className="flex items-center justify-center gap-4 lg:gap-6 px-6">
+        <div
+          className="flex items-center justify-center gap-4 lg:gap-6 px-6"
+          style={{ height: selectedHeight }}
+        >
           {items.map((item, index) => {
             const isSelected = index === selectedIndex;
 
@@ -307,7 +336,7 @@ export function ScaleCarousel({
         </div>
       </div>
 
-      {/* Mobile: Horizontal scroll */}
+      {/* Mobile: Horizontal scroll with fixed height container */}
       <div className="md:hidden">
         <div
           className="flex items-center gap-3 px-6 overflow-x-auto scrollbar-hide snap-x snap-mandatory"
@@ -315,6 +344,7 @@ export function ScaleCarousel({
             WebkitOverflowScrolling: 'touch',
             scrollbarWidth: 'none',
             msOverflowStyle: 'none',
+            minHeight: aspectRatio === '9:16' ? 400 : 360,
           }}
         >
           {items.map((item, index) => {
