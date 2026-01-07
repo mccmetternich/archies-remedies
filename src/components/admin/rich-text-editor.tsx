@@ -17,6 +17,9 @@ import {
   Undo,
   Redo,
   RemoveFormatting,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -81,6 +84,10 @@ export function RichTextEditor({
     { icon: Heading1, command: 'formatBlock', value: 'h1', title: 'Heading 1' },
     { icon: Heading2, command: 'formatBlock', value: 'h2', title: 'Heading 2' },
     { icon: Heading3, command: 'formatBlock', value: 'h3', title: 'Heading 3' },
+    { divider: true },
+    { icon: AlignLeft, command: 'justifyLeft', title: 'Align Left' },
+    { icon: AlignCenter, command: 'justifyCenter', title: 'Align Center' },
+    { icon: AlignRight, command: 'justifyRight', title: 'Align Right' },
     { divider: true },
     { icon: List, command: 'insertUnorderedList', title: 'Bullet List' },
     { icon: ListOrdered, command: 'insertOrderedList', title: 'Numbered List' },
