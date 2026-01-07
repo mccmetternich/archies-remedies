@@ -151,11 +151,15 @@ function renderWidget(
       }[(config.maxWidth as string) || 'lg'] || 'max-w-3xl';
 
       // Theme-based styling
-      const textTheme = (config.theme as 'light' | 'dark' | 'cream') || 'light';
+      const textTheme = (config.theme as 'light' | 'dark' | 'cream' | 'blue') || 'light';
       const textThemeStyles = {
         light: {
           bg: 'bg-white',
           prose: 'prose-headings:text-[var(--foreground)] prose-p:text-[#333] prose-strong:text-[var(--foreground)] prose-ul:text-[#333] prose-ol:text-[#333] prose-a:text-[#4a90a4]',
+        },
+        blue: {
+          bg: 'bg-[#bbdae9]',
+          prose: 'prose-headings:text-[var(--foreground)] prose-p:text-[#333] prose-strong:text-[var(--foreground)] prose-ul:text-[#333] prose-ol:text-[#333] prose-a:text-[#2a6a84]',
         },
         dark: {
           bg: 'bg-[#1a1a1a]',

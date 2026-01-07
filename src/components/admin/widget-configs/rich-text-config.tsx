@@ -7,7 +7,7 @@ import { RichTextEditor } from '@/components/admin/rich-text-editor';
 // TYPES
 // ============================================
 
-export type RichTextTheme = 'light' | 'dark' | 'cream';
+export type RichTextTheme = 'light' | 'dark' | 'cream' | 'blue';
 
 interface RichTextConfigProps {
   content: string;
@@ -36,6 +36,7 @@ const maxWidthOptions: { value: RichTextConfigProps['maxWidth']; label: string; 
 
 const themeOptions: { value: RichTextTheme; label: string; bgColor: string; textColor: string }[] = [
   { value: 'light', label: 'Light', bgColor: '#ffffff', textColor: '#333333' },
+  { value: 'blue', label: 'Blue', bgColor: '#bbdae9', textColor: '#333333' },
   { value: 'dark', label: 'Dark', bgColor: '#1a1a1a', textColor: '#ffffff' },
   { value: 'cream', label: 'Cream', bgColor: '#f5f1eb', textColor: '#333333' },
 ];
