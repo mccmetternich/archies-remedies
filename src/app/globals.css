@@ -28,7 +28,7 @@
   /* PDP Layout Constants */
   --pdp-nav-height: 80px;
   --pdp-bumper-height: 37px;
-  --pdp-header-height: 80px; /* nav only, updated by JS if bumper present */
+  --pdp-header-height: 80px; /* nav only, auto-updated by CSS :has() when bumper present */
   --pdp-marquee-height: 44px;
   --pdp-fold-buffer: 80px; /* breathing room above marquee */
   --pdp-gap: 5px; /* mobile puzzle gap */
@@ -114,6 +114,12 @@
     /* FOOTER: Mirrors nav scaling at ultra-wide */
     --footer-side-padding: calc(140px + (100vw - 2570px) * 0.3);
   }
+}
+
+/* Auto-detect announcement bumper and adjust header height for PDP calculations */
+/* This prevents layout shift by setting the variable in CSS before hydration */
+:root:has(.announcement-bar-landscape) {
+  --pdp-header-height: 113px;
 }
 
 /* =============================================

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Menu, ChevronDown, Star, ArrowRight } from 'lucide-react';
@@ -30,14 +30,8 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
   const [isOpen, setIsOpen] = useState(false);
 
   const showBumper = bumper?.bumperEnabled && bumper?.bumperText;
-
-  // Update CSS variable for header height (used by PDP sticky positioning)
-  useEffect(() => {
-    document.documentElement.style.setProperty(
-      '--pdp-header-height',
-      showBumper ? '113px' : '80px'
-    );
-  }, [showBumper]);
+  // Note: --pdp-header-height is now set via CSS :has(.announcement-bar-landscape)
+  // This prevents layout shift by avoiding hydration mismatch
 
   // Get products for tiles
   const tile1Product = globalNav?.tile1ProductId
