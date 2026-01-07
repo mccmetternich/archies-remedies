@@ -540,14 +540,14 @@ export function TwoColumnFeature({
               <>
                 {title && (
                   <div
-                    className="text-2xl font-normal tracking-tight leading-tight mb-3 [&_p]:my-0 [&_br]:leading-tight"
+                    className="text-[34px] font-normal tracking-tight leading-tight mb-4 [&_p]:my-0 [&_br]:leading-tight"
                     style={{ color: styles.titleColor }}
                     dangerouslySetInnerHTML={{ __html: title }}
                   />
                 )}
                 {body && (
                   <div
-                    className="text-sm leading-relaxed [&_p]:my-2 [&_p:first-child]:mt-0 [&_p:last-child]:mb-0"
+                    className="text-[17px] leading-relaxed [&_p]:my-2 [&_p:first-child]:mt-0 [&_p:last-child]:mb-0"
                     style={{ color: styles.textColor }}
                     dangerouslySetInnerHTML={{ __html: body }}
                   />

@@ -508,7 +508,7 @@ export function ScaleCarousel({
       </div>
 
       {/* Mobile/Tablet: Swipeable carousel with centered active item */}
-      <div className="md:hidden overflow-hidden">
+      <div className="md:hidden overflow-hidden isolate">
         <MobileCarousel
           items={items}
           selectedIndex={selectedIndex}

@@ -98,7 +98,7 @@ export function Footer({
   const logoFilter = isDark ? 'brightness-0 invert' : '';
 
   return (
-    <footer className={cn(bgClass, textClass, "font-['Inter',sans-serif]")}>
+    <footer className={cn(bgClass, textClass, "font-['Inter',sans-serif] relative z-10")}>
       {/* ROW 1: Email Signup Section */}
       {emailSignupEnabled && (
         <EmailSignupSection
