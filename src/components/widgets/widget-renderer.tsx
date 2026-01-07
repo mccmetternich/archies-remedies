@@ -118,6 +118,8 @@ function renderWidget(
       return (
         <TeamCards
           key={widget.id}
+          title={(config.title as string) || ''}
+          subtitle={(config.subtitle as string) || ''}
           cards={teamCards}
           theme={(config.theme as TeamCardsTheme) || 'light'}
         />
