@@ -965,6 +965,12 @@ input[type="button"]:disabled,
   margin-bottom: 1.25em;
 }
 
+/* Remove top margin from first heading in prose (e.g., Privacy Policy H1) */
+.prose > :first-child,
+.prose > div:first-child > :first-child {
+  margin-top: 0;
+}
+
 .prose p {
   margin-bottom: 1.75em;
 }
