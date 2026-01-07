@@ -238,8 +238,10 @@ export default async function DynamicPage({
         )}
 
         {/* Widget System - renders below content */}
+        {/* Apply widgets-only-page class when widgets are the main content (no hero, no pageHeader) */}
+        {/* Note: hasContent check removed - pages using widgets shouldn't have the old content field */}
         {widgets.length > 0 && (
-          <div className={!hasHero && !hasContent && !hasPageHeader ? 'widgets-only-page' : ''}>
+          <div className={!hasHero && !hasPageHeader ? 'widgets-only-page' : ''}>
             <WidgetRenderer widgets={widgets} data={widgetDataWithSettings} />
           </div>
         )}

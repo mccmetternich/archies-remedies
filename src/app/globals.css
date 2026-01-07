@@ -771,23 +771,24 @@ input[type="button"]:disabled,
   }
 }
 
-/* Reduced top padding for first section on widget-only pages (no hero) */
+/* Top padding for first widget on widget-only pages (no hero/header) */
+/* Must clear fixed header (80-113px) with minimal extra space */
 .widgets-only-page > section:first-child,
 .widgets-only-page > div:first-child > section:first-child {
-  padding-top: 3rem;
+  padding-top: 6.5rem !important; /* 104px - just clears header with bumper */
 }
 
 @media (min-width: 768px) {
   .widgets-only-page > section:first-child,
   .widgets-only-page > div:first-child > section:first-child {
-    padding-top: 4rem;
+    padding-top: 7rem !important; /* 112px */
   }
 }
 
 @media (min-width: 1024px) {
   .widgets-only-page > section:first-child,
   .widgets-only-page > div:first-child > section:first-child {
-    padding-top: 5rem;
+    padding-top: 7.5rem !important; /* 120px */
   }
 }
 
