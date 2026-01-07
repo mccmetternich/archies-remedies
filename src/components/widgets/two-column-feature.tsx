@@ -342,7 +342,7 @@ export function TwoColumnFeature({
         : 'text-left';
 
   return (
-    <section className={cn('w-full', styles.bg, className)}>
+    <section className={cn('w-full -mb-px', styles.bg, className)}>
       {/* Desktop & Tablet: Two columns side by side - Full bleed */}
       <div className={cn(
         "hidden md:flex",

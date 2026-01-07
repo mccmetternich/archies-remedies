@@ -67,7 +67,7 @@ export function StoryHero({
   return (
     <section
       className={cn(
-        'relative w-full overflow-hidden',
+        'relative w-full overflow-hidden -mt-1',
         heightConfig.mobile,
         heightConfig.desktop,
         className
