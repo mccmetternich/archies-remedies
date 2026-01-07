@@ -124,6 +124,9 @@ export default async function DynamicPage({
   const hasHero = page.heroImageUrl || page.heroTitle;
   const heroIsVideo = page.heroImageUrl && isVideoUrl(page.heroImageUrl);
 
+  // Check if page has display header (pageTitle/pageSubtitle - shown above widgets)
+  const hasPageHeader = page.pageTitle && page.pageTitle.trim().length > 0;
+
   // Check if page has rich text content
   const hasContent = page.content && page.content.trim().length > 0;
 
@@ -184,15 +187,28 @@ export default async function DynamicPage({
           </section>
         )}
 
-        {/* Page Title (if no hero, no widgets, but has title) */}
-        {/* Skip standalone title if page has widgets - widgets handle their own titles */}
-        {!hasHero && page.title && widgets.length === 0 && (
+        {/* Page Display Header - optional title/subtitle that appears above widgets */}
+        {/* This is shown when pageTitle is set, regardless of widgets */}
+        {!hasHero && hasPageHeader && (
+          <section className={`px-6 ${hasContent || widgets.length > 0 ? 'pt-32 pb-8' : 'pt-32 pb-12'}`}>
+            <div className="max-w-4xl mx-auto text-center">
+              <h1 className="text-4xl md:text-5xl font-bold text-[var(--foreground)] leading-tight">
+                {page.pageTitle}
+              </h1>
+              {page.pageSubtitle && (
+                <p className="mt-4 text-lg md:text-xl text-[#666] max-w-2xl mx-auto">
+                  {page.pageSubtitle}
+                </p>
+              )}
+            </div>
+          </section>
+        )}
+
+        {/* Fallback Page Title (if no hero, no pageTitle, no widgets, but has internal title) */}
+        {!hasHero && !hasPageHeader && page.title && widgets.length === 0 && !hasContent && (
           <section className="pt-32 pb-12 px-6">
             <div className="max-w-4xl mx-auto text-center">
-              <h1
-                className="text-4xl md:text-5xl font-bold text-[var(--foreground)] leading-tight"
-
-              >
+              <h1 className="text-4xl md:text-5xl font-bold text-[var(--foreground)] leading-tight">
                 {page.title}
               </h1>
             </div>
@@ -223,7 +239,7 @@ export default async function DynamicPage({
 
         {/* Widget System - renders below content */}
         {widgets.length > 0 && (
-          <div className={!hasHero && !hasContent ? 'widgets-only-page' : ''}>
+          <div className={!hasHero && !hasContent && !hasPageHeader ? 'widgets-only-page' : ''}>
             <WidgetRenderer widgets={widgets} data={widgetDataWithSettings} />
           </div>
         )}

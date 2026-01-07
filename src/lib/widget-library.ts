@@ -430,6 +430,18 @@ export const WIDGET_TYPES: WidgetTypeDefinition[] = [
     addableToPages: true,
     isGlobal: false,
   },
+  {
+    type: 'floating_badges',
+    name: 'Floating Badges',
+    icon: Sparkles,
+    category: 'Engagement',
+    description: 'Rotating badge overlays with positioning control',
+    table: null,
+    adminHref: null,
+    countKey: null,
+    addableToPages: true,
+    isGlobal: false,
+  },
 ];
 
 // ============================================
@@ -599,6 +611,27 @@ export const DEFAULT_CONFIGS: Record<string, Record<string, unknown>> = {
   faq_drawer: {
     theme: 'blue', // 'blue' | 'dark' | 'cream'
     items: [{ id: '', question: '', answer: '' }],
+  },
+  floating_badges: {
+    badges: [
+      {
+        id: '',
+        imageUrl: '',
+        // Desktop positioning (% from top-left)
+        desktopX: 10, // percentage from left
+        desktopY: 20, // percentage from top
+        // Mobile positioning (also governs tablet)
+        mobileX: 5,
+        mobileY: 15,
+        // Size in pixels
+        desktopSize: 120,
+        mobileSize: 80,
+        // Rotation speed: 'slow' (20s), 'medium' (12s), 'fast' (6s)
+        speed: 'medium',
+        // Layer: 'above' (z-50) or 'below' (z-0)
+        layer: 'below',
+      },
+    ],
   },
 };
 

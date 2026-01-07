@@ -566,6 +566,9 @@ export const pages = sqliteTable('pages', {
   pageType: text('page_type').default('content'), // content, landing, product
   content: text('content'), // Rich text for simple pages
   widgets: text('widgets'), // JSON array of widget configs for landing pages
+  // Display header - optional title/subtitle shown above page content
+  pageTitle: text('page_title'), // Display title (e.g., "Frequently Asked Questions")
+  pageSubtitle: text('page_subtitle'), // Display subtitle/byline (e.g., "All your questions answered")
   heroImageUrl: text('hero_image_url'),
   heroTitle: text('hero_title'),
   heroSubtitle: text('hero_subtitle'),

@@ -41,6 +41,8 @@ import type {
 } from '@/components/widgets/two-column-feature';
 import { FAQDrawer } from '@/components/widgets/faq-drawer';
 import type { FAQDrawerTheme, FAQItem } from '@/components/widgets/faq-drawer';
+import { FloatingBadgesViewport } from '@/components/widgets/floating-badges';
+import type { FloatingBadge } from '@/components/widgets/floating-badges';
 
 // Widget interface matching pages.widgets JSON structure
 export interface PageWidget {
@@ -526,6 +528,14 @@ function renderWidget(widget: PageWidget, data: WidgetRendererProps['data']): Re
           separator={(config.separator as string) || '✦'}
         />
       );
+
+    case 'floating_badges':
+      const floatingBadges = (config.badges as FloatingBadge[]) || [];
+      if (floatingBadges.length === 0) return null;
+      // Filter out badges without images
+      const validBadges = floatingBadges.filter((b) => b.imageUrl);
+      if (validBadges.length === 0) return null;
+      return <FloatingBadgesViewport key={widget.id} badges={validBadges} />;
 
     default:
       // Unknown widget type - skip

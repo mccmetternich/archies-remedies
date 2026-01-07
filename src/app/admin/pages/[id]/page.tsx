@@ -51,6 +51,9 @@ interface PageData {
   pageType: string;
   content: string | null;
   widgets: string | null;
+  // Display header fields
+  pageTitle: string | null;
+  pageSubtitle: string | null;
   heroImageUrl: string | null;
   heroTitle: string | null;
   heroSubtitle: string | null;
@@ -336,6 +339,8 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
     pageType: 'landing',
     content: '',
     widgets: null,
+    pageTitle: null,
+    pageSubtitle: null,
     heroImageUrl: null,
     heroTitle: null,
     heroSubtitle: null,
@@ -683,7 +688,7 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
                 <div className="space-y-4">
                   <div>
                     <label className="block text-xs font-medium text-[var(--admin-text-muted)] mb-1.5 uppercase tracking-wide">
-                      Page Title
+                      Internal Name
                     </label>
                     <input
                       type="text"
@@ -692,6 +697,7 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
                       placeholder="About Us"
                       className="w-full px-3 py-2 text-sm bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)] placeholder:text-[var(--admin-text-muted)] focus:outline-none focus:border-[var(--primary)]"
                     />
+                    <p className="text-[10px] text-[var(--admin-text-muted)] mt-1">For admin reference only</p>
                   </div>
 
                   <div>
@@ -712,6 +718,38 @@ export default function PageEditorPage({ params }: { params: Promise<{ id: strin
                         placeholder="about-us"
                         disabled={page.slug === 'home'}
                         className="flex-1 px-3 py-2 text-sm bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)] placeholder:text-[var(--admin-text-muted)] focus:outline-none focus:border-[var(--primary)] disabled:opacity-50"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Display Header */}
+                <div className="pt-4 border-t border-[var(--admin-border)]">
+                  <h4 className="text-xs font-medium text-[var(--admin-text-muted)] mb-3 uppercase tracking-wide">
+                    Page Header
+                  </h4>
+                  <p className="text-[10px] text-[var(--admin-text-muted)] mb-3">
+                    Optional title & subtitle displayed above page content
+                  </p>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-xs text-[var(--admin-text-muted)] mb-1">Display Title</label>
+                      <input
+                        type="text"
+                        value={page.pageTitle || ''}
+                        onChange={(e) => setPage({ ...page, pageTitle: e.target.value || null })}
+                        placeholder="Frequently Asked Questions"
+                        className="w-full px-3 py-2 text-sm bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)] placeholder:text-[var(--admin-text-muted)] focus:outline-none focus:border-[var(--primary)]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-[var(--admin-text-muted)] mb-1">Display Subtitle</label>
+                      <input
+                        type="text"
+                        value={page.pageSubtitle || ''}
+                        onChange={(e) => setPage({ ...page, pageSubtitle: e.target.value || null })}
+                        placeholder="All your questions answered in one place"
+                        className="w-full px-3 py-2 text-sm bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-lg text-[var(--admin-text-primary)] placeholder:text-[var(--admin-text-muted)] focus:outline-none focus:border-[var(--primary)]"
                       />
                     </div>
                   </div>

@@ -30,6 +30,8 @@ import { FAQDrawerConfig } from '@/components/admin/widget-configs/faq-drawer-co
 import type { FAQDrawerTheme, FAQItem } from '@/components/widgets/faq-drawer';
 import { ProductGridConfig } from '@/components/admin/widget-configs/product-grid-config';
 import type { ProductGridConfig as ProductGridConfigType, ProductOverride } from '@/components/admin/widget-configs/product-grid-config';
+import { FloatingBadgesConfig } from '@/components/admin/widget-configs/floating-badges-config';
+import type { FloatingBadge } from '@/components/widgets/floating-badges';
 
 // Helper: Check if URL is video
 function isVideoUrl(url: string): boolean {
@@ -72,7 +74,7 @@ export function WidgetConfigPanel({ widget, onUpdate }: WidgetConfigPanelProps) 
   return (
     <div className="space-y-4">
       {/* Title & Subtitle - Common for most widgets (except those with their own config) */}
-      {widget.type !== 'reviews' && widget.type !== 'icon_highlights' && widget.type !== 'two_column_feature' && widget.type !== 'faq_drawer' && widget.type !== 'product_grid' && (
+      {widget.type !== 'reviews' && widget.type !== 'icon_highlights' && widget.type !== 'two_column_feature' && widget.type !== 'faq_drawer' && widget.type !== 'product_grid' && widget.type !== 'floating_badges' && (
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
@@ -603,6 +605,18 @@ export function WidgetConfigPanel({ widget, onUpdate }: WidgetConfigPanelProps) 
                 product1: newConfig.product1,
                 product2: newConfig.product2,
               },
+            })
+          }
+        />
+      )}
+
+      {/* Floating Badges */}
+      {widget.type === 'floating_badges' && (
+        <FloatingBadgesConfig
+          badges={(config.badges as FloatingBadge[]) || []}
+          onBadgesChange={(badges) =>
+            onUpdate({
+              config: { ...config, badges },
             })
           }
         />

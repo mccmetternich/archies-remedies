@@ -266,6 +266,7 @@ export function MediaCarousel({ items, className }: MediaCarouselProps) {
                   muted
                   loop
                   playsInline
+                  preload="metadata"
                   className="absolute inset-0 w-full h-full object-cover"
                 />
               ) : (
@@ -275,6 +276,10 @@ export function MediaCarousel({ items, className }: MediaCarouselProps) {
                   fill
                   className="object-cover"
                   sizes={`${Math.ceil(tileWidth)}px`}
+                  // Eagerly load first 6 images to prevent gray boxes on mobile scroll
+                  // This ensures images are loaded before user swipes to them
+                  loading={index < 6 ? 'eager' : 'lazy'}
+                  priority={index < 2}
                 />
               )}
 
