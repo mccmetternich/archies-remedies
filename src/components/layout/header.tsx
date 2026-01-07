@@ -156,7 +156,7 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                 <div
                   className="absolute top-full left-0 right-0"
                   style={{
-                    height: showBumper ? '80px' : '36px',
+                    height: showBumper ? '95px' : '50px',
                     background: 'transparent'
                   }}
                 />
@@ -164,10 +164,10 @@ export function Header({ logo, products = [], bumper, socialStats, globalNav, na
                 {/* Mega Nav Dropdown - CSS transitions, z-40 to sit below nav bar (z-50) */}
                 <div
                   className="hidden lg:block fixed left-0 right-0 z-40 opacity-0 invisible translate-y-2 group-hover/shop:opacity-100 group-hover/shop:visible group-hover/shop:translate-y-0 transition-all duration-300 ease-out pointer-events-none group-hover/shop:pointer-events-auto"
-                  style={{ top: showBumper ? '109px' : '72px' }}
+                  style={{ top: showBumper ? '100px' : '64px' }}
                 >
 
-                  <div className="relative z-50 w-full bg-[var(--background)] shadow-[0_4px_16px_rgba(0,0,0,0.12)] overflow-visible">
+                  <div className="relative z-50 w-full bg-[var(--background)] shadow-[0_8px_16px_-4px_rgba(0,0,0,0.12)] overflow-visible">
                     {/* Shelf container with generous padding - pb-[30px] for whitespace below tiles */}
                     <div className="container pt-8 pb-[30px] overflow-visible">
                       {/* Content grid - spacer between product tiles and marketing tile grows with viewport */}
