@@ -32,6 +32,18 @@ function isVideoUrl(url: string | null | undefined): boolean {
   return videoExtensions.some(ext => lowerUrl.includes(ext)) || lowerUrl.includes('/video/upload/');
 }
 
+// Generate a poster thumbnail URL from a Cloudinary video URL
+function getVideoPosterUrl(videoUrl: string): string | undefined {
+  // For Cloudinary videos, we can get the first frame as a jpg
+  if (videoUrl.includes('/video/upload/')) {
+    // Insert so_0 transformation to get first frame, and change extension to jpg
+    return videoUrl
+      .replace('/video/upload/', '/video/upload/so_0,f_jpg,q_auto/')
+      .replace(/\.(mp4|webm|mov|avi|m4v|ogv|ogg)$/i, '.jpg');
+  }
+  return undefined;
+}
+
 // ============================================
 // COMPONENT
 // ============================================
@@ -263,6 +275,7 @@ export function MediaCarousel({ items, className }: MediaCarouselProps) {
                 <video
                   ref={(el) => setVideoRef(item.id, el)}
                   src={item.url}
+                  poster={getVideoPosterUrl(item.url)}
                   muted
                   loop
                   playsInline
