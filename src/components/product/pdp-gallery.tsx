@@ -450,10 +450,10 @@ export function PDPGallery({
           <div
             className={cn(
               'relative flex flex-col',
-              // Tray width ~24% of viewport to fit exactly 3 large square thumbnails
+              // Tray width ~28% of viewport to fit 3 larger square thumbnails (~15% bigger)
               // Height matches hero (viewport - tray width since hero is square)
-              'w-[24vw] lg:w-[var(--pdp-tray-width)]', // 24% scaling on mobile/tablet, fluid 100px → 80px desktop
-              'h-[calc(100vw-24vw)] lg:h-auto lg:self-stretch', // Height = hero width = viewport - tray
+              'w-[28vw] lg:w-[var(--pdp-tray-width)]', // 28% scaling on mobile/tablet, fluid 100px → 80px desktop
+              'h-[calc(100vw-28vw)] lg:h-auto lg:self-stretch', // Height = hero width = viewport - tray
               'bg-[var(--foreground)]', // Dark background for thumbnail tray
               'flex-none flex-shrink-0',
               'lg:ml-auto', // Push tray to right edge on desktop (gutter expands)
@@ -504,8 +504,8 @@ export function PDPGallery({
                   onMouseEnter={() => handleThumbnailHover(index)}
                   className={cn(
                     'relative overflow-hidden bg-white',
-                    // Explicit width: tray (24vw) minus padding (10px) = thumbnail size
-                    'flex-none aspect-square w-[calc(24vw-10px)] lg:w-full',
+                    // Explicit width: tray (28vw) minus padding (10px) = thumbnail size
+                    'flex-none aspect-square w-[calc(28vw-10px)] lg:w-full',
                     index === 0 && 'mt-[20px] lg:mt-[var(--pdp-tray-padding)]', // First thumbnail: 20px mobile, fluid desktop
                     'transition-shadow duration-200', // Only animate the ring, not size
                     index === activeIndex && 'ring-2 ring-[var(--primary)]'
