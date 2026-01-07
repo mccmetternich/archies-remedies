@@ -129,10 +129,12 @@ function renderWidget(
       return (
         <ScaleCarousel
           key={widget.id}
+          title={(config.title as string) || ''}
+          subtitle={(config.subtitle as string) || ''}
           items={scaleItems}
           aspectRatio={(config.aspectRatio as ScaleCarouselAspectRatio) || '3:4'}
-          scaleIntensity={(config.scaleIntensity as number) || 1.2}
-          autoPlayCenter={(config.autoPlayCenter as boolean) ?? true}
+          theme={(config.theme as 'light' | 'dark' | 'cream') || 'light'}
+          imageDuration={(config.imageDuration as number) || 5}
         />
       );
 

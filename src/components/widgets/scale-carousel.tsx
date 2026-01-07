@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 // ============================================
 
 export type ScaleCarouselAspectRatio = '3:4' | '9:16';
+export type ScaleCarouselTheme = 'light' | 'dark' | 'cream';
 
 export interface ScaleCarouselItem {
   id: string;
@@ -18,15 +19,54 @@ export interface ScaleCarouselItem {
 }
 
 export interface ScaleCarouselConfig {
+  title?: string;
+  subtitle?: string;
   items: ScaleCarouselItem[];
   aspectRatio?: ScaleCarouselAspectRatio;
-  scaleIntensity?: number; // default 1.2
-  autoPlayCenter?: boolean; // auto-play video when centered
+  theme?: ScaleCarouselTheme;
+  imageDuration?: number; // seconds before auto-advancing for images (default 5)
 }
 
 interface ScaleCarouselProps extends ScaleCarouselConfig {
   className?: string;
 }
+
+// ============================================
+// THEME CONFIGURATIONS
+// ============================================
+
+const themeStyles: Record<
+  ScaleCarouselTheme,
+  {
+    bg: string;
+    titleColor: string;
+    subtitleColor: string;
+    labelBg: string;
+    labelColor: string;
+  }
+> = {
+  light: {
+    bg: 'bg-white',
+    titleColor: 'text-[var(--foreground)]',
+    subtitleColor: 'text-[#555]',
+    labelBg: 'bg-black/60',
+    labelColor: 'text-white',
+  },
+  dark: {
+    bg: 'bg-[var(--foreground)]',
+    titleColor: 'text-white',
+    subtitleColor: 'text-white/70',
+    labelBg: 'bg-white/20',
+    labelColor: 'text-white',
+  },
+  cream: {
+    bg: 'bg-[#f5f1eb]',
+    titleColor: 'text-[var(--foreground)]',
+    subtitleColor: 'text-[#555]',
+    labelBg: 'bg-black/60',
+    labelColor: 'text-white',
+  },
+};
 
 // ============================================
 // HELPER: Check if URL is video
@@ -44,45 +84,79 @@ function isVideoUrl(url: string): boolean {
 // MEDIA ITEM COMPONENT
 // ============================================
 
+interface MediaItemProps {
+  item: ScaleCarouselItem;
+  isSelected: boolean;
+  aspectRatio: ScaleCarouselAspectRatio;
+  theme: ScaleCarouselTheme;
+  onVideoEnd?: () => void;
+  onClick: () => void;
+}
+
 function MediaItem({
   item,
-  isCentered,
-  autoPlayCenter,
+  isSelected,
   aspectRatio,
-}: {
-  item: ScaleCarouselItem;
-  isCentered: boolean;
-  autoPlayCenter: boolean;
-  aspectRatio: ScaleCarouselAspectRatio;
-}) {
+  theme,
+  onVideoEnd,
+  onClick,
+}: MediaItemProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const shouldUseVideo = item.isVideo || isVideoUrl(item.mediaUrl);
+  const styles = themeStyles[theme];
 
-  // Handle video autoplay based on center position
+  // Handle video playback
   useEffect(() => {
-    if (!videoRef.current || !shouldUseVideo) return;
+    const video = videoRef.current;
+    if (!video || !shouldUseVideo) return;
 
-    if (isCentered && autoPlayCenter) {
-      videoRef.current.play().catch(() => {
-        // Autoplay blocked by browser
-      });
-    } else {
-      videoRef.current.pause();
+    // All videos play continuously
+    video.play().catch(() => {
+      // Autoplay blocked
+    });
+
+    // Mute/unmute based on selection
+    video.muted = !isSelected;
+
+    // Restart video when selected
+    if (isSelected) {
+      video.currentTime = 0;
+      video.play().catch(() => {});
     }
-  }, [isCentered, autoPlayCenter, shouldUseVideo]);
+  }, [isSelected, shouldUseVideo]);
+
+  // Handle video end for auto-advance
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !shouldUseVideo || !isSelected) return;
+
+    const handleEnded = () => {
+      onVideoEnd?.();
+    };
+
+    video.addEventListener('ended', handleEnded);
+    return () => video.removeEventListener('ended', handleEnded);
+  }, [isSelected, shouldUseVideo, onVideoEnd]);
 
   const aspectClass = aspectRatio === '9:16' ? 'aspect-[9/16]' : 'aspect-[3/4]';
 
   return (
-    <div className={cn('relative w-full overflow-hidden rounded-xl bg-gray-100', aspectClass)}>
+    <div
+      className={cn(
+        'relative w-full overflow-hidden rounded-xl cursor-pointer transition-all duration-300',
+        aspectClass
+      )}
+      onClick={onClick}
+    >
       {shouldUseVideo ? (
         <video
           ref={videoRef}
           src={item.mediaUrl}
           className="w-full h-full object-cover"
-          loop
-          muted
+          loop={!isSelected} // Only loop when not selected (for background play)
+          muted={!isSelected}
           playsInline
+          autoPlay
         />
       ) : (
         <Image
@@ -90,14 +164,14 @@ function MediaItem({
           alt={item.label || ''}
           fill
           className="object-cover"
-          sizes="(max-width: 768px) 80vw, 300px"
+          sizes="(max-width: 768px) 80vw, 400px"
         />
       )}
 
-      {/* Label Overlay */}
-      {item.label && (
-        <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/60 to-transparent">
-          <p className="text-white text-sm md:text-base font-medium leading-snug">
+      {/* Label Overlay - only show on selected item */}
+      {item.label && isSelected && (
+        <div className={cn('absolute inset-x-0 bottom-0 p-4', styles.labelBg)}>
+          <p className={cn('text-sm md:text-base font-medium leading-snug', styles.labelColor)}>
             {item.label}
           </p>
         </div>
@@ -111,172 +185,120 @@ function MediaItem({
 // ============================================
 
 export function ScaleCarousel({
+  title,
+  subtitle,
   items,
   aspectRatio = '3:4',
-  scaleIntensity = 1.2,
-  autoPlayCenter = true,
+  theme = 'light',
+  imageDuration = 5,
   className,
 }: ScaleCarouselProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [centerIndex, setCenterIndex] = useState(Math.floor(items.length / 2));
-  const [isDragging, setIsDragging] = useState(false);
-  const [startX, setStartX] = useState(0);
-  const [scrollLeft, setScrollLeft] = useState(0);
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const autoAdvanceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const styles = themeStyles[theme];
 
-  // Calculate which item is centered
-  const updateCenterIndex = useCallback(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    const containerCenter = container.scrollLeft + container.clientWidth / 2;
-    const children = Array.from(container.children) as HTMLElement[];
-
-    let closestIndex = 0;
-    let closestDistance = Infinity;
-
-    children.forEach((child, index) => {
-      const childCenter = child.offsetLeft + child.offsetWidth / 2;
-      const distance = Math.abs(containerCenter - childCenter);
-      if (distance < closestDistance) {
-        closestDistance = distance;
-        closestIndex = index;
-      }
-    });
-
-    setCenterIndex(closestIndex);
+  // Clear auto-advance timer
+  const clearAutoAdvance = useCallback(() => {
+    if (autoAdvanceTimerRef.current) {
+      clearTimeout(autoAdvanceTimerRef.current);
+      autoAdvanceTimerRef.current = null;
+    }
   }, []);
 
-  // Scroll handler
+  // Advance to next item
+  const advanceToNext = useCallback(() => {
+    setSelectedIndex((prev) => (prev + 1) % items.length);
+  }, [items.length]);
+
+  // Handle item selection
+  const handleSelect = useCallback((index: number) => {
+    clearAutoAdvance();
+    setSelectedIndex(index);
+  }, [clearAutoAdvance]);
+
+  // Handle video end - advance to next
+  const handleVideoEnd = useCallback(() => {
+    advanceToNext();
+  }, [advanceToNext]);
+
+  // Auto-advance for images
   useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
+    if (!items || items.length === 0) return;
 
-    const handleScroll = () => {
-      if (!isDragging) {
-        updateCenterIndex();
-      }
-    };
+    const currentItem = items[selectedIndex];
+    const isVideo = currentItem?.isVideo || isVideoUrl(currentItem?.mediaUrl || '');
 
-    container.addEventListener('scroll', handleScroll, { passive: true });
-    return () => container.removeEventListener('scroll', handleScroll);
-  }, [updateCenterIndex, isDragging]);
+    // Only auto-advance for images (videos advance on end)
+    if (!isVideo) {
+      clearAutoAdvance();
+      autoAdvanceTimerRef.current = setTimeout(() => {
+        advanceToNext();
+      }, imageDuration * 1000);
+    }
 
-  // Initial centering - scroll to center item
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container || items.length === 0) return;
-
-    // Wait for layout
-    requestAnimationFrame(() => {
-      const children = Array.from(container.children) as HTMLElement[];
-      const middleIndex = Math.floor(items.length / 2);
-      const middleChild = children[middleIndex];
-
-      if (middleChild) {
-        const scrollPosition =
-          middleChild.offsetLeft -
-          container.clientWidth / 2 +
-          middleChild.offsetWidth / 2;
-        container.scrollLeft = scrollPosition;
-        updateCenterIndex();
-      }
-    });
-  }, [items.length, updateCenterIndex]);
-
-  // Mouse/touch drag handlers
-  const handleDragStart = (e: React.MouseEvent | React.TouchEvent) => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    setIsDragging(true);
-    const pageX = 'touches' in e ? e.touches[0].pageX : e.pageX;
-    setStartX(pageX - container.offsetLeft);
-    setScrollLeft(container.scrollLeft);
-  };
-
-  const handleDragMove = (e: React.MouseEvent | React.TouchEvent) => {
-    if (!isDragging) return;
-    const container = containerRef.current;
-    if (!container) return;
-
-    e.preventDefault();
-    const pageX = 'touches' in e ? e.touches[0].pageX : e.pageX;
-    const x = pageX - container.offsetLeft;
-    const walk = (x - startX) * 1.5; // Drag speed multiplier
-    container.scrollLeft = scrollLeft - walk;
-  };
-
-  const handleDragEnd = () => {
-    setIsDragging(false);
-    updateCenterIndex();
-  };
+    return clearAutoAdvance;
+  }, [selectedIndex, items, imageDuration, advanceToNext, clearAutoAdvance]);
 
   if (!items || items.length === 0) {
     return null;
   }
 
-  // Calculate scale based on distance from center
-  const getScale = (index: number) => {
-    const distance = Math.abs(index - centerIndex);
-    if (distance === 0) return scaleIntensity;
-    if (distance === 1) return 1 + (scaleIntensity - 1) * 0.3;
-    return 1;
-  };
-
-  const getOpacity = (index: number) => {
-    const distance = Math.abs(index - centerIndex);
-    if (distance === 0) return 1;
-    if (distance === 1) return 0.7;
-    return 0.5;
-  };
+  // Calculate dimensions for selected vs non-selected items
+  const selectedWidth = aspectRatio === '9:16' ? 280 : 360;
+  const selectedHeight = aspectRatio === '9:16' ? 500 : 480;
+  const thumbnailWidth = aspectRatio === '9:16' ? 140 : 180;
+  const thumbnailHeight = aspectRatio === '9:16' ? 250 : 240;
 
   return (
-    <section className={cn('py-12 md:py-16 lg:py-20 overflow-hidden', className)}>
-      {/* Desktop: Multiple visible items with center scaling */}
+    <section className={cn('py-12 md:py-16 lg:py-20', styles.bg, className)}>
+      {/* Section Header */}
+      {(title || subtitle) && (
+        <div className="container px-6 lg:px-12 mb-10 md:mb-12 text-center">
+          {title && (
+            <h2 className={cn('text-3xl md:text-4xl lg:text-5xl font-medium mb-4', styles.titleColor)}>
+              {title}
+            </h2>
+          )}
+          {subtitle && (
+            <p className={cn('text-base md:text-lg max-w-2xl mx-auto', styles.subtitleColor)}>
+              {subtitle}
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* Desktop: Center-focused layout */}
       <div className="hidden md:block">
-        <div
-          ref={containerRef}
-          className="flex items-center gap-6 lg:gap-8 px-[20%] overflow-x-auto scrollbar-hide cursor-grab active:cursor-grabbing"
-          style={{
-            WebkitOverflowScrolling: 'touch',
-            scrollbarWidth: 'none',
-            msOverflowStyle: 'none',
-            scrollSnapType: 'x mandatory',
-          }}
-          onMouseDown={handleDragStart}
-          onMouseMove={handleDragMove}
-          onMouseUp={handleDragEnd}
-          onMouseLeave={handleDragEnd}
-          onTouchStart={handleDragStart}
-          onTouchMove={handleDragMove}
-          onTouchEnd={handleDragEnd}
-        >
-          {items.map((item, index) => (
-            <div
-              key={item.id}
-              className="flex-shrink-0 transition-all duration-300 ease-out scroll-snap-align-center"
-              style={{
-                width: aspectRatio === '9:16' ? '200px' : '280px',
-                transform: `scale(${getScale(index)})`,
-                opacity: getOpacity(index),
-                scrollSnapAlign: 'center',
-              }}
-            >
-              <MediaItem
-                item={item}
-                isCentered={index === centerIndex}
-                autoPlayCenter={autoPlayCenter}
-                aspectRatio={aspectRatio}
-              />
-            </div>
-          ))}
+        <div className="flex items-center justify-center gap-6 lg:gap-8 px-6">
+          {items.map((item, index) => {
+            const isSelected = index === selectedIndex;
+
+            return (
+              <div
+                key={item.id}
+                className="flex-shrink-0 transition-all duration-500 ease-out"
+                style={{
+                  width: isSelected ? selectedWidth : thumbnailWidth,
+                  height: isSelected ? selectedHeight : thumbnailHeight,
+                }}
+              >
+                <MediaItem
+                  item={item}
+                  isSelected={isSelected}
+                  aspectRatio={aspectRatio}
+                  theme={theme}
+                  onVideoEnd={isSelected ? handleVideoEnd : undefined}
+                  onClick={() => handleSelect(index)}
+                />
+              </div>
+            );
+          })}
         </div>
       </div>
 
-      {/* Mobile: Single focused item with peek */}
+      {/* Mobile: Horizontal scroll */}
       <div className="md:hidden">
         <div
-          ref={containerRef}
           className="flex items-center gap-4 px-6 overflow-x-auto scrollbar-hide snap-x snap-mandatory"
           style={{
             WebkitOverflowScrolling: 'touch',
@@ -284,24 +306,52 @@ export function ScaleCarousel({
             msOverflowStyle: 'none',
           }}
         >
-          {items.map((item, index) => (
-            <div
-              key={item.id}
-              className="flex-shrink-0 snap-center"
-              style={{ width: '80vw', maxWidth: '320px' }}
-            >
-              <MediaItem
-                item={item}
-                isCentered={index === centerIndex}
-                autoPlayCenter={autoPlayCenter}
-                aspectRatio={aspectRatio}
-              />
-            </div>
-          ))}
-          {/* Spacer for last item peek */}
-          <div className="flex-shrink-0 w-[10vw]" aria-hidden="true" />
+          {items.map((item, index) => {
+            const isSelected = index === selectedIndex;
+
+            return (
+              <div
+                key={item.id}
+                className="flex-shrink-0 snap-center transition-all duration-300"
+                style={{
+                  width: isSelected ? '80vw' : '60vw',
+                  maxWidth: isSelected ? 320 : 240,
+                }}
+              >
+                <MediaItem
+                  item={item}
+                  isSelected={isSelected}
+                  aspectRatio={aspectRatio}
+                  theme={theme}
+                  onVideoEnd={isSelected ? handleVideoEnd : undefined}
+                  onClick={() => handleSelect(index)}
+                />
+              </div>
+            );
+          })}
+          {/* Spacer for last item */}
+          <div className="flex-shrink-0 w-4" aria-hidden="true" />
         </div>
       </div>
+
+      {/* Dot indicators */}
+      {items.length > 1 && (
+        <div className="flex items-center justify-center gap-2 mt-6 md:mt-8">
+          {items.map((item, index) => (
+            <button
+              key={item.id}
+              onClick={() => handleSelect(index)}
+              className={cn(
+                'w-2 h-2 rounded-full transition-all duration-300',
+                index === selectedIndex
+                  ? 'w-6 bg-[var(--foreground)]'
+                  : 'bg-[var(--foreground)]/30 hover:bg-[var(--foreground)]/50'
+              )}
+              aria-label={`Go to slide ${index + 1}`}
+            />
+          ))}
+        </div>
+      )}
     </section>
   );
 }

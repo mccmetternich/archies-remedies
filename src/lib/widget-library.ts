@@ -682,10 +682,12 @@ export const DEFAULT_CONFIGS: Record<string, Record<string, unknown>> = {
     theme: 'light',
   },
   scale_carousel: {
+    title: '',
+    subtitle: '',
     items: [],
     aspectRatio: '3:4',
-    scaleIntensity: 1.2,
-    autoPlayCenter: true,
+    theme: 'light',
+    imageDuration: 5,
   },
 };
 

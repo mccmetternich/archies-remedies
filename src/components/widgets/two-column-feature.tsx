@@ -88,7 +88,7 @@ const themeStyles: Record<
     labelText: '#ffffff',
     ctaBg: 'var(--foreground)',
     ctaText: '#ffffff',
-    ctaHoverBg: '#333333',
+    ctaHoverBg: 'var(--primary)',
     starColor: 'var(--foreground)',
   },
   dark: {
@@ -100,7 +100,7 @@ const themeStyles: Record<
     labelText: 'var(--foreground)',
     ctaBg: '#ffffff',
     ctaText: 'var(--foreground)',
-    ctaHoverBg: '#f0f0f0',
+    ctaHoverBg: 'var(--primary)',
     starColor: '#ffffff',
   },
   cream: {
@@ -112,7 +112,7 @@ const themeStyles: Record<
     labelText: 'var(--foreground)',
     ctaBg: 'var(--foreground)',
     ctaText: '#ffffff',
-    ctaHoverBg: '#333333',
+    ctaHoverBg: 'var(--primary)',
     starColor: 'var(--foreground)',
   },
 };
@@ -460,14 +460,19 @@ export function TwoColumnFeature({
                 <Link
                   href={isScrollAction ? '#' : ctaUrl}
                   onClick={handleCtaClick}
-                  className="inline-flex items-center px-6 py-3 lg:px-8 lg:py-4 rounded-full text-sm lg:text-base font-medium transition-colors"
+                  className="inline-flex items-center px-6 py-3 lg:px-8 lg:py-4 rounded-lg text-sm lg:text-base font-medium transition-all duration-200"
                   style={{
                     backgroundColor: styles.ctaBg,
                     color: styles.ctaText,
-                    
                   }}
-                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = styles.ctaHoverBg)}
-                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = styles.ctaBg)}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = styles.ctaHoverBg;
+                    e.currentTarget.style.color = '#ffffff';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = styles.ctaBg;
+                    e.currentTarget.style.color = styles.ctaText;
+                  }}
                 >
                   {ctaText}
                 </Link>
@@ -576,11 +581,18 @@ export function TwoColumnFeature({
                 <Link
                   href={isScrollAction ? '#' : ctaUrl}
                   onClick={handleCtaClick}
-                  className="inline-flex items-center px-5 py-2.5 rounded-full text-sm font-medium transition-colors"
+                  className="inline-flex items-center px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-200"
                   style={{
                     backgroundColor: styles.ctaBg,
                     color: styles.ctaText,
-                    
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = styles.ctaHoverBg;
+                    e.currentTarget.style.color = '#ffffff';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = styles.ctaBg;
+                    e.currentTarget.style.color = styles.ctaText;
                   }}
                 >
                   {ctaText}

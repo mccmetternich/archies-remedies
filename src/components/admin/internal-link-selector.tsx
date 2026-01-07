@@ -277,7 +277,7 @@ export function InternalLinkSelector({
         {isOpen && dropdownPosition && typeof document !== 'undefined' && createPortal(
           <div
             ref={dropdownRef}
-            className="fixed z-[9999] bg-[var(--admin-card)] border border-[var(--admin-border-light)] rounded-xl shadow-lg overflow-hidden"
+            className="fixed z-[9999] bg-[#1e1e1e] border border-[#333] rounded-xl shadow-2xl overflow-hidden"
             style={{
               top: dropdownPosition.top,
               left: dropdownPosition.left,
@@ -286,8 +286,8 @@ export function InternalLinkSelector({
           >
             {/* Search hint */}
             {!searchQuery && (
-              <div className="px-3 py-2 border-b border-[var(--admin-border-light)] bg-[var(--admin-bg)]">
-                <div className="flex items-center gap-2 text-xs text-[var(--admin-text-muted)]">
+              <div className="px-3 py-2 border-b border-[#333] bg-[#161616]">
+                <div className="flex items-center gap-2 text-xs text-[#888]">
                   <Search className="w-3 h-3" />
                   <span>Search or type custom URL</span>
                 </div>
@@ -297,17 +297,17 @@ export function InternalLinkSelector({
             {/* Options list */}
             <div className="max-h-64 overflow-y-auto">
               {isLoading ? (
-                <div className="px-3 py-4 text-sm text-center text-[var(--admin-text-muted)]">
+                <div className="px-3 py-4 text-sm text-center text-[#888]">
                   Loading...
                 </div>
               ) : filteredPages.length === 0 ? (
-                <div className="px-3 py-4 text-sm text-center text-[var(--admin-text-muted)]">
+                <div className="px-3 py-4 text-sm text-center text-[#888]">
                   {searchQuery ? (
                     <div className="space-y-2">
                       <p>No matches found</p>
                       <button
                         onClick={() => handleSelect(searchQuery)}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[var(--admin-hover)] rounded-lg text-[var(--admin-text-secondary)] hover:bg-[var(--admin-border-light)] transition-colors"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#2a2a2a] rounded-lg text-[#ccc] hover:bg-[#333] transition-colors"
                       >
                         <ExternalLink className="w-3 h-3" />
                         Use &quot;{searchQuery}&quot;
@@ -322,19 +322,19 @@ export function InternalLinkSelector({
                   {/* Special Actions */}
                   {actionsFiltered.length > 0 && (
                     <div>
-                      <div className="px-3 py-1.5 text-[10px] font-medium uppercase tracking-wider text-[var(--admin-text-muted)] bg-[var(--admin-bg)]">
+                      <div className="px-3 py-1.5 text-[10px] font-medium uppercase tracking-wider text-[#888] bg-[#161616]">
                         Actions
                       </div>
                       {actionsFiltered.map((page) => (
                         <button
                           key={page.slug}
                           onClick={() => handleSelect(page.slug)}
-                          className={`w-full flex items-center gap-2.5 px-3 py-2 text-left text-sm hover:bg-[var(--admin-hover)] transition-colors ${
-                            value === page.slug ? 'bg-[var(--primary)]/10' : ''
+                          className={`w-full flex items-center gap-2.5 px-3 py-2 text-left text-sm hover:bg-[#2a2a2a] transition-colors ${
+                            value === page.slug ? 'bg-[#2a2a2a]' : ''
                           }`}
                         >
                           {getIcon(page.icon)}
-                          <span className="flex-1 text-[var(--admin-text-primary)]">{page.label}</span>
+                          <span className="flex-1 text-white">{page.label}</span>
                         </button>
                       ))}
                     </div>
@@ -343,20 +343,20 @@ export function InternalLinkSelector({
                   {/* Static Pages */}
                   {staticFiltered.length > 0 && (
                     <div>
-                      <div className="px-3 py-1.5 text-[10px] font-medium uppercase tracking-wider text-[var(--admin-text-muted)] bg-[var(--admin-bg)]">
+                      <div className="px-3 py-1.5 text-[10px] font-medium uppercase tracking-wider text-[#888] bg-[#161616]">
                         Pages
                       </div>
                       {staticFiltered.map((page) => (
                         <button
                           key={page.slug}
                           onClick={() => handleSelect(page.slug)}
-                          className={`w-full flex items-center gap-2.5 px-3 py-2 text-left text-sm hover:bg-[var(--admin-hover)] transition-colors ${
-                            value === page.slug ? 'bg-[var(--admin-hover)]' : ''
+                          className={`w-full flex items-center gap-2.5 px-3 py-2 text-left text-sm hover:bg-[#2a2a2a] transition-colors ${
+                            value === page.slug ? 'bg-[#2a2a2a]' : ''
                           }`}
                         >
                           {getIcon(page.icon)}
-                          <span className="flex-1 text-[var(--admin-text-primary)]">{page.label}</span>
-                          <span className="text-xs text-[var(--admin-text-muted)]">{page.slug}</span>
+                          <span className="flex-1 text-white">{page.label}</span>
+                          <span className="text-xs text-[#888]">{page.slug}</span>
                         </button>
                       ))}
                     </div>
@@ -365,20 +365,20 @@ export function InternalLinkSelector({
                   {/* Custom Pages */}
                   {customFiltered.length > 0 && (
                     <div>
-                      <div className="px-3 py-1.5 text-[10px] font-medium uppercase tracking-wider text-[var(--admin-text-muted)] bg-[var(--admin-bg)]">
+                      <div className="px-3 py-1.5 text-[10px] font-medium uppercase tracking-wider text-[#888] bg-[#161616]">
                         Custom Pages
                       </div>
                       {customFiltered.map((page) => (
                         <button
                           key={page.slug}
                           onClick={() => handleSelect(page.slug)}
-                          className={`w-full flex items-center gap-2.5 px-3 py-2 text-left text-sm hover:bg-[var(--admin-hover)] transition-colors ${
-                            value === page.slug ? 'bg-[var(--admin-hover)]' : ''
+                          className={`w-full flex items-center gap-2.5 px-3 py-2 text-left text-sm hover:bg-[#2a2a2a] transition-colors ${
+                            value === page.slug ? 'bg-[#2a2a2a]' : ''
                           }`}
                         >
                           {getIcon(page.icon)}
-                          <span className="flex-1 text-[var(--admin-text-primary)]">{page.label}</span>
-                          <span className="text-xs text-[var(--admin-text-muted)]">{page.slug}</span>
+                          <span className="flex-1 text-white">{page.label}</span>
+                          <span className="text-xs text-[#888]">{page.slug}</span>
                         </button>
                       ))}
                     </div>
@@ -387,20 +387,20 @@ export function InternalLinkSelector({
                   {/* Products */}
                   {productFiltered.length > 0 && (
                     <div>
-                      <div className="px-3 py-1.5 text-[10px] font-medium uppercase tracking-wider text-[var(--admin-text-muted)] bg-[var(--admin-bg)]">
+                      <div className="px-3 py-1.5 text-[10px] font-medium uppercase tracking-wider text-[#888] bg-[#161616]">
                         Products
                       </div>
                       {productFiltered.map((page) => (
                         <button
                           key={page.slug}
                           onClick={() => handleSelect(page.slug)}
-                          className={`w-full flex items-center gap-2.5 px-3 py-2 text-left text-sm hover:bg-[var(--admin-hover)] transition-colors ${
-                            value === page.slug ? 'bg-[var(--admin-hover)]' : ''
+                          className={`w-full flex items-center gap-2.5 px-3 py-2 text-left text-sm hover:bg-[#2a2a2a] transition-colors ${
+                            value === page.slug ? 'bg-[#2a2a2a]' : ''
                           }`}
                         >
                           {getIcon(page.icon)}
-                          <span className="flex-1 text-[var(--admin-text-primary)]">{page.label}</span>
-                          <span className="text-xs text-[var(--admin-text-muted)]">{page.slug}</span>
+                          <span className="flex-1 text-white">{page.label}</span>
+                          <span className="text-xs text-[#888]">{page.slug}</span>
                         </button>
                       ))}
                     </div>
@@ -409,20 +409,20 @@ export function InternalLinkSelector({
                   {/* Blog Posts */}
                   {blogFiltered.length > 0 && (
                     <div>
-                      <div className="px-3 py-1.5 text-[10px] font-medium uppercase tracking-wider text-[var(--admin-text-muted)] bg-[var(--admin-bg)]">
+                      <div className="px-3 py-1.5 text-[10px] font-medium uppercase tracking-wider text-[#888] bg-[#161616]">
                         Blog Posts
                       </div>
                       {blogFiltered.map((page) => (
                         <button
                           key={page.slug}
                           onClick={() => handleSelect(page.slug)}
-                          className={`w-full flex items-center gap-2.5 px-3 py-2 text-left text-sm hover:bg-[var(--admin-hover)] transition-colors ${
-                            value === page.slug ? 'bg-[var(--admin-hover)]' : ''
+                          className={`w-full flex items-center gap-2.5 px-3 py-2 text-left text-sm hover:bg-[#2a2a2a] transition-colors ${
+                            value === page.slug ? 'bg-[#2a2a2a]' : ''
                           }`}
                         >
                           {getIcon(page.icon)}
-                          <span className="flex-1 text-[var(--admin-text-primary)]">{page.label}</span>
-                          <span className="text-xs text-[var(--admin-text-muted)]">{page.slug}</span>
+                          <span className="flex-1 text-white">{page.label}</span>
+                          <span className="text-xs text-[#888]">{page.slug}</span>
                         </button>
                       ))}
                     </div>
@@ -430,14 +430,14 @@ export function InternalLinkSelector({
 
                   {/* Custom URL option when searching */}
                   {searchQuery && !pages.some(p => p.slug === searchQuery) && (
-                    <div className="border-t border-[var(--admin-border-light)]">
+                    <div className="border-t border-[#333]">
                       <button
                         onClick={() => handleSelect(searchQuery)}
-                        className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left text-sm hover:bg-[var(--admin-hover)] transition-colors"
+                        className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left text-sm hover:bg-[#2a2a2a] transition-colors"
                       >
-                        <ExternalLink className="w-3.5 h-3.5 text-[var(--admin-text-muted)]" />
-                        <span className="flex-1 text-[var(--admin-text-primary)]">Use custom URL</span>
-                        <span className="text-xs text-[var(--admin-text-muted)]">{searchQuery}</span>
+                        <ExternalLink className="w-3.5 h-3.5 text-[#888]" />
+                        <span className="flex-1 text-white">Use custom URL</span>
+                        <span className="text-xs text-[#888]">{searchQuery}</span>
                       </button>
                     </div>
                   )}

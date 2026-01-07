@@ -38,7 +38,7 @@ import type { StoryHeroHeight } from '@/components/widgets/story-hero';
 import { TeamCardsConfig } from '@/components/admin/widget-configs/team-cards-config';
 import type { TeamCard, TeamCardsTheme } from '@/components/widgets/team-cards';
 import { ScaleCarouselConfig } from '@/components/admin/widget-configs/scale-carousel-config';
-import type { ScaleCarouselItem, ScaleCarouselAspectRatio } from '@/components/widgets/scale-carousel';
+import type { ScaleCarouselItem, ScaleCarouselAspectRatio, ScaleCarouselTheme } from '@/components/widgets/scale-carousel';
 
 // Helper: Check if URL is video
 function isVideoUrl(url: string): boolean {
@@ -694,21 +694,29 @@ export function WidgetConfigPanel({ widget, onUpdate }: WidgetConfigPanelProps) 
       {/* Scale Carousel */}
       {widget.type === 'scale_carousel' && (
         <ScaleCarouselConfig
+          title={(config.title as string) || ''}
+          subtitle={(config.subtitle as string) || ''}
           items={(config.items as ScaleCarouselItem[]) || []}
           aspectRatio={(config.aspectRatio as ScaleCarouselAspectRatio) || '3:4'}
-          scaleIntensity={(config.scaleIntensity as number) || 1.2}
-          autoPlayCenter={(config.autoPlayCenter as boolean) ?? true}
+          theme={(config.theme as ScaleCarouselTheme) || 'light'}
+          imageDuration={(config.imageDuration as number) || 5}
+          onTitleChange={(title) =>
+            onUpdate({ config: { ...config, title } })
+          }
+          onSubtitleChange={(subtitle) =>
+            onUpdate({ config: { ...config, subtitle } })
+          }
           onItemsChange={(items) =>
             onUpdate({ config: { ...config, items } })
           }
           onAspectRatioChange={(aspectRatio) =>
             onUpdate({ config: { ...config, aspectRatio } })
           }
-          onScaleIntensityChange={(scaleIntensity) =>
-            onUpdate({ config: { ...config, scaleIntensity } })
+          onThemeChange={(theme) =>
+            onUpdate({ config: { ...config, theme } })
           }
-          onAutoPlayCenterChange={(autoPlayCenter) =>
-            onUpdate({ config: { ...config, autoPlayCenter } })
+          onImageDurationChange={(imageDuration) =>
+            onUpdate({ config: { ...config, imageDuration } })
           }
         />
       )}
