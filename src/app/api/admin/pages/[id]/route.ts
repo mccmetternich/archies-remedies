@@ -52,6 +52,8 @@ export async function PUT(
         heroImageUrl: body.heroImageUrl,
         heroTitle: body.heroTitle,
         heroSubtitle: body.heroSubtitle,
+        pageTitle: body.pageTitle,
+        pageSubtitle: body.pageSubtitle,
         metaTitle: body.metaTitle,
         metaDescription: body.metaDescription,
         isActive: body.isActive,

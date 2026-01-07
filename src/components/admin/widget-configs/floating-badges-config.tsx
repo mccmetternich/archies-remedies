@@ -16,14 +16,8 @@ interface FloatingBadgesConfigProps {
 }
 
 // ============================================
-// SPEED & LAYER OPTIONS
+// LAYER OPTIONS
 // ============================================
-
-const speedOptions: { value: FloatingBadge['speed']; label: string; description: string }[] = [
-  { value: 'slow', label: 'Slow', description: '20s rotation' },
-  { value: 'medium', label: 'Medium', description: '12s rotation' },
-  { value: 'fast', label: 'Fast', description: '6s rotation' },
-];
 
 const layerOptions: { value: FloatingBadge['layer']; label: string; description: string }[] = [
   { value: 'below', label: 'Below', description: 'Behind page content' },
@@ -36,6 +30,97 @@ const layerOptions: { value: FloatingBadge['layer']; label: string; description:
 
 function generateId(): string {
   return `badge-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+}
+
+// ============================================
+// SLIDER COMPONENT
+// ============================================
+
+interface SliderProps {
+  label: string;
+  value: number;
+  onChange: (value: number) => void;
+  min: number;
+  max: number;
+  unit?: string;
+  step?: number;
+}
+
+function Slider({ label, value, onChange, min, max, unit = '', step = 1 }: SliderProps) {
+  return (
+    <div className="space-y-1.5">
+      <div className="flex items-center justify-between">
+        <label className="text-xs text-[var(--admin-text-muted)]">{label}</label>
+        <span className="text-xs font-medium text-[var(--admin-text-primary)] bg-[var(--admin-card)] px-2 py-0.5 rounded">
+          {value}{unit}
+        </span>
+      </div>
+      <input
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        onChange={(e) => onChange(Number(e.target.value))}
+        className="w-full h-2 bg-[var(--admin-border)] rounded-lg appearance-none cursor-pointer slider-primary"
+      />
+    </div>
+  );
+}
+
+// ============================================
+// SPEED SLIDER COMPONENT
+// ============================================
+
+interface SpeedSliderProps {
+  value: FloatingBadge['speed'];
+  onChange: (value: FloatingBadge['speed']) => void;
+}
+
+function SpeedSlider({ value, onChange }: SpeedSliderProps) {
+  // Map speed value to numeric (slow=0, medium=1, fast=2)
+  const speedToNum = (s: FloatingBadge['speed']): number => {
+    if (s === 'slow') return 0;
+    if (s === 'medium') return 1;
+    return 2;
+  };
+
+  const numToSpeed = (n: number): FloatingBadge['speed'] => {
+    if (n <= 0.5) return 'slow';
+    if (n <= 1.5) return 'medium';
+    return 'fast';
+  };
+
+  const speedLabels: Record<FloatingBadge['speed'], string> = {
+    slow: '20s',
+    medium: '12s',
+    fast: '6s',
+  };
+
+  return (
+    <div className="space-y-1.5">
+      <div className="flex items-center justify-between">
+        <label className="text-xs font-medium text-[var(--admin-text-secondary)]">Rotation Speed</label>
+        <span className="text-xs font-medium text-black bg-[var(--primary)] px-2 py-0.5 rounded">
+          {value.charAt(0).toUpperCase() + value.slice(1)} ({speedLabels[value]})
+        </span>
+      </div>
+      <input
+        type="range"
+        min={0}
+        max={2}
+        step={1}
+        value={speedToNum(value)}
+        onChange={(e) => onChange(numToSpeed(Number(e.target.value)))}
+        className="w-full h-2 bg-[var(--admin-border)] rounded-lg appearance-none cursor-pointer slider-primary"
+      />
+      <div className="flex justify-between text-[10px] text-[var(--admin-text-muted)]">
+        <span>Slow</span>
+        <span>Medium</span>
+        <span>Fast</span>
+      </div>
+    </div>
+  );
 }
 
 // ============================================
@@ -83,6 +168,30 @@ export function FloatingBadgesConfig({
 
   return (
     <div className="space-y-6">
+      {/* Slider Styles */}
+      <style jsx global>{`
+        .slider-primary::-webkit-slider-thumb {
+          -webkit-appearance: none;
+          appearance: none;
+          width: 16px;
+          height: 16px;
+          border-radius: 50%;
+          background: var(--primary);
+          cursor: pointer;
+          border: 2px solid white;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .slider-primary::-moz-range-thumb {
+          width: 16px;
+          height: 16px;
+          border-radius: 50%;
+          background: var(--primary);
+          cursor: pointer;
+          border: 2px solid white;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+      `}</style>
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -96,7 +205,7 @@ export function FloatingBadgesConfig({
         <button
           type="button"
           onClick={addBadge}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-[var(--primary)] text-white rounded-lg text-sm font-medium hover:bg-[var(--primary-dark)] transition-colors"
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-[var(--primary)] text-black font-medium rounded-lg text-sm hover:bg-[var(--primary-dark)] transition-colors"
         >
           <Plus className="w-4 h-4" />
           Add Badge
@@ -129,7 +238,7 @@ export function FloatingBadgesConfig({
                     <GripVertical className="w-4 h-4" />
                   </button>
                 </div>
-                <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[var(--primary)]/20 text-[var(--primary)] text-sm font-semibold">
+                <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[var(--primary)] text-black text-sm font-semibold">
                   {index + 1}
                 </span>
                 <span className="text-sm font-medium text-[var(--admin-text-primary)] flex-1">
@@ -179,129 +288,85 @@ export function FloatingBadgesConfig({
               )}
 
               {/* Desktop Position & Size */}
-              <div className="mb-4">
-                <label className="block text-xs font-medium text-[var(--admin-text-secondary)] mb-2">
+              <div className="mb-5 p-3 bg-[var(--admin-card)] rounded-lg">
+                <label className="block text-xs font-medium text-[var(--admin-text-secondary)] mb-3">
                   Desktop Position & Size
                 </label>
-                <div className="grid grid-cols-3 gap-3">
-                  <div>
-                    <label className="block text-xs text-[var(--admin-text-muted)] mb-1">
-                      X Position (%)
-                    </label>
-                    <input
-                      type="number"
-                      min="0"
-                      max="100"
-                      value={badge.desktopX}
-                      onChange={(e) => updateBadge(index, { desktopX: Number(e.target.value) })}
-                      className="w-full px-3 py-2 bg-[var(--admin-card)] border border-[var(--admin-border-light)] rounded-lg text-sm text-[var(--admin-text-primary)] focus:outline-none focus:border-[var(--primary)]"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs text-[var(--admin-text-muted)] mb-1">
-                      Y Position (%)
-                    </label>
-                    <input
-                      type="number"
-                      min="0"
-                      max="100"
-                      value={badge.desktopY}
-                      onChange={(e) => updateBadge(index, { desktopY: Number(e.target.value) })}
-                      className="w-full px-3 py-2 bg-[var(--admin-card)] border border-[var(--admin-border-light)] rounded-lg text-sm text-[var(--admin-text-primary)] focus:outline-none focus:border-[var(--primary)]"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs text-[var(--admin-text-muted)] mb-1">
-                      Size (px)
-                    </label>
-                    <input
-                      type="number"
-                      min="20"
-                      max="500"
-                      value={badge.desktopSize}
-                      onChange={(e) => updateBadge(index, { desktopSize: Number(e.target.value) })}
-                      className="w-full px-3 py-2 bg-[var(--admin-card)] border border-[var(--admin-border-light)] rounded-lg text-sm text-[var(--admin-text-primary)] focus:outline-none focus:border-[var(--primary)]"
-                    />
-                  </div>
+                <div className="space-y-4">
+                  <Slider
+                    label="X Position"
+                    value={badge.desktopX}
+                    onChange={(v) => updateBadge(index, { desktopX: v })}
+                    min={0}
+                    max={100}
+                    unit="%"
+                  />
+                  <Slider
+                    label="Y Position"
+                    value={badge.desktopY}
+                    onChange={(v) => updateBadge(index, { desktopY: v })}
+                    min={0}
+                    max={100}
+                    unit="%"
+                  />
+                  <Slider
+                    label="Size"
+                    value={badge.desktopSize}
+                    onChange={(v) => updateBadge(index, { desktopSize: v })}
+                    min={40}
+                    max={400}
+                    unit="px"
+                    step={10}
+                  />
                 </div>
               </div>
 
               {/* Mobile/Tablet Position & Size */}
-              <div className="mb-4">
-                <label className="block text-xs font-medium text-[var(--admin-text-secondary)] mb-2">
+              <div className="mb-5 p-3 bg-[var(--admin-card)] rounded-lg">
+                <label className="block text-xs font-medium text-[var(--admin-text-secondary)] mb-3">
                   Mobile/Tablet Position & Size
                 </label>
-                <div className="grid grid-cols-3 gap-3">
-                  <div>
-                    <label className="block text-xs text-[var(--admin-text-muted)] mb-1">
-                      X Position (%)
-                    </label>
-                    <input
-                      type="number"
-                      min="0"
-                      max="100"
-                      value={badge.mobileX}
-                      onChange={(e) => updateBadge(index, { mobileX: Number(e.target.value) })}
-                      className="w-full px-3 py-2 bg-[var(--admin-card)] border border-[var(--admin-border-light)] rounded-lg text-sm text-[var(--admin-text-primary)] focus:outline-none focus:border-[var(--primary)]"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs text-[var(--admin-text-muted)] mb-1">
-                      Y Position (%)
-                    </label>
-                    <input
-                      type="number"
-                      min="0"
-                      max="100"
-                      value={badge.mobileY}
-                      onChange={(e) => updateBadge(index, { mobileY: Number(e.target.value) })}
-                      className="w-full px-3 py-2 bg-[var(--admin-card)] border border-[var(--admin-border-light)] rounded-lg text-sm text-[var(--admin-text-primary)] focus:outline-none focus:border-[var(--primary)]"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs text-[var(--admin-text-muted)] mb-1">
-                      Size (px)
-                    </label>
-                    <input
-                      type="number"
-                      min="20"
-                      max="300"
-                      value={badge.mobileSize}
-                      onChange={(e) => updateBadge(index, { mobileSize: Number(e.target.value) })}
-                      className="w-full px-3 py-2 bg-[var(--admin-card)] border border-[var(--admin-border-light)] rounded-lg text-sm text-[var(--admin-text-primary)] focus:outline-none focus:border-[var(--primary)]"
-                    />
-                  </div>
+                <div className="space-y-4">
+                  <Slider
+                    label="X Position"
+                    value={badge.mobileX}
+                    onChange={(v) => updateBadge(index, { mobileX: v })}
+                    min={0}
+                    max={100}
+                    unit="%"
+                  />
+                  <Slider
+                    label="Y Position"
+                    value={badge.mobileY}
+                    onChange={(v) => updateBadge(index, { mobileY: v })}
+                    min={0}
+                    max={100}
+                    unit="%"
+                  />
+                  <Slider
+                    label="Size"
+                    value={badge.mobileSize}
+                    onChange={(v) => updateBadge(index, { mobileSize: v })}
+                    min={30}
+                    max={200}
+                    unit="px"
+                    step={5}
+                  />
                 </div>
               </div>
 
               {/* Speed & Layer */}
               <div className="grid grid-cols-2 gap-4">
-                {/* Speed */}
-                <div>
-                  <label className="block text-xs font-medium text-[var(--admin-text-secondary)] mb-2">
-                    Rotation Speed
-                  </label>
-                  <div className="flex gap-1">
-                    {speedOptions.map((option) => (
-                      <button
-                        key={option.value}
-                        type="button"
-                        onClick={() => updateBadge(index, { speed: option.value })}
-                        className={cn(
-                          'flex-1 px-2 py-1.5 rounded-lg text-xs font-medium transition-all',
-                          badge.speed === option.value
-                            ? 'bg-[var(--primary)] text-white'
-                            : 'bg-[var(--admin-card)] text-[var(--admin-text-secondary)] hover:bg-[var(--admin-border)]'
-                        )}
-                      >
-                        {option.label}
-                      </button>
-                    ))}
-                  </div>
+                {/* Speed Slider */}
+                <div className="p-3 bg-[var(--admin-card)] rounded-lg">
+                  <SpeedSlider
+                    value={badge.speed}
+                    onChange={(v) => updateBadge(index, { speed: v })}
+                  />
                 </div>
 
                 {/* Layer */}
-                <div>
+                <div className="p-3 bg-[var(--admin-card)] rounded-lg">
                   <label className="block text-xs font-medium text-[var(--admin-text-secondary)] mb-2">
                     Layer
                   </label>
@@ -314,8 +379,8 @@ export function FloatingBadgesConfig({
                         className={cn(
                           'flex-1 px-2 py-1.5 rounded-lg text-xs font-medium transition-all',
                           badge.layer === option.value
-                            ? 'bg-[var(--primary)] text-white'
-                            : 'bg-[var(--admin-card)] text-[var(--admin-text-secondary)] hover:bg-[var(--admin-border)]'
+                            ? 'bg-[var(--primary)] text-black'
+                            : 'bg-[var(--admin-bg)] text-[var(--admin-text-secondary)] hover:bg-[var(--admin-border)]'
                         )}
                       >
                         {option.label}
@@ -330,8 +395,8 @@ export function FloatingBadgesConfig({
       )}
 
       {/* Help Text */}
-      <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-        <p className="text-xs text-blue-400">
+      <div className="p-3 bg-[var(--primary)]/15 border border-[var(--primary)]/30 rounded-lg">
+        <p className="text-xs text-black">
           <strong>Tip:</strong> Position values are percentages from the top-left corner.
           X=0 is left edge, X=100 is right edge. Y=0 is top, Y=100 is bottom.
           Mobile settings also apply to tablets.
