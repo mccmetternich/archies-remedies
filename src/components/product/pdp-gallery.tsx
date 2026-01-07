@@ -450,14 +450,15 @@ export function PDPGallery({
           <div
             className={cn(
               'relative flex flex-col',
-              // Width/height set via inline style for mobile, CSS vars on desktop
-              'lg:w-[var(--pdp-tray-width)] lg:h-auto lg:self-stretch',
+              // Tray width ~24% of viewport to fit exactly 3 large square thumbnails
+              // Height matches hero (viewport - tray width since hero is square)
+              'w-[24vw] lg:w-[var(--pdp-tray-width)]',
+              'h-[calc(100vw-24vw)] lg:h-auto lg:self-stretch',
               'bg-[var(--foreground)]', // Dark background for thumbnail tray
               'flex-none flex-shrink-0',
               'lg:ml-auto', // Push tray to right edge on desktop (gutter expands)
               'overflow-hidden' // Strict clipping - nothing escapes to marquee
             )}
-            style={isMobile ? { width: '28vw', height: 'calc(100vw - 28vw)' } : undefined}
           >
             {/* Top Gradient Fade - click-through overlay */}
             <div
@@ -503,13 +504,12 @@ export function PDPGallery({
                   onMouseEnter={() => handleThumbnailHover(index)}
                   className={cn(
                     'relative overflow-hidden bg-white',
-                    // Width set via inline style for mobile, full width on desktop
-                    'flex-none aspect-square lg:w-full',
+                    // Explicit width: tray (24vw) minus padding (10px) = thumbnail size
+                    'flex-none aspect-square w-[calc(24vw-10px)] lg:w-full',
                     index === 0 && 'mt-[20px] lg:mt-[var(--pdp-tray-padding)]', // First thumbnail: 20px mobile, fluid desktop
                     'transition-shadow duration-200', // Only animate the ring, not size
                     index === activeIndex && 'ring-2 ring-[var(--primary)]'
                   )}
-                  style={isMobile ? { width: 'calc(28vw - 10px)' } : undefined}
                 >
                   {/* Detect video from isVideo flag OR from URL pattern */}
                   {(image.isVideo && image.videoUrl) || isVideoUrl(image.imageUrl) ? (
