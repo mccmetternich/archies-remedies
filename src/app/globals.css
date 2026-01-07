@@ -33,6 +33,9 @@
   --pdp-fold-buffer: 80px; /* breathing room above marquee */
   --pdp-gap: 5px; /* mobile puzzle gap */
 
+  /* Homepage Layout Constants */
+  --homepage-marquee-height: 100px; /* estimated height of homepage marquee widget */
+
   /* === PDP FLUID SCALING SYSTEM ===
      Proportional scaling from 1920px → 1024px (tablet breakpoint)
      Pure CSS clamp() - no breakpoint jumps, seamless scaling
