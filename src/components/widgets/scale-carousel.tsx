@@ -194,11 +194,13 @@ function MediaItem({
         />
       )}
 
-      {/* Label Overlay - only show on selected item */}
+      {/* Label Overlay - Quote style, only show on selected item */}
       {item.label && isSelected && (
-        <div className={cn('absolute inset-x-0 bottom-0 p-4', styles.labelBg)}>
-          <p className={cn('text-sm md:text-base font-medium leading-snug', styles.labelColor)}>
+        <div className={cn('absolute inset-x-0 bottom-0 p-5 md:p-6', styles.labelBg)}>
+          <p className={cn('text-base md:text-lg italic leading-relaxed', styles.labelColor)}>
+            <span className="opacity-60">"</span>
             {item.label}
+            <span className="opacity-60">"</span>
           </p>
         </div>
       )}
