@@ -420,7 +420,7 @@ export function PDPGallery({
                   loop
                   muted
                   playsInline
-                  className="w-full h-full object-contain pointer-events-none select-none bg-[var(--background)]"
+                  className="w-full h-full object-cover lg:object-contain pointer-events-none select-none bg-[var(--background)]"
                   draggable={false}
                 />
               ) : activeImage?.imageUrl ? (
@@ -428,7 +428,7 @@ export function PDPGallery({
                   src={activeImage.imageUrl}
                   alt={activeImage.altText || productName}
                   fill
-                  className="object-contain object-left pointer-events-none select-none"
+                  className="object-cover lg:object-contain lg:object-left pointer-events-none select-none"
                   style={{ backgroundColor: '#f2f2f2' }}
                   priority={activeIndex === 0}
                   sizes="(max-width: 1024px) 80vw, 50vw"

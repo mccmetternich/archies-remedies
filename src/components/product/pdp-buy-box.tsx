@@ -353,12 +353,8 @@ export function PDPBuyBox({
                   {/* Variant Thumbnail with Radio Button overlay */}
                   {variant.thumbnailUrl && (
                     <div
-                      className={cn(
-                        "relative mb-1 md:mb-2",
-                        "md:w-24 md:h-24 lg:w-[120px] lg:h-[120px]",
-                        // Mobile sizes based on variant count
-                        variantCount <= 2 ? "w-[83px] h-[83px]" : "w-[79px] h-[79px]"
-                      )}
+                      className="relative mb-1 md:mb-2 md:!w-24 md:!h-24 lg:!w-[120px] lg:!h-[120px]"
+                      style={{ width: mobileThumbSize, height: mobileThumbSize }}
                     >
                       <Image
                         src={variant.thumbnailUrl}
