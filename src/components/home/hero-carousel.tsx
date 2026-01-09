@@ -20,10 +20,46 @@ export function HeroCarousel({
 }: HeroCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const isHoveredRef = useRef(false);
+  const touchStartRef = useRef<number | null>(null);
+  const touchEndRef = useRef<number | null>(null);
 
   const nextSlide = useCallback(() => {
     setCurrentIndex((prev) => (prev + 1) % slides.length);
   }, [slides.length]);
+
+  const prevSlide = useCallback(() => {
+    setCurrentIndex((prev) => (prev - 1 + slides.length) % slides.length);
+  }, [slides.length]);
+
+  // Handle touch swipe for mobile navigation
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartRef.current = e.targetTouches[0].clientX;
+    touchEndRef.current = null;
+  }, []);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    touchEndRef.current = e.targetTouches[0].clientX;
+  }, []);
+
+  const handleTouchEnd = useCallback(() => {
+    if (!touchStartRef.current || !touchEndRef.current) return;
+
+    const diff = touchStartRef.current - touchEndRef.current;
+    const minSwipeDistance = 50;
+
+    if (Math.abs(diff) > minSwipeDistance) {
+      if (diff > 0) {
+        // Swiped left - go to next
+        nextSlide();
+      } else {
+        // Swiped right - go to previous
+        prevSlide();
+      }
+    }
+
+    touchStartRef.current = null;
+    touchEndRef.current = null;
+  }, [nextSlide, prevSlide]);
 
   // Auto-advance - pause when parent says paused OR when user hovers
   // Using ref for hover state to avoid re-renders that trigger animations
@@ -68,11 +104,33 @@ export function HeroCarousel({
       onMouseLeave={() => {
         isHoveredRef.current = false;
       }}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
     >
       {/* Render the current slide */}
       <HeroSlide slide={slide} currentIndex={currentIndex} showTextGradient={showTextGradient} />
 
-      {/* Minimal progress indicator - desktop only */}
+      {/* Mobile progress dots - positioned at bottom of content area */}
+      {slides.length > 1 && (
+        <div className="lg:hidden absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-30">
+          {slides.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentIndex(index)}
+              className={cn(
+                'w-2 h-2 rounded-full transition-all duration-300',
+                index === currentIndex
+                  ? 'bg-[var(--foreground)] w-5'
+                  : 'bg-[var(--foreground)]/30'
+              )}
+              aria-label={`Go to slide ${index + 1}`}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Desktop progress indicator */}
       {slides.length > 1 && (
         <div className="hidden lg:flex absolute bottom-12 left-1/2 -translate-x-1/2 gap-3">
           {slides.map((_, index) => (

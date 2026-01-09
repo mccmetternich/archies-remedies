@@ -120,10 +120,8 @@ export function PDPBuyBox({
   const amazonUrl = ctaExternalUrl || selectedVariant?.amazonUrl || '#';
   const validBulletPoints = bulletPoints?.filter((bp): bp is string => Boolean(bp)) || [];
 
-  // Calculate mobile variant thumbnail size based on count
-  // 1-2 variants: 15% bigger (83px), 3+ variants: 10% bigger (79px)
+  // Count variants for responsive sizing
   const variantCount = variants.length;
-  const mobileThumbSize = variantCount <= 2 ? 83 : 79;
 
   const toggleAccordion = (section: AccordionSection) => {
     setOpenAccordion(openAccordion === section ? null : section);
@@ -353,8 +351,13 @@ export function PDPBuyBox({
                   {/* Variant Thumbnail with Radio Button overlay */}
                   {variant.thumbnailUrl && (
                     <div
-                      className="relative mb-1 md:mb-2 md:!w-24 md:!h-24 lg:!w-[120px] lg:!h-[120px]"
-                      style={{ width: mobileThumbSize, height: mobileThumbSize }}
+                      className={cn(
+                        "relative mb-1 md:mb-2",
+                        // Mobile: dynamic sizing based on variant count (15% bigger for 1-2, 10% for 3+)
+                        variantCount <= 2 ? "w-[83px] h-[83px]" : "w-[79px] h-[79px]",
+                        // Tablet and desktop: fixed sizes
+                        "md:w-24 md:h-24 lg:w-[120px] lg:h-[120px]"
+                      )}
                     >
                       <Image
                         src={variant.thumbnailUrl}

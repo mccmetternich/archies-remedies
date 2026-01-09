@@ -337,6 +337,7 @@ export function PDPGallery({
             'lg:mt-[var(--pdp-hero-stagger)]', // Editorial Stagger: fluid 40px → 28px
             'mb-0 lg:mb-[var(--pdp-hero-bottom-margin)]', // Fluid 80px → 40px
             'lg:self-start', // Anchor hero to top (vertical)
+            'bg-[#f2f2f2]', // Match image background to prevent white gaps during transitions
             allImages.length > 1 && 'cursor-grab active:cursor-grabbing'
           )}
         >
