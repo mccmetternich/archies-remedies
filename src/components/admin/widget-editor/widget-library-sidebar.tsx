@@ -1,17 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Search, ChevronDown, ChevronRight, Plus, GripVertical, ExternalLink } from 'lucide-react';
+import { Search, Plus, GripVertical, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
-import {
-  WIDGET_CATEGORIES,
-  WIDGET_TYPES,
-  getWidgetsByCategory,
-  getCategoryByName,
-  type WidgetTypeDefinition,
-} from '@/lib/widget-library';
+import { WIDGET_TYPES, type WidgetTypeDefinition } from '@/lib/widget-library';
 
 interface WidgetLibrarySidebarProps {
   onAddWidget: (type: string) => void;
@@ -23,7 +16,7 @@ interface WidgetLibrarySidebarProps {
 
 /**
  * Always-visible widget library sidebar for the page editor.
- * Shows categorized widgets that can be dragged or clicked to add.
+ * Shows a flat list of widgets that can be dragged or clicked to add.
  */
 export function WidgetLibrarySidebar({
   onAddWidget,
@@ -32,12 +25,12 @@ export function WidgetLibrarySidebar({
   filter = 'all',
 }: WidgetLibrarySidebarProps) {
   const [searchQuery, setSearchQuery] = useState('');
-  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
-    new Set(WIDGET_CATEGORIES.map((c) => c.name))
-  );
 
   // Filter widgets based on search and filter prop
   const filteredWidgets = WIDGET_TYPES.filter((widget) => {
+    // Must be addable to pages
+    if (!widget.addableToPages) return false;
+
     // Filter by type
     if (filter === 'global' && !widget.isGlobal) return false;
     if (filter === 'page-specific' && widget.isGlobal) return false;
@@ -48,35 +41,12 @@ export function WidgetLibrarySidebar({
       return (
         widget.name.toLowerCase().includes(query) ||
         widget.description.toLowerCase().includes(query) ||
-        widget.category.toLowerCase().includes(query)
+        widget.type.toLowerCase().includes(query)
       );
     }
 
     return true;
   });
-
-  const widgetsByCategory = filteredWidgets.reduce(
-    (acc, widget) => {
-      if (!acc[widget.category]) {
-        acc[widget.category] = [];
-      }
-      acc[widget.category].push(widget);
-      return acc;
-    },
-    {} as Record<string, WidgetTypeDefinition[]>
-  );
-
-  const toggleCategory = (category: string) => {
-    setExpandedCategories((prev) => {
-      const next = new Set(prev);
-      if (next.has(category)) {
-        next.delete(category);
-      } else {
-        next.add(category);
-      }
-      return next;
-    });
-  };
 
   const handleDragStart = (e: React.DragEvent, type: string) => {
     e.dataTransfer.setData('widgetType', type);
@@ -85,7 +55,12 @@ export function WidgetLibrarySidebar({
   };
 
   return (
-    <div className={cn('flex flex-col h-full bg-[var(--admin-input)] border-l border-[var(--admin-border)]', className)}>
+    <div
+      className={cn(
+        'flex flex-col h-full bg-[var(--admin-input)] border-l border-[var(--admin-border)]',
+        className
+      )}
+    >
       {/* Header */}
       <div className="p-4 border-b border-[var(--admin-border)]">
         <h3 className="font-medium text-[var(--admin-text-primary)] mb-3">Widget Library</h3>
@@ -103,63 +78,19 @@ export function WidgetLibrarySidebar({
         </div>
       </div>
 
-      {/* Widget Categories */}
-      <div className="flex-1 overflow-y-auto p-2">
-        {WIDGET_CATEGORIES.map((category) => {
-          const widgets = widgetsByCategory[category.name] || [];
-          if (widgets.length === 0) return null;
-
-          const isExpanded = expandedCategories.has(category.name);
-          const categoryDef = getCategoryByName(category.name);
-
-          return (
-            <div key={category.name} className="mb-2">
-              {/* Category Header */}
-              <button
-                type="button"
-                onClick={() => toggleCategory(category.name)}
-                className="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)] transition-colors"
-              >
-                {isExpanded ? (
-                  <ChevronDown className="w-4 h-4" />
-                ) : (
-                  <ChevronRight className="w-4 h-4" />
-                )}
-                <span className={cn('px-2 py-0.5 rounded text-xs', categoryDef?.color.bg, categoryDef?.color.text)}>
-                  {category.name}
-                </span>
-                <span className="text-[var(--admin-text-muted)] text-xs ml-auto">{widgets.length}</span>
-              </button>
-
-              {/* Widget List */}
-              <AnimatePresence>
-                {isExpanded && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="overflow-hidden"
-                  >
-                    <div className="space-y-1 pl-4 pr-2 pb-2">
-                      {widgets.map((widget) => (
-                        <WidgetTile
-                          key={widget.type}
-                          widget={widget}
-                          onAdd={() => onAddWidget(widget.type)}
-                          onDragStart={(e) => handleDragStart(e, widget.type)}
-                        />
-                      ))}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          );
-        })}
+      {/* Widget List - Flat, scrollable */}
+      <div className="flex-1 overflow-y-auto p-2 space-y-1">
+        {filteredWidgets.map((widget) => (
+          <WidgetTile
+            key={widget.type}
+            widget={widget}
+            onAdd={() => onAddWidget(widget.type)}
+            onDragStart={(e) => handleDragStart(e, widget.type)}
+          />
+        ))}
 
         {/* No results */}
-        {Object.keys(widgetsByCategory).length === 0 && (
+        {filteredWidgets.length === 0 && (
           <div className="text-center py-8 text-[var(--admin-text-muted)] text-sm">
             No widgets found matching &quot;{searchQuery}&quot;
           </div>

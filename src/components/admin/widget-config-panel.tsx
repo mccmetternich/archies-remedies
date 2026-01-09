@@ -39,6 +39,8 @@ import { TeamCardsConfig } from '@/components/admin/widget-configs/team-cards-co
 import type { TeamCard, TeamCardsTheme } from '@/components/widgets/team-cards';
 import { ScaleCarouselConfig } from '@/components/admin/widget-configs/scale-carousel-config';
 import type { ScaleCarouselItem, ScaleCarouselAspectRatio, ScaleCarouselTheme } from '@/components/widgets/scale-carousel';
+import { CTAConfigPanel } from '@/components/admin/widget-configs/cta-config';
+import type { CTAHeight, CTABackgroundType, CTATheme, CTAButtonSize } from '@/components/admin/widget-configs/cta-config';
 
 // Helper: Check if URL is video
 function isVideoUrl(url: string): boolean {
@@ -81,7 +83,7 @@ export function WidgetConfigPanel({ widget, onUpdate }: WidgetConfigPanelProps) 
   return (
     <div className="space-y-4">
       {/* Title & Subtitle - Common for most widgets (except those with their own config) */}
-      {widget.type !== 'reviews' && widget.type !== 'icon_highlights' && widget.type !== 'two_column_feature' && widget.type !== 'faq_drawer' && widget.type !== 'product_grid' && widget.type !== 'floating_badges' && widget.type !== 'text' && widget.type !== 'story_hero' && widget.type !== 'team_cards' && widget.type !== 'scale_carousel' && (
+      {widget.type !== 'reviews' && widget.type !== 'icon_highlights' && widget.type !== 'two_column_feature' && widget.type !== 'faq_drawer' && widget.type !== 'product_grid' && widget.type !== 'floating_badges' && widget.type !== 'text' && widget.type !== 'story_hero' && widget.type !== 'team_cards' && widget.type !== 'scale_carousel' && widget.type !== 'cta' && (
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
@@ -404,8 +406,42 @@ export function WidgetConfigPanel({ widget, onUpdate }: WidgetConfigPanelProps) 
         />
       )}
 
-      {/* CTA / Newsletter widgets */}
-      {(widget.type === 'cta' || widget.type === 'newsletter') && (
+      {/* CTA widget - full config panel */}
+      {widget.type === 'cta' && (
+        <CTAConfigPanel
+          title={(config.title as string) || ''}
+          subtitle={(config.subtitle as string) || ''}
+          buttonText={(config.buttonText as string) || 'Shop Now'}
+          buttonUrl={(config.buttonUrl as string) || '/products'}
+          buttonSize={(config.buttonSize as CTAButtonSize) || 'medium'}
+          height={(config.height as CTAHeight) || 'medium'}
+          backgroundType={(config.backgroundType as CTABackgroundType) || 'color'}
+          backgroundColor={(config.backgroundColor as string) || '#bbdae9'}
+          backgroundImageUrl={(config.backgroundImageUrl as string) || ''}
+          backgroundVideoUrl={(config.backgroundVideoUrl as string) || ''}
+          textTheme={(config.textTheme as CTATheme) || 'dark'}
+          showSocialProof={(config.showSocialProof as boolean) || false}
+          reviewCount={(config.reviewCount as number) || 0}
+          avatarUrls={(config.avatarUrls as string[]) || []}
+          onTitleChange={(title) => onUpdate({ config: { ...config, title } })}
+          onSubtitleChange={(subtitle) => onUpdate({ config: { ...config, subtitle } })}
+          onButtonTextChange={(buttonText) => onUpdate({ config: { ...config, buttonText } })}
+          onButtonUrlChange={(buttonUrl) => onUpdate({ config: { ...config, buttonUrl } })}
+          onButtonSizeChange={(buttonSize) => onUpdate({ config: { ...config, buttonSize } })}
+          onHeightChange={(height) => onUpdate({ config: { ...config, height } })}
+          onBackgroundTypeChange={(backgroundType) => onUpdate({ config: { ...config, backgroundType } })}
+          onBackgroundColorChange={(backgroundColor) => onUpdate({ config: { ...config, backgroundColor } })}
+          onBackgroundImageUrlChange={(backgroundImageUrl) => onUpdate({ config: { ...config, backgroundImageUrl } })}
+          onBackgroundVideoUrlChange={(backgroundVideoUrl) => onUpdate({ config: { ...config, backgroundVideoUrl } })}
+          onTextThemeChange={(textTheme) => onUpdate({ config: { ...config, textTheme } })}
+          onShowSocialProofChange={(showSocialProof) => onUpdate({ config: { ...config, showSocialProof } })}
+          onReviewCountChange={(reviewCount) => onUpdate({ config: { ...config, reviewCount } })}
+          onAvatarUrlsChange={(avatarUrls) => onUpdate({ config: { ...config, avatarUrls } })}
+        />
+      )}
+
+      {/* Newsletter widget - simple config */}
+      {widget.type === 'newsletter' && (
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
@@ -418,22 +454,7 @@ export function WidgetConfigPanel({ widget, onUpdate }: WidgetConfigPanelProps) 
                   config: { ...config, buttonText: e.target.value },
                 })
               }
-              placeholder="Shop Now"
-              className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">
-              Button URL
-            </label>
-            <input
-              value={(config.buttonUrl as string) || ''}
-              onChange={(e) =>
-                onUpdate({
-                  config: { ...config, buttonUrl: e.target.value },
-                })
-              }
-              placeholder="/products"
+              placeholder="Subscribe"
               className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
             />
           </div>

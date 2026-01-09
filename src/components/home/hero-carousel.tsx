@@ -19,17 +19,39 @@ export function HeroCarousel({
   showTextGradient = false,
 }: HeroCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
   const isHoveredRef = useRef(false);
   const touchStartRef = useRef<number | null>(null);
   const touchEndRef = useRef<number | null>(null);
 
+  // Detect mobile viewport for device-based filtering
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024); // lg breakpoint
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Filter slides based on device visibility settings
+  const filteredSlides = slides.filter((slide) => {
+    if (isMobile) {
+      // On mobile, show slides where showOnMobile is true or undefined (default visible)
+      return slide.showOnMobile !== false;
+    } else {
+      // On desktop, show slides where showOnDesktop is true or undefined (default visible)
+      return slide.showOnDesktop !== false;
+    }
+  });
+
   const nextSlide = useCallback(() => {
-    setCurrentIndex((prev) => (prev + 1) % slides.length);
-  }, [slides.length]);
+    setCurrentIndex((prev) => (prev + 1) % filteredSlides.length);
+  }, [filteredSlides.length]);
 
   const prevSlide = useCallback(() => {
-    setCurrentIndex((prev) => (prev - 1 + slides.length) % slides.length);
-  }, [slides.length]);
+    setCurrentIndex((prev) => (prev - 1 + filteredSlides.length) % filteredSlides.length);
+  }, [filteredSlides.length]);
 
   // Handle touch swipe for mobile navigation
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
@@ -64,17 +86,24 @@ export function HeroCarousel({
   // Auto-advance - pause when parent says paused OR when user hovers
   // Using ref for hover state to avoid re-renders that trigger animations
   useEffect(() => {
-    if (isPaused || slides.length <= 1) return;
+    if (isPaused || filteredSlides.length <= 1) return;
     const timer = setInterval(() => {
       if (!isHoveredRef.current) {
         nextSlide();
       }
     }, autoAdvanceInterval * 1000);
     return () => clearInterval(timer);
-  }, [nextSlide, isPaused, slides.length, autoAdvanceInterval]);
+  }, [nextSlide, isPaused, filteredSlides.length, autoAdvanceInterval]);
+
+  // Reset currentIndex if it's out of bounds after filtering
+  useEffect(() => {
+    if (currentIndex >= filteredSlides.length && filteredSlides.length > 0) {
+      setCurrentIndex(0);
+    }
+  }, [currentIndex, filteredSlides.length]);
 
   // Empty state fallback
-  if (!slides || slides.length === 0) {
+  if (!filteredSlides || filteredSlides.length === 0) {
     return (
       <section className="relative min-h-screen bg-[var(--cream)] flex items-center">
         <div className="container">
@@ -93,7 +122,7 @@ export function HeroCarousel({
     );
   }
 
-  const slide = slides[currentIndex];
+  const slide = filteredSlides[currentIndex];
 
   return (
     <section
@@ -112,9 +141,9 @@ export function HeroCarousel({
       <HeroSlide slide={slide} currentIndex={currentIndex} showTextGradient={showTextGradient} />
 
       {/* Mobile progress dots - positioned at bottom of content area */}
-      {slides.length > 1 && (
+      {filteredSlides.length > 1 && (
         <div className="lg:hidden absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-30">
-          {slides.map((_, index) => (
+          {filteredSlides.map((_, index) => (
             <button
               key={index}
               onClick={() => setCurrentIndex(index)}
@@ -131,9 +160,9 @@ export function HeroCarousel({
       )}
 
       {/* Desktop progress indicator */}
-      {slides.length > 1 && (
+      {filteredSlides.length > 1 && (
         <div className="hidden lg:flex absolute bottom-12 left-1/2 -translate-x-1/2 gap-3">
-          {slides.map((_, index) => (
+          {filteredSlides.map((_, index) => (
             <button
               key={index}
               onClick={() => setCurrentIndex(index)}

@@ -28,6 +28,8 @@ export interface HeroSlideData {
   testimonialAvatarUrl: string | null;
   layout?: string | null;
   textColor?: string | null;
+  showOnDesktop?: boolean | null;
+  showOnMobile?: boolean | null;
 }
 
 export interface HeroSlideProps {

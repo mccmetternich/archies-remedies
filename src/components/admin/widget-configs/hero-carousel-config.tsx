@@ -83,6 +83,21 @@ interface HeroCarouselConfigProps {
 }
 
 /**
+ * Generate a poster thumbnail URL from a Cloudinary video URL.
+ * Returns the first frame of the video as a JPG image.
+ */
+function getVideoPosterUrl(videoUrl: string): string | undefined {
+  if (!videoUrl) return undefined;
+  // For Cloudinary videos, get the first frame as a jpg
+  if (videoUrl.includes('/video/upload/')) {
+    return videoUrl
+      .replace('/video/upload/', '/video/upload/so_0,f_jpg,q_auto/')
+      .replace(/\.(mp4|webm|mov|avi|m4v|ogv|ogg)$/i, '.jpg');
+  }
+  return undefined;
+}
+
+/**
  * Hero Carousel configuration panel.
  * Allows editing hero slides with product association, media, testimonials, and visibility controls.
  */
@@ -359,12 +374,35 @@ function SlideCard({
           <GripVertical className="w-4 h-4" />
         </div>
 
-        {/* Thumbnail - prioritize video indicator if video is set */}
-        <div className="w-16 h-10 rounded-lg overflow-hidden bg-[var(--admin-hover)] flex-shrink-0">
+        {/* Thumbnail - show video poster frame or image */}
+        <div className="w-16 h-10 rounded-lg overflow-hidden bg-[var(--admin-hover)] flex-shrink-0 relative">
           {slide.videoUrl ? (
-            <div className="w-full h-full flex items-center justify-center bg-[var(--admin-input)]">
-              <Play className="w-5 h-5 text-[var(--primary)]" />
-            </div>
+            <>
+              {/* Show video poster (first frame) if available, otherwise fallback image or placeholder */}
+              {getVideoPosterUrl(slide.videoUrl) ? (
+                <Image
+                  src={getVideoPosterUrl(slide.videoUrl)!}
+                  alt={slide.title || 'Video slide'}
+                  width={64}
+                  height={40}
+                  className="w-full h-full object-cover"
+                />
+              ) : slide.imageUrl ? (
+                <Image
+                  src={slide.imageUrl}
+                  alt={slide.title || 'Slide'}
+                  width={64}
+                  height={40}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-[var(--admin-input)]" />
+              )}
+              {/* Play icon overlay to indicate video */}
+              <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                <Play className="w-4 h-4 text-white fill-white" />
+              </div>
+            </>
           ) : slide.imageUrl ? (
             <Image
               src={slide.imageUrl}

@@ -22,11 +22,16 @@ export interface WidgetData {
     secondaryButtonType: string | null;
     secondaryAnchorTarget: string | null;
     imageUrl: string;
+    videoUrl?: string | null;
+    mobileImageUrl?: string | null;
+    mobileVideoUrl?: string | null;
     testimonialText: string | null;
     testimonialAuthor: string | null;
     testimonialAvatarUrl: string | null;
     layout: string | null;
     textColor: string | null;
+    showOnDesktop: boolean | null;
+    showOnMobile: boolean | null;
   }>;
   products?: Array<{
     id: string;

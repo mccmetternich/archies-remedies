@@ -6,38 +6,25 @@
  * - /admin/widgets (global widget library page)
  * - Page editor widget sidebar
  * - Widget config panels
- *
- * To add a new widget:
- * 1. Add it to the appropriate category in WIDGET_TYPES
- * 2. Create the widget component if needed
- * 3. Add default config in DEFAULT_CONFIGS
  */
 
 import {
   Image as ImageIcon,
   Type,
-  Quote,
   Star,
   HelpCircle,
   MessageSquare,
-  Instagram,
   PlayCircle,
   Columns,
   Columns3,
-  Video,
   MousePointerClick,
-  Grid3X3,
-  Sparkles,
-  List,
-  Award,
-  Megaphone,
-  Gift,
   Zap,
-  Target,
   GalleryHorizontalEnd,
   LayoutPanelLeft,
   MessageCircleQuestion,
   LucideIcon,
+  Sparkles,
+  Users,
 } from 'lucide-react';
 
 // ============================================
@@ -51,7 +38,7 @@ export interface WidgetTypeDefinition {
   category: string;
   description: string;
   /** Database table for this widget (if global), null if page-specific JSON */
-  table?: 'heroSlides' | 'testimonials' | 'videoTestimonials' | 'faqs' | 'instagramPosts' | 'reviews' | null;
+  table?: 'heroSlides' | 'reviews' | null;
   /** Admin page href for global widget management */
   adminHref?: string | null;
   /** Key for count lookups */
@@ -73,57 +60,24 @@ export interface CategoryDefinition {
 }
 
 // ============================================
-// CATEGORY DEFINITIONS
-// ============================================
-
-export const WIDGET_CATEGORIES: CategoryDefinition[] = [
-  {
-    name: 'Hero',
-    description: 'Hero sections and carousels',
-    color: { bg: 'bg-indigo-500/10', text: 'text-indigo-500', border: 'border-indigo-500/30' },
-  },
-  {
-    name: 'Content',
-    description: 'Core content blocks for building pages',
-    color: { bg: 'bg-blue-500/10', text: 'text-blue-500', border: 'border-blue-500/30' },
-  },
-  {
-    name: 'Social Proof',
-    description: 'Build trust with customer reviews and social content',
-    color: { bg: 'bg-purple-500/10', text: 'text-purple-500', border: 'border-purple-500/30' },
-  },
-  {
-    name: 'Product',
-    description: 'Showcase products and their benefits',
-    color: { bg: 'bg-green-500/10', text: 'text-green-500', border: 'border-green-500/30' },
-  },
-  {
-    name: 'Engagement',
-    description: 'Interactive elements to engage visitors',
-    color: { bg: 'bg-amber-500/10', text: 'text-amber-500', border: 'border-amber-500/30' },
-  },
-];
-
-// ============================================
-// WIDGET TYPE DEFINITIONS
+// WIDGET TYPE DEFINITIONS (Flat ordered list)
 // ============================================
 
 export const WIDGET_TYPES: WidgetTypeDefinition[] = [
-  // ─────────────────────────────────────────
-  // HERO
-  // ─────────────────────────────────────────
+  // 1. Hero Carousel
   {
     type: 'hero_carousel',
     name: 'Hero Carousel',
     icon: ImageIcon,
     category: 'Hero',
-    description: 'Full-width hero carousel with product integration',
+    description: 'Full-width hero carousel with slides and product integration',
     table: 'heroSlides',
     adminHref: '/admin/hero-slides',
     countKey: 'heroSlides',
     addableToPages: true,
     isGlobal: true,
   },
+  // 2. Story Hero
   {
     type: 'story_hero',
     name: 'Story Hero',
@@ -136,34 +90,20 @@ export const WIDGET_TYPES: WidgetTypeDefinition[] = [
     addableToPages: true,
     isGlobal: false,
   },
-
-  // ─────────────────────────────────────────
-  // CONTENT
-  // ─────────────────────────────────────────
+  // 3. Floating Badges
   {
-    type: 'team_cards',
-    name: 'Team Cards',
-    icon: Columns,
+    type: 'floating_badges',
+    name: 'Floating Badges',
+    icon: Sparkles,
     category: 'Content',
-    description: 'Side-by-side team member cards with portrait photos',
+    description: 'Fixed position rotating badge overlays',
     table: null,
     adminHref: null,
     countKey: null,
     addableToPages: true,
     isGlobal: false,
   },
-  {
-    type: 'scale_carousel',
-    name: 'Scale Carousel',
-    icon: GalleryHorizontalEnd,
-    category: 'Content',
-    description: 'Center-scaled carousel with media items',
-    table: null,
-    adminHref: null,
-    countKey: null,
-    addableToPages: true,
-    isGlobal: false,
-  },
+  // 4. Rich Text
   {
     type: 'text',
     name: 'Rich Text',
@@ -176,81 +116,10 @@ export const WIDGET_TYPES: WidgetTypeDefinition[] = [
     addableToPages: true,
     isGlobal: false,
   },
-  {
-    type: 'image_text',
-    name: 'Image + Text',
-    icon: Columns,
-    category: 'Content',
-    description: 'Split layout with image and copy',
-    table: null,
-    adminHref: null,
-    countKey: null,
-    addableToPages: true,
-    isGlobal: false,
-  },
-  {
-    type: 'video',
-    name: 'Video Embed',
-    icon: Video,
-    category: 'Content',
-    description: 'Embedded video player',
-    table: null,
-    adminHref: null,
-    countKey: null,
-    addableToPages: true,
-    isGlobal: false,
-  },
-  {
-    type: 'media_carousel',
-    name: 'Media Carousel',
-    icon: GalleryHorizontalEnd,
-    category: 'Content',
-    description: 'Full-bleed horizontal carousel with images and videos',
-    table: null,
-    adminHref: null,
-    countKey: null,
-    addableToPages: true,
-    isGlobal: false,
-  },
-  {
-    type: 'quote',
-    name: 'Pull Quote',
-    icon: Quote,
-    category: 'Content',
-    description: 'Testimonial or pull quote block',
-    table: null,
-    adminHref: null,
-    countKey: null,
-    addableToPages: true,
-    isGlobal: false,
-  },
-  {
-    type: 'mission',
-    name: 'Mission Section',
-    icon: Target,
-    category: 'Content',
-    description: 'Brand mission with stats and CTA',
-    table: null,
-    adminHref: null,
-    countKey: null,
-    addableToPages: true,
-    isGlobal: false,
-  },
-  {
-    type: 'icon_highlights',
-    name: 'Icon Highlights',
-    icon: Columns3,
-    category: 'Content',
-    description: '3-column feature bar with icons, titles, and copy',
-    table: null,
-    adminHref: null,
-    countKey: null,
-    addableToPages: true,
-    isGlobal: false,
-  },
+  // 5. Two Column Media
   {
     type: 'two_column_feature',
-    name: 'Two Column Feature',
+    name: 'Two Column Media',
     icon: LayoutPanelLeft,
     category: 'Content',
     description: 'Full-width split layout with media and text/bullets',
@@ -260,9 +129,62 @@ export const WIDGET_TYPES: WidgetTypeDefinition[] = [
     addableToPages: true,
     isGlobal: false,
   },
+  // 6. Team Cards
+  {
+    type: 'team_cards',
+    name: 'Team Cards',
+    icon: Users,
+    category: 'Content',
+    description: 'Side-by-side team member cards with portrait photos',
+    table: null,
+    adminHref: null,
+    countKey: null,
+    addableToPages: true,
+    isGlobal: false,
+  },
+  // 7. Social Proof Carousel
+  {
+    type: 'scale_carousel',
+    name: 'Social Proof Carousel',
+    icon: PlayCircle,
+    category: 'Content',
+    description: 'Center-scaled carousel with media items and quotes',
+    table: null,
+    adminHref: null,
+    countKey: null,
+    addableToPages: true,
+    isGlobal: false,
+  },
+  // 8. Three Column Icons
+  {
+    type: 'icon_highlights',
+    name: 'Three Column Icons',
+    icon: Columns3,
+    category: 'Content',
+    description: '3-column feature bar with icons, titles, and copy',
+    table: null,
+    adminHref: null,
+    countKey: null,
+    addableToPages: true,
+    isGlobal: false,
+  },
+  // 9. Square Media Carousel
+  {
+    type: 'media_carousel',
+    name: 'Square Media Carousel',
+    icon: GalleryHorizontalEnd,
+    category: 'Content',
+    description: 'Full-bleed horizontal carousel with images and videos',
+    table: null,
+    adminHref: null,
+    countKey: null,
+    addableToPages: true,
+    isGlobal: false,
+  },
+  // 10. FAQ Accordion
   {
     type: 'faq_drawer',
-    name: 'FAQ Drawer',
+    name: 'FAQ Accordion',
     icon: MessageCircleQuestion,
     category: 'Content',
     description: 'Expandable Q&A accordion with themed styling',
@@ -272,164 +194,33 @@ export const WIDGET_TYPES: WidgetTypeDefinition[] = [
     addableToPages: true,
     isGlobal: false,
   },
-
-  // ─────────────────────────────────────────
-  // SOCIAL PROOF
-  // ─────────────────────────────────────────
-  {
-    type: 'testimonials',
-    name: 'Testimonials',
-    icon: Star,
-    category: 'Social Proof',
-    description: 'Customer testimonial carousel',
-    table: 'testimonials',
-    adminHref: '/admin/testimonials',
-    countKey: 'testimonials',
-    addableToPages: true,
-    isGlobal: true,
-  },
-  {
-    type: 'video_testimonials',
-    name: 'Video Reviews',
-    icon: PlayCircle,
-    category: 'Social Proof',
-    description: 'Video testimonial grid',
-    table: 'videoTestimonials',
-    adminHref: '/admin/video-testimonials',
-    countKey: 'videoTestimonials',
-    addableToPages: true,
-    isGlobal: true,
-  },
-  {
-    type: 'instagram',
-    name: 'Instagram Feed',
-    icon: Instagram,
-    category: 'Social Proof',
-    description: 'Instagram post grid',
-    table: 'instagramPosts',
-    adminHref: '/admin/instagram',
-    countKey: 'instagramPosts',
-    addableToPages: true,
-    isGlobal: true,
-  },
+  // 11. Dynamic Review Wall
   {
     type: 'reviews',
-    name: 'Reviews',
+    name: 'Dynamic Review Wall',
     icon: Star,
     category: 'Social Proof',
-    description: 'Customer reviews with keyword filters',
+    description: 'Customer reviews with keyword filters and ratings',
     table: 'reviews',
     adminHref: '/admin/reviews',
     countKey: 'reviews',
     addableToPages: true,
     isGlobal: true,
   },
-  // HIDDEN - Not yet implemented
-  // {
-  //   type: 'press',
-  //   name: 'Press & Media',
-  //   icon: Megaphone,
-  //   category: 'Social Proof',
-  //   description: 'As seen in logos',
-  //   table: null,
-  //   adminHref: null,
-  //   countKey: null,
-  //   addableToPages: true,
-  //   isGlobal: false,
-  // },
-
-  // ─────────────────────────────────────────
-  // PRODUCT
-  // ─────────────────────────────────────────
-  {
-    type: 'product_grid',
-    name: 'Product Grid',
-    icon: Grid3X3,
-    category: 'Product',
-    description: 'Featured products showcase',
-    table: null,
-    adminHref: null,
-    countKey: null,
-    addableToPages: true,
-    isGlobal: false,
-  },
-  // HIDDEN - Not yet implemented
-  // {
-  //   type: 'benefits',
-  //   name: 'Benefits',
-  //   icon: Sparkles,
-  //   category: 'Product',
-  //   description: 'Product benefits with icons',
-  //   table: null,
-  //   adminHref: null,
-  //   countKey: null,
-  //   addableToPages: true,
-  //   isGlobal: false,
-  // },
-  // {
-  //   type: 'ingredients',
-  //   name: 'Ingredients',
-  //   icon: List,
-  //   category: 'Product',
-  //   description: 'Ingredient list with info',
-  //   table: null,
-  //   adminHref: null,
-  //   countKey: null,
-  //   addableToPages: true,
-  //   isGlobal: false,
-  // },
-  // {
-  //   type: 'comparison',
-  //   name: 'Comparison',
-  //   icon: Columns,
-  //   category: 'Product',
-  //   description: 'Before/after comparison',
-  //   table: null,
-  //   adminHref: null,
-  //   countKey: null,
-  //   addableToPages: true,
-  //   isGlobal: false,
-  // },
-  // {
-  //   type: 'certifications',
-  //   name: 'Certifications',
-  //   icon: Award,
-  //   category: 'Product',
-  //   description: 'Trust badges and certifications',
-  //   table: null,
-  //   adminHref: null,
-  //   countKey: null,
-  //   addableToPages: true,
-  //   isGlobal: false,
-  // },
-
-  // ─────────────────────────────────────────
-  // ENGAGEMENT
-  // ─────────────────────────────────────────
-  {
-    type: 'faqs',
-    name: 'FAQs',
-    icon: HelpCircle,
-    category: 'Engagement',
-    description: 'Accordion FAQ section',
-    table: 'faqs',
-    adminHref: '/admin/faqs',
-    countKey: 'faqs',
-    addableToPages: true,
-    isGlobal: true,
-  },
+  // 12. Call to Action
   {
     type: 'cta',
     name: 'Call to Action',
     icon: MousePointerClick,
     category: 'Engagement',
-    description: 'Button with background',
+    description: 'CTA button with customizable background',
     table: null,
     adminHref: null,
     countKey: null,
     addableToPages: true,
     isGlobal: false,
   },
+  // 13. Contact Form
   {
     type: 'contact_form',
     name: 'Contact Form',
@@ -442,36 +233,13 @@ export const WIDGET_TYPES: WidgetTypeDefinition[] = [
     addableToPages: true,
     isGlobal: false,
   },
-  {
-    type: 'newsletter',
-    name: 'Newsletter',
-    icon: Gift,
-    category: 'Engagement',
-    description: 'Email signup form',
-    table: null,
-    adminHref: null,
-    countKey: null,
-    addableToPages: true,
-    isGlobal: false,
-  },
+  // 14. Marquee Bar
   {
     type: 'marquee',
     name: 'Marquee Bar',
     icon: Zap,
     category: 'Engagement',
     description: 'Scrolling text banner',
-    table: null,
-    adminHref: null,
-    countKey: null,
-    addableToPages: true,
-    isGlobal: false,
-  },
-  {
-    type: 'floating_badges',
-    name: 'Floating Badges',
-    icon: Sparkles,
-    category: 'Engagement',
-    description: 'Rotating badge overlays with positioning control',
     table: null,
     adminHref: null,
     countKey: null,
@@ -490,118 +258,42 @@ export const DEFAULT_CONFIGS: Record<string, Record<string, unknown>> = {
     maxWidth: 'lg',
     theme: 'light',
   },
-  image_text: {
-    imageUrl: '',
-    imagePosition: 'left',
-    title: '',
-    content: '',
-    ctaText: '',
-    ctaUrl: '',
-  },
-  video: {
-    videoUrl: '',
-    autoplay: false,
-    muted: true,
-    loop: false,
-  },
   media_carousel: {
     items: [],
     autoplay: true,
   },
-  quote: {
-    text: '',
-    author: '',
-    authorTitle: '',
-    avatarUrl: '',
-  },
-  mission: {
-    title: 'Our Mission',
-    subtitle: '',
-    content: '',
-    imageUrl: '',
-    stats: [],
-    ctaText: '',
-    ctaUrl: '',
-  },
   reviews: {
     title: 'What People Are Saying',
     subtitle: '',
-    productId: null, // null = all products
-    collectionName: null, // null = not using collection
+    productId: null,
+    collectionName: null,
     showKeywordFilters: true,
     initialCount: 6,
-    backgroundColor: 'cream', // 'cream', 'white', 'transparent'
+    backgroundColor: 'cream',
     showVerifiedBadge: true,
     showRatingHeader: true,
     excludedTags: [],
-  },
-  press: {
-    title: 'As Seen In',
-    logos: [],
-  },
-  product_grid: {
-    title: 'Clean Formulas for Sensitive Eyes',
-    subtitle: 'Preservative-free eye care, crafted without the questionable ingredients.',
-    product1: {
-      productId: null,
-      title: null,
-      description: null,
-      imageUrl: null,
-      hoverImageUrl: null,
-      badge: null,
-      badgeEmoji: null,
-      badgeBgColor: null,
-      badgeTextColor: null,
-    },
-    product2: {
-      productId: null,
-      title: null,
-      description: null,
-      imageUrl: null,
-      hoverImageUrl: null,
-      badge: null,
-      badgeEmoji: null,
-      badgeBgColor: null,
-      badgeTextColor: null,
-    },
-  },
-  benefits: {
-    title: 'Why Choose Us',
-    benefits: [],
-    layout: 'grid',
-  },
-  ingredients: {
-    title: 'Key Ingredients',
-    ingredients: [],
-    showDetails: true,
-  },
-  comparison: {
-    title: 'See the Difference',
-    beforeImage: '',
-    afterImage: '',
-    beforeLabel: 'Before',
-    afterLabel: 'After',
-  },
-  certifications: {
-    title: 'Quality & Trust',
-    badges: [],
   },
   cta: {
     title: '',
     subtitle: '',
     buttonText: 'Shop Now',
     buttonUrl: '/products',
+    buttonSize: 'medium',
+    height: 'medium',
+    backgroundType: 'color',
     backgroundColor: '#bbdae9',
+    backgroundImageUrl: '',
+    backgroundVideoUrl: '',
+    textTheme: 'dark',
+    showSocialProof: false,
+    reviewCount: 0,
+    avatarUrls: [],
   },
   contact_form: {
     title: 'Get in Touch',
     subtitle: '',
     fields: ['name', 'email', 'message'],
-  },
-  newsletter: {
-    title: 'Stay Updated',
-    subtitle: 'Join our newsletter for exclusive offers',
-    buttonText: 'Subscribe',
   },
   marquee: {
     text: 'Preservative-Free ✦ Clean Ingredients ✦ Doctor Trusted ✦ Instant Relief',
@@ -613,7 +305,7 @@ export const DEFAULT_CONFIGS: Record<string, Record<string, unknown>> = {
   },
   icon_highlights: {
     title: '',
-    theme: 'blue', // 'blue' | 'dark' | 'cream'
+    theme: 'blue',
     columns: [
       { iconUrl: '', title: '', description: '' },
       { iconUrl: '', title: '', description: '' },
@@ -623,9 +315,9 @@ export const DEFAULT_CONFIGS: Record<string, Record<string, unknown>> = {
     linkUrl: '',
   },
   two_column_feature: {
-    theme: 'blue', // 'blue' | 'dark' | 'cream'
-    mediaPosition: 'left', // 'left' | 'right'
-    mediaMode: 'single', // 'single' | 'before_after'
+    theme: 'blue',
+    mediaPosition: 'left',
+    mediaMode: 'single',
     mediaUrl: '',
     mediaIsVideo: false,
     beforeMediaUrl: '',
@@ -634,8 +326,8 @@ export const DEFAULT_CONFIGS: Record<string, Record<string, unknown>> = {
     afterMediaUrl: '',
     afterMediaIsVideo: false,
     afterLabel: 'AFTER',
-    textMode: 'title_body', // 'title_body' | 'bullet_points'
-    textAlignment: 'left', // 'left' | 'center' | 'right'
+    textMode: 'title_body',
+    textAlignment: 'left',
     showStars: false,
     starCount: 5,
     title: '',
@@ -645,7 +337,7 @@ export const DEFAULT_CONFIGS: Record<string, Record<string, unknown>> = {
     ctaUrl: '',
   },
   faq_drawer: {
-    theme: 'blue', // 'blue' | 'dark' | 'cream'
+    theme: 'blue',
     items: [{ id: '', question: '', answer: '' }],
   },
   floating_badges: {
@@ -653,18 +345,13 @@ export const DEFAULT_CONFIGS: Record<string, Record<string, unknown>> = {
       {
         id: '',
         imageUrl: '',
-        // Desktop positioning (% from top-left)
-        desktopX: 10, // percentage from left
-        desktopY: 20, // percentage from top
-        // Mobile positioning (also governs tablet)
+        desktopX: 10,
+        desktopY: 20,
         mobileX: 5,
         mobileY: 15,
-        // Size in pixels
         desktopSize: 120,
         mobileSize: 80,
-        // Rotation speed: 'slow' (20s), 'medium' (12s), 'fast' (6s)
         speed: 'medium',
-        // Layer: 'above' (z-50) or 'below' (z-0)
         layer: 'below',
       },
     ],
@@ -712,22 +399,6 @@ export function getWidgetDisplayName(type: string): string {
 }
 
 /**
- * Get widgets grouped by category
- */
-export function getWidgetsByCategory(): Record<string, WidgetTypeDefinition[]> {
-  return WIDGET_TYPES.reduce(
-    (acc, widget) => {
-      if (!acc[widget.category]) {
-        acc[widget.category] = [];
-      }
-      acc[widget.category].push(widget);
-      return acc;
-    },
-    {} as Record<string, WidgetTypeDefinition[]>
-  );
-}
-
-/**
  * Get only widgets that can be added to pages
  */
 export function getAddableWidgets(): WidgetTypeDefinition[] {
@@ -749,23 +420,53 @@ export function getPageSpecificWidgets(): WidgetTypeDefinition[] {
 }
 
 /**
- * Get category definition by name
- */
-export function getCategoryByName(name: string): CategoryDefinition | undefined {
-  return WIDGET_CATEGORIES.find((c) => c.name === name);
-}
-
-/**
  * Get default config for a widget type
  */
 export function getDefaultConfig(type: string): Record<string, unknown> {
   return DEFAULT_CONFIGS[type] || {};
 }
 
+// ============================================
+// BACKWARD COMPATIBILITY
+// (Will be removed in Parts 4-6 when pages are updated)
+// ============================================
+
 /**
- * Get ordered list of categories that have widgets
+ * @deprecated Use WIDGET_TYPES directly - categories are being removed
  */
-export function getOrderedCategories(): string[] {
-  const categoriesWithWidgets = new Set(WIDGET_TYPES.map((w) => w.category));
-  return WIDGET_CATEGORIES.filter((c) => categoriesWithWidgets.has(c.name)).map((c) => c.name);
+export const WIDGET_CATEGORIES: CategoryDefinition[] = [
+  {
+    name: 'Hero',
+    description: 'Hero sections',
+    color: { bg: 'bg-blue-100', text: 'text-blue-700', border: 'border-blue-200' },
+  },
+  {
+    name: 'Content',
+    description: 'Content blocks',
+    color: { bg: 'bg-green-100', text: 'text-green-700', border: 'border-green-200' },
+  },
+  {
+    name: 'Social Proof',
+    description: 'Reviews and testimonials',
+    color: { bg: 'bg-purple-100', text: 'text-purple-700', border: 'border-purple-200' },
+  },
+  {
+    name: 'Engagement',
+    description: 'CTAs and forms',
+    color: { bg: 'bg-orange-100', text: 'text-orange-700', border: 'border-orange-200' },
+  },
+];
+
+/**
+ * @deprecated Use WIDGET_TYPES directly
+ */
+export function getWidgetsByCategory(categoryName: string): WidgetTypeDefinition[] {
+  return WIDGET_TYPES.filter((w) => w.category === categoryName);
+}
+
+/**
+ * @deprecated Use WIDGET_TYPES directly
+ */
+export function getCategoryByName(name: string): CategoryDefinition | undefined {
+  return WIDGET_CATEGORIES.find((c) => c.name === name);
 }

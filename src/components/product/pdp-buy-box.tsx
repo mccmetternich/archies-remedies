@@ -322,7 +322,7 @@ export function PDPBuyBox({
           <span className="block text-[10px] md:text-xs font-bold tracking-[0.15em] uppercase text-[var(--foreground)]">
             Choose Size
           </span>
-          <div className={cn('flex flex-wrap mt-3 md:mt-[15px] lg:mt-[20px]', getVariantGridCols())}>
+          <div className={cn('grid mt-3 md:mt-[15px] lg:mt-[20px]', getVariantGridCols())}>
             {variants.map((variant, index) => {
               const isSelected = selectedVariant?.id === variant.id;
 
@@ -331,8 +331,8 @@ export function PDPBuyBox({
                   key={variant.id}
                   onClick={() => handleVariantSelect(variant)}
                   className={cn(
-                    "relative flex flex-col items-start justify-center p-3 md:p-4 transition-all duration-200 text-left bg-transparent border border-[var(--border)]",
-                    index > 0 && "-ml-px" // Collapse borders by overlapping
+                    "relative flex flex-col items-start justify-center p-3 md:p-4 transition-all duration-200 text-left bg-transparent border border-[var(--border)] flex-shrink-0",
+                    index > 0 && "-ml-px" // Collapse borders by overlapping on grid
                   )}
                 >
                   {/* Variant Badge */}
@@ -352,11 +352,11 @@ export function PDPBuyBox({
                   {variant.thumbnailUrl && (
                     <div
                       className={cn(
-                        "relative mb-1 md:mb-2",
-                        // Mobile: dynamic sizing based on variant count (15% bigger for 1-2, 10% for 3+)
-                        variantCount <= 2 ? "w-[83px] h-[83px]" : "w-[79px] h-[79px]",
+                        "relative mb-1 md:mb-2 flex-shrink-0",
+                        // Mobile: 84px for 1-2 variants, 80px for 3+
+                        variantCount <= 2 ? "w-[84px] h-[84px] min-w-[84px] min-h-[84px]" : "w-20 h-20 min-w-[80px] min-h-[80px]",
                         // Tablet and desktop: fixed sizes
-                        "md:w-24 md:h-24 lg:w-[120px] lg:h-[120px]"
+                        "md:w-24 md:h-24 md:min-w-[96px] md:min-h-[96px] lg:w-[120px] lg:h-[120px] lg:min-w-[120px] lg:min-h-[120px]"
                       )}
                     >
                       <Image
