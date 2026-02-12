@@ -12,7 +12,7 @@ export default async function ComingSoonPage() {
     <ComingSoonClient
       logoUrl={settings?.logoUrl || undefined}
       badgeUrl={settings?.draftModeBadgeUrl || undefined}
-      title={settings?.draftModeTitle || 'Launching Soon'}
+      title={settings?.draftModeTitle ?? 'Launching Soon'}
       subtitle={settings?.draftModeSubtitle || "A women's health and wellness lab in stealth, developing breakthrough products that address real needs with research and science."}
       siteName={settings?.siteName || "Archie's Remedies"}
       footerStyle={(settings?.draftModeFooterStyle as 'badges' | 'quip') || 'badges'}
