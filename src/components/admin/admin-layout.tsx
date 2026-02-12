@@ -148,12 +148,17 @@ function AdminLayoutInner({ children, unreadMessages = 0 }: AdminLayoutProps) {
       ],
     },
     {
+      title: 'Acquisition',
+      items: [
+        { href: '/admin/acquisition', label: 'CSV Upload', icon: Upload },
+      ],
+    },
+    {
       title: 'Marketing',
       items: [
         { href: '/admin/inbox', label: 'Inbox', icon: Inbox, badge: unreadMessages },
         { href: '/admin/performance', label: 'Performance', icon: Rocket },
         { href: '/admin/contacts', label: 'Contacts', icon: Users },
-        { href: '/admin/contacts/upload', label: 'CSV Upload', icon: Upload },
         { href: '/admin/popups', label: 'Pop-ups', icon: MousePointerClick },
       ],
     },
