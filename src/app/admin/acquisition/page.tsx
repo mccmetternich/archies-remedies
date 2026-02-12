@@ -137,15 +137,17 @@ export default function AcquisitionPage() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="border-b border-gray-200 pb-6">
+      <div className="border-b border-[var(--admin-border)] pb-6">
         <div className="flex items-center gap-3 mb-2">
-          <Upload className="h-8 w-8 text-blue-600" />
-          <h1 className="text-3xl font-bold text-gray-900">Contact Acquisition</h1>
+          <div className="w-10 h-10 rounded-xl bg-[var(--primary)]/10 flex items-center justify-center">
+            <Upload className="h-5 w-5 text-[var(--primary)]" />
+          </div>
+          <h1 className="text-2xl font-semibold text-[var(--admin-text-primary)]">Contact Acquisition</h1>
         </div>
-        <p className="text-lg text-gray-600">
+        <p className="text-[var(--admin-text-secondary)] leading-relaxed">
           Upload customer data and automatically enroll qualified contacts in campaigns.
         </p>
-        <div className="mt-4 flex items-center gap-6 text-sm text-gray-500">
+        <div className="mt-4 flex items-center gap-6 text-sm text-[var(--admin-text-secondary)]">
           <div className="flex items-center gap-2">
             <Filter className="h-4 w-4" />
             <span>Advanced filtering for female customers</span>
@@ -169,23 +171,25 @@ export default function AcquisitionPage() {
           
           {/* Upload Zone */}
           {uploadState === 'empty' && (
-            <div className="bg-white rounded-xl border-2 border-dashed border-gray-200 hover:border-blue-300 transition-colors">
+            <div className="bg-[var(--admin-card)] rounded-xl border-2 border-dashed border-[var(--admin-border)] hover:border-[var(--primary)]/30 transition-colors">
               <div
                 {...getRootProps()}
-                className={`p-12 text-center cursor-pointer ${
-                  isDragActive ? 'bg-blue-50' : ''
+                className={`p-12 text-center cursor-pointer transition-colors ${
+                  isDragActive ? 'bg-[var(--primary)]/5' : ''
                 }`}
               >
                 <input {...getInputProps()} />
-                <Upload className="mx-auto h-16 w-16 text-gray-400 mb-6" />
-                <h3 className="text-2xl font-semibold text-gray-900 mb-3">
+                <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-[var(--admin-hover)] flex items-center justify-center">
+                  <Upload className="h-8 w-8 text-[var(--admin-text-secondary)]" />
+                </div>
+                <h3 className="text-xl font-semibold text-[var(--admin-text-primary)] mb-3">
                   {isDragActive ? 'Drop your CSV file here' : 'Upload Customer Data'}
                 </h3>
-                <p className="text-gray-600 text-lg mb-4">
+                <p className="text-[var(--admin-text-secondary)] mb-6 leading-relaxed">
                   Drag and drop your CSV file or click to browse
                 </p>
                 <div className="flex justify-center">
-                  <button className="bg-blue-600 text-white px-8 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                  <button className="bg-[var(--primary)] text-white px-8 py-3 rounded-xl font-medium hover:bg-[var(--primary)]/90 transition-all duration-200 hover:scale-105 hover:shadow-lg">
                     Select CSV File
                   </button>
                 </div>
@@ -195,28 +199,33 @@ export default function AcquisitionPage() {
 
           {/* File Selected */}
           {uploadState === 'selected' && selectedFile && (
-            <div className="bg-white rounded-xl border border-gray-200 p-8">
+            <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border)] p-8">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center">
-                  <FileText className="h-12 w-12 text-blue-500 mr-4" />
+                  <div className="w-12 h-12 rounded-xl bg-[var(--primary)]/10 flex items-center justify-center mr-4">
+                    <FileText className="h-6 w-6 text-[var(--primary)]" />
+                  </div>
                   <div>
-                    <h3 className="text-xl font-semibold text-gray-900">{selectedFile.name}</h3>
-                    <p className="text-gray-500">
+                    <h3 className="text-lg font-semibold text-[var(--admin-text-primary)]">{selectedFile.name}</h3>
+                    <p className="text-[var(--admin-text-secondary)] text-sm">
                       {(selectedFile.size / 1024).toFixed(1)} KB • Ready to process
                     </p>
                   </div>
                 </div>
                 <button
                   onClick={resetUpload}
-                  className="text-gray-500 hover:text-gray-700"
+                  className="w-8 h-8 rounded-lg bg-[var(--admin-hover)] hover:bg-red-500/10 text-[var(--admin-text-secondary)] hover:text-red-400 transition-all duration-200 flex items-center justify-center"
                 >
-                  <XCircle className="h-6 w-6" />
+                  <XCircle className="h-4 w-4" />
                 </button>
               </div>
               
-              <div className="bg-blue-50 rounded-lg p-4 mb-6">
-                <h4 className="font-medium text-blue-900 mb-2">Processing Preview</h4>
-                <p className="text-blue-800 text-sm">
+              <div className="bg-[var(--primary)]/10 rounded-xl p-4 mb-6 border border-[var(--primary)]/20">
+                <h4 className="font-medium text-[var(--admin-text-primary)] mb-2 flex items-center gap-2">
+                  <AlertTriangle className="h-4 w-4 text-[var(--primary)]" />
+                  Processing Preview
+                </h4>
+                <p className="text-[var(--admin-text-secondary)] text-sm leading-relaxed">
                   This file will be filtered for female customers, deduplicated against existing contacts,
                   and new contacts will be enrolled in the active campaign.
                 </p>
@@ -225,13 +234,13 @@ export default function AcquisitionPage() {
               <div className="flex justify-end space-x-3">
                 <button
                   onClick={resetUpload}
-                  className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                  className="px-6 py-3 border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-secondary)] hover:bg-[var(--admin-hover)] transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={processUpload}
-                  className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                  className="px-8 py-3 bg-[var(--primary)] text-white rounded-xl hover:bg-[var(--primary)]/90 transition-all duration-200 font-medium hover:scale-105 hover:shadow-lg"
                 >
                   Start Processing
                 </button>
@@ -241,39 +250,47 @@ export default function AcquisitionPage() {
 
           {/* Processing */}
           {uploadState === 'processing' && (
-            <div className="bg-white rounded-xl border border-gray-200 p-8">
+            <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border)] p-8">
               <div className="flex items-center mb-6">
-                <Loader2 className="h-12 w-12 text-blue-500 animate-spin mr-4" />
+                <div className="w-12 h-12 rounded-xl bg-[var(--primary)]/10 flex items-center justify-center mr-4">
+                  <Loader2 className="h-6 w-6 text-[var(--primary)] animate-spin" />
+                </div>
                 <div>
-                  <h3 className="text-xl font-semibold text-gray-900">Processing Upload</h3>
-                  <p className="text-gray-600">Applying filters and validating contacts...</p>
+                  <h3 className="text-lg font-semibold text-[var(--admin-text-primary)]">Processing Upload</h3>
+                  <p className="text-[var(--admin-text-secondary)]">Applying filters and validating contacts...</p>
                 </div>
               </div>
               
               <div className="space-y-4">
                 {processingSteps.map((step, index) => (
                   <div key={index} className="flex items-start space-x-3">
-                    <div className={`mt-0.5 h-5 w-5 rounded-full flex items-center justify-center ${
-                      step.completed ? 'bg-green-100' : 'bg-blue-100'
+                    <div className={`mt-0.5 w-5 h-5 rounded-full flex items-center justify-center ${
+                      step.completed 
+                        ? 'bg-green-500/20 border border-green-500/30' 
+                        : 'bg-[var(--primary)]/20 border border-[var(--primary)]/30'
                     }`}>
                       {step.completed ? (
-                        <CheckCircle className="h-3 w-3 text-green-600" />
+                        <CheckCircle className="h-3 w-3 text-green-400" />
                       ) : (
-                        <Loader2 className="h-3 w-3 text-blue-600 animate-spin" />
+                        <Loader2 className="h-3 w-3 text-[var(--primary)] animate-spin" />
                       )}
                     </div>
                     <div className="flex-1">
-                      <p className={`font-medium ${step.completed ? 'text-green-900' : 'text-blue-900'}`}>
+                      <p className={`font-medium ${
+                        step.completed 
+                          ? 'text-green-400' 
+                          : 'text-[var(--admin-text-primary)]'
+                      }`}>
                         {step.stage}
                       </p>
-                      <p className="text-sm text-gray-600">{step.description}</p>
+                      <p className="text-sm text-[var(--admin-text-secondary)]">{step.description}</p>
                       {step.count !== undefined && (
-                        <p className="text-sm font-medium text-gray-900 mt-1">
+                        <p className="text-sm font-medium text-[var(--admin-text-primary)] mt-1">
                           {step.count} contacts qualified
                         </p>
                       )}
                       {step.details && step.details.length > 0 && (
-                        <ul className="mt-2 text-sm text-gray-500 space-y-1">
+                        <ul className="mt-2 text-sm text-[var(--admin-text-secondary)] space-y-1">
                           {step.details.map((detail, i) => (
                             <li key={i}>• {detail}</li>
                           ))}
@@ -288,18 +305,20 @@ export default function AcquisitionPage() {
 
           {/* Error */}
           {uploadState === 'error' && (
-            <div className="bg-red-50 rounded-xl border border-red-200 p-8">
+            <div className="bg-[var(--admin-card)] rounded-xl border border-red-500/20 p-8">
               <div className="flex items-center mb-4">
-                <XCircle className="h-12 w-12 text-red-500 mr-4" />
+                <div className="w-12 h-12 rounded-xl bg-red-500/10 flex items-center justify-center mr-4">
+                  <XCircle className="h-6 w-6 text-red-400" />
+                </div>
                 <div>
-                  <h3 className="text-xl font-semibold text-red-900">Upload Failed</h3>
-                  <p className="text-red-700">{errorMessage}</p>
+                  <h3 className="text-lg font-semibold text-[var(--admin-text-primary)]">Upload Failed</h3>
+                  <p className="text-red-400">{errorMessage}</p>
                 </div>
               </div>
               
               <button
                 onClick={resetUpload}
-                className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                className="px-6 py-3 bg-red-500 text-white rounded-xl hover:bg-red-600 transition-all duration-200 hover:scale-105"
               >
                 Try Again
               </button>
@@ -308,12 +327,14 @@ export default function AcquisitionPage() {
 
           {/* Success Results */}
           {uploadState === 'complete' && results && (
-            <div className="bg-white rounded-xl border border-gray-200 p-8">
+            <div className="bg-[var(--admin-card)] rounded-xl border border-green-500/20 p-8">
               <div className="flex items-center mb-6">
-                <CheckCircle className="h-12 w-12 text-green-500 mr-4" />
+                <div className="w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center mr-4">
+                  <CheckCircle className="h-6 w-6 text-green-400" />
+                </div>
                 <div>
-                  <h3 className="text-xl font-semibold text-gray-900">Upload Complete!</h3>
-                  <p className="text-green-700 text-lg">
+                  <h3 className="text-lg font-semibold text-[var(--admin-text-primary)]">Upload Complete!</h3>
+                  <p className="text-green-400">
                     {results.inserted.newContacts} new contacts added and enrolled in campaign
                   </p>
                 </div>
@@ -321,23 +342,23 @@ export default function AcquisitionPage() {
               
               {/* Key Stats Grid */}
               <div className="grid grid-cols-3 gap-4 mb-6">
-                <div className="bg-gray-50 rounded-lg p-4 text-center">
-                  <div className="text-2xl font-bold text-gray-900">{results.totalRows}</div>
-                  <div className="text-sm text-gray-600">Total Rows</div>
+                <div className="bg-[var(--admin-hover)] rounded-xl p-4 text-center border border-[var(--admin-border)]">
+                  <div className="text-2xl font-bold text-[var(--admin-text-primary)]">{results.totalRows}</div>
+                  <div className="text-sm text-[var(--admin-text-secondary)]">Total Rows</div>
                 </div>
-                <div className="bg-green-50 rounded-lg p-4 text-center">
-                  <div className="text-2xl font-bold text-green-600">{results.inserted.newContacts}</div>
-                  <div className="text-sm text-gray-600">New Contacts</div>
+                <div className="bg-green-500/10 rounded-xl p-4 text-center border border-green-500/20">
+                  <div className="text-2xl font-bold text-green-400">{results.inserted.newContacts}</div>
+                  <div className="text-sm text-[var(--admin-text-secondary)]">New Contacts</div>
                 </div>
-                <div className="bg-yellow-50 rounded-lg p-4 text-center">
-                  <div className="text-2xl font-bold text-yellow-600">{totalFiltered}</div>
-                  <div className="text-sm text-gray-600">Filtered Out</div>
+                <div className="bg-yellow-500/10 rounded-xl p-4 text-center border border-yellow-500/20">
+                  <div className="text-2xl font-bold text-yellow-400">{totalFiltered}</div>
+                  <div className="text-sm text-[var(--admin-text-secondary)]">Filtered Out</div>
                 </div>
               </div>
               
               <button
                 onClick={resetUpload}
-                className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                className="px-8 py-3 bg-[var(--primary)] text-white rounded-xl hover:bg-[var(--primary)]/90 transition-all duration-200 font-medium hover:scale-105"
               >
                 Upload Another File
               </button>
@@ -349,12 +370,14 @@ export default function AcquisitionPage() {
         <div className="space-y-6">
           
           {/* Filtering Info */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
-            <h4 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <Filter className="h-5 w-5 text-blue-600" />
+          <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border)] p-6">
+            <h4 className="font-semibold text-[var(--admin-text-primary)] mb-4 flex items-center gap-2">
+              <div className="w-5 h-5 rounded bg-[var(--primary)]/10 flex items-center justify-center">
+                <Filter className="h-3 w-3 text-[var(--primary)]" />
+              </div>
               Smart Filtering
             </h4>
-            <div className="space-y-3 text-sm text-gray-600">
+            <div className="space-y-3 text-sm text-[var(--admin-text-secondary)]">
               <div>• Email validation & junk detection</div>
               <div>• Blocked domains (competitors)</div>
               <div>• Male name filtering (500+ names)</div>
@@ -365,63 +388,63 @@ export default function AcquisitionPage() {
           </div>
 
           {/* File Format Guide */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
-            <h4 className="font-semibold text-gray-900 mb-4">Supported Formats</h4>
-            <div className="space-y-3 text-sm text-gray-600">
-              <div><strong>Shopify Exports:</strong> Customer data with all standard fields</div>
-              <div><strong>Standard CSV:</strong> Email, First Name, Last Name, Phone columns</div>
-              <div><strong>Delimiter:</strong> Auto-detects commas or tabs</div>
-              <div><strong>Encoding:</strong> UTF-8, handles special characters</div>
+          <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border)] p-6">
+            <h4 className="font-semibold text-[var(--admin-text-primary)] mb-4">Supported Formats</h4>
+            <div className="space-y-3 text-sm text-[var(--admin-text-secondary)] leading-relaxed">
+              <div><span className="text-[var(--admin-text-primary)] font-medium">Shopify Exports:</span> Customer data with all standard fields</div>
+              <div><span className="text-[var(--admin-text-primary)] font-medium">Standard CSV:</span> Email, First Name, Last Name, Phone columns</div>
+              <div><span className="text-[var(--admin-text-primary)] font-medium">Delimiter:</span> Auto-detects commas or tabs</div>
+              <div><span className="text-[var(--admin-text-primary)] font-medium">Encoding:</span> UTF-8, handles special characters</div>
             </div>
           </div>
 
           {/* Detailed Results */}
           {uploadState === 'complete' && results && (
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
-              <h4 className="font-semibold text-gray-900 mb-4">Filtering Breakdown</h4>
+            <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border)] p-6">
+              <h4 className="font-semibold text-[var(--admin-text-primary)] mb-4">Filtering Breakdown</h4>
               
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Invalid emails</span>
-                  <span className="font-medium text-red-600">{results.filtered.invalidEmail}</span>
+                  <span className="text-[var(--admin-text-secondary)]">Invalid emails</span>
+                  <span className="font-medium text-red-400">{results.filtered.invalidEmail}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Blocked domains</span>
-                  <span className="font-medium text-red-600">{results.filtered.blockedDomain}</span>
+                  <span className="text-[var(--admin-text-secondary)]">Blocked domains</span>
+                  <span className="font-medium text-red-400">{results.filtered.blockedDomain}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Blocked names</span>
-                  <span className="font-medium text-red-600">{results.filtered.blockedName}</span>
+                  <span className="text-[var(--admin-text-secondary)]">Blocked names</span>
+                  <span className="font-medium text-red-400">{results.filtered.blockedName}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Male names</span>
-                  <span className="font-medium text-red-600">{results.filtered.maleNames}</span>
+                  <span className="text-[var(--admin-text-secondary)]">Male names</span>
+                  <span className="font-medium text-red-400">{results.filtered.maleNames}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Blocked area codes</span>
-                  <span className="font-medium text-red-600">{results.filtered.blockedAreaCode}</span>
+                  <span className="text-[var(--admin-text-secondary)]">Blocked area codes</span>
+                  <span className="font-medium text-red-400">{results.filtered.blockedAreaCode}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">CSV duplicates</span>
-                  <span className="font-medium text-yellow-600">{results.filtered.duplicateInCSV}</span>
+                  <span className="text-[var(--admin-text-secondary)]">CSV duplicates</span>
+                  <span className="font-medium text-yellow-400">{results.filtered.duplicateInCSV}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Database duplicates</span>
-                  <span className="font-medium text-yellow-600">{results.filtered.duplicateInDB}</span>
+                  <span className="text-[var(--admin-text-secondary)]">Database duplicates</span>
+                  <span className="font-medium text-yellow-400">{results.filtered.duplicateInDB}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Already in campaign</span>
-                  <span className="font-medium text-blue-600">{results.filtered.alreadyInCampaign}</span>
+                  <span className="text-[var(--admin-text-secondary)]">Already in campaign</span>
+                  <span className="font-medium text-[var(--primary)]">{results.filtered.alreadyInCampaign}</span>
                 </div>
               </div>
               
               {results.errors.length > 0 && (
-                <div className="mt-4 p-3 bg-yellow-50 rounded-lg">
-                  <div className="flex items-center gap-2 text-yellow-800 font-medium text-sm mb-2">
+                <div className="mt-4 p-3 bg-yellow-500/10 rounded-xl border border-yellow-500/20">
+                  <div className="flex items-center gap-2 text-yellow-400 font-medium text-sm mb-2">
                     <AlertTriangle className="h-4 w-4" />
                     Warnings
                   </div>
-                  <ul className="text-sm text-yellow-700 space-y-1">
+                  <ul className="text-sm text-[var(--admin-text-secondary)] space-y-1">
                     {results.errors.map((error, index) => (
                       <li key={index}>• {error}</li>
                     ))}
