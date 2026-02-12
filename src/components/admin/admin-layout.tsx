@@ -27,6 +27,7 @@ import {
   ImageIcon,
   Shield,
   Star,
+  Upload,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { AdminThemeProvider, useAdminTheme } from '@/contexts/AdminThemeContext';
@@ -152,6 +153,7 @@ function AdminLayoutInner({ children, unreadMessages = 0 }: AdminLayoutProps) {
         { href: '/admin/inbox', label: 'Inbox', icon: Inbox, badge: unreadMessages },
         { href: '/admin/performance', label: 'Performance', icon: Rocket },
         { href: '/admin/contacts', label: 'Contacts', icon: Users },
+        { href: '/admin/contacts/upload', label: 'CSV Upload', icon: Upload },
         { href: '/admin/popups', label: 'Pop-ups', icon: MousePointerClick },
       ],
     },
