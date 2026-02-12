@@ -12,14 +12,14 @@ export default async function ComingSoonPage() {
     <ComingSoonClient
       logoUrl={settings?.logoUrl || undefined}
       badgeUrl={settings?.draftModeBadgeUrl || undefined}
-      title={settings?.draftModeTitle || 'Coming Soon'}
-      subtitle={settings?.draftModeSubtitle || "Pure ingredients. Radiant you."}
+      title={settings?.draftModeTitle || 'Launching Soon'}
+      subtitle={settings?.draftModeSubtitle || "A women's health and wellness lab in stealth, developing breakthrough products that address real needs with research and science."}
       siteName={settings?.siteName || "Archie's Remedies"}
       footerStyle={(settings?.draftModeFooterStyle as 'badges' | 'quip') || 'badges'}
-      callout1={settings?.draftModeCallout1 || 'Preservative-Free'}
-      callout2={settings?.draftModeCallout2 || 'Clean Ingredients'}
-      callout3={settings?.draftModeCallout3 || 'Made in USA'}
-      brandQuip={settings?.draftModeBrandQuip || 'Where clean beauty meets clear vision.'}
+      callout1={settings?.draftModeCallout1 || 'Research-Driven'}
+      callout2={settings?.draftModeCallout2 || 'Women-Focused'}
+      callout3={settings?.draftModeCallout3 || 'Science-Backed'}
+      brandQuip={settings?.draftModeBrandQuip || 'Breakthrough solutions for women\'s real health needs.'}
       defaultContactType={(settings?.draftModeContactType as 'email' | 'phone') || 'phone'}
       instagramUrl={settings?.instagramUrl || undefined}
       facebookUrl={settings?.facebookUrl || undefined}
