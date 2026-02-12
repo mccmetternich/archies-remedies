@@ -278,7 +278,7 @@ export function ComingSoonClient({
                       {title}
                     </h1>
                   )}
-                  <p className="text-base md:text-xl text-gray-600 mb-8 md:mb-12 leading-relaxed px-2 max-w-sm md:max-w-md mx-auto">
+                  <p className="text-base md:text-xl text-gray-600 mb-8 md:mb-12 leading-relaxed px-2 max-w-sm md:max-w-md mx-auto -mt-4 md:-mt-6">
                     {subtitle}
                   </p>
 
