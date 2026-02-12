@@ -1,13 +1,34 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
-// Supabase client for the email/contacts database (separate from main website DB)
-const supabaseUrl = process.env.SUPABASE_URL!;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY!;
+// Lazy-loaded Supabase client for the email/contacts database (separate from main website DB)
+let _supabaseContacts: SupabaseClient | null = null;
 
-export const supabaseContacts = createClient(supabaseUrl, supabaseServiceKey, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false
+function getSupabaseContacts() {
+  if (!_supabaseContacts) {
+    const supabaseUrl = process.env.SUPABASE_URL;
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY;
+
+    if (!supabaseUrl) {
+      throw new Error('SUPABASE_URL environment variable is required for the CSV upload feature.');
+    }
+    if (!supabaseServiceKey) {
+      throw new Error('SUPABASE_SERVICE_KEY environment variable is required for the CSV upload feature.');
+    }
+
+    _supabaseContacts = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    });
+  }
+  
+  return _supabaseContacts;
+}
+
+export const supabaseContacts = new Proxy({} as SupabaseClient, {
+  get(target, prop) {
+    return getSupabaseContacts()[prop as keyof SupabaseClient];
   }
 });
 
