@@ -181,7 +181,7 @@ export async function PUT(request: Request) {
     // Update site settings for footer configuration
     const [existingSettings] = await db.select().from(siteSettings).limit(1);
 
-    const footerSettings: Record<string, any> = {
+    const footerSettings: Record<string, string | number | boolean | null> = {
       updatedAt: new Date().toISOString(),
     };
 
@@ -285,7 +285,7 @@ export async function PUT(request: Request) {
       let sortOrder = 0;
       for (const [column, columnLinks] of Object.entries(links)) {
         if (Array.isArray(columnLinks)) {
-          for (const link of columnLinks as any[]) {
+          for (const link of columnLinks as { id?: string; label: string; url: string; isExternal?: boolean; isActive?: boolean }[]) {
             await db.insert(footerLinks).values({
               id: link.id?.startsWith('new-') ? generateId() : (link.id || generateId()),
               label: link.label,

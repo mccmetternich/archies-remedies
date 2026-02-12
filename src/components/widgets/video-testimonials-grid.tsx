@@ -29,13 +29,21 @@ export function VideoTestimonialsGrid({
 
   const openModal = (video: VideoTestimonial) => {
     setActiveVideo(video);
-    document.body.style.overflow = 'hidden';
   };
 
   const closeModal = () => {
     setActiveVideo(null);
-    document.body.style.overflow = '';
   };
+
+  // Handle body scroll in useEffect to avoid direct DOM manipulation
+  React.useEffect(() => {
+    if (activeVideo) {
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = '';
+      };
+    }
+  }, [activeVideo]);
 
   return (
     <section className={`py-16 md:py-24 bg-white ${className}`}>

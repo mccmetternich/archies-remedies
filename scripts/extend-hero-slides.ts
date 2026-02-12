@@ -48,11 +48,11 @@ async function migrate() {
     try {
       await client.execute(sql);
       console.log('✓', sql.replace('ALTER TABLE hero_slides ADD COLUMN ', ''));
-    } catch (error: any) {
-      if (error.message?.includes('duplicate column name')) {
+    } catch (error: unknown) {
+      if (error instanceof Error && error.message?.includes('duplicate column name')) {
         console.log('○ Column already exists:', sql.split('ADD COLUMN ')[1]?.split(' ')[0]);
       } else {
-        console.error('✗ Error:', error.message);
+        console.error('✗ Error:', error instanceof Error ? error.message : String(error));
       }
     }
   }
@@ -62,8 +62,9 @@ async function migrate() {
   // Verify the schema
   const result = await client.execute(`PRAGMA table_info(hero_slides)`);
   console.log('\nCurrent hero_slides columns:');
-  result.rows.forEach((row: any) => {
-    console.log(`  - ${row.name} (${row.type})`);
+  result.rows.forEach((row) => {
+    const typedRow = row as unknown as { name: string; type: string };
+    console.log(`  - ${typedRow.name} (${typedRow.type})`);
   });
 }
 

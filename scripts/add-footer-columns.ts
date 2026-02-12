@@ -37,12 +37,12 @@ async function run() {
       await client.execute(sql);
       const colName = sql.split('ADD COLUMN ')[1]?.split(' ')[0];
       console.log('Added:', colName);
-    } catch (e: any) {
+    } catch (e: unknown) {
       const colName = sql.split('ADD COLUMN ')[1]?.split(' ')[0];
-      if (e.message?.includes('duplicate column')) {
+      if (e instanceof Error && e.message?.includes('duplicate column')) {
         console.log('Exists:', colName);
       } else {
-        console.error('Error on', colName, ':', e.message);
+        console.error('Error on', colName, ':', e instanceof Error ? e.message : String(e));
       }
     }
   }

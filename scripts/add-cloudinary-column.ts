@@ -9,8 +9,8 @@ async function main() {
   try {
     await client.execute('ALTER TABLE media_files ADD COLUMN cloudinary_public_id TEXT');
     console.log('Column cloudinary_public_id added successfully');
-  } catch (error: any) {
-    if (error.message?.includes('duplicate column')) {
+  } catch (error: unknown) {
+    if (error instanceof Error && error.message?.includes('duplicate column')) {
       console.log('Column cloudinary_public_id already exists');
     } else {
       throw error;

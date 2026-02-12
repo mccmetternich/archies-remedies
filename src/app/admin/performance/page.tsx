@@ -74,7 +74,7 @@ export default function PerformancePage() {
 
   useEffect(() => {
     fetchData(dateRange);
-  }, [dateRange]);
+  }, [dateRange]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleRangeChange = (range: DateRange) => {
     setShowDropdown(false);
@@ -87,6 +87,7 @@ export default function PerformancePage() {
 
   const handleRefresh = () => {
     startTransition(() => {
+      setLoading(true);
       fetchData(dateRange);
     });
   };

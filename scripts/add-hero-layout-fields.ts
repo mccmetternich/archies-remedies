@@ -17,11 +17,11 @@ async function addHeroLayoutFields() {
     try {
       await client.execute(`ALTER TABLE hero_slides ADD COLUMN ${col.name} ${col.type}`);
       console.log(`✓ Added column: ${col.name}`);
-    } catch (error: any) {
-      if (error.message?.includes('duplicate column name')) {
+    } catch (error: unknown) {
+      if (error instanceof Error && error.message?.includes('duplicate column name')) {
         console.log(`○ Column already exists: ${col.name}`);
       } else {
-        console.error(`✗ Failed to add column ${col.name}:`, error.message);
+        console.error(`✗ Failed to add column ${col.name}:`, error instanceof Error ? error.message : String(error));
       }
     }
   }

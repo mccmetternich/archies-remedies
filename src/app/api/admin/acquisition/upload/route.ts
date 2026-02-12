@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabaseContacts, Contact, CampaignContact, ACTIVE_CAMPAIGN } from '@/lib/supabase-contacts';
+import { supabaseContacts, ACTIVE_CAMPAIGN } from '@/lib/supabase-contacts';
 
 // This is the enhanced version with detailed processing feedback
 export async function POST(request: NextRequest) {
@@ -338,7 +338,7 @@ function parseCSV(csvText: string): { headers: string[], rows: string[][] } {
 }
 
 function mapCSVRow(headers: string[], row: string[]): ParsedRow | null {
-  const data: any = {};
+  const data: Record<string, string> = {};
   headers.forEach((header, index) => {
     data[header.toLowerCase()] = row[index] || '';
   });

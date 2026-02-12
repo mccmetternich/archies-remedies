@@ -19,7 +19,7 @@ async function main() {
   // Check site settings for any image URLs
   const settings = await client.execute('SELECT * FROM site_settings LIMIT 1');
   console.log('\n=== SITE SETTINGS IMAGE FIELDS ===');
-  let base64SettingsFields: string[] = [];
+  const base64SettingsFields: string[] = [];
   if (settings.rows.length > 0) {
     const row = settings.rows[0] as Record<string, unknown>;
     for (const [key, val] of Object.entries(row)) {
@@ -46,7 +46,7 @@ async function main() {
   // Check hero slides
   const heroSlides = await client.execute('SELECT id, title, image_url, testimonial_avatar_url FROM hero_slides');
   console.log('\n=== HERO SLIDES ===');
-  let base64HeroSlides: { id: string, field: string }[] = [];
+  const base64HeroSlides: { id: string, field: string }[] = [];
   for (const row of heroSlides.rows) {
     const imageUrl = row.image_url as string;
     const avatarUrl = row.testimonial_avatar_url as string;
@@ -67,7 +67,7 @@ async function main() {
   // Check products
   const products = await client.execute('SELECT id, name, hero_image_url FROM products');
   console.log('\n=== PRODUCTS ===');
-  let base64Products: string[] = [];
+  const base64Products: string[] = [];
   for (const row of products.rows) {
     const url = row.hero_image_url as string;
     const isBase64 = url?.startsWith('data:');
@@ -79,7 +79,7 @@ async function main() {
   // Check blog posts
   const blogPosts = await client.execute('SELECT id, title, featured_image_url FROM blog_posts');
   console.log('\n=== BLOG POSTS ===');
-  let base64BlogPosts: string[] = [];
+  const base64BlogPosts: string[] = [];
   for (const row of blogPosts.rows) {
     const url = row.featured_image_url as string;
     const isBase64 = url?.startsWith('data:');
@@ -91,7 +91,7 @@ async function main() {
   // Check testimonials
   const testimonials = await client.execute('SELECT id, author_name, avatar_url FROM testimonials');
   console.log('\n=== TESTIMONIALS ===');
-  let base64Testimonials: string[] = [];
+  const base64Testimonials: string[] = [];
   for (const row of testimonials.rows) {
     const url = row.avatar_url as string;
     const isBase64 = url?.startsWith('data:');

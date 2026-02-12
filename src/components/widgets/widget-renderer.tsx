@@ -505,17 +505,16 @@ export function WidgetRenderer({ widgets, data, isWidgetOnlyPage = false }: Widg
     return null;
   }
 
-  // Track if we've rendered the first visible widget
-  let firstVisibleRendered = false;
+  // Find the first visible widget index
+  const firstVisibleIndex = widgets.findIndex(widget => widget.isVisible);
 
   return (
     <>
-      {widgets.map((widget) => {
+      {widgets.map((widget, index) => {
         if (!widget.isVisible) return null;
 
         // Check if this is the first visible widget on a widget-only page
-        const isFirstOnWidgetOnlyPage = isWidgetOnlyPage && !firstVisibleRendered;
-        firstVisibleRendered = true;
+        const isFirstOnWidgetOnlyPage = isWidgetOnlyPage && index === firstVisibleIndex;
 
         return renderWidget(widget, data, isFirstOnWidgetOnlyPage);
       })}

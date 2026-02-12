@@ -3222,7 +3222,7 @@ export default function NavigationPage() {
                 <label className="relative inline-flex items-center cursor-pointer">
                   <input
                     type="checkbox"
-                    checked={(editForm as any).isActive ?? true}
+                    checked={(editForm as NavItem | FooterLink).isActive ?? true}
                     onChange={(e) => setEditForm({ ...editForm, isActive: e.target.checked })}
                     className="sr-only peer"
                   />
@@ -3235,7 +3235,7 @@ export default function NavigationPage() {
                 <div>
                   <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">Label</label>
                   <input
-                    value={(editForm as any).label || ''}
+                    value={(editForm as NavItem | FooterLink).label || ''}
                     onChange={(e) => setEditForm({ ...editForm, label: e.target.value })}
                     placeholder="Products"
                     className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
@@ -3244,7 +3244,7 @@ export default function NavigationPage() {
                 <div>
                   <label className="block text-sm font-medium text-[var(--admin-text-secondary)] mb-2">URL</label>
                   <InternalLinkSelector
-                    value={(editForm as any).url || ''}
+                    value={(editForm as NavItem | FooterLink).url || ''}
                     onChange={(value) => setEditForm({ ...editForm, url: value })}
                     placeholder="Select page or enter URL"
                   />

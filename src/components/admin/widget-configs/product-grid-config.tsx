@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { ChevronDown, ChevronUp, Play, ImageIcon, Loader2 } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { MediaPickerButton } from '@/components/admin/media-picker';
 
 // ============================================
@@ -86,11 +85,12 @@ export function ProductGridConfig({
 
   // Fetch products if not provided externally
   useEffect(() => {
-    if (!externalProducts) {
-      setIsLoading(true);
-      fetch('/api/admin/products')
-        .then(res => res.json())
-        .then(data => {
+    const fetchProducts = async () => {
+      if (!externalProducts) {
+        setIsLoading(true);
+        try {
+          const res = await fetch('/api/admin/products');
+          const data = await res.json();
           // API returns array directly, not { products: [...] }
           const productList = Array.isArray(data) ? data : (data.products || []);
           setFetchedProducts(productList.map((p: { id: string; name: string; slug: string; shortDescription: string | null; heroImageUrl: string | null; secondaryImageUrl: string | null; badge: string | null; badgeEmoji: string | null }) => ({
@@ -103,10 +103,15 @@ export function ProductGridConfig({
             badge: p.badge,
             badgeEmoji: p.badgeEmoji,
           })));
-        })
-        .catch(console.error)
-        .finally(() => setIsLoading(false));
-    }
+        } catch (error) {
+          console.error(error);
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    };
+    
+    fetchProducts();
   }, [externalProducts]);
 
   const updateConfig = (updates: Partial<ProductGridConfig>) => {
