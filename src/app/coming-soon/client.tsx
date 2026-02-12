@@ -273,9 +273,11 @@ export function ComingSoonClient({
                   transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
                   className="absolute inset-0 flex flex-col justify-start pt-4 md:justify-center md:pt-0"
                 >
-                  <h1 className="text-3xl md:text-5xl lg:text-6xl font-normal tracking-tight mb-4 md:mb-6">
-                    {title}
-                  </h1>
+                  {title && (
+                    <h1 className="text-3xl md:text-5xl lg:text-6xl font-normal tracking-tight mb-4 md:mb-6">
+                      {title}
+                    </h1>
+                  )}
                   <p className="text-base md:text-xl text-gray-600 mb-8 md:mb-12 leading-relaxed px-2 max-w-sm md:max-w-md mx-auto">
                     {subtitle}
                   </p>
