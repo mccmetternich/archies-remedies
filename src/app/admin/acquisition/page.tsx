@@ -95,8 +95,8 @@ export default function AcquisitionPage() {
       const data = await response.json();
       setResults(data.results);
       
-      // Show completion steps
-      const totalFiltered = Object.values(data.results.filtered).reduce((a: number, b: number) => a + b, 0);
+      // Show completion steps  
+      const totalFiltered = Object.values(data.results.filtered).reduce((a, b) => (a as number) + (b as number), 0);
       
       addProcessingStep(
         'Filtering Complete', 
