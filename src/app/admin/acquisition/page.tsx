@@ -3,6 +3,7 @@
 import { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Upload, FileText, CheckCircle, XCircle, Loader2, AlertTriangle, Filter, Users, Mail } from 'lucide-react';
+import AcquisitionMetrics from '@/components/admin/acquisition-metrics';
 
 interface UploadResults {
   totalRows: number;
@@ -167,6 +168,9 @@ export default function AcquisitionPage() {
           </div>
         </div>
       </div>
+
+      {/* KPI Metrics Dashboard */}
+      <AcquisitionMetrics />
 
       {/* Source Tag Input */}
       <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border)] p-6">
