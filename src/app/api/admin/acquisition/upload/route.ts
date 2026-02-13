@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabaseContacts, ACTIVE_CAMPAIGN } from '@/lib/supabase-contacts';
+import { supabaseContacts } from '@/lib/supabase-contacts';
 
-// This is the enhanced version with detailed processing feedback
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
     const file = formData.get('file') as File;
+    const sourceTag = formData.get('sourceTag') as string;
     
     if (!file) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
@@ -19,199 +19,127 @@ export async function POST(request: NextRequest) {
     const csvText = await file.text();
     const { headers, rows } = parseCSV(csvText);
     
-    // Initialize results with detailed tracking
+    // Initialize results tracking
     const results = {
       totalRows: rows.length,
       filtered: {
-        invalidEmail: 0,
-        blockedDomain: 0,
-        blockedName: 0,
+        malformedEmails: 0,
+        tiktokRelay: 0,
+        genericAddresses: 0,
+        disposableDomains: 0,
         maleNames: 0,
-        blockedAreaCode: 0,
-        duplicateInCSV: 0,
-        duplicateInDB: 0,
-        alreadyInCampaign: 0
+        blockedDomains: 0,
+        duplicateInCSV: 0
       },
       inserted: {
-        newContacts: 0,
-        campaignEnrollments: 0
+        contactsAdded: 0,
+        duplicatesSkipped: 0
       },
       errors: [] as string[],
-      processingDetails: {
-        parseStage: `Successfully parsed ${rows.length} rows from CSV`,
-        filteringStage: 'Applying smart filters...',
-        deduplicationStage: 'Checking for duplicates...',
-        insertionStage: 'Inserting new contacts...'
-      }
+      sourceTag: sourceTag || `csv_import_${new Date().toISOString().split('T')[0]}`
     };
     
-    // Parse and filter contacts with detailed tracking
-    const parsedRows: ParsedRow[] = [];
+    // Parse and filter contacts
+    const validContacts: ParsedContact[] = [];
     const emailsInCSV = new Set<string>();
-    const filterReasons: { [email: string]: string } = {};
     
     for (const row of rows) {
-      const parsed = mapCSVRow(headers, row);
-      if (!parsed) continue;
+      const contact = parseShopifyRow(headers, row);
+      if (!contact) continue;
       
-      // Filter 1: Invalid email
-      if (!isValidEmail(parsed.email)) {
-        results.filtered.invalidEmail++;
-        filterReasons[parsed.email] = 'Invalid email format';
+      // Filter 1: Malformed emails
+      if (!isValidEmail(contact.email)) {
+        results.filtered.malformedEmails++;
         continue;
       }
       
-      // Filter 2: Blocked domains
-      const emailDomain = parsed.email.split('@')[1]?.toLowerCase();
-      if (BLOCKED_DOMAINS.has(emailDomain)) {
-        results.filtered.blockedDomain++;
-        filterReasons[parsed.email] = `Blocked domain: ${emailDomain}`;
+      // Filter 2: TikTok relay emails
+      if (contact.email.includes('@chat-seller-us.tiktok.com')) {
+        results.filtered.tiktokRelay++;
         continue;
       }
       
-      // Filter 3: Blocked names
-      if ((parsed.firstName && BLOCKED_FIRST_NAMES.has(parsed.firstName.toLowerCase())) ||
-          (parsed.lastName && BLOCKED_LAST_NAMES.has(parsed.lastName.toLowerCase()))) {
-        results.filtered.blockedName++;
-        filterReasons[parsed.email] = `Blocked name: ${parsed.firstName} ${parsed.lastName}`;
+      // Filter 3: Generic/role addresses
+      if (isGenericEmail(contact.email)) {
+        results.filtered.genericAddresses++;
         continue;
       }
       
-      // Filter 4: Male names (with protection for gender-neutral names)
-      if (parsed.firstName) {
-        const firstName = parsed.firstName.toLowerCase();
-        if (!PROTECTED_NAMES.has(firstName) && MALE_NAMES.has(firstName)) {
-          results.filtered.maleNames++;
-          filterReasons[parsed.email] = `Male first name: ${parsed.firstName}`;
-          continue;
-        }
+      // Filter 4: Disposable domains
+      if (isDisposableDomain(contact.email)) {
+        results.filtered.disposableDomains++;
+        continue;
       }
       
-      // Filter 5: Blocked area codes
-      if (parsed.phone) {
-        const areaCode = getAreaCode(parsed.phone);
-        if (areaCode && BLOCKED_AREA_CODES.has(areaCode)) {
-          results.filtered.blockedAreaCode++;
-          filterReasons[parsed.email] = `Blocked area code: ${areaCode}`;
-          continue;
-        }
+      // Filter 5: Male names
+      if (contact.first_name && isMaleName(contact.first_name)) {
+        results.filtered.maleNames++;
+        continue;
       }
       
-      // Filter 6: Duplicate within CSV
-      if (emailsInCSV.has(parsed.email)) {
+      // Filter 6: Blocked domains (keep existing + TikTok)
+      const domain = contact.email.split('@')[1]?.toLowerCase();
+      if (BLOCKED_DOMAINS.has(domain)) {
+        results.filtered.blockedDomains++;
+        continue;
+      }
+      
+      // Filter 7: Duplicate within CSV
+      if (emailsInCSV.has(contact.email)) {
         results.filtered.duplicateInCSV++;
-        filterReasons[parsed.email] = 'Duplicate within CSV file';
         continue;
       }
-      emailsInCSV.add(parsed.email);
+      emailsInCSV.add(contact.email);
       
-      parsedRows.push(parsed);
+      validContacts.push({
+        email: contact.email,
+        first_name: contact.first_name,
+        last_name: contact.last_name,
+        phone: contact.phone,
+        source: results.sourceTag
+      });
     }
     
-    // Update processing details
-    results.processingDetails.filteringStage = `Filtered ${parsedRows.length} qualified contacts from ${rows.length} total rows`;
-    
-    // Check for existing emails in database
-    if (parsedRows.length === 0) {
-      return NextResponse.json({ results });
-    }
-    
-    const emails = parsedRows.map(row => row.email);
-    const { data: existingContacts } = await supabaseContacts
-      .from('contacts')
-      .select('id, email')
-      .in('email', emails);
-    
-    const existingEmails = new Set(existingContacts?.map(c => c.email) || []);
-    
-    // Check which existing contacts are already in the campaign
-    const existingContactIds = existingContacts?.map(c => c.id) || [];
-    const { data: campaignContacts } = await supabaseContacts
-      .from('campaign_contacts')
-      .select('contact_id')
-      .in('contact_id', existingContactIds)
-      .eq('campaign', ACTIVE_CAMPAIGN);
-    
-    const contactsInCampaign = new Set(campaignContacts?.map(cc => cc.contact_id) || []);
-    
-    // Filter out existing contacts
-    const contactsToInsert = parsedRows.filter(row => {
-      if (existingEmails.has(row.email)) {
-        const existingContact = existingContacts?.find(c => c.email === row.email);
-        if (existingContact && contactsInCampaign.has(existingContact.id)) {
-          results.filtered.alreadyInCampaign++;
-          filterReasons[row.email] = 'Already enrolled in active campaign';
-        } else {
-          results.filtered.duplicateInDB++;
-          filterReasons[row.email] = 'Email exists in database';
-        }
-        return false;
-      }
-      return true;
-    });
-    
-    // Update processing details
-    results.processingDetails.deduplicationStage = `${contactsToInsert.length} unique contacts ready for insertion`;
-    
-    // Insert new contacts in batches
-    const BATCH_SIZE = 100;
-    const newContactIds: number[] = [];
-    
-    for (let i = 0; i < contactsToInsert.length; i += BATCH_SIZE) {
-      const batch = contactsToInsert.slice(i, i + BATCH_SIZE);
+    // Insert contacts using Supabase REST API with ON CONFLICT
+    if (validContacts.length > 0) {
+      const BATCH_SIZE = 500;
+      let totalInserted = 0;
       
-      const contactsToInsertDB = batch.map(row => ({
-        email: row.email,
-        first_name: row.firstName || null,
-        last_name: row.lastName || null,
-        phone: row.phone || null,
-        global_status: 'active' as const,
-        created_at: new Date().toISOString()
-      }));
-      
-      const { data: insertedContacts, error } = await supabaseContacts
-        .from('contacts')
-        .insert(contactsToInsertDB)
-        .select('id');
-      
-      if (error) {
-        results.errors.push(`Batch ${i / BATCH_SIZE + 1}: ${error.message}`);
-        continue;
-      }
-      
-      if (insertedContacts) {
-        newContactIds.push(...insertedContacts.map(c => c.id));
-        results.inserted.newContacts += insertedContacts.length;
-      }
-    }
-    
-    // Insert campaign contacts
-    if (newContactIds.length > 0) {
-      const campaignContactsToInsert = newContactIds.map(contactId => ({
-        contact_id: contactId,
-        campaign: ACTIVE_CAMPAIGN,
-        status: 'queued' as const,
-        created_at: new Date().toISOString()
-      }));
-      
-      for (let i = 0; i < campaignContactsToInsert.length; i += BATCH_SIZE) {
-        const batch = campaignContactsToInsert.slice(i, i + BATCH_SIZE);
+      for (let i = 0; i < validContacts.length; i += BATCH_SIZE) {
+        const batch = validContacts.slice(i, i + BATCH_SIZE);
         
-        const { data, error } = await supabaseContacts
-          .from('campaign_contacts')
-          .insert(batch)
-          .select('id');
-        
-        if (error) {
-          results.errors.push(`Campaign enrollment batch ${i / BATCH_SIZE + 1}: ${error.message}`);
-        } else if (data) {
-          results.inserted.campaignEnrollments += data.length;
+        try {
+          // Insert with ON CONFLICT (email) DO NOTHING
+          const { error } = await supabaseContacts
+            .from('contacts')
+            .insert(batch);
+          
+          if (error) {
+            results.errors.push(`Batch ${Math.floor(i / BATCH_SIZE) + 1}: ${error.message}`);
+          } else {
+            // Track total attempted inserts (we'll calculate actual vs duplicates later)
+            totalInserted += batch.length;
+          }
+        } catch (error) {
+          results.errors.push(`Batch ${Math.floor(i / BATCH_SIZE) + 1}: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
       }
+      
+      // Calculate actual inserts vs duplicates by querying the source tag
+      try {
+        const { count: actualCount } = await supabaseContacts
+          .from('contacts')
+          .select('*', { count: 'exact', head: true })
+          .eq('source', results.sourceTag);
+        
+        results.inserted.contactsAdded = actualCount || 0;
+        results.inserted.duplicatesSkipped = totalInserted - results.inserted.contactsAdded;
+      } catch (error) {
+        // Fallback if count query fails
+        results.inserted.contactsAdded = totalInserted;
+        results.inserted.duplicatesSkipped = 0;
+      }
     }
-    
-    // Final processing details
-    results.processingDetails.insertionStage = `Successfully inserted ${results.inserted.newContacts} contacts and enrolled them in ${ACTIVE_CAMPAIGN}`;
     
     return NextResponse.json({ results });
     
@@ -224,14 +152,23 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Re-use the utility functions from the original upload route
-interface ParsedRow {
+// Interfaces
+interface ParsedContact {
   email: string;
-  firstName?: string;
-  lastName?: string;
+  first_name?: string | null;
+  last_name?: string | null;
+  phone?: string | null;
+  source: string;
+}
+
+interface ShopifyContact {
+  email: string;
+  first_name?: string;
+  last_name?: string;
   phone?: string;
 }
 
+// Constants
 const MALE_NAMES = new Set([
   'aaron', 'adam', 'adrian', 'alan', 'albert', 'alex', 'alexander', 'alfred', 'andrew', 'anthony', 
   'arthur', 'austin', 'barry', 'benjamin', 'bernard', 'billy', 'blake', 'bobby', 'brad', 'bradley', 
@@ -269,26 +206,47 @@ const PROTECTED_NAMES = new Set([
   'angel', 'jessie', 'kerry', 'dana', 'shannon'
 ]);
 
-const BLOCKED_DOMAINS = new Set(['kialanutrition.com']);
-const BLOCKED_FIRST_NAMES = new Set(['pete', 'jack']);
-const BLOCKED_LAST_NAMES = new Set(['warnell', 'christel', 'szymczak']);
-const BLOCKED_AREA_CODES = new Set([
-  '404', '770', '678', '470', '762', '706', '912', '229', '478',
-  '305', '786', '954', '754'
+const BLOCKED_DOMAINS = new Set([
+  'kialanutrition.com',
+  'chat-seller-us.tiktok.com'
 ]);
 
+const GENERIC_EMAIL_PREFIXES = new Set([
+  'info@', 'noreply@', 'no-reply@', 'support@', 'admin@', 'sales@', 
+  'hello@', 'contact@', 'help@', 'billing@', 'team@', 'webmaster@', 'postmaster@'
+]);
+
+const DISPOSABLE_DOMAINS = new Set([
+  'mailinator.com', 'guerrillamail.com', 'tempmail.com', 'throwaway.email', 
+  'yopmail.com', 'sharklasers.com', 'guerrillamailblock.com', 'grr.la', 
+  'dispostable.com', 'trashmail.com'
+]);
+
+// Utility functions
 function isValidEmail(email: string): boolean {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) return false;
-  
+  return emailRegex.test(email);
+}
+
+function isGenericEmail(email: string): boolean {
   const lowerEmail = email.toLowerCase();
-  const junkEmails = ['test@test.com', 'example@example.com', 'noreply@', 'no-reply@'];
-  return !junkEmails.some(junk => lowerEmail.includes(junk));
+  return Array.from(GENERIC_EMAIL_PREFIXES).some(prefix => lowerEmail.startsWith(prefix));
+}
+
+function isDisposableDomain(email: string): boolean {
+  const domain = email.split('@')[1]?.toLowerCase();
+  return DISPOSABLE_DOMAINS.has(domain);
+}
+
+function isMaleName(firstName: string): boolean {
+  const name = firstName.toLowerCase();
+  return !PROTECTED_NAMES.has(name) && MALE_NAMES.has(name);
 }
 
 function cleanPhone(phone: string): string | null {
   if (!phone) return null;
   
+  // Remove leading apostrophe if present
   phone = phone.replace(/^'/, '');
   const digits = phone.replace(/\D/g, '');
   
@@ -301,26 +259,13 @@ function cleanPhone(phone: string): string | null {
   return digits.length >= 10 ? `+${digits}` : null;
 }
 
-function getAreaCode(phone: string): string | null {
-  if (!phone) return null;
-  const digits = phone.replace(/\D/g, '');
-  
-  if (digits.length === 11 && digits.startsWith('1')) {
-    return digits.substring(1, 4);
-  }
-  if (digits.length === 10) {
-    return digits.substring(0, 3);
-  }
-  
-  return null;
-}
-
 function titleCase(str: string): string {
   if (!str) return str;
   return str.toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
 }
 
 function parseCSV(csvText: string): { headers: string[], rows: string[][] } {
+  // Remove BOM if present
   csvText = csvText.replace(/^\uFEFF/, '');
   
   const firstLine = csvText.split('\n')[0];
@@ -337,47 +282,30 @@ function parseCSV(csvText: string): { headers: string[], rows: string[][] } {
   return { headers, rows };
 }
 
-function mapCSVRow(headers: string[], row: string[]): ParsedRow | null {
+function parseShopifyRow(headers: string[], row: string[]): ShopifyContact | null {
   const data: Record<string, string> = {};
   headers.forEach((header, index) => {
     data[header.toLowerCase()] = row[index] || '';
   });
   
+  // Extract email (required)
   let email = '';
-  for (const key in data) {
-    if (key.includes('email')) {
-      email = data[key].toLowerCase().trim();
-      break;
-    }
+  if (data['email']) {
+    email = data['email'].toLowerCase().trim();
   }
-  
   if (!email) return null;
   
-  let firstName = '';
-  let lastName = '';
-  for (const key in data) {
-    if (key.includes('first')) firstName = data[key];
-    if (key.includes('last')) lastName = data[key];
-  }
+  // Extract names
+  const firstName = data['first name'] ? titleCase(data['first name'].trim()) : undefined;
+  const lastName = data['last name'] ? titleCase(data['last name'].trim()) : undefined;
   
-  let phone = '';
-  if (data['phone']) {
-    phone = data['phone'];
-  } else if (data['default address phone']) {
-    phone = data['default address phone'];
-  } else {
-    for (const key in data) {
-      if (key.includes('phone') && data[key]) {
-        phone = data[key];
-        break;
-      }
-    }
-  }
+  // Extract phone
+  let phone = cleanPhone(data['phone']) || cleanPhone(data['default address phone']) || undefined;
   
   return {
     email,
-    firstName: firstName ? titleCase(firstName.trim()) : undefined,
-    lastName: lastName ? titleCase(lastName.trim()) : undefined,
-    phone: cleanPhone(phone) || undefined
+    first_name: firstName,
+    last_name: lastName,
+    phone
   };
 }
