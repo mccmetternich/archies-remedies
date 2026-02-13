@@ -33,47 +33,46 @@ interface MetricCardProps {
   title: string;
   value: string | number;
   icon: React.ReactNode;
-  color?: 'green' | 'blue' | 'yellow' | 'orange' | 'gray' | 'red' | 'default';
+  color?: 'green' | 'blue' | 'orange' | 'default';
   subtitle?: string;
 }
 
 function MetricCard({ title, value, icon, color = 'default', subtitle }: MetricCardProps) {
   const colorClasses = {
-    green: 'text-green-400 bg-green-400/10 border-green-400/20',
-    blue: 'text-blue-400 bg-blue-400/10 border-blue-400/20',
-    yellow: 'text-yellow-400 bg-yellow-400/10 border-yellow-400/20',
-    orange: 'text-orange-400 bg-orange-400/10 border-orange-400/20',
-    gray: 'text-gray-400 bg-gray-400/10 border-gray-400/20',
-    red: 'text-red-400 bg-red-400/10 border-red-400/20',
-    default: 'text-[var(--admin-text-primary)] bg-[var(--admin-card)] border-[var(--admin-border)]'
+    green: 'bg-[var(--admin-card)] border-[var(--admin-border-light)]',
+    blue: 'bg-[var(--admin-card)] border-[var(--admin-border-light)]', 
+    orange: 'bg-[var(--admin-card)] border-[var(--admin-border-light)]',
+    default: 'bg-[var(--admin-card)] border-[var(--admin-border-light)]'
   };
 
-  const textColorClasses = {
+  const iconColorClasses = {
+    green: 'bg-green-500/10 text-green-400',
+    blue: 'bg-blue-500/10 text-blue-400',
+    orange: 'bg-orange-500/10 text-orange-400', 
+    default: 'bg-[var(--primary)]/10 text-[var(--primary)]'
+  };
+
+  const valueColorClasses = {
     green: 'text-green-400',
-    blue: 'text-blue-400',
-    yellow: 'text-yellow-400',
+    blue: 'text-blue-400', 
     orange: 'text-orange-400',
-    gray: 'text-gray-400',
-    red: 'text-red-400',
     default: 'text-[var(--admin-text-primary)]'
   };
 
   return (
-    <div className={`rounded-xl border p-4 ${colorClasses[color]}`}>
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-2">
-          <div className={`w-5 h-5 ${textColorClasses[color]}`}>
-            {icon}
-          </div>
-          <span className="text-sm text-[var(--admin-text-secondary)] font-medium">{title}</span>
+    <div className={`rounded-xl border p-3 sm:p-5 ${colorClasses[color]}`}>
+      <div className="flex items-center justify-between mb-2 sm:mb-4">
+        <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-xl ${iconColorClasses[color]} flex items-center justify-center`}>
+          <div className="w-4 h-4 sm:w-5 sm:h-5">{icon}</div>
         </div>
       </div>
-      <div className={`text-2xl font-bold ${textColorClasses[color]} mb-1`}>
+      <div className={`text-xl sm:text-3xl font-semibold ${valueColorClasses[color]} mb-0.5 sm:mb-1`}>
         {typeof value === 'number' && value % 1 !== 0 ? value.toFixed(1) : value}
         {typeof value === 'number' && title.toLowerCase().includes('rate') && '%'}
       </div>
+      <div className="text-xs sm:text-sm text-[var(--admin-text-secondary)]">{title}</div>
       {subtitle && (
-        <div className="text-xs text-[var(--admin-text-secondary)]">{subtitle}</div>
+        <div className="text-[10px] sm:text-xs text-[var(--admin-text-muted)] mt-0.5 sm:mt-1">{subtitle}</div>
       )}
     </div>
   );
@@ -81,13 +80,13 @@ function MetricCard({ title, value, icon, color = 'default', subtitle }: MetricC
 
 function SkeletonCard() {
   return (
-    <div className="rounded-xl border border-[var(--admin-border)] bg-[var(--admin-card)] p-4">
-      <div className="flex items-center gap-2 mb-2">
-        <div className="w-5 h-5 bg-[var(--admin-hover)] rounded animate-pulse" />
-        <div className="h-4 bg-[var(--admin-hover)] rounded w-24 animate-pulse" />
+    <div className="rounded-xl border border-[var(--admin-border-light)] bg-[var(--admin-card)] p-3 sm:p-5">
+      <div className="flex items-center justify-between mb-2 sm:mb-4">
+        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-[var(--admin-input)] animate-pulse" />
       </div>
-      <div className="h-8 bg-[var(--admin-hover)] rounded w-16 animate-pulse mb-1" />
-      <div className="h-3 bg-[var(--admin-hover)] rounded w-20 animate-pulse" />
+      <div className="h-6 sm:h-8 bg-[var(--admin-input)] rounded w-16 animate-pulse mb-0.5 sm:mb-1" />
+      <div className="h-3 sm:h-4 bg-[var(--admin-input)] rounded w-20 animate-pulse" />
+      <div className="h-2 sm:h-3 bg-[var(--admin-input)] rounded w-24 animate-pulse mt-0.5 sm:mt-1" />
     </div>
   );
 }
@@ -213,7 +212,7 @@ export default function AcquisitionMetrics() {
                 title="Awaiting Send"
                 value={metrics.awaitingSend}
                 icon={<Send className="w-5 h-5" />}
-                color={metrics.awaitingSend > 0 ? 'blue' : 'gray'}
+                color={metrics.awaitingSend > 0 ? 'blue' : 'default'}
                 subtitle="Ready to enroll"
               />
               <MetricCard
@@ -259,21 +258,19 @@ export default function AcquisitionMetrics() {
                 title="Declined"
                 value={metrics.declined}
                 icon={<X className="w-5 h-5" />}
-                color="gray"
                 subtitle="Not interested"
               />
               <MetricCard
                 title="Unsubscribed"
                 value={metrics.unsubscribed}
                 icon={<X className="w-5 h-5" />}
-                color="gray"
                 subtitle="Opted out"
               />
               <MetricCard
                 title="Needs Review"
                 value={metrics.needsReview}
                 icon={<AlertTriangle className="w-5 h-5" />}
-                color="yellow"
+                color="orange"
                 subtitle="Manual review required"
               />
             </>
@@ -293,28 +290,28 @@ export default function AcquisitionMetrics() {
                 title="Response Rate"
                 value={metrics.responseRate}
                 icon={<TrendingUp className="w-5 h-5" />}
-                color={metrics.responseRate > 15 ? 'green' : metrics.responseRate > 5 ? 'blue' : 'gray'}
+                color={metrics.responseRate > 15 ? 'green' : metrics.responseRate > 5 ? 'blue' : 'default'}
                 subtitle="Total replies / Phase 1"
               />
               <MetricCard
                 title="Interest Rate"
                 value={metrics.interestRate}
                 icon={<TrendingUp className="w-5 h-5" />}
-                color={metrics.interestRate > 5 ? 'green' : metrics.interestRate > 2 ? 'blue' : 'gray'}
+                color={metrics.interestRate > 5 ? 'green' : metrics.interestRate > 2 ? 'blue' : 'default'}
                 subtitle="Interested / Phase 1"
               />
               <MetricCard
                 title="Unsubscribe Rate"
                 value={metrics.unsubscribeRate}
                 icon={<TrendingUp className="w-5 h-5" />}
-                color={metrics.unsubscribeRate < 2 ? 'green' : metrics.unsubscribeRate < 5 ? 'yellow' : 'red'}
+                color={metrics.unsubscribeRate < 2 ? 'green' : 'orange'}
                 subtitle="Unsubscribed / Phase 1"
               />
               <MetricCard
                 title="Pending Auto-Reply"
                 value={metrics.pendingAutoReply}
                 icon={<MessageSquare className="w-5 h-5" />}
-                color={metrics.pendingAutoReply > 0 ? 'orange' : 'gray'}
+                color={metrics.pendingAutoReply > 0 ? 'orange' : 'default'}
                 subtitle="Awaiting response"
               />
               <MetricCard
