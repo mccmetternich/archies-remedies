@@ -117,11 +117,9 @@ export default function AcquisitionMetrics() {
     }
   };
 
-  // Auto-refresh every 60 seconds
+  // Load metrics on mount only
   useEffect(() => {
     fetchMetrics();
-    const interval = setInterval(fetchMetrics, 60000);
-    return () => clearInterval(interval);
   }, []);
 
   // Update "seconds ago" counter
