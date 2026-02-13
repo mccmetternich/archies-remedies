@@ -13,6 +13,8 @@ interface UploadResults {
     disposableDomains: number;
     maleNames: number;
     blockedDomains: number;
+    blockedSurnames: number;
+    blockedAreaCodes: number;
     duplicateInCSV: number;
   };
   inserted: {
@@ -111,6 +113,8 @@ export default function AcquisitionPage() {
           `Disposable domains: ${data.results.filtered.disposableDomains}`,
           `Male names: ${data.results.filtered.maleNames}`,
           `Blocked domains: ${data.results.filtered.blockedDomains}`,
+          `Blocked surnames: ${data.results.filtered.blockedSurnames}`,
+          `Blocked area codes: ${data.results.filtered.blockedAreaCodes}`,
           `CSV duplicates: ${data.results.filtered.duplicateInCSV}`
         ]
       );
@@ -411,6 +415,9 @@ export default function AcquisitionPage() {
               <div>• Generic/role address filtering</div>
               <div>• Disposable email domain blocking</div>
               <div>• Male name filtering (500+ names)</div>
+              <div>• Blocked domains (kialanutrition.com)</div>
+              <div>• Blocked surnames (warnell, christel, szymczak)</div>
+              <div>• Blocked area codes (GA/FL regions)</div>
               <div>• CSV duplicate detection</div>
             </div>
           </div>
@@ -455,6 +462,14 @@ export default function AcquisitionPage() {
                 <div className="flex justify-between">
                   <span className="text-[var(--admin-text-secondary)]">Blocked domains</span>
                   <span className="font-medium text-red-400">{results.filtered.blockedDomains}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-[var(--admin-text-secondary)]">Blocked surnames</span>
+                  <span className="font-medium text-red-400">{results.filtered.blockedSurnames}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-[var(--admin-text-secondary)]">Blocked area codes</span>
+                  <span className="font-medium text-red-400">{results.filtered.blockedAreaCodes}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-[var(--admin-text-secondary)]">Duplicate within CSV</span>

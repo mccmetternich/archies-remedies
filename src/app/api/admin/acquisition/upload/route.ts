@@ -29,6 +29,8 @@ export async function POST(request: NextRequest) {
         disposableDomains: 0,
         maleNames: 0,
         blockedDomains: 0,
+        blockedSurnames: 0,
+        blockedAreaCodes: 0,
         duplicateInCSV: 0
       },
       inserted: {
@@ -77,14 +79,29 @@ export async function POST(request: NextRequest) {
         continue;
       }
       
-      // Filter 6: Blocked domains (keep existing + TikTok)
+      // Filter 6: Blocked domains (kialanutrition.com)
       const domain = contact.email.split('@')[1]?.toLowerCase();
       if (BLOCKED_DOMAINS.has(domain)) {
         results.filtered.blockedDomains++;
         continue;
       }
       
-      // Filter 7: Duplicate within CSV
+      // Filter 7: Blocked surnames
+      if (contact.last_name && isBlockedSurname(contact.last_name)) {
+        results.filtered.blockedSurnames++;
+        continue;
+      }
+      
+      // Filter 8: Blocked area codes (GA/FL)
+      if (contact.phone) {
+        const areaCode = getAreaCode(contact.phone);
+        if (areaCode && BLOCKED_AREA_CODES.has(areaCode)) {
+          results.filtered.blockedAreaCodes++;
+          continue;
+        }
+      }
+      
+      // Filter 9: Duplicate within CSV
       if (emailsInCSV.has(contact.email)) {
         results.filtered.duplicateInCSV++;
         continue;
@@ -207,8 +224,16 @@ const PROTECTED_NAMES = new Set([
 ]);
 
 const BLOCKED_DOMAINS = new Set([
-  'kialanutrition.com',
-  'chat-seller-us.tiktok.com'
+  'kialanutrition.com'
+]);
+
+const BLOCKED_SURNAMES = new Set([
+  'warnell', 'christel', 'szymczak'
+]);
+
+const BLOCKED_AREA_CODES = new Set([
+  '404', '770', '678', '470', '762', '706', '912', '229', '478', // Georgia
+  '305', '786', '954', '754' // Florida
 ]);
 
 const GENERIC_EMAIL_PREFIXES = new Set([
@@ -241,6 +266,24 @@ function isDisposableDomain(email: string): boolean {
 function isMaleName(firstName: string): boolean {
   const name = firstName.toLowerCase();
   return !PROTECTED_NAMES.has(name) && MALE_NAMES.has(name);
+}
+
+function isBlockedSurname(lastName: string): boolean {
+  return BLOCKED_SURNAMES.has(lastName.toLowerCase());
+}
+
+function getAreaCode(phone: string): string | null {
+  if (!phone) return null;
+  const digits = phone.replace(/\D/g, '');
+  
+  if (digits.length === 11 && digits.startsWith('1')) {
+    return digits.substring(1, 4);
+  }
+  if (digits.length === 10) {
+    return digits.substring(0, 3);
+  }
+  
+  return null;
 }
 
 function cleanPhone(phone: string): string | null {
