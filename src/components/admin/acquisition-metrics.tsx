@@ -144,163 +144,85 @@ export default function AcquisitionMetrics() {
   return (
     <div className="space-y-6 mb-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[var(--primary)]/10 flex items-center justify-center">
-            <TrendingUp className="h-5 w-5 text-[var(--primary)]" />
-          </div>
-          <div>
-            <h2 className="text-xl font-semibold text-[var(--admin-text-primary)]">Campaign Metrics</h2>
-            <p className="text-sm text-[var(--admin-text-secondary)]">
-              {metrics?.campaign || 'stick_launch_test'} • Last updated: {loading ? 'Updating...' : lastUpdated || 'Never'}
-            </p>
-          </div>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h2 className="text-lg font-medium text-[var(--admin-text-primary)]">Campaign Metrics</h2>
+          <p className="text-sm text-[var(--admin-text-secondary)]">
+            {lastUpdated ? `Updated: ${lastUpdated}` : 'Click refresh to load'}
+          </p>
         </div>
         <button
           onClick={fetchMetrics}
           disabled={loading}
-          className="p-2 rounded-lg bg-[var(--admin-hover)] hover:bg-[var(--primary)]/10 text-[var(--admin-text-secondary)] hover:text-[var(--primary)] transition-colors disabled:opacity-50"
+          className="p-2 rounded-lg hover:bg-[var(--admin-hover)] text-[var(--admin-text-secondary)] hover:text-[var(--primary)] transition-colors disabled:opacity-50"
         >
           <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
         </button>
       </div>
 
-      {/* Row 1: Pipeline Overview */}
-      <div>
-        <h3 className="text-lg font-semibold text-[var(--admin-text-primary)] mb-4">Pipeline Overview</h3>
-        <div className="grid grid-cols-5 gap-4">
-          {loading ? (
-            Array(5).fill(0).map((_, i) => <SkeletonCard key={i} />)
-          ) : metrics ? (
-            <>
-              <MetricCard
-                title="Total Contacts"
-                value={metrics.totalContacts}
-                icon={<Users className="w-5 h-5" />}
-                subtitle="Active contacts"
-              />
-              <MetricCard
-                title="Enrolled in Campaign"
-                value={metrics.enrolledInCampaign}
-                icon={<MessageSquare className="w-5 h-5" />}
-                subtitle="In stick_launch_test"
-              />
-              <MetricCard
-                title="Awaiting Send"
-                value={metrics.awaitingSend}
-                icon={<Send className="w-5 h-5" />}
-                color={metrics.awaitingSend > 0 ? 'blue' : 'default'}
-                subtitle="Ready to enroll"
-              />
-              <MetricCard
-                title="Phase 1 Sent"
-                value={metrics.phase1Sent}
-                icon={<Send className="w-5 h-5" />}
-                subtitle="Initial outreach"
-              />
-              <MetricCard
-                title="Phase 2 Sent"
-                value={metrics.phase2Sent}
-                icon={<Send className="w-5 h-5" />}
-                subtitle="Follow-up sent"
-              />
-            </>
-          ) : null}
-        </div>
-      </div>
-
-      {/* Row 2: Response Breakdown */}
-      <div>
-        <h3 className="text-lg font-semibold text-[var(--admin-text-primary)] mb-4">Response Breakdown</h3>
-        <div className="grid grid-cols-5 gap-4">
-          {loading ? (
-            Array(5).fill(0).map((_, i) => <SkeletonCard key={i} />)
-          ) : metrics ? (
-            <>
-              <MetricCard
-                title="Interested"
-                value={metrics.interested}
-                icon={<CheckCircle className="w-5 h-5" />}
-                color="green"
-                subtitle="Positive responses"
-              />
-              <MetricCard
-                title="Questions"
-                value={metrics.questions}
-                icon={<HelpCircle className="w-5 h-5" />}
-                color="blue"
-                subtitle="Need clarification"
-              />
-              <MetricCard
-                title="Declined"
-                value={metrics.declined}
-                icon={<X className="w-5 h-5" />}
-                subtitle="Not interested"
-              />
-              <MetricCard
-                title="Unsubscribed"
-                value={metrics.unsubscribed}
-                icon={<X className="w-5 h-5" />}
-                subtitle="Opted out"
-              />
-              <MetricCard
-                title="Needs Review"
-                value={metrics.needsReview}
-                icon={<AlertTriangle className="w-5 h-5" />}
-                color="orange"
-                subtitle="Manual review required"
-              />
-            </>
-          ) : null}
-        </div>
-      </div>
-
-      {/* Row 3: Conversion Metrics */}
-      <div>
-        <h3 className="text-lg font-semibold text-[var(--admin-text-primary)] mb-4">Conversion Metrics</h3>
-        <div className="grid grid-cols-5 gap-4">
-          {loading ? (
-            Array(5).fill(0).map((_, i) => <SkeletonCard key={i} />)
-          ) : metrics ? (
-            <>
-              <MetricCard
-                title="Response Rate"
-                value={metrics.responseRate}
-                icon={<TrendingUp className="w-5 h-5" />}
-                color={metrics.responseRate > 15 ? 'green' : metrics.responseRate > 5 ? 'blue' : 'default'}
-                subtitle="Total replies / Phase 1"
-              />
-              <MetricCard
-                title="Interest Rate"
-                value={metrics.interestRate}
-                icon={<TrendingUp className="w-5 h-5" />}
-                color={metrics.interestRate > 5 ? 'green' : metrics.interestRate > 2 ? 'blue' : 'default'}
-                subtitle="Interested / Phase 1"
-              />
-              <MetricCard
-                title="Unsubscribe Rate"
-                value={metrics.unsubscribeRate}
-                icon={<TrendingUp className="w-5 h-5" />}
-                color={metrics.unsubscribeRate < 2 ? 'green' : 'orange'}
-                subtitle="Unsubscribed / Phase 1"
-              />
-              <MetricCard
-                title="Pending Auto-Reply"
-                value={metrics.pendingAutoReply}
-                icon={<MessageSquare className="w-5 h-5" />}
-                color={metrics.pendingAutoReply > 0 ? 'orange' : 'default'}
-                subtitle="Awaiting response"
-              />
-              <MetricCard
-                title="Codes Sent"
-                value={metrics.codesSent}
-                icon={<Gift className="w-5 h-5" />}
-                color="green"
-                subtitle="Discount codes delivered"
-              />
-            </>
-          ) : null}
-        </div>
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        {loading ? (
+          Array(10).fill(0).map((_, i) => <SkeletonCard key={i} />)
+        ) : metrics ? (
+          <>
+            <MetricCard
+              title="Total Contacts"
+              value={metrics.totalContacts}
+              icon={<Users className="w-5 h-5" />}
+            />
+            <MetricCard
+              title="Enrolled"
+              value={metrics.enrolledInCampaign}
+              icon={<MessageSquare className="w-5 h-5" />}
+            />
+            <MetricCard
+              title="Phase 1 Sent"
+              value={metrics.phase1Sent}
+              icon={<Send className="w-5 h-5" />}
+            />
+            <MetricCard
+              title="Interested"
+              value={metrics.interested}
+              icon={<CheckCircle className="w-5 h-5" />}
+              color="green"
+            />
+            <MetricCard
+              title="Response Rate"
+              value={metrics.responseRate}
+              icon={<TrendingUp className="w-5 h-5" />}
+              color={metrics.responseRate > 15 ? 'green' : metrics.responseRate > 5 ? 'blue' : 'default'}
+            />
+            <MetricCard
+              title="Phase 2 Sent"
+              value={metrics.phase2Sent}
+              icon={<Send className="w-5 h-5" />}
+            />
+            <MetricCard
+              title="Questions"
+              value={metrics.questions}
+              icon={<HelpCircle className="w-5 h-5" />}
+              color="blue"
+            />
+            <MetricCard
+              title="Pending Reply"
+              value={metrics.pendingAutoReply}
+              icon={<MessageSquare className="w-5 h-5" />}
+              color={metrics.pendingAutoReply > 0 ? 'orange' : 'default'}
+            />
+            <MetricCard
+              title="Needs Review"
+              value={metrics.needsReview}
+              icon={<AlertTriangle className="w-5 h-5" />}
+              color="orange"
+            />
+            <MetricCard
+              title="Codes Sent"
+              value={metrics.codesSent}
+              icon={<Gift className="w-5 h-5" />}
+              color="green"
+            />
+          </>
+        ) : null}
       </div>
     </div>
   );

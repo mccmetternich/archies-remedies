@@ -141,362 +141,159 @@ export default function AcquisitionPage() {
   const totalFiltered = results ? Object.values(results.filtered).reduce((a, b) => a + b, 0) : 0;
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div className="border-b border-[var(--admin-border)] pb-6">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 rounded-xl bg-[var(--primary)]/10 flex items-center justify-center">
-            <Upload className="h-5 w-5 text-[var(--primary)]" />
-          </div>
-          <h1 className="text-2xl font-semibold text-[var(--admin-text-primary)]">Contact Acquisition</h1>
-        </div>
-        <p className="text-[var(--admin-text-secondary)] leading-relaxed">
-          Upload Shopify customer exports to import clean contact data.
-        </p>
-        <div className="mt-4 flex items-center gap-6 text-sm text-[var(--admin-text-secondary)]">
-          <div className="flex items-center gap-2">
-            <Filter className="h-4 w-4" />
-            <span>Advanced email & marketing consent filtering</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Users className="h-4 w-4" />
-            <span>Auto-deduplication & male name filtering</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Mail className="h-4 w-4" />
-            <span>Direct Supabase contact insertion</span>
-          </div>
-        </div>
+    <div className="space-y-6">
+      {/* Simplified Header */}
+      <div>
+        <h1 className="text-2xl font-semibold text-[var(--admin-text-primary)] mb-2">Contact Acquisition</h1>
+        <p className="text-[var(--admin-text-secondary)]">Import and filter customer contacts from CSV exports</p>
       </div>
 
       {/* KPI Metrics Dashboard */}
       <AcquisitionMetrics />
 
-      {/* Source Tag Input */}
-      <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border)] p-6">
-        <div className="flex items-center gap-3 mb-3">
-          <div className="w-8 h-8 rounded-lg bg-[var(--primary)]/10 flex items-center justify-center">
-            <Mail className="h-4 w-4 text-[var(--primary)]" />
+      {/* Upload Section */}
+      <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border-light)] p-6">
+        <div className="mb-6">
+          <h2 className="text-lg font-medium text-[var(--admin-text-primary)] mb-2">Import Contacts</h2>
+          <div className="flex items-center gap-4 text-sm text-[var(--admin-text-secondary)]">
+            <input
+              type="text"
+              value={sourceTag}
+              onChange={(e) => setSourceTag(e.target.value)}
+              placeholder={`Source tag (default: csv_import_${new Date().toISOString().split('T')[0]})`}
+              className="flex-1 px-3 py-2 bg-[var(--admin-input)] border border-[var(--admin-border-light)] rounded-lg text-[var(--admin-text-primary)] placeholder-[var(--admin-text-secondary)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+            />
           </div>
-          <h3 className="text-lg font-semibold text-[var(--admin-text-primary)]">Source Tag</h3>
         </div>
-        <p className="text-[var(--admin-text-secondary)] text-sm mb-4">
-          Tag all imported contacts with a source identifier for tracking purposes.
-        </p>
-        <input
-          type="text"
-          value={sourceTag}
-          onChange={(e) => setSourceTag(e.target.value)}
-          placeholder={`Default: csv_import_${new Date().toISOString().split('T')[0]}`}
-          className="w-full px-4 py-3 bg-[var(--admin-input)] border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-primary)] placeholder-[var(--admin-text-placeholder)] focus:outline-none focus:border-[var(--primary)] transition-colors"
-        />
-      </div>
 
-      {/* Main Upload Interface */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
-        {/* Left Column - Upload Area */}
-        <div className="lg:col-span-2 space-y-6">
-          
-          {/* Upload Zone */}
-          {uploadState === 'empty' && (
-            <div className="bg-[var(--admin-card)] rounded-xl border-2 border-dashed border-[var(--admin-border)] hover:border-[var(--primary)]/30 transition-colors">
-              <div
-                {...getRootProps()}
-                className={`p-12 text-center cursor-pointer transition-colors ${
-                  isDragActive ? 'bg-[var(--primary)]/5' : ''
-                }`}
-              >
-                <input {...getInputProps()} />
-                <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-[var(--admin-hover)] flex items-center justify-center">
-                  <Upload className="h-8 w-8 text-[var(--admin-text-secondary)]" />
+        {/* Upload Area */}
+        {uploadState === 'empty' && (
+          <div
+            {...getRootProps()}
+            className={`border-2 border-dashed border-[var(--admin-border-light)] rounded-xl p-8 text-center cursor-pointer transition-all hover:border-[var(--primary)]/50 hover:bg-[var(--admin-hover)]/30 ${
+              isDragActive ? 'border-[var(--primary)] bg-[var(--primary)]/5' : ''
+            }`}
+          >
+            <input {...getInputProps()} />
+            <Upload className="h-12 w-12 mx-auto mb-4 text-[var(--admin-text-muted)]" />
+            <h3 className="text-lg font-medium text-[var(--admin-text-primary)] mb-2">
+              {isDragActive ? 'Drop CSV file here' : 'Upload CSV File'}
+            </h3>
+            <p className="text-sm text-[var(--admin-text-secondary)] mb-4">
+              Drag & drop or click to browse
+            </p>
+            <button className="bg-[var(--primary)] text-white px-6 py-2 rounded-lg font-medium hover:bg-[var(--primary)]/90 transition-colors">
+              Choose File
+            </button>
+          </div>
+        )}
+
+        {/* File Selected */}
+        {uploadState === 'selected' && selectedFile && (
+          <div className="border border-[var(--admin-border-light)] rounded-xl p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <FileText className="h-5 w-5 text-[var(--primary)]" />
+                <div>
+                  <p className="font-medium text-[var(--admin-text-primary)]">{selectedFile.name}</p>
+                  <p className="text-sm text-[var(--admin-text-secondary)]">
+                    {(selectedFile.size / 1024).toFixed(1)} KB
+                  </p>
                 </div>
-                <h3 className="text-xl font-semibold text-[var(--admin-text-primary)] mb-3">
-                  {isDragActive ? 'Drop your CSV file here' : 'Upload Customer Data'}
-                </h3>
-                <p className="text-[var(--admin-text-secondary)] mb-6 leading-relaxed">
-                  Drag and drop your CSV file or click to browse
+              </div>
+              <button
+                onClick={resetUpload}
+                className="p-2 hover:bg-[var(--admin-hover)] rounded-lg transition-colors"
+              >
+                <XCircle className="h-4 w-4 text-[var(--admin-text-muted)]" />
+              </button>
+            </div>
+            
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={resetUpload}
+                className="px-4 py-2 text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)] transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={processUpload}
+                className="px-6 py-2 bg-[var(--primary)] text-white rounded-lg hover:bg-[var(--primary)]/90 transition-colors"
+              >
+                Process
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Processing */}
+        {uploadState === 'processing' && (
+          <div className="border border-[var(--admin-border-light)] rounded-xl p-6">
+            <div className="flex items-center gap-3 mb-6">
+              <Loader2 className="h-5 w-5 text-[var(--primary)] animate-spin" />
+              <div>
+                <p className="font-medium text-[var(--admin-text-primary)]">Processing...</p>
+                <p className="text-sm text-[var(--admin-text-secondary)]">Filtering and importing contacts</p>
+              </div>
+            </div>
+            
+            <div className="space-y-3">
+              {processingSteps.map((step, index) => (
+                <div key={index} className="flex items-center gap-3 text-sm">
+                  {step.completed ? (
+                    <CheckCircle className="h-4 w-4 text-green-400 shrink-0" />
+                  ) : (
+                    <Loader2 className="h-4 w-4 text-[var(--primary)] animate-spin shrink-0" />
+                  )}
+                  <span className={step.completed ? 'text-green-400' : 'text-[var(--admin-text-primary)]'}>
+                    {step.stage}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Error */}
+        {uploadState === 'error' && (
+          <div className="border border-red-500/20 bg-red-500/5 rounded-xl p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <XCircle className="h-5 w-5 text-red-400" />
+              <div>
+                <p className="font-medium text-red-400">Upload Failed</p>
+                <p className="text-sm text-red-300">{errorMessage}</p>
+              </div>
+            </div>
+            <button
+              onClick={resetUpload}
+              className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+            >
+              Try Again
+            </button>
+          </div>
+        )}
+
+        {/* Success Results */}
+        {uploadState === 'complete' && results && (
+          <div className="border border-green-500/20 bg-green-500/5 rounded-xl p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <CheckCircle className="h-5 w-5 text-green-400" />
+              <div>
+                <p className="font-medium text-green-400">Import Complete</p>
+                <p className="text-sm text-[var(--admin-text-secondary)]">
+                  {results.inserted.contactsAdded} added • {results.inserted.duplicatesSkipped} duplicates • {totalFiltered} filtered
                 </p>
-                <div className="flex justify-center">
-                  <button className="bg-[var(--primary)] text-white px-8 py-3 rounded-xl font-medium hover:bg-[var(--primary)]/90 transition-all duration-200 hover:scale-105 hover:shadow-lg">
-                    Select CSV File
-                  </button>
-                </div>
               </div>
             </div>
-          )}
-
-          {/* File Selected */}
-          {uploadState === 'selected' && selectedFile && (
-            <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border)] p-8">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center">
-                  <div className="w-12 h-12 rounded-xl bg-[var(--primary)]/10 flex items-center justify-center mr-4">
-                    <FileText className="h-6 w-6 text-[var(--primary)]" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-[var(--admin-text-primary)]">{selectedFile.name}</h3>
-                    <p className="text-[var(--admin-text-secondary)] text-sm">
-                      {(selectedFile.size / 1024).toFixed(1)} KB • Ready to process
-                    </p>
-                  </div>
-                </div>
-                <button
-                  onClick={resetUpload}
-                  className="w-8 h-8 rounded-lg bg-[var(--admin-hover)] hover:bg-red-500/10 text-[var(--admin-text-secondary)] hover:text-red-400 transition-all duration-200 flex items-center justify-center"
-                >
-                  <XCircle className="h-4 w-4" />
-                </button>
-              </div>
-              
-              <div className="bg-[var(--primary)]/10 rounded-xl p-4 mb-6 border border-[var(--primary)]/20">
-                <h4 className="font-medium text-[var(--admin-text-primary)] mb-2 flex items-center gap-2">
-                  <AlertTriangle className="h-4 w-4 text-[var(--primary)]" />
-                  Processing Preview
-                </h4>
-                <div className="space-y-2 text-sm">
-                  <p className="text-[var(--admin-text-secondary)] leading-relaxed">
-                    Shopify export will be filtered for marketing consent, deduplicated against existing contacts, and inserted into Supabase.
-                  </p>
-                  <p className="text-[var(--admin-text-primary)] font-medium">
-                    Source tag: <span className="text-[var(--primary)]">{sourceTag || `csv_import_${new Date().toISOString().split('T')[0]}`}</span>
-                  </p>
-                </div>
-              </div>
-              
-              <div className="flex justify-end space-x-3">
-                <button
-                  onClick={resetUpload}
-                  className="px-6 py-3 border border-[var(--admin-border)] rounded-xl text-[var(--admin-text-secondary)] hover:bg-[var(--admin-hover)] transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={processUpload}
-                  className="px-8 py-3 bg-[var(--primary)] text-white rounded-xl hover:bg-[var(--primary)]/90 transition-all duration-200 font-medium hover:scale-105 hover:shadow-lg"
-                >
-                  Start Processing
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Processing */}
-          {uploadState === 'processing' && (
-            <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border)] p-8">
-              <div className="flex items-center mb-6">
-                <div className="w-12 h-12 rounded-xl bg-[var(--primary)]/10 flex items-center justify-center mr-4">
-                  <Loader2 className="h-6 w-6 text-[var(--primary)] animate-spin" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-[var(--admin-text-primary)]">Processing Upload</h3>
-                  <p className="text-[var(--admin-text-secondary)]">Applying filters and validating contacts...</p>
-                </div>
-              </div>
-              
-              <div className="space-y-4">
-                {processingSteps.map((step, index) => (
-                  <div key={index} className="flex items-start space-x-3">
-                    <div className={`mt-0.5 w-5 h-5 rounded-full flex items-center justify-center ${
-                      step.completed 
-                        ? 'bg-green-500/20 border border-green-500/30' 
-                        : 'bg-[var(--primary)]/20 border border-[var(--primary)]/30'
-                    }`}>
-                      {step.completed ? (
-                        <CheckCircle className="h-3 w-3 text-green-400" />
-                      ) : (
-                        <Loader2 className="h-3 w-3 text-[var(--primary)] animate-spin" />
-                      )}
-                    </div>
-                    <div className="flex-1">
-                      <p className={`font-medium ${
-                        step.completed 
-                          ? 'text-green-400' 
-                          : 'text-[var(--admin-text-primary)]'
-                      }`}>
-                        {step.stage}
-                      </p>
-                      <p className="text-sm text-[var(--admin-text-secondary)]">{step.description}</p>
-                      {step.count !== undefined && (
-                        <p className="text-sm font-medium text-[var(--admin-text-primary)] mt-1">
-                          {step.count} contacts qualified
-                        </p>
-                      )}
-                      {step.details && step.details.length > 0 && (
-                        <ul className="mt-2 text-sm text-[var(--admin-text-secondary)] space-y-1">
-                          {step.details.map((detail, i) => (
-                            <li key={i}>• {detail}</li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Error */}
-          {uploadState === 'error' && (
-            <div className="bg-[var(--admin-card)] rounded-xl border border-red-500/20 p-8">
-              <div className="flex items-center mb-4">
-                <div className="w-12 h-12 rounded-xl bg-red-500/10 flex items-center justify-center mr-4">
-                  <XCircle className="h-6 w-6 text-red-400" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-[var(--admin-text-primary)]">Upload Failed</h3>
-                  <p className="text-red-400">{errorMessage}</p>
-                </div>
-              </div>
-              
-              <button
-                onClick={resetUpload}
-                className="px-6 py-3 bg-red-500 text-white rounded-xl hover:bg-red-600 transition-all duration-200 hover:scale-105"
-              >
-                Try Again
-              </button>
-            </div>
-          )}
-
-          {/* Success Results */}
-          {uploadState === 'complete' && results && (
-            <div className="bg-[var(--admin-card)] rounded-xl border border-green-500/20 p-8">
-              <div className="flex items-center mb-6">
-                <div className="w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center mr-4">
-                  <CheckCircle className="h-6 w-6 text-green-400" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-[var(--admin-text-primary)]">Import Complete!</h3>
-                  <p className="text-green-400">
-                    {results.inserted.contactsAdded} contacts added • {results.inserted.duplicatesSkipped} duplicates skipped
-                  </p>
-                  <p className="text-[var(--admin-text-secondary)] text-sm mt-1">
-                    Source: {results.sourceTag}
-                  </p>
-                </div>
-              </div>
-              
-              {/* Key Stats Grid */}
-              <div className="grid grid-cols-3 gap-4 mb-6">
-                <div className="bg-green-500/10 rounded-xl p-4 text-center border border-green-500/20">
-                  <div className="text-2xl font-bold text-green-400">{results.inserted.contactsAdded}</div>
-                  <div className="text-sm text-[var(--admin-text-secondary)]">✅ Added</div>
-                </div>
-                <div className="bg-yellow-500/10 rounded-xl p-4 text-center border border-yellow-500/20">
-                  <div className="text-2xl font-bold text-yellow-400">{results.inserted.duplicatesSkipped}</div>
-                  <div className="text-sm text-[var(--admin-text-secondary)]">⏭️ Duplicates</div>
-                </div>
-                <div className="bg-red-500/10 rounded-xl p-4 text-center border border-red-500/20">
-                  <div className="text-2xl font-bold text-red-400">{totalFiltered}</div>
-                  <div className="text-sm text-[var(--admin-text-secondary)]">❌ Filtered</div>
-                </div>
-              </div>
-              
-              <button
-                onClick={resetUpload}
-                className="px-8 py-3 bg-[var(--primary)] text-white rounded-xl hover:bg-[var(--primary)]/90 transition-all duration-200 font-medium hover:scale-105"
-              >
-                Upload Another File
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* Right Column - Info & Results */}
-        <div className="space-y-6">
-          
-          {/* Filtering Info */}
-          <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border)] p-6">
-            <h4 className="font-semibold text-[var(--admin-text-primary)] mb-4 flex items-center gap-2">
-              <div className="w-5 h-5 rounded bg-[var(--primary)]/10 flex items-center justify-center">
-                <Filter className="h-3 w-3 text-[var(--primary)]" />
-              </div>
-              Smart Filtering
-            </h4>
-            <div className="space-y-3 text-sm text-[var(--admin-text-secondary)]">
-              <div>• Email format validation & malformed detection</div>
-              <div>• TikTok relay email blocking</div>
-              <div>• Generic/role address filtering</div>
-              <div>• Disposable email domain blocking</div>
-              <div>• Male name filtering (500+ names)</div>
-              <div>• Blocked domains (kialanutrition.com)</div>
-              <div>• Blocked surnames (warnell, christel, szymczak)</div>
-              <div>• Blocked area codes (GA/FL regions)</div>
-              <div>• CSV duplicate detection</div>
-            </div>
+            
+            <button
+              onClick={resetUpload}
+              className="px-4 py-2 bg-[var(--primary)] text-white rounded-lg hover:bg-[var(--primary)]/90 transition-colors"
+            >
+              Upload Another
+            </button>
           </div>
-
-          {/* File Format Guide */}
-          <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border)] p-6">
-            <h4 className="font-semibold text-[var(--admin-text-primary)] mb-4">Shopify CSV Format</h4>
-            <div className="space-y-3 text-sm text-[var(--admin-text-secondary)] leading-relaxed">
-              <div><span className="text-[var(--admin-text-primary)] font-medium">Required fields:</span> Email, First Name, Last Name, Accepts Email Marketing</div>
-              <div><span className="text-[var(--admin-text-primary)] font-medium">Optional:</span> Phone, Customer ID, other Shopify export columns</div>
-              <div><span className="text-[var(--admin-text-primary)] font-medium">Target table:</span> contacts at nqanmlmgpxufvglxrfef.supabase.co</div>
-              <div><span className="text-[var(--admin-text-primary)] font-medium">Deduplication:</span> ON CONFLICT (email) DO NOTHING</div>
-            </div>
-          </div>
-
-          {/* Detailed Results */}
-          {uploadState === 'complete' && results && (
-            <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border)] p-6">
-              <h4 className="font-semibold text-[var(--admin-text-primary)] mb-4">Filtering Breakdown</h4>
-              
-              <div className="space-y-3 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-[var(--admin-text-secondary)]">Malformed emails</span>
-                  <span className="font-medium text-red-400">{results.filtered.malformedEmails}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-[var(--admin-text-secondary)]">TikTok relay</span>
-                  <span className="font-medium text-red-400">{results.filtered.tiktokRelay}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-[var(--admin-text-secondary)]">Generic/role addresses</span>
-                  <span className="font-medium text-red-400">{results.filtered.genericAddresses}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-[var(--admin-text-secondary)]">Disposable domains</span>
-                  <span className="font-medium text-red-400">{results.filtered.disposableDomains}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-[var(--admin-text-secondary)]">Male names</span>
-                  <span className="font-medium text-red-400">{results.filtered.maleNames}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-[var(--admin-text-secondary)]">Blocked domains</span>
-                  <span className="font-medium text-red-400">{results.filtered.blockedDomains}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-[var(--admin-text-secondary)]">Blocked surnames</span>
-                  <span className="font-medium text-red-400">{results.filtered.blockedSurnames}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-[var(--admin-text-secondary)]">Blocked area codes</span>
-                  <span className="font-medium text-red-400">{results.filtered.blockedAreaCodes}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-[var(--admin-text-secondary)]">Duplicate within CSV</span>
-                  <span className="font-medium text-yellow-400">{results.filtered.duplicateInCSV}</span>
-                </div>
-              </div>
-              
-              {results.errors.length > 0 && (
-                <div className="mt-4 p-3 bg-yellow-500/10 rounded-xl border border-yellow-500/20">
-                  <div className="flex items-center gap-2 text-yellow-400 font-medium text-sm mb-2">
-                    <AlertTriangle className="h-4 w-4" />
-                    Warnings
-                  </div>
-                  <ul className="text-sm text-[var(--admin-text-secondary)] space-y-1">
-                    {results.errors.map((error, index) => (
-                      <li key={index}>• {error}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
+        )}
       </div>
     </div>
   );
