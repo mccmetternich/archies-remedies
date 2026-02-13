@@ -117,32 +117,42 @@ export async function POST(request: NextRequest) {
       });
     }
     
-    // Insert contacts using Supabase REST API with ON CONFLICT
+    // Insert contacts using direct Supabase REST API with proper conflict resolution
     if (validContacts.length > 0) {
       const BATCH_SIZE = 500;
-      let totalInserted = 0;
+      let totalSent = 0;
+      
+      const supabaseUrl = process.env.SUPABASE_URL;
+      const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY;
       
       for (let i = 0; i < validContacts.length; i += BATCH_SIZE) {
         const batch = validContacts.slice(i, i + BATCH_SIZE);
         
         try {
-          // Insert with ON CONFLICT (email) DO NOTHING
-          const { error } = await supabaseContacts
-            .from('contacts')
-            .insert(batch);
+          // Use direct REST API with proper conflict resolution
+          const response = await fetch(`${supabaseUrl}/rest/v1/contacts?on_conflict=email`, {
+            method: 'POST',
+            headers: {
+              'apikey': supabaseServiceKey!,
+              'Authorization': `Bearer ${supabaseServiceKey}`,
+              'Content-Type': 'application/json',
+              'Prefer': 'resolution=ignore-duplicates,return=minimal'
+            },
+            body: JSON.stringify(batch)
+          });
           
-          if (error) {
-            results.errors.push(`Batch ${Math.floor(i / BATCH_SIZE) + 1}: ${error.message}`);
+          if (!response.ok) {
+            const errorText = await response.text();
+            results.errors.push(`Batch ${Math.floor(i / BATCH_SIZE) + 1}: ${response.status} ${errorText}`);
           } else {
-            // Track total attempted inserts (we'll calculate actual vs duplicates later)
-            totalInserted += batch.length;
+            totalSent += batch.length;
           }
         } catch (error) {
           results.errors.push(`Batch ${Math.floor(i / BATCH_SIZE) + 1}: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
       }
       
-      // Calculate actual inserts vs duplicates by querying the source tag
+      // Calculate actual inserts vs duplicates by counting contacts with this source tag
       try {
         const { count: actualCount } = await supabaseContacts
           .from('contacts')
@@ -150,11 +160,12 @@ export async function POST(request: NextRequest) {
           .eq('source', results.sourceTag);
         
         results.inserted.contactsAdded = actualCount || 0;
-        results.inserted.duplicatesSkipped = totalInserted - results.inserted.contactsAdded;
+        results.inserted.duplicatesSkipped = totalSent - results.inserted.contactsAdded;
       } catch (error) {
         // Fallback if count query fails
-        results.inserted.contactsAdded = totalInserted;
+        results.inserted.contactsAdded = totalSent;
         results.inserted.duplicatesSkipped = 0;
+        results.errors.push(`Could not count inserted contacts: ${error instanceof Error ? error.message : 'Unknown error'}`);
       }
     }
     

@@ -95,7 +95,7 @@ export default function AcquisitionMetrics() {
   const [metrics, setMetrics] = useState<Metrics | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [lastUpdatedSeconds, setLastUpdatedSeconds] = useState(0);
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
 
   const fetchMetrics = async () => {
     try {
@@ -109,7 +109,7 @@ export default function AcquisitionMetrics() {
       
       const data = await response.json();
       setMetrics(data);
-      setLastUpdatedSeconds(0);
+      setLastUpdated(new Date().toLocaleTimeString());
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error');
     } finally {
@@ -122,27 +122,6 @@ export default function AcquisitionMetrics() {
     fetchMetrics();
   }, []);
 
-  // Update "seconds ago" counter
-  useEffect(() => {
-    if (!metrics) return;
-    
-    const interval = setInterval(() => {
-      const now = new Date();
-      const lastUpdated = new Date(metrics.lastUpdated);
-      const secondsAgo = Math.floor((now.getTime() - lastUpdated.getTime()) / 1000);
-      setLastUpdatedSeconds(secondsAgo);
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [metrics]);
-
-  const formatTimeAgo = (seconds: number) => {
-    if (seconds < 60) return `${seconds}s ago`;
-    const minutes = Math.floor(seconds / 60);
-    if (minutes < 60) return `${minutes}m ago`;
-    const hours = Math.floor(minutes / 60);
-    return `${hours}h ago`;
-  };
 
   if (error) {
     return (
@@ -173,7 +152,7 @@ export default function AcquisitionMetrics() {
           <div>
             <h2 className="text-xl font-semibold text-[var(--admin-text-primary)]">Campaign Metrics</h2>
             <p className="text-sm text-[var(--admin-text-secondary)]">
-              {metrics?.campaign || 'stick_launch_test'} • Last updated: {loading ? 'Updating...' : formatTimeAgo(lastUpdatedSeconds)}
+              {metrics?.campaign || 'stick_launch_test'} • Last updated: {loading ? 'Updating...' : lastUpdated || 'Never'}
             </p>
           </div>
         </div>
